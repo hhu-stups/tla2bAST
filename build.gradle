@@ -1,0 +1,75 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'maven'
+apply plugin: 'jacoco'
+apply plugin: 'findbugs'
+
+project.version = '1.0.0-SNAPSHOT'
+project.group = 'de.prob'
+
+sourceCompatibility = 1.5
+
+repositories {
+	mavenCentral()
+	maven {
+	    	url "http://cobra.cs.uni-duesseldorf.de/artifactory/repo"
+	}
+}
+
+configurations { // configuration that holds jars to copy into lib
+	releaseJars 
+}
+ 
+def parser_version = '2.4.22-SNAPSHOT'
+
+dependencies {
+	//compile (group: 'com.microsoft', name: 'tla2tools', version: '1.4.6')
+	compile (group: 'de.tla', name: 'tlatools', version: '1.0.0-SNAPSHOT')
+	
+	compile (group: 'de.prob', name: 'prologlib', version: parser_version)
+	compile (group: 'de.prob', name: 'parserbase', version: parser_version)
+	compile (group: 'de.prob', name: 'bparser', version: parser_version)
+	compile (group: 'de.prob', name: 'ltlparser', version: parser_version)
+	
+	//compile(group: 'de.prob', name: 'de.prob.core.kernel', version: '2.0.0-milestone-13-SNAPSHOT')
+
+
+
+	testCompile (group: 'junit', name: 'junit', version: '4.7')
+
+	releaseJars (group: 'de.tla', name: 'tlatools', version: '1.0.0-SNAPSHOT')
+	releaseJars (group: 'de.prob', name: 'prologlib', version: parser_version)
+	releaseJars (group: 'de.prob', name: 'parserbase', version: parser_version)
+	releaseJars (group: 'de.prob', name: 'bparser', version: parser_version)
+	releaseJars (group: 'de.prob', name: 'ltlparser', version: parser_version)
+}
+
+jacoco {
+    toolVersion = "0.6.2.201302030002"
+    reportsDir = file("$buildDir/customJacocoReportDir")
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.destination "${buildDir}/jacocoHtml"
+    }
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
+findbugs { 
+	ignoreFailures = true 
+}
+
+
+jar { from sourceSets.main.allJava }
+jar	{
+	from configurations.releaseJars.collect { it.isDirectory() ? it : zipTree(it) }
+}

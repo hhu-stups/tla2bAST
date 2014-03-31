@@ -1,0 +1,171 @@
+/**
+ * @author Dominik Hansen <Dominik.Hansen at hhu.de>
+ **/
+
+package de.tla2b.prettyprintb;
+
+import org.junit.Test;
+
+import de.tla2b.util.TestUtil;
+import static de.tla2b.util.TestUtil.compare;
+import static org.junit.Assert.*;
+
+public class LogicOperatorsTest {
+
+	@Test
+	public void testEquality() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "CONSTANTS k, k2\n"
+				+ "ASSUME k = (k2 # 1)\n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "ABSTRACT_CONSTANTS k, k2\n"
+				+ "PROPERTIES k = bool(k2 /= 1)\n"
+				+ "END";
+		compare(expected, module);
+	}
+
+	@Test
+	public void testEquality2() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "CONSTANTS k\n"
+				+ "ASSUME k = TRUE\n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n" + "ABSTRACT_CONSTANTS k\n"
+				+ "PROPERTIES k = TRUE \n" + "END";
+		compare(expected, module);
+	}
+
+	@Test
+	public void testEquality3() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "ASSUME TRUE\n" + "=================================";
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES TRUE = TRUE \n" + "END";
+		compare(expected, module);
+	}
+
+	/**********************************************************************
+	 * Logic Operators: \neg, \lnot, \land, \cl, \lor, \dl, \equiv, =>
+	 **********************************************************************/
+	@Test
+	public void testAnd() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "CONSTANTS k, k2\n"
+				+ "ASSUME k = (FALSE \\land k2) \n"
+				+ "=================================";
+		final String expected = "MACHINE Testing\n"
+				+ "ABSTRACT_CONSTANTS k, k2\n"
+				+ "PROPERTIES k = bool(FALSE = TRUE & k2 = TRUE) \n"
+				+ "END";
+		compare(expected, module);
+	}
+
+	@Test
+	public void testAnd2() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "ASSUME TRUE /\\ (TRUE \\/ FALSE) \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES TRUE = TRUE & (TRUE = TRUE or FALSE = TRUE) \n"
+				+ "END";
+		compare(expected, module);
+	}
+
+	/**********************************************************************
+	 * Negation: ~, \neg, \lnot
+	 **********************************************************************/
+	@Test
+	public void testNegation() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "ASSUME \\lnot TRUE \n" + "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES not(TRUE = TRUE) \n" + "END";
+		compare(expected, module);
+	}
+
+	/**********************************************************************
+	 * Implication and Equivalence: =>, \equiv
+	 **********************************************************************/
+
+	@Test
+	public void testImplication() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "ASSUME TRUE /\\ (TRUE => FALSE) \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES TRUE = TRUE & (TRUE = TRUE => FALSE = TRUE) \n"
+				+ "END";
+		compare(expected, module);
+	}
+
+	@Test
+	public void testEquivalence() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "ASSUME TRUE /\\ (TRUE <=> FALSE) \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES TRUE = TRUE & (TRUE = TRUE <=> FALSE = TRUE) \n"
+				+ "END";
+		compare(expected, module);
+	}
+
+	/**********************************************************************
+	 * Quantification: \A x \in S : P or \E x \in S : P
+	 **********************************************************************/
+	@Test
+	public void testUniversalQuantifier() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "ASSUME \\A x,y \\in {1,2} : x = 0 \n"
+				+ "=================================";
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES !x,y.(x : {1, 2} & y : {1, 2} => x = 0) \n"
+				+ "END";
+		compare(expected, module);
+	}
+
+	@Test
+	public void testExistentialQuantifier() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "ASSUME \\E x,y \\in {1,2} : x = 0 \n"
+				+ "=================================";
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES #x,y.(x : {1, 2} & y : {1, 2} & x = 0) \n"
+				+ "END";
+		compare(expected, module);
+	}
+	
+	@Test
+	public void testAppend() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Sequences \n"
+				+ "ASSUME Append(<<1>>, 2) = <<1,2>> \n"
+				+ "=================================";
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES [1] <- 2 = [1,2] \n"
+				+ "END";
+		compare(expected, module);
+	}
+
+	@Test
+	public void testQuantifier() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals, Sequences \n"
+				+ "CONSTANTS S \n"
+				+ "ASSUME S = {1,2,3} /\\  \\E u \\in Seq(S) : \\A s \\in S : \\E n \\in 1..Len(u) : u[n] = s \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "ABSTRACT_CONSTANTS S\n"
+				+ "PROPERTIES S = {1, 2, 3} & #u.(u : seq(S) & !s.(s : S => #n.(n : 1 .. size(u) & u(n) = s))) \n"
+				+ "END";
+		compare(expected, module);
+	}
+
+}
