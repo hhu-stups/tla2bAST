@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import de.be4.classicalb.core.parser.node.Node;
+import de.be4.classicalb.core.parser.node.Start;
 import de.tla2b.analysis.InstanceTransformation;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.analysis.SymbolRenamer;
@@ -41,19 +42,8 @@ public class Translator {
 		parse();
 	}
 	
-	private void parse(){
-		moduleName = evalFileName(moduleFileName);
-
-		TLAParser tlaParser = new TLAParser(null);
-		moduleNode = tlaParser.parseModule(moduleName);
-
-		modelConfig = null;
-		if (configFileName != null) {
-			modelConfig = new ModelConfig(configFileName, null);
-			modelConfig.parse();
-		}
-	}
-
+	
+	//Used for Testing
 	public Translator(String moduleString, String configString, int i) {
 		moduleName = "Testing";
 		File dir = new File("temp/");
@@ -90,8 +80,21 @@ public class Translator {
 		
 		parse();
 	}
+	
+	private void parse(){
+		moduleName = evalFileName(moduleFileName);
 
-	public Node translate() throws TLA2BException {
+		TLAParser tlaParser = new TLAParser(null);
+		moduleNode = tlaParser.parseModule(moduleName);
+
+		modelConfig = null;
+		if (configFileName != null) {
+			modelConfig = new ModelConfig(configFileName, null);
+			modelConfig.parse();
+		}
+	}
+
+	public Start translate() throws TLA2BException {
 		InstanceTransformation trans = new InstanceTransformation(moduleNode);
 		trans.start();
 

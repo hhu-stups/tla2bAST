@@ -59,6 +59,7 @@ import de.be4.classicalb.core.parser.node.ALambdaExpression;
 import de.be4.classicalb.core.parser.node.ALessEqualPredicate;
 import de.be4.classicalb.core.parser.node.ALessPredicate;
 import de.be4.classicalb.core.parser.node.AMachineHeader;
+import de.be4.classicalb.core.parser.node.AMachineMachineVariant;
 import de.be4.classicalb.core.parser.node.AMemberPredicate;
 import de.be4.classicalb.core.parser.node.AMinusOrSetSubtractExpression;
 import de.be4.classicalb.core.parser.node.AMultOrCartExpression;
@@ -132,6 +133,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		machineClauseList = new ArrayList<PMachineClause>();
 
 		AAbstractMachineParseUnit aAbstractMachineParseUnit = new AAbstractMachineParseUnit();
+		aAbstractMachineParseUnit.setVariant(new AMachineMachineVariant());
 		AMachineHeader machineHeader = new AMachineHeader();
 		List<TIdentifierLiteral> headerName = createTIdentifierLiteral(moduleNode
 				.getName().toString());

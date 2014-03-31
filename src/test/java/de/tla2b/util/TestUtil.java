@@ -7,11 +7,13 @@ package de.tla2b.util;
 import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
 import de.be4.classicalb.core.parser.BParser;
 import de.be4.classicalb.core.parser.exceptions.BException;
+import de.be4.classicalb.core.parser.node.AAbstractMachineParseUnit;
 import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.Start;
 import de.tla2b.exceptions.FrontEndException;
@@ -39,7 +41,10 @@ public class TestUtil {
 		System.out.println(expected);
 		
 		Translator trans = new Translator(tlaModule, null, 1);
-		Node resultNode = trans.translate();
+		Start resultNode = trans.translate();
+		
+		//BParser.printASTasProlog(System.out, new BParser(), new File("./test.mch"), resultNode, false, true, null);
+		
 		String result = getTreeAsString(resultNode);
 		System.out.println(result);
 		assertEquals(expected, result);
@@ -138,7 +143,7 @@ public class TestUtil {
 			throws BException {
 		final BParser parser = new BParser("testcase");
 		final Start startNode = parser.parse(testMachine, false);
-	
+		
 		final Ast2String ast2String = new Ast2String();
 		startNode.apply(ast2String);
 		final String string = ast2String.toString();
