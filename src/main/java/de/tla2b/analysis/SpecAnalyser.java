@@ -74,7 +74,9 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 	private ArrayList<String> definitionMacros = new ArrayList<String>();
 
 	private ArrayList<RecursiveFunktion> recursiveFunctions = new ArrayList<RecursiveFunktion>();
-
+	
+	private ConfigfileEvaluator conEval;
+	
 	/**
 	 * @param m
 	 * @param conEval
@@ -86,6 +88,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		this.next = conEval.getNextNode();
 		this.invariants = conEval.getInvariants();
 		this.bConstants = conEval.getbConstantList();
+		this.conEval = conEval;
 	}
 
 	public SpecAnalyser(ModuleNode m) {
@@ -365,6 +368,10 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 	 */
 
 	private void findDefinitions() throws ConfigFileErrorException {
+		if(conEval != null){
+			bDefinitionsSet.addAll(conEval.getConstantOverrideTable().values());
+		}
+		
 		AssumeNode[] assumes = moduleNode.getAssumptions();
 		for (int i = 0; i < assumes.length; i++) {
 			visitExprNode(assumes[i].getAssume(), null);

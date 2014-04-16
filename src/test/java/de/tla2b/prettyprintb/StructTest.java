@@ -5,12 +5,10 @@
 package de.tla2b.prettyprintb;
 
 import static de.tla2b.util.TestUtil.compare;
-import static org.junit.Assert.assertEquals;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
-import de.tla2b.util.TestUtil;
 import util.ToolIO;
 
 public class StructTest {
@@ -30,7 +28,7 @@ public class StructTest {
 
 		final String expected = "MACHINE Testing\n"
 				+ "ABSTRACT_CONSTANTS k\n"
-				+ "PROPERTIES k = struct(a : {1}, b : BOOL) \n"
+				+ "PROPERTIES k : POW(struct(a:INTEGER, b:BOOL)) & k = struct(a : {1}, b : BOOL) \n"
 				+ "END";
 		compare(expected, module);
 	}
@@ -60,7 +58,7 @@ public class StructTest {
 
 		final String expected = "MACHINE Testing\n"
 				+ "ABSTRACT_CONSTANTS k\n"
-				+ "PROPERTIES k = rec(a : 1, b : TRUE) \n"
+				+ "PROPERTIES k : struct(a:INTEGER, b:BOOL) & k = rec(a : 1, b : TRUE) \n"
 				+ "END";
 		compare(expected, module);
 	}
@@ -85,13 +83,11 @@ public class StructTest {
 	@Test
 	public void testRecordSelect() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k, k2 \n"
-				+ "ASSUME k = [a |-> 1, b |-> TRUE] /\\ k2 = k.a \n"
+				+ "ASSUME [a |-> 1, b |-> TRUE].a = 1 \n"
 				+ "=================================";
 
 		final String expected = "MACHINE Testing\n"
-				+ "ABSTRACT_CONSTANTS k, k2\n"
-				+ "PROPERTIES k = rec(a : 1, b : TRUE) & k2 = k'a \n"
+				+ "PROPERTIES rec(a : 1, b : TRUE)'a = 1\n"
 				+ "END";
 		compare(expected, module);
 	}
@@ -105,7 +101,7 @@ public class StructTest {
 
 		final String expected = "MACHINE Testing\n"
 				+ "ABSTRACT_CONSTANTS k\n"
-				+ "PROPERTIES  k = rec(a : 1, b : TRUE) & k'b = TRUE \n"
+				+ "PROPERTIES k : struct(a:INTEGER, b:BOOL) & (k = rec(a : 1, b : TRUE) & k'b = TRUE) \n"
 				+ "END";
 		compare(expected, module);
 	}

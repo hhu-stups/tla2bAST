@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import de.be4.classicalb.core.parser.node.Node;
+import de.be4.classicalb.core.parser.Definitions;
 import de.be4.classicalb.core.parser.node.Start;
 import de.tla2b.analysis.InstanceTransformation;
 import de.tla2b.analysis.SpecAnalyser;
@@ -13,10 +13,7 @@ import de.tla2b.analysis.SymbolSorter;
 import de.tla2b.analysis.TypeChecker;
 import de.tla2b.config.ConfigfileEvaluator;
 import de.tla2b.config.ModuleOverrider;
-import de.tla2b.exceptions.ConfigFileErrorException;
 import de.tla2b.exceptions.FrontEndException;
-import de.tla2b.exceptions.NotImplementedException;
-import de.tla2b.exceptions.SemanticErrorException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.pprint.BAstCreator;
 import de.tla2b.pprint.BMachinePrinter;
@@ -29,13 +26,15 @@ public class Translator {
 	private String moduleFileName;
 	private String configFileName;
 	
-	
+	private Definitions bDefinitions;
 	
 	private String moduleName;
 	private ModuleNode moduleNode;
 	private ModelConfig modelConfig;
 
-	public Translator(String moduleFileName, String configFileName) {
+	private String bMachineString;
+	
+	public Translator(String moduleFileName, String configFileName) throws FrontEndException {
 		this.moduleFileName = moduleFileName;
 		this.configFileName	= configFileName;
 		
@@ -44,7 +43,7 @@ public class Translator {
 	
 	
 	//Used for Testing
-	public Translator(String moduleString, String configString, int i) {
+	public Translator(String moduleString, String configString, int i) throws FrontEndException {
 		moduleName = "Testing";
 		File dir = new File("temp/");
 		dir.mkdirs();
@@ -55,7 +54,7 @@ public class Translator {
 			FileWriter fw = new FileWriter(f);
 			fw.write(moduleString);
 			fw.close();
-			f.deleteOnExit();
+			//f.deleteOnExit();
 			moduleFileName = f.getAbsolutePath();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -73,7 +72,7 @@ public class Translator {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			f.deleteOnExit();
+			//f.deleteOnExit();
 			configFileName = f.getAbsolutePath();
 		}
 		dir.deleteOnExit();
@@ -81,7 +80,37 @@ public class Translator {
 		parse();
 	}
 	
-	private void parse(){
+	//Used for Testing
+	public Translator(String moduleString) throws FrontEndException {
+		moduleName = "Testing";
+		File dir = new File("temp/");
+		dir.mkdirs();
+
+		try {
+			File f = new File("temp/" + moduleName + ".tla");
+			f.createNewFile();
+			FileWriter fw = new FileWriter(f);
+			fw.write(moduleString);
+			fw.close();
+			//f.deleteOnExit();
+			moduleFileName = f.getAbsolutePath();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		parseModule();
+	}
+	
+	
+	private void parseModule() throws FrontEndException {
+		moduleName = evalFileName(moduleFileName);
+
+		TLAParser tlaParser = new TLAParser(null);
+		moduleNode = tlaParser.parseModule(moduleName);
+	}
+
+
+	private void parse() throws FrontEndException{
 		moduleName = evalFileName(moduleFileName);
 
 		TLAParser tlaParser = new TLAParser(null);
@@ -89,8 +118,22 @@ public class Translator {
 
 		modelConfig = null;
 		if (configFileName != null) {
-			modelConfig = new ModelConfig(configFileName, null);
-			modelConfig.parse();
+			File f = new File(configFileName);
+			if(f.exists()){
+				modelConfig = new ModelConfig(f.getName(), null);
+				modelConfig.parse();
+			}
+		}else {
+			String fileNameWithoutSuffix = moduleFileName;
+			if (fileNameWithoutSuffix.toLowerCase().endsWith(".tla")) {
+				fileNameWithoutSuffix = fileNameWithoutSuffix.substring(0, fileNameWithoutSuffix.length() - 4);
+			}
+			String configFile = fileNameWithoutSuffix + ".cfg";
+			File f = new File(configFile);
+			if(f.exists()){
+				modelConfig = new ModelConfig(f.getName(), null);
+				modelConfig.parse();
+			}
 		}
 	}
 
@@ -128,9 +171,12 @@ public class Translator {
 		symRenamer.start();
 		BMachinePrinter p = new BMachinePrinter(moduleNode, conEval,
 				specAnalyser);
-		//System.out.println(p.start());
+		bMachineString = p.start().toString();
 		BAstCreator bAstCreator = new BAstCreator(moduleNode, conEval,
 				specAnalyser);
+		
+		this.bDefinitions = bAstCreator.getBDefinitions();
+		
 		return bAstCreator.getStartNode();
 	}
 
@@ -142,7 +188,8 @@ public class Translator {
 		if (name.toLowerCase().endsWith(".cfg")) {
 			name = name.substring(0, name.length() - 4);
 		}
-
+		
+		
 		String sourceModuleName = name.substring(name
 				.lastIndexOf(FileUtil.separator) + 1);
 
@@ -152,5 +199,13 @@ public class Translator {
 			ToolIO.setUserDir(path);
 		return sourceModuleName;
 	}
+	
+	public Definitions getBDefinitions(){
+		return bDefinitions;
+	}
 
+	public String getBMachineString(){
+		return bMachineString;
+	}
+	
 }

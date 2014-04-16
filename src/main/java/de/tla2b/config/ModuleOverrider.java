@@ -49,6 +49,7 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 		this.constantOverrideTable = conEval.getConstantOverrideTable();
 		this.operatorOverrideTable = conEval.getOperatorOverrideTable();
 		this.operatorAssignments = conEval.getOperatorAssignments();
+
 	}
 
 	public void start() {
@@ -146,7 +147,7 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 		SymbolNode s = n.getOperator();
 		switch (s.getKind()) {
 		case ConstantDeclKind: {
-			if (constantOverrideTable.containsKey(s)) {
+			if (constantOverrideTable.containsKey(s) && s.getArity() > 0) {
 				SymbolNode newOperator = constantOverrideTable.get(s);
 				OpApplNode newNode = null;
 				try {
@@ -162,7 +163,6 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 							n.getArgs()[i] = res;
 						}
 					}
-
 				}
 				// n.setOperator(constantOverrideTable.get(s));
 				return newNode;
@@ -170,7 +170,7 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 			break;
 
 		}
-		case FormalParamKind: // Params are not global in the modul
+		case FormalParamKind: // Params are not global in the module
 		case VariableDeclKind: // TODO try to override variable
 			break;
 
@@ -193,7 +193,8 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 				OpDefNode def = (OpDefNode) n.getOperator();
 				try {
 					newNode = new OpApplNode(newOperator, n.getArgs(),
-							n.getTreeNode(), def.getOriginallyDefinedInModuleNode());
+							n.getTreeNode(),
+							def.getOriginallyDefinedInModuleNode());
 				} catch (AbortException e) {
 					e.printStackTrace();
 				}

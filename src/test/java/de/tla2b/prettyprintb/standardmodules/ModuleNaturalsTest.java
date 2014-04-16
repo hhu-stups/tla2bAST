@@ -5,14 +5,12 @@
 package de.tla2b.prettyprintb.standardmodules;
 
 import static de.tla2b.util.TestUtil.compare;
-import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import de.tla2b.util.TestUtil;
 
 
-public class TestModuleNaturals {
+public class ModuleNaturalsTest {
 
 	/**********************************************************************
 	 *  >, <, <=, >=

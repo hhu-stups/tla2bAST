@@ -10,8 +10,6 @@ import org.junit.Test;
 import de.tla2b.util.TestTypeChecker;
 import de.tla2b.util.TestUtil;
 
-import util.ToolIO;
-
 public class InstanceTest {
 
 	private static String path = "src/test/resources/typechecking/modules/";

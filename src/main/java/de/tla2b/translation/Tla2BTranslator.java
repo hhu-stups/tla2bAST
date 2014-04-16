@@ -13,7 +13,6 @@ import de.tla2b.config.ConfigfileEvaluator;
 import de.tla2b.config.ModuleOverrider;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.global.TranslationGlobals;
-import de.tla2b.pprint.BAstCreator;
 import de.tla2b.pprint.BMachinePrinter;
 import tla2sany.drivers.FrontEndException;
 import tla2sany.drivers.SANY;
@@ -63,9 +62,9 @@ public class Tla2BTranslator implements TranslationGlobals {
 			throws de.tla2b.exceptions.FrontEndException, TLA2BException {
 		File dir = new File("temp/");
 		dir.mkdirs();
-		
+
 		try {
-			File f = new File("temp/"+ moduleName+ ".tla");
+			File f = new File("temp/" + moduleName + ".tla");
 			f.createNewFile();
 			FileWriter fw = new FileWriter(f);
 			fw.write(moduleString);
@@ -74,14 +73,13 @@ public class Tla2BTranslator implements TranslationGlobals {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		ToolIO.setUserDir("temp/");
 		moduleNode = parseModule(moduleName + ".tla");
-		
-		
+
 		modelConfig = null;
 		if (configString != null) {
-			File f = new File("temp/" + moduleName +".cfg");
+			File f = new File("temp/" + moduleName + ".cfg");
 			try {
 				f.createNewFile();
 				FileWriter fw = new FileWriter(f);
@@ -90,14 +88,13 @@ public class Tla2BTranslator implements TranslationGlobals {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			modelConfig = new ModelConfig(moduleName +".cfg", null);
+			modelConfig = new ModelConfig(moduleName + ".cfg", null);
 			modelConfig.parse();
 			f.deleteOnExit();
 		}
 		dir.deleteOnExit();
 	}
 
-	
 	public StringBuilder translate() throws TLA2BException {
 		InstanceTransformation trans = new InstanceTransformation(moduleNode);
 		trans.start();
@@ -121,7 +118,7 @@ public class Tla2BTranslator implements TranslationGlobals {
 		}
 
 		specAnalyser.start();
-		
+
 		typechecker = new TypeChecker(moduleNode, conEval, specAnalyser);
 		typechecker.start();
 
@@ -131,11 +128,12 @@ public class Tla2BTranslator implements TranslationGlobals {
 		symRenamer.start();
 		BMachinePrinter p = new BMachinePrinter(moduleNode, conEval,
 				specAnalyser);
-		//BAstCreator bAstCreator = new BAstCreator(moduleNode, conEval, specAnalyser);
-		
+		// BAstCreator bAstCreator = new BAstCreator(moduleNode, conEval,
+		// specAnalyser);
+
 		return p.start();
 	}
-	
+
 	public static ModuleNode parseModule(String moduleName)
 			throws de.tla2b.exceptions.FrontEndException {
 		SpecObj spec = new SpecObj(moduleName, null);

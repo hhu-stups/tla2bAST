@@ -6,7 +6,6 @@ package de.tla2b.util;
 
 import java.util.Hashtable;
 
-import de.tla2b.analysis.TypeChecker;
 import de.tla2b.exceptions.FrontEndException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.global.TranslationGlobals;

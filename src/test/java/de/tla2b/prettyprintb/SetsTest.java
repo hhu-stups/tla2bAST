@@ -18,7 +18,7 @@ public class SetsTest {
 				+ "=================================";
 
 		final String expected = "MACHINE Testing\n" + "ABSTRACT_CONSTANTS k\n"
-				+ "PROPERTIES k = {1,2,3} \n" + "END";
+				+ "PROPERTIES k : POW(INTEGER) & k = {1,2,3} \n" + "END";
 		compare(expected, module);
 	}
 
@@ -30,7 +30,7 @@ public class SetsTest {
 				+ "=================================";
 
 		final String expected = "MACHINE Testing\n" + "ABSTRACT_CONSTANTS k\n"
-				+ "PROPERTIES k = {TRUE, bool(1=1)} \n" + "END";
+				+ "PROPERTIES k : POW(BOOL) & k = {TRUE, bool(1=1)} \n" + "END";
 		compare(expected, module);
 	}
 
@@ -38,7 +38,7 @@ public class SetsTest {
 	 * Element of: \in, \notin
 	 **********************************************************************/
 	@Test
-	public void testIn() throws Exception {
+	public void testMemberOf() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "ASSUME TRUE \\in BOOLEAN \n"
 				+ "=================================";
@@ -49,7 +49,7 @@ public class SetsTest {
 	}
 
 	@Test
-	public void testIn2() throws Exception {
+	public void testMemberOf2() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "ASSUME 1 \\in {1,2,3} \n"
 				+ "=================================";
@@ -59,7 +59,7 @@ public class SetsTest {
 	}
 
 	@Test
-	public void testNotIn() throws Exception {
+	public void testNotMemberOf() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "ASSUME 1 \\notin {} \n"
 				+ "=================================";
@@ -172,4 +172,16 @@ public class SetsTest {
 		compare(expected, module);
 	}
 
+	
+	@Test
+	public void testSetConstructor() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "ASSUME {x \\in {1,2,3} : x \\in {1}  \\/ x \\in {2}} = {1,2} \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES {x|x : {1, 2, 3} & (x : {1} or x : {2})} = {1, 2} \n" + "END";
+		compare(expected, module);
+	}
 }

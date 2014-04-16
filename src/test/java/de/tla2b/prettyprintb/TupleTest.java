@@ -5,11 +5,7 @@
 package de.tla2b.prettyprintb;
 
 import static de.tla2b.util.TestUtil.compare;
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
-
-import de.tla2b.util.TestUtil;
 
 
 public class TupleTest {
@@ -17,24 +13,22 @@ public class TupleTest {
 	@Test
 	public void testTuple() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k\n"
-				+ "ASSUME k = <<TRUE,FALSE,TRUE>>\n"
+				+ "ASSUME <<TRUE,1,TRUE>> /= <<TRUE,2,TRUE>>\n"
 				+ "=================================";
 		
-		final String expected = "MACHINE Testing\n" + "ABSTRACT_CONSTANTS k\n"
-				+ "PROPERTIES k = (TRUE,FALSE,TRUE) \n" + "END";
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES (TRUE,1,TRUE) /= (TRUE,2,TRUE) \n" + "END";
 		compare(expected, module);
 	}
 	
 	@Test
 	public void testCartesianProduct() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k \n"
-				+ "ASSUME k = BOOLEAN \\X {1} \n"
+				+ "ASSUME <<TRUE,1>> \\in BOOLEAN \\X {1} \n"
 				+ "=================================";
 		
-		final String expected = "MACHINE Testing\n"+ "ABSTRACT_CONSTANTS k\n"
-				+ "PROPERTIES k = BOOL*{1} \n" + "END";
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES (TRUE,1) : BOOL*{1} \n" + "END";
 		compare(expected, module);
 	}
 	
@@ -46,7 +40,7 @@ public class TupleTest {
 				+ "=================================";
 		
 		final String expected = "MACHINE Testing\n"+ "ABSTRACT_CONSTANTS k\n"
-				+ "PROPERTIES k = BOOL*({1}*BOOL) \n" + "END";
+				+ "PROPERTIES k : POW(BOOL * (INTEGER * BOOL)) & k = BOOL*({1}*BOOL) \n" + "END";
 		compare(expected, module);
 	}
 	

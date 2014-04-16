@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
 apply plugin: 'jacoco'
-apply plugin: 'findbugs'
+//apply plugin: 'findbugs'
 
 project.version = '1.0.0-SNAPSHOT'
 project.group = 'de.prob'
@@ -57,16 +57,16 @@ jacocoTestReport {
     }
 }
 
-tasks.withType(FindBugs) {
-    reports {
-        xml.enabled = false
-        html.enabled = true
-    }
-}
+//tasks.withType(FindBugs) {
+//    reports {
+//        xml.enabled = false
+//        html.enabled = true
+//    }
+//}
 
-findbugs { 
-	ignoreFailures = true 
-}
+//findbugs { 
+//	ignoreFailures = true 
+//}
 
 
 jar { from sourceSets.main.allJava }

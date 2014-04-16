@@ -12,8 +12,6 @@ import de.tla2b.exceptions.ConfigFileErrorException;
 import de.tla2b.util.TestTypeChecker;
 import de.tla2b.util.TestUtil;
 
-
-
 public class OpArgTest {
 
 	@Test

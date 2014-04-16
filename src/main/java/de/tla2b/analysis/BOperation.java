@@ -6,7 +6,6 @@ package de.tla2b.analysis;
 
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.global.TranslationGlobals;

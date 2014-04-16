@@ -1,9 +1,7 @@
 package de.tla2b.types;
 
-import java.util.ArrayList;
-import java.util.List;
 
-import de.be4.classicalb.core.parser.node.ACoupleExpression;
+import de.be4.classicalb.core.parser.node.AMultOrCartExpression;
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
 
@@ -131,10 +129,10 @@ public class PairType extends AbstractHasFollowers {
 
 	@Override
 	public PExpression getBNode() {
-		List<PExpression> list = new ArrayList<PExpression>();
-		list.add(first.getBNode());
-		list.add(second.getBNode());
-		return new ACoupleExpression(list);
+		AMultOrCartExpression card = new AMultOrCartExpression();
+		card.setLeft(first.getBNode());
+		card.setRight(second.getBNode());
+		return card;
 	}
 
 }

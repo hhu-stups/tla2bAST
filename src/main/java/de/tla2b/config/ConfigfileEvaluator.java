@@ -14,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.Map.Entry;
 
 import de.tla2b.exceptions.ConfigFileErrorException;
 import de.tla2b.exceptions.UnificationException;
@@ -25,9 +26,6 @@ import de.tla2b.types.SetType;
 import de.tla2b.types.StringType;
 import de.tla2b.types.TLAType;
 import de.tla2b.types.Untyped;
-
-
-
 import tla2sany.semantic.InstanceNode;
 import tla2sany.semantic.ModuleNode;
 import tla2sany.semantic.OpDeclNode;
@@ -57,8 +55,7 @@ public class ConfigfileEvaluator {
 	private OpDefNode specNode; // SPECIFICATION node, may be null
 	private OpDefNode nextNode; // NEXT node, may be null
 	private OpDefNode initNode; // INIT node, may be null
-	private ArrayList<OpDefNode> invariantNodeList;
-	// INVARIANT nodes, may be null
+	private final ArrayList<OpDefNode> invariantNodeList = new ArrayList<OpDefNode>();
 	private ArrayList<String> enumeratedSet;
 	private LinkedHashMap<String, EnumType> enumeratedTypes;
 	private Hashtable<OpDeclNode, ValueObj> constantAssignments;
@@ -66,10 +63,10 @@ public class ConfigfileEvaluator {
 	// contains it type
 	private Hashtable<OpDefNode, ValueObj> operatorAssignments;
 	// def = 1
-	
+
 	private ArrayList<OpDefNode> operatorModelvalues;
 
-	private ArrayList<OpDeclNode> bConstantList;
+	private final ArrayList<OpDeclNode> bConstantList = new ArrayList<OpDeclNode>();
 	// List of constants in the resulting B machine. This list does not contain
 	// a TLA+ constant if the constant is substituted by a modelvalue with the
 	// same name (the constant name is moved to an enumerated set) or if the
@@ -83,6 +80,7 @@ public class ConfigfileEvaluator {
 	// configuration file. All constants with arguments have to be overridden in
 	// the configuration file.
 
+	
 	/**
 	 * @param configAst
 	 * @param moduleNode
@@ -98,13 +96,20 @@ public class ConfigfileEvaluator {
 		}
 
 		constants = new Hashtable<String, OpDeclNode>();
-		bConstantList = new ArrayList<OpDeclNode>();
 		OpDeclNode[] cons = moduleNode.getConstantDecls();
 		for (int i = 0; i < cons.length; i++) {
 			constants.put(cons[i].getName().toString(), cons[i]);
 			bConstantList.add(cons[i]);
 		}
 
+		initialize();
+	}
+
+	public ConfigfileEvaluator() {
+		initialize();
+	}
+
+	private void initialize() {
 		this.constantOverrideTable = new Hashtable<OpDeclNode, OpDefNode>();
 		this.operatorOverrideTable = new Hashtable<OpDefNode, OpDefNode>();
 
@@ -142,7 +147,9 @@ public class ConfigfileEvaluator {
 		evalModConOrDefAssignments();
 
 		evalModConOrDefOverrides();
+
 	}
+
 
 	private void evalNext() throws ConfigFileErrorException {
 		String next = configAst.getNext();
@@ -196,7 +203,6 @@ public class ConfigfileEvaluator {
 
 		Vect v = configAst.getInvariants();
 		if (v.capacity() != 0) {
-			invariantNodeList = new ArrayList<OpDefNode>();
 			for (int i = 0; i < v.capacity(); i++) {
 				if (v.elementAt(i) != null) {
 					String inv = (String) v.elementAt(i);
@@ -243,7 +249,9 @@ public class ConfigfileEvaluator {
 									left, left, conNode.getArity(), right,
 									rightDefNode.getArity()));
 				}
-				bConstantList.remove(conNode);
+				if(conNode.getArity()>0){
+					bConstantList.remove(conNode);
+				}
 				constantOverrideTable.put(conNode, rightDefNode);
 			} else if (definitions.containsKey(left)) {
 				// an operator is overridden by another operator
@@ -287,14 +295,15 @@ public class ConfigfileEvaluator {
 				 * same as the name of constants, then the constant declaration
 				 * in the resulting B machine disappears
 				 **/
-				if (symbolType instanceof EnumType && symbolName.equals(symbolValue.toString())) {
+				if (symbolType instanceof EnumType
+						&& symbolName.equals(symbolValue.toString())) {
 					bConstantList.remove(c);
 				}
 			} else if (definitions.containsKey(symbolName)) {
 				OpDefNode def = definitions.get(symbolName);
 				ValueObj valueObj = new ValueObj(symbolValue, symbolType);
 				operatorAssignments.put(def, valueObj);
-				
+
 				if (symbolType instanceof SetType) {
 					if (((SetType) symbolType).getSubType() instanceof EnumType) {
 						operatorModelvalues.add(def);
@@ -302,7 +311,7 @@ public class ConfigfileEvaluator {
 				} else if ((symbolType instanceof EnumType)) {
 					operatorModelvalues.add(def);
 				}
-				
+
 			} else {
 				// every constants or operator in the configuration file must
 				// appear in the TLA+
@@ -359,7 +368,7 @@ public class ConfigfileEvaluator {
 					} else if ((symbolType instanceof EnumType)) {
 						operatorModelvalues.add(def);
 					}
-					
+
 				}
 			}
 		}
@@ -408,18 +417,18 @@ public class ConfigfileEvaluator {
 				else {
 					InstanceNode[] instanceNodes = moduleNode.getInstances();
 					for (int i = 0; i < instanceNodes.length; i++) {
-//						if (instanceNodes[i].getModule().getName().toString()
-//								.equals(moduleName)) {
-//							/*
-//							 * A constant overridden in a instanced module make
-//							 * no sence. Such a constant will be overridden by
-//							 * the instance statement
-//							 */
-//							throw new ConfigFileErrorException(
-//									String.format(
-//											"Invalid substitution for constant '%s' of module '%s'.\n A Constant of an instanced module can not be overriden.",
-//											left, mNode.getName().toString()));
-//						}
+						// if (instanceNodes[i].getModule().getName().toString()
+						// .equals(moduleName)) {
+						// /*
+						// * A constant overridden in a instanced module make
+						// * no sence. Such a constant will be overridden by
+						// * the instance statement
+						// */
+						// throw new ConfigFileErrorException(
+						// String.format(
+						// "Invalid substitution for constant '%s' of module '%s'.\n A Constant of an instanced module can not be overriden.",
+						// left, mNode.getName().toString()));
+						// }
 					}
 					// a constant is overridden by an operator
 					OpDeclNode conNode = (OpDeclNode) opDefOrDeclNode;
@@ -457,17 +466,16 @@ public class ConfigfileEvaluator {
 		/*
 		 * search module in instanced modules
 		 */
-		
 
-		OpDefNode [] defs = moduleNode.getOpDefs();
-		for (int j = defs.length-1; j > 0; j--) {
+		OpDefNode[] defs = moduleNode.getOpDefs();
+		for (int j = defs.length - 1; j > 0; j--) {
 			OpDefNode def = null;
 			OpDefNode source = defs[j];
-			while(def!=source){
+			while (def != source) {
 				def = source;
 				source = def.getSource();
 				ModuleNode m = def.getOriginallyDefinedInModuleNode();
-				if(m.getName().toString().equals(moduleName)){
+				if (m.getName().toString().equals(moduleName)) {
 					return m;
 				}
 			}
@@ -617,8 +625,8 @@ public class ConfigfileEvaluator {
 	public ArrayList<String> getEnumerationSet() {
 		return this.enumeratedSet;
 	}
-	
-	public ArrayList<OpDefNode> getOperatorModelvalues(){
+
+	public ArrayList<OpDefNode> getOperatorModelvalues() {
 		return this.operatorModelvalues;
 	}
 }

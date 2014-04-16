@@ -7,8 +7,10 @@ package de.tla2b.analysis;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import de.tla2b.config.ConfigfileEvaluator;
 import de.tla2b.config.TLCValueNode;
@@ -22,7 +24,6 @@ import de.tla2b.global.BBuildIns;
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.global.TranslationGlobals;
 import de.tla2b.types.*;
-
 import tla2sany.semantic.ASTConstants;
 import tla2sany.semantic.AssumeNode;
 import tla2sany.semantic.AtNode;
@@ -56,6 +57,8 @@ public class TypeChecker extends BuiltInOPs implements IType, ASTConstants,
 
 	private Hashtable<OpDeclNode, ValueObj> constantAssignments;
 
+	private ConfigfileEvaluator conEval;
+
 	/**
 	 * @param moduleNode2
 	 * @param conEval
@@ -67,6 +70,7 @@ public class TypeChecker extends BuiltInOPs implements IType, ASTConstants,
 		if (conEval != null) {
 			this.bConstList = conEval.getbConstantList();
 			this.constantAssignments = conEval.getConstantAssignments();
+			this.conEval = conEval;
 		}
 		this.inits = specAnalyser.getInits();
 		this.nextExpr = specAnalyser.getNext();
@@ -111,6 +115,32 @@ public class TypeChecker extends BuiltInOPs implements IType, ASTConstants,
 		}
 
 		evalDefinitions(moduleNode.getOpDefs());
+
+		if(conEval != null){
+			Iterator<Entry<OpDeclNode, OpDefNode>> iter = conEval
+					.getConstantOverrideTable().entrySet().iterator();
+			while (iter.hasNext()) {
+				Entry<OpDeclNode, OpDefNode> entry = iter.next();
+				OpDeclNode con = entry.getKey();
+				if(!bConstList.contains(con)){
+					continue;
+				}
+				OpDefNode def = entry.getValue();
+				TLAType defType = (TLAType) def.getToolObject(TYPE_ID);
+				TLAType conType = (TLAType) con.getToolObject(TYPE_ID);
+				
+				try {
+					TLAType result = defType.unify(conType);
+					con.setToolObject(TYPE_ID, result);
+				} catch (UnificationException e) {
+					throw new TypeErrorException(String.format(
+							"Expected %s, found %s at constant '%s'.", defType,
+							conType, con.getName())
+					);
+				}
+			}
+		}
+
 		evalAssumptions(moduleNode.getAssumptions());
 
 		if (inits != null) {
@@ -129,7 +159,7 @@ public class TypeChecker extends BuiltInOPs implements IType, ASTConstants,
 			TLAType varType = (TLAType) var.getToolObject(TYPE_ID);
 			if (varType.isUntyped()) {
 				throw new TypeErrorException("Variable '" + var.getName()
-						+ "' has no cype!");
+						+ "' has no type!");
 			}
 		}
 
@@ -311,11 +341,10 @@ public class TypeChecker extends BuiltInOPs implements IType, ASTConstants,
 					"SubstInKind should never occur after InstanceTransformation");
 		}
 
-		case DecimalKind:{
+		case DecimalKind: {
 			// currently not supported
 		}
-		
-		
+
 		}
 
 		throw new NotImplementedException(exprNode.toString(2));

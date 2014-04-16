@@ -414,7 +414,7 @@ public abstract class AbstractExpressionPrinter extends BuiltInOPs implements
 		case OPCODE_sso: { // $SubsetOf Represents {x \in S : P}
 			// TODO tuple with more than 2 arguments
 			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-			ExprNode[] bounds = n.getBdedQuantBounds();
+			//ExprNode[] bounds = n.getBdedQuantBounds();
 
 			StringBuilder temp = new StringBuilder();
 			if (params[0].length > 0) {

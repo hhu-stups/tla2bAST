@@ -85,7 +85,8 @@ public class BMachinePrinter extends AbstractExpressionPrinter implements
 		out.append("MACHINE " + module.getName().toString() + "\n");
 
 		out.append(evalEnumeratedSets());
-
+		out.append(evalDefinitions());
+		
 		// Constants and Properties
 		out.append(evalConsDecl());
 		out.append(evalPropertyStatements());
@@ -94,7 +95,7 @@ public class BMachinePrinter extends AbstractExpressionPrinter implements
 		globalLets.addAll(tempLetInNodes);
 		tempLetInNodes.clear();
 
-		out.append(evalDefinitions());
+		
 
 		out.append(evalVariables());
 

@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
+import de.tla2b.pprint.BAstCreator;
 
 
 
@@ -80,7 +81,6 @@ public class EnumType extends AbstractHasFollowers {
 	
 	@Override
 	public PExpression getBNode() {
-		// TODO Auto-generated method stub
-		return null;
+		return BAstCreator.createIdentifierNode("ENUM" + id);
 	}
 }

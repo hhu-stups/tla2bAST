@@ -5,12 +5,8 @@
 package de.tla2b.prettyprintb;
 
 import static de.tla2b.util.TestUtil.compare;
-import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-
-import de.tla2b.util.TestUtil;
-import util.ToolIO;
 
 public class BBuiltInsTest {
 
@@ -48,14 +44,12 @@ public class BBuiltInsTest {
 
 	@Test
 	public void testBoolValue2() throws Exception {
-		ToolIO.reset();
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "ASSUME TRUE = FALSE \n"
 				+ "=================================";
 
-		StringBuilder sb = TestUtil.translateString(module);
 		final String expected = "MACHINE Testing\n"
 				+ "PROPERTIES TRUE = FALSE \n" + "END";
-		assertEquals(TestUtil.getBTreeofMachineString(expected), TestUtil.getBTreeofMachineString(sb.toString()));
+		compare(expected, module);
 	}
 }

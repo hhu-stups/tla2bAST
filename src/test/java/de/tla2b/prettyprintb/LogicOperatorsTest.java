@@ -6,22 +6,20 @@ package de.tla2b.prettyprintb;
 
 import org.junit.Test;
 
-import de.tla2b.util.TestUtil;
 import static de.tla2b.util.TestUtil.compare;
-import static org.junit.Assert.*;
 
 public class LogicOperatorsTest {
 
 	@Test
 	public void testEquality() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k, k2\n"
-				+ "ASSUME k = (k2 # 1)\n"
+				+ "CONSTANTS k\n"
+				+ "ASSUME k = (2 # 1)\n"
 				+ "=================================";
 
 		final String expected = "MACHINE Testing\n"
-				+ "ABSTRACT_CONSTANTS k, k2\n"
-				+ "PROPERTIES k = bool(k2 /= 1)\n"
+				+ "ABSTRACT_CONSTANTS k\n"
+				+ "PROPERTIES k : BOOL & k = bool(2 /= 1)\n"
 				+ "END";
 		compare(expected, module);
 	}
@@ -34,7 +32,7 @@ public class LogicOperatorsTest {
 				+ "=================================";
 
 		final String expected = "MACHINE Testing\n" + "ABSTRACT_CONSTANTS k\n"
-				+ "PROPERTIES k = TRUE \n" + "END";
+				+ "PROPERTIES k : BOOL & k = TRUE \n" + "END";
 		compare(expected, module);
 	}
 
@@ -53,12 +51,12 @@ public class LogicOperatorsTest {
 	@Test
 	public void testAnd() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k, k2\n"
-				+ "ASSUME k = (FALSE \\land k2) \n"
+				+ "CONSTANTS k\n"
+				+ "ASSUME k = (FALSE \\land TRUE) \n"
 				+ "=================================";
 		final String expected = "MACHINE Testing\n"
-				+ "ABSTRACT_CONSTANTS k, k2\n"
-				+ "PROPERTIES k = bool(FALSE = TRUE & k2 = TRUE) \n"
+				+ "ABSTRACT_CONSTANTS k\n"
+				+ "PROPERTIES k : BOOL & k = bool(FALSE = TRUE & TRUE = TRUE) \n"
 				+ "END";
 		compare(expected, module);
 	}
@@ -140,18 +138,7 @@ public class LogicOperatorsTest {
 				+ "END";
 		compare(expected, module);
 	}
-	
-	@Test
-	public void testAppend() throws Exception {
-		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "EXTENDS Sequences \n"
-				+ "ASSUME Append(<<1>>, 2) = <<1,2>> \n"
-				+ "=================================";
-		final String expected = "MACHINE Testing\n"
-				+ "PROPERTIES [1] <- 2 = [1,2] \n"
-				+ "END";
-		compare(expected, module);
-	}
+
 
 	@Test
 	public void testQuantifier() throws Exception {
@@ -163,7 +150,7 @@ public class LogicOperatorsTest {
 
 		final String expected = "MACHINE Testing\n"
 				+ "ABSTRACT_CONSTANTS S\n"
-				+ "PROPERTIES S = {1, 2, 3} & #u.(u : seq(S) & !s.(s : S => #n.(n : 1 .. size(u) & u(n) = s))) \n"
+				+ "PROPERTIES S : POW(INTEGER) & (S = {1, 2, 3} & #u.(u : seq(S) & !s.(s : S => #n.(n : 1 .. size(u) & u(n) = s)))) \n"
 				+ "END";
 		compare(expected, module);
 	}

@@ -7,17 +7,16 @@ package de.tla2b.util;
 import static org.junit.Assert.assertEquals;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
 import de.be4.classicalb.core.parser.BParser;
 import de.be4.classicalb.core.parser.exceptions.BException;
-import de.be4.classicalb.core.parser.node.AAbstractMachineParseUnit;
 import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.Start;
 import de.tla2b.exceptions.FrontEndException;
 import de.tla2b.exceptions.TLA2BException;
+import de.tla2b.pprint.ASTPrettyPrinter;
 import de.tla2b.translation.Tla2BTranslator;
 import de.tla2bAst.Translator;
 import tla2sany.semantic.AbortException;
@@ -35,12 +34,84 @@ public class TestUtil {
 		return translator.translate();
 	}
 	
+	public static void runModule(String tlaFile) throws Exception{
+		Translator t = new Translator(tlaFile, null);
+		Start start = t.translate();
+		System.out.println(t.getBMachineString());
+		System.out.println("---------------------");
+		//String printResult = getAstStringofBMachineString(t.getBMachineString());
+		//System.out.println(printResult);
+		//System.out.println(getTreeAsString(start));
+		//BParser.printASTasProlog(System.out, new BParser(), new File("./test.mch"), resultNode, false, true, null);
+		
+		
+		
+		System.out.println("-------------------");
+		ASTPrettyPrinter aP = new ASTPrettyPrinter();
+		start.apply(aP);
+		System.out.println(aP.getResult());
+
+		
+		final BParser parser = new BParser("testcase");
+		final Start ppStart = parser.parse(aP.getResult(), false);
+		
+		
+		String result = getTreeAsString(start);
+		System.out.println(result);
+		String ppResult = getTreeAsString(ppStart);
+		System.out.println(ppResult);
+		
+		
+		System.out.println("-------------------");
+		
+		assertEquals(result, ppResult);
+	}
+	
 	public static void compare(String bMachine, String tlaModule) throws BException, TLA2BException{
 		ToolIO.setMode(ToolIO.TOOL);
-		String expected = getBTreeofMachineString(bMachine);
+		String expected = getAstStringofBMachineString(bMachine);
 		System.out.println(expected);
 		
-		Translator trans = new Translator(tlaModule, null, 1);
+		Translator trans = new Translator(tlaModule);
+		Start resultNode = trans.translate();
+		String result = getTreeAsString(resultNode);
+		System.out.println(result);
+		ASTPrettyPrinter aP = new ASTPrettyPrinter();
+		resultNode.apply(aP);
+		System.out.println("-------------------");
+		System.out.println(aP.getResult());
+		final BParser parser = new BParser("testcase");
+		Start ast = parser.parse(aP.getResult(), false);
+		//BParser.printASTasProlog(System.out, new BParser(), new File("./test.mch"), resultNode, false, true, null);
+		
+		
+		//System.out.println(result);
+		assertEquals(expected, result);
+		assertEquals(expected, getTreeAsString(ast));
+	}
+	
+	public static void compareWithPrintResult(String tlaModule) throws Exception{
+		ToolIO.setMode(ToolIO.TOOL);
+		
+		Translator trans = new Translator(tlaModule);
+		Start resultNode = trans.translate();
+		
+		String printResult = getAstStringofBMachineString(trans.getBMachineString());
+		
+		//BParser.printASTasProlog(System.out, new BParser(), new File("./test.mch"), resultNode, false, true, null);
+		
+		String result = getTreeAsString(resultNode);
+		assertEquals(printResult, result);
+		System.out.println(result);
+	}
+	
+	
+	public static void compare(String bMachine, String tlaModule, String config) throws BException, TLA2BException{
+		ToolIO.setMode(ToolIO.TOOL);
+		String expected = getAstStringofBMachineString(bMachine);
+		System.out.println(expected);
+		
+		Translator trans = new Translator(tlaModule, config, 1);
 		Start resultNode = trans.translate();
 		
 		//BParser.printASTasProlog(System.out, new BParser(), new File("./test.mch"), resultNode, false, true, null);
@@ -139,7 +210,7 @@ public class TestUtil {
 	}
 
 
-	public static String getBTreeofMachineString(final String testMachine)
+	public static String getAstStringofBMachineString(final String testMachine)
 			throws BException {
 		final BParser parser = new BParser("testcase");
 		final Start startNode = parser.parse(testMachine, false);

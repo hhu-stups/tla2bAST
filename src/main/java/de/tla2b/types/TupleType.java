@@ -3,7 +3,7 @@ package de.tla2b.types;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.be4.classicalb.core.parser.node.ACoupleExpression;
+import de.be4.classicalb.core.parser.node.AMultOrCartExpression;
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
 
@@ -37,7 +37,6 @@ public class TupleType extends AbstractHasFollowers {
 			}
 		}
 	}
-
 
 	public void update(TLAType oldType, TLAType newType) {
 		for (int i = 0; i < types.size(); i++) {
@@ -74,7 +73,7 @@ public class TupleType extends AbstractHasFollowers {
 			return true;
 		}
 		if (o instanceof FunctionType) {
-			//TODO
+			// TODO
 			FunctionType func = (FunctionType) o;
 			if (!(func.getDomain() instanceof IntType)) {
 				return false;
@@ -162,9 +161,9 @@ public class TupleType extends AbstractHasFollowers {
 			}
 		}
 		if (o instanceof FunctionType) {
-			//TODO
-			if(compareToAll(new Untyped())){
-				//Function 
+			// TODO
+			if (compareToAll(new Untyped())) {
+				// Function
 				TLAType t = types.get(0);
 				for (int i = 1; i < types.size(); i++) {
 					t = t.unify(types.get(i));
@@ -172,16 +171,16 @@ public class TupleType extends AbstractHasFollowers {
 				FunctionType func = new FunctionType(IntType.getInstance(), t);
 				this.setFollowersTo(func);
 				return func.unify(o);
-			}else{
+			} else {
 				TLAType res = types.get(1).unify(((FunctionType) o).getRange());
 				types.set(1, res);
 				return this;
 			}
-			
+
 		}
 		throw new RuntimeException();
 	}
-	
+
 	@Override
 	public String toString() {
 		String res = "";
@@ -204,7 +203,20 @@ public class TupleType extends AbstractHasFollowers {
 		for (TLAType t : types) {
 			list.add(t.getBNode());
 		}
-		return new ACoupleExpression(list);
+		AMultOrCartExpression card = new AMultOrCartExpression();
+		card.setLeft(list.get(0));
+		for (int i = 1; i < list.size(); i++) {
+			if (i < list.size() - 1) {
+				AMultOrCartExpression old = card;
+				old.setRight(list.get(i));
+				card = new AMultOrCartExpression();
+				card.setLeft(old);
+			} else {
+				card.setRight(list.get(i));
+			}
+
+		}
+		return card;
 	}
 
 }

@@ -15,7 +15,7 @@ public class TLAParser {
 		this.filenameToStream = filenameToStream;
 	}
 	
-	public  ModuleNode parseModule(String moduleName) {
+	public  ModuleNode parseModule(String moduleName) throws de.tla2b.exceptions.FrontEndException {
 		SpecObj spec = new SpecObj(moduleName, filenameToStream);
 		try {
 			SANY.frontEndMain(spec, moduleName, ToolIO.out);
@@ -25,9 +25,15 @@ public class TLAParser {
 		}
 
 		if (spec.parseErrors.isFailure()) {
+			throw new de.tla2b.exceptions.FrontEndException(
+					allMessagesToString(ToolIO.getAllMessages())
+							+ spec.parseErrors, spec);
 		}
 
 		if (spec.semanticErrors.isFailure()) {
+			throw new de.tla2b.exceptions.FrontEndException(
+			// allMessagesToString(ToolIO.getAllMessages())
+					"" + spec.semanticErrors, spec);
 		}
 
 		// RootModule
@@ -38,7 +44,19 @@ public class TLAParser {
 		}
 
 		if (n == null) { // Parse Error
+			// System.out.println("Rootmodule null");
+			throw new de.tla2b.exceptions.FrontEndException(
+					allMessagesToString(ToolIO.getAllMessages()), spec);
 		}
+
 		return n;
+	}
+	
+	public static String allMessagesToString(String[] allMessages) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < allMessages.length - 1; i++) {
+			sb.append(allMessages[i] + "\n");
+		}
+		return sb.toString();
 	}
 }

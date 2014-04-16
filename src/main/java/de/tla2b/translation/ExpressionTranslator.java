@@ -180,7 +180,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		}
 
 		if (spec.parseErrors.isFailure()) {
-			String[] m = ToolIO.getAllMessages();
+			//String[] m = ToolIO.getAllMessages();
 			String message = module + "\n\n"
 					+ spec.parseErrors;
 			// System.out.println(spec.parseErrors);
@@ -190,7 +190,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		}
 
 		if (spec.semanticErrors.isFailure()) {
-			String[] m = ToolIO.getAllMessages();
+			//String[] m = ToolIO.getAllMessages();
 			String message = module + "\n\n" + spec.semanticErrors;
 			message += Tla2BTranslator.allMessagesToString(ToolIO
 					.getAllMessages());
