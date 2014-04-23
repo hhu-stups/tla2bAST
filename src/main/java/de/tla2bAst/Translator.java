@@ -22,6 +22,7 @@ import tla2sany.drivers.SANY;
 import tla2sany.modanalyzer.SpecObj;
 import tla2sany.semantic.ModuleNode;
 import tlc2.tool.ModelConfig;
+import util.FileUtil;
 import util.ToolIO;
 
 public class Translator {
@@ -31,7 +32,7 @@ public class Translator {
 
 	private Definitions bDefinitions;
 
-	// private String moduleName;
+	//private String moduleName;
 	private ModuleNode moduleNode;
 	private ModelConfig modelConfig;
 
@@ -50,10 +51,12 @@ public class Translator {
 		String configFileName = removeExtention(moduleFile.getAbsolutePath());
 		configFileName = configFileName + ".cfg";
 		configFile = new File(configFileName);
-		if (!configFile.exists()) {
+		if(!configFile.exists()){
 			configFile = null;
 		}
 	}
+
+
 
 	private void findModuleFile() {
 		moduleFile = new File(moduleFileName);
@@ -82,6 +85,7 @@ public class Translator {
 			e.printStackTrace();
 		}
 
+		modelConfig = null;
 		if (configString != null) {
 			configFile = new File("temp/" + moduleName + ".cfg");
 			try {
@@ -99,11 +103,11 @@ public class Translator {
 		parse();
 	}
 
-	public ModuleNode parseModule2()
-			throws de.tla2b.exceptions.FrontEndException {
+
+	public  ModuleNode parseModule2() throws de.tla2b.exceptions.FrontEndException {
 		String fileName = moduleFile.getName();
 		ToolIO.setUserDir(moduleFile.getParent());
-
+		
 		SpecObj spec = new SpecObj(fileName, null);
 		try {
 			SANY.frontEndMain(spec, fileName, ToolIO.out);
@@ -139,7 +143,7 @@ public class Translator {
 
 		return n;
 	}
-
+	
 	public static String allMessagesToString(String[] allMessages) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < allMessages.length - 1; i++) {
@@ -147,10 +151,10 @@ public class Translator {
 		}
 		return sb.toString();
 	}
-
+	
 	private void parse() throws FrontEndException {
 		moduleNode = parseModule2();
-
+		
 		modelConfig = null;
 		if (configFile != null) {
 			modelConfig = new ModelConfig(configFile.getAbsolutePath(),
@@ -232,7 +236,7 @@ public class Translator {
 			return renamed.getPath();
 		}
 	}
-
+	
 	public Definitions getBDefinitions() {
 		return bDefinitions;
 	}
