@@ -402,7 +402,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 						&& !BBuiltInOPs.contains(opApplNode.getOperator()
 								.getName())) {
 					OpDefNode def = (OpDefNode) opApplNode.getOperator();
-					System.out.println(def.getName());
 					FormalParamNode[] params = def.getParams();
 					for (int j = 0; j < params.length; j++) {
 						FormalParamNode param = params[j];

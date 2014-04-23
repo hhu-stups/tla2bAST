@@ -63,8 +63,8 @@ public class TestUtil {
 		
 		
 		System.out.println("-------------------");
-		
 		assertEquals(result, ppResult);
+		System.out.println(t.getBDefinitions().getDefinitionNames());
 	}
 	
 	public static void compare(String bMachine, String tlaModule) throws BException, TLA2BException{
