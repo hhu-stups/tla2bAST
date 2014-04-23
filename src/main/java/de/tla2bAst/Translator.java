@@ -18,124 +18,146 @@ import de.tla2b.config.ModuleOverrider;
 import de.tla2b.exceptions.FrontEndException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.pprint.BMachinePrinter;
+import tla2sany.drivers.SANY;
+import tla2sany.modanalyzer.SpecObj;
 import tla2sany.semantic.ModuleNode;
 import tlc2.tool.ModelConfig;
-import util.FileUtil;
 import util.ToolIO;
 
 public class Translator {
 	private String moduleFileName;
-	private String configFileName;
+	private File moduleFile;
+	private File configFile;
 
 	private Definitions bDefinitions;
 
-	private String moduleName;
+	// private String moduleName;
 	private ModuleNode moduleNode;
 	private ModelConfig modelConfig;
 
 	private String bMachineString;
 
-	public Translator(String moduleFileName, String configFileName)
-			throws FrontEndException {
+	public Translator(String moduleFileName) throws FrontEndException {
 		this.moduleFileName = moduleFileName;
-		this.configFileName = configFileName;
+
+		findModuleFile();
+		findConfigFile();
 
 		parse();
 	}
 
+	private void findConfigFile() {
+		String configFileName = removeExtention(moduleFile.getAbsolutePath());
+		configFileName = configFileName + ".cfg";
+		configFile = new File(configFileName);
+		if (!configFile.exists()) {
+			configFile = null;
+		}
+	}
+
+	private void findModuleFile() {
+		moduleFile = new File(moduleFileName);
+		if (!moduleFile.exists()) {
+			throw new RuntimeException("Can not find module file: '"
+					+ moduleFileName + "'");
+		}
+	}
+
 	// Used for Testing
-	public Translator(String moduleString, String configString, int i)
+	public Translator(String moduleString, String configString)
 			throws FrontEndException {
-		moduleName = "Testing";
+		String moduleName = "Testing";
 		File dir = new File("temp/");
 		dir.mkdirs();
 
 		try {
-			File f = new File("temp/" + moduleName + ".tla");
-			f.createNewFile();
-			FileWriter fw = new FileWriter(f);
+			moduleFile = new File("temp/" + moduleName + ".tla");
+			moduleFile.createNewFile();
+			FileWriter fw = new FileWriter(moduleFile);
 			fw.write(moduleString);
 			fw.close();
 			// f.deleteOnExit();
-			moduleFileName = f.getAbsolutePath();
+			moduleFileName = moduleFile.getAbsolutePath();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		modelConfig = null;
 		if (configString != null) {
-			File f = new File("temp/" + moduleName + ".cfg");
-
+			configFile = new File("temp/" + moduleName + ".cfg");
 			try {
-				f.createNewFile();
-				FileWriter fw = new FileWriter(f);
+				configFile.createNewFile();
+				FileWriter fw = new FileWriter(configFile);
 				fw.write(configString);
 				fw.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			// f.deleteOnExit();
-			configFileName = f.getAbsolutePath();
 		}
 		dir.deleteOnExit();
 
 		parse();
 	}
 
-	// Used for Testing
-	public Translator(String moduleString) throws FrontEndException {
-		moduleName = "Testing";
-		File dir = new File("temp/");
-		dir.mkdirs();
+	public ModuleNode parseModule2()
+			throws de.tla2b.exceptions.FrontEndException {
+		String fileName = moduleFile.getName();
+		ToolIO.setUserDir(moduleFile.getParent());
 
+		SpecObj spec = new SpecObj(fileName, null);
 		try {
-			File f = new File("temp/" + moduleName + ".tla");
-			f.createNewFile();
-			FileWriter fw = new FileWriter(f);
-			fw.write(moduleString);
-			fw.close();
-			// f.deleteOnExit();
-			moduleFileName = f.getAbsolutePath();
-		} catch (IOException e) {
+			SANY.frontEndMain(spec, fileName, ToolIO.out);
+		} catch (tla2sany.drivers.FrontEndException e) {
+			// should never happen
 			e.printStackTrace();
 		}
 
-		parseModule();
+		if (spec.parseErrors.isFailure()) {
+			throw new de.tla2b.exceptions.FrontEndException(
+					allMessagesToString(ToolIO.getAllMessages())
+							+ spec.parseErrors, spec);
+		}
+
+		if (spec.semanticErrors.isFailure()) {
+			throw new de.tla2b.exceptions.FrontEndException(
+			// allMessagesToString(ToolIO.getAllMessages())
+					"" + spec.semanticErrors, spec);
+		}
+
+		// RootModule
+		ModuleNode n = spec.getExternalModuleTable().rootModule;
+		if (spec.getInitErrors().isFailure()) {
+			System.err.println(spec.getInitErrors());
+			return null;
+		}
+
+		if (n == null) { // Parse Error
+			// System.out.println("Rootmodule null");
+			throw new de.tla2b.exceptions.FrontEndException(
+					allMessagesToString(ToolIO.getAllMessages()), spec);
+		}
+
+		return n;
 	}
 
-	private void parseModule() throws FrontEndException {
-		moduleName = evalFileName(moduleFileName);
-
-		TLAParser tlaParser = new TLAParser(null);
-		moduleNode = tlaParser.parseModule(moduleName);
+	public static String allMessagesToString(String[] allMessages) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < allMessages.length - 1; i++) {
+			sb.append(allMessages[i] + "\n");
+		}
+		return sb.toString();
 	}
 
 	private void parse() throws FrontEndException {
-		moduleName = evalFileName(moduleFileName);
-
-		TLAParser tlaParser = new TLAParser(null);
-		moduleNode = tlaParser.parseModule(moduleName);
+		moduleNode = parseModule2();
 
 		modelConfig = null;
-		if (configFileName != null) {
-			File f = new File(configFileName);
-			if (f.exists()) {
-				modelConfig = new ModelConfig(f.getName(), null);
-				modelConfig.parse();
-			}
-		} else {
-			String fileNameWithoutSuffix = moduleFileName;
-			if (fileNameWithoutSuffix.toLowerCase().endsWith(".tla")) {
-				fileNameWithoutSuffix = fileNameWithoutSuffix.substring(0,
-						fileNameWithoutSuffix.length() - 4);
-			}
-			String configFile = fileNameWithoutSuffix + ".cfg";
-			File f = new File(configFile);
-			if (f.exists()) {
-				modelConfig = new ModelConfig(f.getName(), null);
-				modelConfig.parse();
-			}
+		if (configFile != null) {
+			modelConfig = new ModelConfig(configFile.getAbsolutePath(),
+					new SimpleResolver());
+			modelConfig.parse();
 		}
+
 	}
 
 	public Start translate() throws TLA2BException {
@@ -188,23 +210,27 @@ public class Translator {
 		return bAstCreator.getStartNode();
 	}
 
-	public static String evalFileName(String name) {
-		if (name.toLowerCase().endsWith(".tla")) {
-			name = name.substring(0, name.length() - 4);
+	public static String removeExtention(String filePath) {
+		File f = new File(filePath);
+
+		// if it's a directory, don't remove the extention
+		if (f.isDirectory())
+			return filePath;
+
+		String name = f.getName();
+
+		// Now we know it's a file - don't need to do any special hidden
+		// checking or contains() checking because of:
+		final int lastPeriodPos = name.lastIndexOf('.');
+		if (lastPeriodPos <= 0) {
+			// No period after first character - return name as it was passed in
+			return filePath;
+		} else {
+			// Remove the last period and everything after it
+			File renamed = new File(f.getParent(), name.substring(0,
+					lastPeriodPos));
+			return renamed.getPath();
 		}
-
-		if (name.toLowerCase().endsWith(".cfg")) {
-			name = name.substring(0, name.length() - 4);
-		}
-
-		String sourceModuleName = name.substring(name
-				.lastIndexOf(FileUtil.separator) + 1);
-
-		String path = name.substring(0,
-				name.lastIndexOf(FileUtil.separator) + 1);
-		if (!path.equals(""))
-			ToolIO.setUserDir(path);
-		return sourceModuleName;
 	}
 
 	public Definitions getBDefinitions() {

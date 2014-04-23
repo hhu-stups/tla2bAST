@@ -35,7 +35,7 @@ public class TestUtil {
 	}
 	
 	public static void runModule(String tlaFile) throws Exception{
-		Translator t = new Translator(tlaFile, null);
+		Translator t = new Translator(tlaFile);
 		Start start = t.translate();
 		System.out.println(t.getBMachineString());
 		System.out.println("---------------------");
@@ -72,7 +72,7 @@ public class TestUtil {
 		String expected = getAstStringofBMachineString(bMachine);
 		System.out.println(expected);
 		
-		Translator trans = new Translator(tlaModule);
+		Translator trans = new Translator(tlaModule, null);
 		Start resultNode = trans.translate();
 		String result = getTreeAsString(resultNode);
 		System.out.println(result);
@@ -111,7 +111,7 @@ public class TestUtil {
 		String expected = getAstStringofBMachineString(bMachine);
 		System.out.println(expected);
 		
-		Translator trans = new Translator(tlaModule, config, 1);
+		Translator trans = new Translator(tlaModule, config);
 		Start resultNode = trans.translate();
 		
 		//BParser.printASTasProlog(System.out, new BParser(), new File("./test.mch"), resultNode, false, true, null);
