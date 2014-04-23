@@ -47,4 +47,17 @@ public class TupleVsSequenceTest {
 		assertEquals("INTEGER", t.getConstantType("c"));
 	}
 	
+	@Test  
+	public void testTupleVsSequence4() throws FrontEndException, TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "CONSTANTS a, b, c\n"
+				+ "ASSUME a = 1 /\\ b = TRUE /\\ c = <<a,b>>\n"
+				+ "=================================";
+		TestTypeChecker t = TestUtil.typeCheckString(module);
+		assertEquals("INTEGER", t.getConstantType("a"));
+		assertEquals("BOOL", t.getConstantType("b"));
+		assertEquals("INTEGER*BOOL", t.getConstantType("c"));
+	}
+	
+	
 }

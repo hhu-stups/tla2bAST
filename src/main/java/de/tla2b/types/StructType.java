@@ -12,7 +12,7 @@ import de.be4.classicalb.core.parser.node.AStructExpression;
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.be4.classicalb.core.parser.node.PRecEntry;
 import de.tla2b.exceptions.UnificationException;
-import de.tla2b.pprint.BAstCreator;
+import de.tla2bAst.BAstCreator;
 
 
 

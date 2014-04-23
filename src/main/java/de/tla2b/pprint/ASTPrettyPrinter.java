@@ -11,6 +11,7 @@ import de.be4.classicalb.core.parser.node.AAnySubstitution;
 import de.be4.classicalb.core.parser.node.ABecomesSuchSubstitution;
 import de.be4.classicalb.core.parser.node.ADefinitionExpression;
 import de.be4.classicalb.core.parser.node.ADefinitionPredicate;
+import de.be4.classicalb.core.parser.node.AEmptySequenceExpression;
 import de.be4.classicalb.core.parser.node.AExpressionDefinitionDefinition;
 import de.be4.classicalb.core.parser.node.ALambdaExpression;
 import de.be4.classicalb.core.parser.node.AOperation;
@@ -178,6 +179,7 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 		putPreEnd("ACardExpression", "card(", ")");
 		putPreEnd("AFirstExpression", "first(", ")");
 		putPreEnd("ATailExpression", "tail(", ")");
+		putPreEnd("AEmptySequenceExpression", "[", "]");
 
 		put("ASetExtensionExpression", null, "{", ", ", "}", null, null);
 		put("AStructExpression", "struct", "(", ", ", ")", null, null);

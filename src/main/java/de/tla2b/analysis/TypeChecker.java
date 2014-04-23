@@ -468,7 +468,7 @@ public class TypeChecker extends BuiltInOPs implements IType, ASTConstants,
 				p.setToolObject(TEMP_TYPE_ID, pType);
 			}
 
-			if (found.isUntyped() || untyped) {
+			if (found.isUntyped() || untyped|| def.getInRecursive() == false) {
 				// evaluate the body of the definition again
 				paramId = TEMP_TYPE_ID;
 				found = visitExprNode(def.getBody(), found);
@@ -1000,6 +1000,26 @@ public class TypeChecker extends BuiltInOPs implements IType, ASTConstants,
 
 		}
 
+		case OPCODE_uc:{
+			TLAType found = new Untyped();
+			FormalParamNode x = n.getUnbdedQuantSymbols()[0];
+			x.setToolObject(TYPE_ID, found);
+			if (found instanceof AbstractHasFollowers) {
+				((AbstractHasFollowers) found).addFollower(x);
+			}
+			visitExprOrOpArgNode(n.getArgs()[0], BoolType.getInstance());
+			
+			found = (TLAType) x.getToolObject(TYPE_ID);
+			try {
+				found = found.unify(expected);
+			} catch (UnificationException e) {
+				throw new TypeErrorException(String.format(
+						"Expected %s, found %s at 'CHOOSE',\n%s", expected,
+						found, n.getLocation()));
+			}
+			return found;
+		}
+		
 		case OPCODE_bc: { // CHOOSE x \in S: P
 			if (n.isBdedQuantATuple()[0]) {
 				throw new TypeErrorException(
@@ -1026,7 +1046,7 @@ public class TypeChecker extends BuiltInOPs implements IType, ASTConstants,
 			visitExprOrOpArgNode(n.getArgs()[0], BoolType.getInstance());
 			return found;
 		}
-
+		
 		case OPCODE_unchanged: {
 			return BoolType.getInstance().unify(expected);
 		}

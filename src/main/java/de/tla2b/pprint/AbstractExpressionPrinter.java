@@ -781,6 +781,18 @@ public abstract class AbstractExpressionPrinter extends BuiltInOPs implements
 			return new ExprReturn(out);
 		}
 
+		case OPCODE_uc: { // CHOOSE x : P
+			out.append("CHOOSE({");
+			FormalParamNode x = n.getUnbdedQuantSymbols()[0];
+			out.append(getPrintName(x));
+			out.append("|");
+			out.append(getPrintName(x));
+			out.append(visitExprOrOpArgNode(n.getArgs()[0], d, PREDICATE).out);
+			out.append("})");
+			return new ExprReturn(out);
+
+		}
+		
 		case OPCODE_bc: { // CHOOSE x \in S: P
 			out.append("CHOOSE({");
 			FormalParamNode x = n.getBdedQuantSymbolLists()[0][0];

@@ -10,17 +10,19 @@ import tla2sany.semantic.OpApplNode;
 import tla2sany.semantic.OpDefNode;
 import tlc2.tool.BuiltInOPs;
 
-public class RecursiveFunktion extends BuiltInOPs{
+public class RecursiveFunktion extends BuiltInOPs {
 
 	private OpDefNode def;
 	private OpApplNode rfs;
 	private OpApplNode ifThenElse;
 
-	public RecursiveFunktion(OpDefNode n, OpApplNode rfs) throws NotImplementedException {
+	public RecursiveFunktion(OpDefNode n, OpApplNode rfs)
+			throws NotImplementedException {
 		def = n;
 		this.rfs = rfs;
 		evalDef();
 	}
+
 
 	/**
 	 * @throws NotImplementedException
@@ -28,12 +30,11 @@ public class RecursiveFunktion extends BuiltInOPs{
 	 */
 	private void evalDef() throws NotImplementedException {
 		ExprOrOpArgNode e = rfs.getArgs()[0];
-
+		System.out.println(rfs.toString(5));
 		if (e instanceof OpApplNode) {
 			OpApplNode o = (OpApplNode) e;
-			switch (getOpCode(o.getOperator().getName()))
-			{
-			case OPCODE_ite:{ // IF THEN ELSE
+			switch (getOpCode(o.getOperator().getName())) {
+			case OPCODE_ite: { // IF THEN ELSE
 				ifThenElse = o;
 				return;
 			}
@@ -45,16 +46,16 @@ public class RecursiveFunktion extends BuiltInOPs{
 					"Only IF/THEN/ELSE or CASE constructs are supported at the body of a recursive function.");
 		}
 	}
-	
-	public OpDefNode getOpDefNode(){
+
+	public OpDefNode getOpDefNode() {
 		return def;
 	}
-	
-	public OpApplNode getRF(){
+
+	public OpApplNode getRF() {
 		return rfs;
 	}
-	
-	public OpApplNode getIfThenElse(){
+
+	public OpApplNode getIfThenElse() {
 		return ifThenElse;
 	}
 }

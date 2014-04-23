@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import util.ToolIO;
 
-public class StructTest {
+public class RecordTest {
 	static {
 		ToolIO.setMode(ToolIO.TOOL);
 	}
@@ -109,7 +109,6 @@ public class StructTest {
 	/**********************************************************************
 	 * Record Except
 	 **********************************************************************/
-	@Ignore
 	@Test
 	public void testRecordExcept() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -118,7 +117,7 @@ public class StructTest {
 				+ "=================================";
 		final String expected = "MACHINE Testing\n"
 				+ "ABSTRACT_CONSTANTS k, k2\n"
-				+ "PROPERTIES k = rec(a : 1, b : TRUE) & k2 = rec(a : 2, b : k'b) \n"
+				+ "PROPERTIES k : struct(a:INTEGER, b:BOOL) & k2 : struct(a:INTEGER, b:BOOL) & (k = rec(a : 1, b : TRUE) & k2 = rec(a : 2, b : k'b)) \n"
 				+ "END";
 		compare(expected, module);
 	}
@@ -126,7 +125,6 @@ public class StructTest {
 	/**********************************************************************
 	 * Record Except @
 	 **********************************************************************/
-	@Ignore
 	@Test
 	public void testRecordExceptAt() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -137,7 +135,7 @@ public class StructTest {
 
 		final String expected = "MACHINE Testing\n"
 				+ "ABSTRACT_CONSTANTS k, k2\n"
-				+ "PROPERTIES k : struct(a:INTEGER,b:BOOL) &  k2 : struct(a:INTEGER,b:BOOL) & k = rec(a : 1, b : TRUE) & k2 = rec(a : k'a + 1, b : k'b) \n"
+				+ "PROPERTIES k : struct(a:INTEGER, b:BOOL) & k2 : struct(a:INTEGER, b:BOOL) & (k = rec(a : 1, b : TRUE) & k2 = rec(a : k'a + 1, b : k'b)) \n"
 				+ "END";
 		compare(expected, module);
 	}

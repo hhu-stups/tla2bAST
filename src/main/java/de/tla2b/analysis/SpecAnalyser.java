@@ -20,9 +20,6 @@ import de.tla2b.global.TranslationGlobals;
 import de.tla2b.types.IType;
 import de.tla2b.types.TLAType;
 
-
-
-
 import tla2sany.semantic.ASTConstants;
 import tla2sany.semantic.AssumeNode;
 import tla2sany.semantic.ExprNode;
@@ -74,9 +71,11 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 	private ArrayList<String> definitionMacros = new ArrayList<String>();
 
 	private ArrayList<RecursiveFunktion> recursiveFunctions = new ArrayList<RecursiveFunktion>();
-	
+
+	private ArrayList<RecursiveDefinition> recursiveDefinitions = new ArrayList<RecursiveDefinition>();
+
 	private ConfigfileEvaluator conEval;
-	
+
 	/**
 	 * @param m
 	 * @param conEval
@@ -368,23 +367,35 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 	 */
 
 	private void findDefinitions() throws ConfigFileErrorException {
-		if(conEval != null){
+		if (conEval != null) {
 			bDefinitionsSet.addAll(conEval.getConstantOverrideTable().values());
 		}
-		
+
 		AssumeNode[] assumes = moduleNode.getAssumptions();
 		for (int i = 0; i < assumes.length; i++) {
-			visitExprNode(assumes[i].getAssume(), null);
+			findDefintionInExprNode(assumes[i].getAssume(), null);
 		}
 
 		if (inits != null) {
 			for (int i = 0; i < inits.size(); i++) {
-				visitExprNode(inits.get(i), null);
+				findDefintionInExprNode(inits.get(i), null);
 			}
 		}
+
 		if (bOperations != null) {
 			for (int i = 0; i < bOperations.size(); i++) {
-				visitExprNode(bOperations.get(i).getNode(), null);
+				ExprNode node = bOperations.get(i).getNode();
+
+				if (node instanceof OpApplNode) {
+					OpApplNode opApplNode = (OpApplNode) node;
+					if (opApplNode.getOperator().getKind() == UserDefinedOpKind
+							&& !BBuiltInOPs.contains(opApplNode.getOperator()
+									.getName())) {
+						OpDefNode def = (OpDefNode) opApplNode.getOperator();
+						node = def.getBody();
+					}
+				}
+				findDefintionInExprNode(node, null);
 			}
 		}
 
@@ -392,15 +403,20 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 			for (int i = 0; i < invariants.size(); i++) {
 				OpDefNode def = invariants.get(i);
 				bDefinitionsSet.add(def);
-				visitExprNode(def.getBody(), null);
+				findDefintionInExprNode(def.getBody(), null);
 			}
 		}
 
 		for (int i = 0; i < globalLets.size(); i++) {
 			LetInNode letInNode = globalLets.get(i);
 			for (int j = 0; j < letInNode.getLets().length; j++) {
-				visitExprNode(letInNode.getLets()[j].getBody(), null);
+				findDefintionInExprNode(letInNode.getLets()[j].getBody(), null);
 			}
+		}
+
+		HashSet<OpDefNode> defSet = new HashSet<OpDefNode>(bDefinitionsSet);
+		for (OpDefNode def : defSet) {
+			findDefintionInExprNode(def.getBody(), null);
 		}
 
 	}
@@ -408,19 +424,20 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 	/**
 	 * @param exprOrOpArgNode
 	 */
-	private void visitExprOrOpArgNode(ExprOrOpArgNode n,
+	private void findDefintionInExprOrOpArgNode(ExprOrOpArgNode n,
 			FormalParamNode[] parameters) {
 		if (n instanceof ExprNode) {
-			visitExprNode((ExprNode) n, parameters);
+			findDefintionInExprNode((ExprNode) n, parameters);
 		} else if (n instanceof OpArgNode) {
 
 		}
 	}
 
-	private void visitExprNode(ExprNode node, FormalParamNode[] parameters) {
+	private void findDefintionInExprNode(ExprNode node,
+			FormalParamNode[] parameters) {
 		switch (node.getKind()) {
 		case OpApplKind: {
-			visitOpApplNode((OpApplNode) node, parameters);
+			findDefinitionInOpApplNode((OpApplNode) node, parameters);
 			return;
 		}
 		case LetInKind: {
@@ -431,9 +448,9 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 				if (parameters != null)
 					letParams.put(letDef, parameters);
 
-				visitExprNode(letDef.getBody(), letDef.getParams());
+				findDefintionInExprNode(letDef.getBody(), letDef.getParams());
 			}
-			visitExprNode(l.getBody(), parameters);
+			findDefintionInExprNode(l.getBody(), parameters);
 			return;
 		}
 
@@ -444,49 +461,53 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 	 * @param node
 	 * @throws ConfigFileErrorException
 	 */
-	private void visitOpApplNode(OpApplNode node, FormalParamNode[] parameters) {
+	private void findDefinitionInOpApplNode(OpApplNode node,
+			FormalParamNode[] parameters) {
 		switch (node.getOperator().getKind()) {
 		case ConstantDeclKind: {
 			for (int i = 0; i < node.getArgs().length; i++) {
-				visitExprOrOpArgNode(node.getArgs()[i], parameters);
+				findDefintionInExprOrOpArgNode(node.getArgs()[i], parameters);
 			}
 			return;
 		}
 
 		case VariableDeclKind: {
 			for (int i = 0; i < node.getArgs().length; i++) {
-				visitExprOrOpArgNode(node.getArgs()[i], parameters);
+				findDefintionInExprOrOpArgNode(node.getArgs()[i], parameters);
 			}
 			return;
 		}
 
 		case BuiltInKind: {
-			visitBuiltInKind(node, parameters);
+			findDefinitionInBuiltInKind(node, parameters);
 			return;
 		}
 
 		case UserDefinedOpKind: {
 			OpDefNode def = (OpDefNode) node.getOperator();
-			//TODO
-			ModuleNode moduleNode = def.getSource().getOriginallyDefinedInModuleNode();
-			if(moduleNode.getName().toString().equals("TLA2B")){
+			// TODO
+			ModuleNode moduleNode = def.getSource()
+					.getOriginallyDefinedInModuleNode();
+			if (moduleNode.getName().toString().equals("TLA2B")) {
 				return;
 			}
 			if (BBuiltInOPs.contains(def.getName())
 					&& STANDARD_MODULES.contains(def.getSource()
 							.getOriginallyDefinedInModuleNode().getName()
 							.toString())) {
-				
+
 				for (int i = 0; i < node.getArgs().length; i++) {
-					visitExprOrOpArgNode(node.getArgs()[i], parameters);
+					findDefintionInExprOrOpArgNode(node.getArgs()[i],
+							parameters);
 				}
 				return;
 			}
-			bDefinitionsSet.add(def);
-			visitExprNode(def.getBody(), def.getParams());
+			if (bDefinitionsSet.add(def)) {
+				findDefintionInExprNode(def.getBody(), def.getParams());
+			}
 
 			for (int i = 0; i < node.getArgs().length; i++) {
-				visitExprOrOpArgNode(node.getArgs()[i], parameters);
+				findDefintionInExprOrOpArgNode(node.getArgs()[i], parameters);
 			}
 			return;
 		}
@@ -498,7 +519,8 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 	/**
 	 * @param node
 	 */
-	private void visitBuiltInKind(OpApplNode node, FormalParamNode[] parameters) {
+	private void findDefinitionInBuiltInKind(OpApplNode node,
+			FormalParamNode[] parameters) {
 		switch (BuiltInOPs.getOpCode(node.getOperator().getName())) {
 
 		case OPCODE_be:
@@ -509,7 +531,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		case OPCODE_fc: {
 			ExprNode[] in = node.getBdedQuantBounds();
 			for (int i = 0; i < in.length; i++) {
-				visitExprNode(in[i], parameters);
+				findDefintionInExprNode(in[i], parameters);
 			}
 			break;
 		}
@@ -532,7 +554,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		}
 		}
 		for (int i = 0; i < node.getArgs().length; i++) {
-			visitExprOrOpArgNode(node.getArgs()[i], parameters);
+			findDefintionInExprOrOpArgNode(node.getArgs()[i], parameters);
 		}
 	}
 
@@ -541,8 +563,16 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 	 * 
 	 */
 	private void evalRecursiveFunctions() throws NotImplementedException {
+		Set<OpDefNode> set = new HashSet<OpDefNode>(bDefinitionsSet);
+		for (OpDefNode def : set) {
+			if (def.getInRecursive()) {
+				bDefinitionsSet.remove(def);
+				// System.out.println(def.toString(7));
+				RecursiveDefinition rd = new RecursiveDefinition(def);
+				recursiveDefinitions.add(rd);
+			} else
 
-		for (OpDefNode def : bDefinitionsSet) {
+			// System.out.println(def.toString(4));
 			if (def.getBody() instanceof OpApplNode) {
 				OpApplNode o = (OpApplNode) def.getBody();
 				switch (getOpCode(o.getOperator().getName())) {
@@ -605,4 +635,9 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 	public ArrayList<RecursiveFunktion> getRecursiveFunctions() {
 		return recursiveFunctions;
 	}
+	
+	public ArrayList<RecursiveDefinition> getRecursiveDefinitions(){
+		return recursiveDefinitions;
+	}
+	
 }
