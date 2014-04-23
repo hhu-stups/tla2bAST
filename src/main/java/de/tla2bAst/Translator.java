@@ -120,7 +120,7 @@ public class Translator {
 		if (configFileName != null) {
 			File f = new File(configFileName);
 			if (f.exists()) {
-				modelConfig = new ModelConfig(f.getName(), null);
+				modelConfig = new ModelConfig(f.getName(), new SimpleResolver());
 				modelConfig.parse();
 			}
 		} else {
@@ -132,7 +132,7 @@ public class Translator {
 			String configFile = fileNameWithoutSuffix + ".cfg";
 			File f = new File(configFile);
 			if (f.exists()) {
-				modelConfig = new ModelConfig(f.getName(), null);
+				modelConfig = new ModelConfig(f.getName(), new SimpleResolver());
 				modelConfig.parse();
 			}
 		}
