@@ -105,6 +105,7 @@ import de.be4.classicalb.core.parser.node.AStringExpression;
 import de.be4.classicalb.core.parser.node.AStringSetExpression;
 import de.be4.classicalb.core.parser.node.AStructExpression;
 import de.be4.classicalb.core.parser.node.ASubsetPredicate;
+import de.be4.classicalb.core.parser.node.ASubstitutionDefinitionDefinition;
 import de.be4.classicalb.core.parser.node.ATailExpression;
 import de.be4.classicalb.core.parser.node.ATotalFunctionExpression;
 import de.be4.classicalb.core.parser.node.AUnaryMinusExpression;
@@ -271,16 +272,11 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			}
 
 		}
-		Set<EXTERNAL_FUNCTIONS> set = usedExternalFunctions
-				.getUsedExternalFunctions();
 
-		if (bDefs.size() == 0 && set.size() == 0) {
-			return;
-		}
-
-		ADefinitionsMachineClause defClause = new ADefinitionsMachineClause();
 		List<PDefinition> defs = new ArrayList<PDefinition>();
 
+		Set<EXTERNAL_FUNCTIONS> set = usedExternalFunctions
+				.getUsedExternalFunctions();
 		defs.addAll(createDefinitionsForExternalFunctions(set));
 
 		for (OpDefNode opDefNode : bDefs) {
@@ -299,7 +295,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 				d.setParameters(list);
 				d.setRhs(visitExprNodePredicate(opDefNode.getBody()));
 				defs.add(d);
-				bDefinitions.addDefinition(d, Definitions.Type.Expression);
 			} else {
 				AExpressionDefinitionDefinition d = new AExpressionDefinitionDefinition();
 				d.setName(new TIdentifierLiteral(opDefNode.getName().toString()));
@@ -307,12 +302,31 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 				d.setParameters(list);
 				d.setRhs(visitExprNodeExpression(opDefNode.getBody()));
 				defs.add(d);
-				bDefinitions.addDefinition(d, Definitions.Type.Expression);
 			}
 
 		}
-		defClause.setDefinitions(defs);
-		machineClauseList.add(defClause);
+
+		if (defs.size() > 0) {
+			ADefinitionsMachineClause defClause = new ADefinitionsMachineClause();
+			defClause.setDefinitions(defs);
+			machineClauseList.add(defClause);
+			for (PDefinition def : defs) {
+				if (def instanceof AExpressionDefinitionDefinition) {
+					bDefinitions.addDefinition(
+							(AExpressionDefinitionDefinition) def,
+							Definitions.Type.Expression);
+				} else if (def instanceof APredicateDefinitionDefinition) {
+					bDefinitions.addDefinition(
+							(APredicateDefinitionDefinition) def,
+							Definitions.Type.Predicate);
+				} else {
+					bDefinitions.addDefinition(
+							(ASubstitutionDefinitionDefinition) def,
+							Definitions.Type.Substitution);
+				}
+			}
+		}
+
 	}
 
 	private ArrayList<PDefinition> createDefinitionsForExternalFunctions(

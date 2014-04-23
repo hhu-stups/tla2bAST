@@ -55,6 +55,7 @@ public class MCTest {
 		runModule(file);
 	}
 	
+	
 	@Test
 	public void testChannel() throws Exception {
 		String file = "src/test/resources/examples/Channel/Channel.tla";

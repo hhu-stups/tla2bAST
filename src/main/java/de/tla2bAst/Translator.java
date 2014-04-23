@@ -210,7 +210,6 @@ public class Translator {
 				specAnalyser, usedExternalFunctions, predicateVsExpression);
 
 		this.bDefinitions = bAstCreator.getBDefinitions();
-
 		return bAstCreator.getStartNode();
 	}
 
