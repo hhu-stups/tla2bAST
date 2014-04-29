@@ -10,18 +10,13 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.Map.Entry;
 
 import de.tla2b.exceptions.ConfigFileErrorException;
 import de.tla2b.exceptions.UnificationException;
 import de.tla2b.types.BoolType;
 import de.tla2b.types.EnumType;
 import de.tla2b.types.IntType;
-import de.tla2b.types.ModelValueType;
 import de.tla2b.types.SetType;
 import de.tla2b.types.StringType;
 import de.tla2b.types.TLAType;

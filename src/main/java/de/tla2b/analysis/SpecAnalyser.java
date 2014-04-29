@@ -232,8 +232,8 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		if (nextExpr == null)
 			return;
 		bOperations = new ArrayList<BOperation>();
-		ArrayList<OpApplNode> existQuans = new ArrayList<OpApplNode>();
-		findOperationsInSemanticNode(nextExpr, nextName, existQuans);
+		findOperationsInSemanticNode(nextExpr, nextName,
+				new ArrayList<OpApplNode>());
 	}
 
 	/**
@@ -635,9 +635,13 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 	public ArrayList<RecursiveFunktion> getRecursiveFunctions() {
 		return recursiveFunctions;
 	}
-	
-	public ArrayList<RecursiveDefinition> getRecursiveDefinitions(){
+
+	public ArrayList<RecursiveDefinition> getRecursiveDefinitions() {
 		return recursiveDefinitions;
 	}
-	
+
+	public ModuleNode getModuleNode() {
+		return this.moduleNode;
+	}
+
 }

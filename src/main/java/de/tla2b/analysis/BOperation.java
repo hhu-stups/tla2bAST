@@ -9,7 +9,6 @@ import java.util.ArrayList;
 
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.global.TranslationGlobals;
-
 import tla2sany.semantic.ASTConstants;
 import tla2sany.semantic.ExprNode;
 import tla2sany.semantic.FormalParamNode;
@@ -18,6 +17,7 @@ import tla2sany.semantic.OpApplNode;
 import tla2sany.semantic.OpDefNode;
 import tla2sany.semantic.SemanticNode;
 import tla2sany.semantic.SubstInNode;
+import tla2sany.semantic.SymbolNode;
 import tlc2.tool.BuiltInOPs;
 import tlc2.tool.ToolGlobals;
 
@@ -26,6 +26,7 @@ public class BOperation implements ASTConstants, ToolGlobals, TranslationGlobals
 	private ExprNode node;
 	private ArrayList<OpApplNode> existQuans;
 	private ArrayList<String> opParams;
+	private ArrayList<FormalParamNode> formalParams;
 	private ArrayList<String> unchangedVariables;
 
 	public BOperation(String name, ExprNode n,
@@ -39,17 +40,30 @@ public class BOperation implements ASTConstants, ToolGlobals, TranslationGlobals
 
 	private void evalParams() {
 		opParams = new ArrayList<String>();
+		formalParams = new ArrayList<FormalParamNode>();
 		for (int i = 0; i < existQuans.size(); i++) {
 			OpApplNode n = existQuans.get(i);
 			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
 			for (int k = 0; k < params.length; k++) {
 				for (int j = 0; j < params[k].length; j++) {
+					formalParams.add(params[k][j]);
 					opParams.add(params[k][j].getName().toString());
 				}
 			}
 		}
 	}
 
+	public SymbolNode getSymbolNode(){
+		if(node instanceof OpApplNode){
+			OpApplNode n = ((OpApplNode) node);
+			System.out.println(n.getOperator().getKind());
+			if(n.getOperator().getKind() == UserDefinedOpKind){
+				return ((OpApplNode) node).getOperator();
+			}
+		}
+			return null;
+	}
+	
 	public String getName() {
 		return name;
 	}
@@ -64,6 +78,10 @@ public class BOperation implements ASTConstants, ToolGlobals, TranslationGlobals
 
 	public ArrayList<String> getOpParams() {
 		return opParams;
+	}
+	
+	public ArrayList<FormalParamNode> getFormalParams(){
+		return formalParams;
 	}
 
 	public ArrayList<String> getUnchangedVariables(){

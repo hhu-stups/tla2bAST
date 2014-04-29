@@ -1,4 +1,4 @@
-package de.tla2b.pprint;
+package de.tla2b.output;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -11,8 +11,8 @@ import de.be4.classicalb.core.parser.node.AAnySubstitution;
 import de.be4.classicalb.core.parser.node.ABecomesSuchSubstitution;
 import de.be4.classicalb.core.parser.node.ADefinitionExpression;
 import de.be4.classicalb.core.parser.node.ADefinitionPredicate;
-import de.be4.classicalb.core.parser.node.AEmptySequenceExpression;
 import de.be4.classicalb.core.parser.node.AExpressionDefinitionDefinition;
+import de.be4.classicalb.core.parser.node.AIdentifierExpression;
 import de.be4.classicalb.core.parser.node.ALambdaExpression;
 import de.be4.classicalb.core.parser.node.AOperation;
 import de.be4.classicalb.core.parser.node.AOperationsMachineClause;
@@ -28,6 +28,7 @@ import de.be4.classicalb.core.parser.node.Token;
 public class ASTPrettyPrinter extends ExtendedDFAdapter {
 	private final StringBuilder builder = new StringBuilder();
 	private final StringBuilder sb = new StringBuilder();
+	private Renamer renamer;
 
 	private static final int no = 0;
 	private static final int left = 1;
@@ -35,6 +36,13 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 	public static final int max = 500;
 
 	private final static Hashtable<String, NodeInfo> infoTable = new Hashtable<String, NodeInfo>();
+
+	public ASTPrettyPrinter(Renamer renamer) {
+		this.renamer = renamer;
+	}
+
+	public ASTPrettyPrinter() {
+	}
 
 	private static void putInfixOperator(String nodeName, String symbol,
 			int precedence, int a) {
@@ -199,6 +207,23 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 	}
 
 	@Override
+	public void caseAIdentifierExpression(final AIdentifierExpression node) {
+		if (renamer != null) {
+			sb.append(renamer.getNewName(node));
+		} else
+
+		{
+			final List<TIdentifierLiteral> copy = new ArrayList<TIdentifierLiteral>(
+					node.getIdentifier());
+			for (final Iterator<TIdentifierLiteral> iterator = copy.iterator(); iterator
+					.hasNext();) {
+				final TIdentifierLiteral e = iterator.next();
+				e.apply(this);
+			}
+		}
+	}
+
+	@Override
 	public String toString() {
 		return builder.toString();
 	}
@@ -241,10 +266,21 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 	}
 
 	@Override
+	public void caseTIdentifierLiteral(TIdentifierLiteral node) {
+		if (renamer != null) {
+			sb.append(renamer.getNewName(node));
+		} else {
+			sb.append(node.getText());
+		}
+
+	}
+
+	@Override
 	public void defaultCase(final Node node) {
 		super.defaultCase(node);
 		if (node instanceof Token) {
 			builder.append(((Token) node).getText());
+
 			sb.append(((Token) node).getText());
 		} else {
 			builder.append(node.toString());
@@ -318,8 +354,12 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 		return string.trim();
 	}
 
-	public String getResult() {
+	public String getResultString() {
 		return sb.toString();
+	}
+
+	public StringBuilder getResultAsStringbuilder() {
+		return sb;
 	}
 
 	@Override

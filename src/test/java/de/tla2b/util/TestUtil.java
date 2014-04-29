@@ -16,7 +16,8 @@ import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.Start;
 import de.tla2b.exceptions.FrontEndException;
 import de.tla2b.exceptions.TLA2BException;
-import de.tla2b.pprint.ASTPrettyPrinter;
+import de.tla2b.output.ASTPrettyPrinter;
+import de.tla2b.output.Renamer;
 import de.tla2b.translation.Tla2BTranslator;
 import de.tla2bAst.Translator;
 import tla2sany.semantic.AbortException;
@@ -49,11 +50,11 @@ public class TestUtil {
 		System.out.println("-------------------");
 		ASTPrettyPrinter aP = new ASTPrettyPrinter();
 		start.apply(aP);
-		System.out.println(aP.getResult());
+		System.out.println(aP.getResultString());
 
 		
 		final BParser parser = new BParser("testcase");
-		final Start ppStart = parser.parse(aP.getResult(), false);
+		final Start ppStart = parser.parse(aP.getResultString(), false);
 		
 		
 		String result = getTreeAsString(start);
@@ -79,9 +80,9 @@ public class TestUtil {
 		ASTPrettyPrinter aP = new ASTPrettyPrinter();
 		resultNode.apply(aP);
 		System.out.println("-------------------");
-		System.out.println(aP.getResult());
+		System.out.println(aP.getResultString());
 		final BParser parser = new BParser("testcase");
-		Start ast = parser.parse(aP.getResult(), false);
+		Start ast = parser.parse(aP.getResultString(), false);
 		//BParser.printASTasProlog(System.out, new BParser(), new File("./test.mch"), resultNode, false, true, null);
 		
 		
@@ -158,6 +159,19 @@ public class TestUtil {
 		Tla2BTranslator translator = new Tla2BTranslator();
 		translator.start(moduleFileName, configFileName);
 		return translator.translate();
+	}
+	
+	
+	public static void renamerTest(String tlaFile) throws Exception{
+		Translator t = new Translator(tlaFile);
+		Start start = t.translate();
+		Renamer renamer = new Renamer(start);
+		ASTPrettyPrinter aP = new ASTPrettyPrinter(renamer);
+		start.apply(aP);
+		System.out.println(aP.getResultString());
+		
+		final BParser parser = new BParser("testcase");
+		parser.parse(aP.getResultString(), false);
 	}
 	
 	
