@@ -30,7 +30,7 @@ public class RecursiveFunktion extends BuiltInOPs {
 	 */
 	private void evalDef() throws NotImplementedException {
 		ExprOrOpArgNode e = rfs.getArgs()[0];
-		System.out.println(rfs.toString(5));
+		//System.out.println(rfs.toString(5));
 		if (e instanceof OpApplNode) {
 			OpApplNode o = (OpApplNode) e;
 			switch (getOpCode(o.getOperator().getName())) {

@@ -94,4 +94,22 @@ public class MCTest {
 		String file = "src/test/resources/MCTests/Queens/MC.tla";
 		runModule(file);
 	}
+	
+	@Test
+	public void testSumAndProduct() throws Exception {
+		String file = "src/test/resources/examples/SumAndProduct/SumAndProductTransition.tla";
+		runModule(file);
+	}
+	
+	@Test
+	public void testMacroTest() throws Exception {
+		String file = "src/test/resources/renamer/MacroTest/MacroTest.tla";
+		runModule(file);
+	}
+	
+	@Test
+	public void testSumAndProductConstraint() throws Exception {
+		String file = "src/test/resources/examples/SumAndProduct/SumAndProductConstraint.tla";
+		runModule(file);
+	}
 }

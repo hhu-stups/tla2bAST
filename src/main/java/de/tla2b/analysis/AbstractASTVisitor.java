@@ -1,5 +1,6 @@
 package de.tla2b.analysis;
 
+import de.tla2b.global.BBuiltInOPs;
 import tla2sany.semantic.ASTConstants;
 import tla2sany.semantic.AssumeNode;
 import tla2sany.semantic.AtNode;
@@ -105,19 +106,50 @@ public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
 
 		case BuiltInKind: {
 			visitBuiltInNode(n);
+			return;
 		}
 
 		case UserDefinedOpKind: {
-			visitUserDefinedNode(n);
+			
+			if(BBuiltInOPs.contains(n.getOperator().getName())){
+				visitBBuiltinsNode(n);
+				return;
+			}else{
+				visitUserDefinedNode(n);
+				return;
+			}
+			
+
 		}
 		}
 
 	}
 
-	public void visitBuiltInNode(OpApplNode n) {
+	private void visitBBuiltinsNode(OpApplNode n) {
+		ExprNode[] in = n.getBdedQuantBounds();
+		for (ExprNode exprNode : in) {
+			visitExprNode(exprNode);
+		}
+		
 		ExprOrOpArgNode[] arguments = n.getArgs();
 		for (ExprOrOpArgNode exprOrOpArgNode : arguments) {
 			visitExprOrOpArgNode(exprOrOpArgNode);
+		}
+	}
+
+	public void visitBuiltInNode(OpApplNode n) {
+		ExprNode[] in = n.getBdedQuantBounds();
+		for (ExprNode exprNode : in) {
+			visitExprNode(exprNode);
+		}
+		
+		ExprOrOpArgNode[] arguments = n.getArgs();
+		for (ExprOrOpArgNode exprOrOpArgNode : arguments) {
+			// exprOrOpArgNode == null in case the OTHER construct 
+			if(exprOrOpArgNode != null){
+				visitExprOrOpArgNode(exprOrOpArgNode);
+			}
+			
 		}
 	}
 

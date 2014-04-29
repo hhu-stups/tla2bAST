@@ -24,6 +24,7 @@ import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.global.TranslationGlobals;
 import de.tla2b.output.ASTPrettyPrinter;
 import de.tla2b.pprint.BMachinePrinter;
+import de.tla2b.translation.BMacroHandler;
 import tla2sany.drivers.SANY;
 import tla2sany.modanalyzer.SpecObj;
 import tla2sany.semantic.ModuleNode;
@@ -211,9 +212,9 @@ public class Translator implements TranslationGlobals {
 				moduleNode, specAnalyser);
 
 		
-		//BMacroHandler bMacroHandler = new BMacroHandler(specAnalyser, conEval);
+		BMacroHandler bMacroHandler = new BMacroHandler(specAnalyser, conEval);
 		BAstCreator bAstCreator = new BAstCreator(moduleNode, conEval,
-				specAnalyser, usedExternalFunctions, predicateVsExpression);
+				specAnalyser, usedExternalFunctions, predicateVsExpression, bMacroHandler);
 		this.BAst = bAstCreator.getStartNode();
 		this.bDefinitions = bAstCreator.getBDefinitions();
 		return BAst;

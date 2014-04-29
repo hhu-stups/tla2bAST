@@ -2,6 +2,7 @@ package de.tla2bAst;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -128,6 +129,7 @@ import de.be4.classicalb.core.parser.node.TStringLiteral;
 import de.tla2b.analysis.BOperation;
 import de.tla2b.analysis.PredicateVsExpression;
 import de.tla2b.analysis.RecursiveDefinition;
+import de.tla2b.analysis.RecursiveFunktion;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.analysis.UsedExternalFunctions;
 import de.tla2b.analysis.PredicateVsExpression.DefinitionType;
@@ -138,6 +140,7 @@ import de.tla2b.global.BBuildIns;
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.global.Priorities;
 import de.tla2b.global.TranslationGlobals;
+import de.tla2b.translation.BMacroHandler;
 import de.tla2b.types.EnumType;
 import de.tla2b.types.FunctionType;
 import de.tla2b.types.IType;
@@ -153,6 +156,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 	ConfigfileEvaluator conEval;
 	SpecAnalyser specAnalyser;
 	private final PredicateVsExpression predicateVsExpression;
+	private final BMacroHandler bMacroHandler;
 
 	final int SUBSTITUTE_PARAM = 29;
 
@@ -176,8 +180,10 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 	public BAstCreator(ModuleNode moduleNode, ConfigfileEvaluator conEval,
 			SpecAnalyser specAnalyser,
 			UsedExternalFunctions usedExternalFunctions,
-			PredicateVsExpression predicateVsExpression) {
+			PredicateVsExpression predicateVsExpression,
+			BMacroHandler bMacroHandler) {
 		this.predicateVsExpression = predicateVsExpression;
+		this.bMacroHandler = bMacroHandler;
 		this.conEval = conEval;
 		this.moduleNode = moduleNode;
 		this.specAnalyser = specAnalyser;
@@ -497,6 +503,12 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			constantsList.add(id);
 		}
 
+		for (RecursiveFunktion recFunc : specAnalyser.getRecursiveFunctions()) {
+			AIdentifierExpression id = new AIdentifierExpression(
+					createTIdentifierLiteral(getName(recFunc.getOpDefNode())));
+			constantsList.add(id);
+		}
+
 		if (constantsList.size() > 0) {
 			AAbstractConstantsMachineClause abstractConstantsClause = new AAbstractConstantsMachineClause(
 					constantsList);
@@ -506,49 +518,19 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 	}
 
 	private AIdentifierExpression createIdentifierNode(SymbolNode symbolNode) {
-		return createIdentifierNode(symbolNode.getName().toString());
+		if (bMacroHandler.containsSymbolNode(symbolNode)) {
+			return createIdentifierNode(bMacroHandler.getNewName(symbolNode));
+		} else {
+			return createIdentifierNode(symbolNode.getName().toString());
+		}
 	}
 
 	private void createPropertyClause() {
 		List<PPredicate> propertiesList = new ArrayList<PPredicate>();
 
-		for (RecursiveDefinition recDef : specAnalyser
-				.getRecursiveDefinitions()) {
-			OpDefNode def = recDef.getOpDefNode();
-			//TLAType t = (TLAType) def.getToolObject(TYPE_ID);
-			// OpApplNode ifThenElse = recDef.getIfThenElse();
-			FormalParamNode[] params = def.getParams();
-			ArrayList<PExpression> paramList1 = new ArrayList<PExpression>();
-			ArrayList<PPredicate> typeList = new ArrayList<PPredicate>();
-			// ArrayList<PExpression> paramList2 = new ArrayList<PExpression>();
-			for (FormalParamNode p : params) {
-				paramList1.add(createIdentifierNode(p));
-				// paramList2.add(createIdentifierNode(p.getName().toString()));
-				TLAType paramType = (TLAType) p.getToolObject(TYPE_ID);
-				// System.out.println(paramType);
-				AEqualPredicate equal = new AEqualPredicate(
-						createIdentifierNode(p), paramType.getBNode());
-				typeList.add(equal);
-			}
-			ALambdaExpression lambda1 = new ALambdaExpression();
-			lambda1.setIdentifiers(paramList1);
-			lambda1.setPredicate(createConjunction(typeList));
-			lambda1.setExpression(visitExprNodeExpression(def.getBody()));
-			// lambda1.setPredicate(visitExprOrOpArgNodePredicate(ifThenElse.getArgs()[0]));
-			// lambda1.setExpression(visitExprOrOpArgNodeExpression(ifThenElse.getArgs()[1]));
+		propertiesList.addAll(evalRecursiveDefinitions());
 
-			// ALambdaExpression lambda2 = new ALambdaExpression();
-			// lambda2.setIdentifiers(paramList2);
-			// ANegationPredicate not = new
-			// ANegationPredicate(visitExprOrOpArgNodePredicate(ifThenElse.getArgs()[0]));
-			// lambda2.setPredicate(not);
-			// lambda2.setExpression(visitExprOrOpArgNodeExpression(ifThenElse.getArgs()[2]));
-			// AUnionExpression union = new AUnionExpression(lambda1, lambda2);
-
-			AEqualPredicate equals = new AEqualPredicate(
-					createIdentifierNode(def), lambda1);
-			propertiesList.add(equals);
-		}
+		//propertiesList.addAll(evalRecursiveFunctions());
 
 		for (OpDeclNode con : bConstants) {
 			if (conEval != null
@@ -626,6 +608,83 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 
 			machineClauseList.add(propertiesClause);
 		}
+	}
+
+	private List<PPredicate> evalRecursiveFunctions() {
+		List<PPredicate> propertiesList = new ArrayList<PPredicate>();
+		for (RecursiveFunktion recDef : specAnalyser.getRecursiveFunctions()) {
+			
+			
+			OpDefNode def = recDef.getOpDefNode();
+			FormalParamNode[] params = def.getParams();
+			ArrayList<PExpression> paramList1 = new ArrayList<PExpression>();
+			ArrayList<PPredicate> typeList = new ArrayList<PPredicate>();
+			// ArrayList<PExpression> paramList2 = new ArrayList<PExpression>();
+			for (FormalParamNode p : params) {
+				paramList1.add(createIdentifierNode(p));
+				// paramList2.add(createIdentifierNode(p.getName().toString()));
+				TLAType paramType = (TLAType) p.getToolObject(TYPE_ID);
+				// System.out.println(paramType);
+				AEqualPredicate equal = new AEqualPredicate(
+						createIdentifierNode(p), paramType.getBNode());
+				typeList.add(equal);
+			}
+			ALambdaExpression lambda1 = new ALambdaExpression();
+			lambda1.setIdentifiers(paramList1);
+			lambda1.setPredicate(createConjunction(typeList));
+			lambda1.setExpression(visitExprNodeExpression(def.getBody()));
+			AEqualPredicate equals = new AEqualPredicate(
+					createIdentifierNode(def), lambda1);
+			propertiesList.add(equals);
+			
+			
+		}
+
+		return propertiesList;
+	}
+
+	private List<PPredicate> evalRecursiveDefinitions() {
+		List<PPredicate> propertiesList = new ArrayList<PPredicate>();
+
+		for (RecursiveDefinition recDef : specAnalyser
+				.getRecursiveDefinitions()) {
+			OpDefNode def = recDef.getOpDefNode();
+			// TLAType t = (TLAType) def.getToolObject(TYPE_ID);
+			// OpApplNode ifThenElse = recDef.getIfThenElse();
+			FormalParamNode[] params = def.getParams();
+			ArrayList<PExpression> paramList1 = new ArrayList<PExpression>();
+			ArrayList<PPredicate> typeList = new ArrayList<PPredicate>();
+			// ArrayList<PExpression> paramList2 = new ArrayList<PExpression>();
+			for (FormalParamNode p : params) {
+				paramList1.add(createIdentifierNode(p));
+				// paramList2.add(createIdentifierNode(p.getName().toString()));
+				TLAType paramType = (TLAType) p.getToolObject(TYPE_ID);
+				// System.out.println(paramType);
+				AEqualPredicate equal = new AEqualPredicate(
+						createIdentifierNode(p), paramType.getBNode());
+				typeList.add(equal);
+			}
+			ALambdaExpression lambda1 = new ALambdaExpression();
+			lambda1.setIdentifiers(paramList1);
+			lambda1.setPredicate(createConjunction(typeList));
+			lambda1.setExpression(visitExprNodeExpression(def.getBody()));
+			// lambda1.setPredicate(visitExprOrOpArgNodePredicate(ifThenElse.getArgs()[0]));
+			// lambda1.setExpression(visitExprOrOpArgNodeExpression(ifThenElse.getArgs()[1]));
+
+			// ALambdaExpression lambda2 = new ALambdaExpression();
+			// lambda2.setIdentifiers(paramList2);
+			// ANegationPredicate not = new
+			// ANegationPredicate(visitExprOrOpArgNodePredicate(ifThenElse.getArgs()[0]));
+			// lambda2.setPredicate(not);
+			// lambda2.setExpression(visitExprOrOpArgNodeExpression(ifThenElse.getArgs()[2]));
+			// AUnionExpression union = new AUnionExpression(lambda1, lambda2);
+
+			AEqualPredicate equals = new AEqualPredicate(
+					createIdentifierNode(def), lambda1);
+			propertiesList.add(equals);
+		}
+
+		return propertiesList;
 	}
 
 	private PExpression createTLCValue(Value tlcValue) {
@@ -876,11 +935,19 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 					return funcCall;
 				}
 			} else {
-				ADefinitionExpression defExpr = new ADefinitionExpression();
-				defExpr.setDefLiteral(new TIdentifierLiteral(getName(n
-						.getOperator())));
-				defExpr.setParameters(params);
-				return defExpr;
+				if (predicateVsExpression.getDefinitionType(def) == DefinitionType.PREDICATE) {
+					ADefinitionPredicate defPred = new ADefinitionPredicate();
+					defPred.setDefLiteral(new TDefLiteralPredicate(getName(n
+							.getOperator())));
+					defPred.setParameters(params);
+					return new AConvertBoolExpression(defPred);
+				} else {
+					ADefinitionExpression defExpr = new ADefinitionExpression();
+					defExpr.setDefLiteral(new TIdentifierLiteral(getName(n
+							.getOperator())));
+					defExpr.setParameters(params);
+					return defExpr;
+				}
 			}
 
 		} else {
@@ -1237,19 +1304,26 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		}
 
 		case OPCODE_sso: { // $SubsetOf Represents {x \in S : P}
-			// TODO tuple with more than 2 arguments
-			//FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-			//ExprNode[] bounds = n.getBdedQuantBounds();
+			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
 
 			List<PExpression> list = new ArrayList<PExpression>();
-			FormalParamNode p = n.getBdedQuantSymbolLists()[0][0];
-			list.add(createIdentifierNode(p));
+			List<PExpression> list2 = new ArrayList<PExpression>();
+			for (int i = 0; i < params[0].length; i++) {
+				FormalParamNode p = params[0][i];
+				list.add(createIdentifierNode(p));
+				list2.add(createIdentifierNode(p));
+			}
 
 			AComprehensionSetExpression compre = new AComprehensionSetExpression();
 			compre.setIdentifiers(list);
 
 			AMemberPredicate member = new AMemberPredicate();
-			member.setLeft(createIdentifierNode(p));
+			if (list2.size() == 1) {
+				member.setLeft(list2.get(0));
+			} else {
+				member.setLeft(new ACoupleExpression(list2));
+			}
+
 			ExprNode in = n.getBdedQuantBounds()[0];
 			member.setRight(visitExprNodeExpression(in));
 
@@ -1296,7 +1370,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		case OPCODE_fc: // Represents [x \in S |-> e].
 		case OPCODE_rfs: {
 			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-			//ExprNode[] bounds = n.getBdedQuantBounds(); TODO
+			// ExprNode[] bounds = n.getBdedQuantBounds(); TODO
 			List<PExpression> idList = new ArrayList<PExpression>();
 			List<PPredicate> predList = new ArrayList<PPredicate>();
 			for (int i = 0; i < params.length; i++) {
@@ -1517,7 +1591,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 				return rec;
 
 			} else {
-				//FunctionType func = (FunctionType) type;
+				// FunctionType func = (FunctionType) type;
 
 				List<PExpression> list = new ArrayList<PExpression>();
 				for (int i = 1; i < n.getArgs().length; i++) {

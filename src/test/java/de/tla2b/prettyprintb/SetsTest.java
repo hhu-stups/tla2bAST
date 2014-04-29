@@ -171,6 +171,18 @@ public class SetsTest {
 				+ "END";
 		compare(expected, module);
 	}
+	
+	@Test
+	public void testConstructor3() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "ASSUME {<<1,2>>} = {<<x, y>> \\in {1} \\X {2}: TRUE} \n"
+				+ "=================================";
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES {(1,2)} = {(x, y)|  (x,y) : {1} * {2} & TRUE = TRUE} \n"
+				+ "END";
+		compare(expected, module);
+	}
 
 	
 	@Test
