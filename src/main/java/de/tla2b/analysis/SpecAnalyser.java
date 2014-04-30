@@ -18,7 +18,6 @@ import de.tla2b.exceptions.SemanticErrorException;
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.global.TranslationGlobals;
 import de.tla2b.types.IType;
-import de.tla2b.types.TLAType;
 
 import tla2sany.semantic.ASTConstants;
 import tla2sany.semantic.AssumeNode;
@@ -108,6 +107,8 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 
 	public void start() throws SemanticErrorException, FrontEndException,
 			ConfigFileErrorException, NotImplementedException {
+		
+		
 		if (spec != null) {
 			evalSpec();
 		} else {
@@ -134,7 +135,6 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 								con.getName()));
 			}
 		}
-
 		evalRecursiveFunctions();
 	}
 
@@ -579,7 +579,6 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 				case OPCODE_rfs: { // recursive Function
 					bDefinitionsSet.remove(def);
 					recursiveFunctions.add(def);
-					return;
 				}
 				}
 			}

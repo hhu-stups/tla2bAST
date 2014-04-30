@@ -52,6 +52,24 @@ public class RecursiveFunctionTest {
 				+ "fac = %(x).(x : NATURAL | 5 + (%(t_).(t_ = 0 & x = 1 | 1) \\/ %(t_).(t_ = 0 & not(x = 1) | x * fac((x - 1))))(0)) & fac(3) = 56 \n"
 				+ "END";
 		compare(expected, module);
-
 	}
+
+	@Test
+	public void testSum() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Integers, FiniteSets \n"
+				+ "	Sum[x \\in Nat] == IF x = 0 THEN 0 ELSE x + Sum[x-1] \n"
+				+ "ASSUME 6 = Sum[3] \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "ABSTRACT_CONSTANTS Sum\n"
+				+ "PROPERTIES "
+				+ "Sum = %(x).(x : NATURAL | (%(t_).(t_ = 0 & x = 0 | 0) \\/ %(t_).(t_ = 0 & not(x = 0) | x + Sum((x - 1))))(0)) & 6 = Sum(3) \n"
+				+ "END";
+		compare(expected, module);
+	}
+
+
+
 }
