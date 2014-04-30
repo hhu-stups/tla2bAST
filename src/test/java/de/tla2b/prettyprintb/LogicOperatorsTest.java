@@ -17,10 +17,8 @@ public class LogicOperatorsTest {
 				+ "ASSUME k = (2 # 1)\n"
 				+ "=================================";
 
-		final String expected = "MACHINE Testing\n"
-				+ "ABSTRACT_CONSTANTS k\n"
-				+ "PROPERTIES k : BOOL & k = bool(2 /= 1)\n"
-				+ "END";
+		final String expected = "MACHINE Testing\n" + "ABSTRACT_CONSTANTS k\n"
+				+ "PROPERTIES k : BOOL & k = bool(2 /= 1)\n" + "END";
 		compare(expected, module);
 	}
 
@@ -138,7 +136,6 @@ public class LogicOperatorsTest {
 				+ "END";
 		compare(expected, module);
 	}
-
 
 	@Test
 	public void testQuantifier() throws Exception {

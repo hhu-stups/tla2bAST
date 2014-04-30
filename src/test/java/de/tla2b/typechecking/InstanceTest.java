@@ -49,8 +49,7 @@ public class InstanceTest {
 
 	@Test
 	public void TestInstanceValue() throws Exception {
-		TestTypeChecker t = TestUtil.typeCheck(path + "InstanceValue.tla",
-				"InstanceValue.cfg");
+		TestTypeChecker t = TestUtil.typeCheck(path + "InstanceValue.tla");
 		assertEquals("INTEGER", t.getConstantType("c2"));
 		assertEquals("INTEGER", t.getConstantType("val2"));
 	}

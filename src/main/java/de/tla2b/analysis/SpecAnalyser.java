@@ -70,7 +70,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 	// surrounding operator
 	private ArrayList<String> definitionMacros = new ArrayList<String>();
 
-	private ArrayList<RecursiveFunktion> recursiveFunctions = new ArrayList<RecursiveFunktion>();
+	private ArrayList<OpDefNode> recursiveFunctions = new ArrayList<OpDefNode>();
 
 	private ArrayList<RecursiveDefinition> recursiveDefinitions = new ArrayList<RecursiveDefinition>();
 
@@ -578,9 +578,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 				switch (getOpCode(o.getOperator().getName())) {
 				case OPCODE_rfs: { // recursive Function
 					bDefinitionsSet.remove(def);
-					ifThenElseNodes.remove(o.getArgs()[0]);
-					RecursiveFunktion rf = new RecursiveFunktion(def, o);
-					recursiveFunctions.add(rf);
+					recursiveFunctions.add(def);
 					return;
 				}
 				}
@@ -588,17 +586,17 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		}
 	}
 
-	public void evalIfThenElse() {
-		boolean b = false;
-		for (int i = 0; i < ifThenElseNodes.size() && !b; i++) {
-			OpApplNode node = ifThenElseNodes.get(i);
-			TLAType t = (TLAType) node.getToolObject(TYPE_ID);
-			if (t.getKind() != BOOL)
-				b = true;
-		}
-		if (b)
-			definitionMacros.add(IF_THEN_ELSE);
-	}
+//	public void evalIfThenElse() {
+//		boolean b = false;
+//		for (int i = 0; i < ifThenElseNodes.size() && !b; i++) {
+//			OpApplNode node = ifThenElseNodes.get(i);
+//			TLAType t = (TLAType) node.getToolObject(TYPE_ID);
+//			if (t.getKind() != BOOL)
+//				b = true;
+//		}
+//		if (b)
+//			definitionMacros.add(IF_THEN_ELSE);
+//	}
 
 	public ArrayList<LetInNode> getGlobalLets() {
 		return this.globalLets;
@@ -632,7 +630,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		return usedDefinitions;
 	}
 
-	public ArrayList<RecursiveFunktion> getRecursiveFunctions() {
+	public ArrayList<OpDefNode> getRecursiveFunctions() {
 		return recursiveFunctions;
 	}
 

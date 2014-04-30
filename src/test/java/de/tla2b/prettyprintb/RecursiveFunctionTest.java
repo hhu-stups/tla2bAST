@@ -6,7 +6,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class RecursiveFunctionTest {
-	
+
 	@Ignore
 	@Test
 	public void testRecursiveDefinition() throws Exception {
@@ -17,10 +17,41 @@ public class RecursiveFunctionTest {
 				+ "=================================";
 
 		final String expected = "MACHINE Testing\n" + "ABSTRACT_CONSTANTS k\n"
-				+ "PROPERTIES " 
-				+ " k : BOOL +-> INTEGER "
+				+ "PROPERTIES " + " k : BOOL +-> INTEGER "
 				+ "& k = k <+ {TRUE |-> 0, FALSE |-> 0}" + "END";
 		compare(expected, module);
-		
+
+	}
+
+	@Test
+	public void testFactorial() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "fac[x \\in Nat] == IF x = 1 THEN 1 ELSE x * fac[x-1]\n"
+				+ "ASSUME fac[3] = 6 \n" + "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "ABSTRACT_CONSTANTS fac\n"
+				+ "PROPERTIES "
+				+ "fac = %(x).(x : NATURAL | (%(t_).(t_ = 0 & x = 1 | 1) \\/ %(t_).(t_ = 0 & not(x = 1) | x * fac((x - 1))))(0)) & fac(3) = 6 \n"
+				+ "END";
+		compare(expected, module);
+
+	}
+
+	@Test
+	public void testFactorial2() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "fac[x \\in Nat] == 5 + IF x = 1 THEN 1 ELSE x * fac[x-1]\n"
+				+ "ASSUME fac[3] = 56 \n" + "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "ABSTRACT_CONSTANTS fac\n"
+				+ "PROPERTIES "
+				+ "fac = %(x).(x : NATURAL | 5 + (%(t_).(t_ = 0 & x = 1 | 1) \\/ %(t_).(t_ = 0 & not(x = 1) | x * fac((x - 1))))(0)) & fac(3) = 56 \n"
+				+ "END";
+		compare(expected, module);
+
 	}
 }

@@ -77,7 +77,7 @@ public class BMachinePrinter extends AbstractExpressionPrinter implements
 		this.definitionMacro = specAnalyser.getDefinitionMacros();
 		this.bDefinitions = specAnalyser.getBDefinitions();
 		this.letParams = specAnalyser.getLetParams();
-		this.recursiveFunktions = specAnalyser.getRecursiveFunctions();
+		//this.recursiveFunktions = specAnalyser.getRecursiveFunctions();
 	}
 
 	public StringBuilder start() {
@@ -139,69 +139,69 @@ public class BMachinePrinter extends AbstractExpressionPrinter implements
 				continue;
 
 			if (!printed.contains(e)) {
-				e.id = counter;
-				if (!first) {
-					out.append("; ");
-				}
-				out.append("ENUM" + counter + " = {");
-				Iterator<String> it2 = e.modelvalues.iterator();
-				while (it2.hasNext()) {
-					out.append(it2.next());
-					if (it2.hasNext()) {
-						out.append(", ");
-					}
-				}
-				if (e.hasNoVal()) {
-					out.append(", noVal" + counter);
-				}
-				out.append("}");
-				printed.add(e);
-				counter++;
-				first = false;
+				//e.id = counter;
+//				if (!first) {
+//					out.append("; ");
+//				}
+//				out.append("ENUM" + counter + " = {");
+//				Iterator<String> it2 = e.modelvalues.iterator();
+//				while (it2.hasNext()) {
+//					out.append(it2.next());
+//					if (it2.hasNext()) {
+//						out.append(", ");
+//					}
+//				}
+//				if (e.hasNoVal()) {
+//					out.append(", noVal" + counter);
+//				}
+//				out.append("}");
+//				printed.add(e);
+//				counter++;
+//				first = false;
 			}
 		}
 
-		if (operatorModelvalues != null && operatorModelvalues.size() > 0) {
-			for (int i = 0; i < operatorModelvalues.size(); i++) {
-				OpDefNode def = operatorModelvalues.get(i);
-				TLAType type = (TLAType) def.getToolObject(TYPE_ID);
-				EnumType e = null;
-				if (type instanceof SetType) {
-					if (((SetType) type).getSubType() instanceof EnumType) {
-						e = (EnumType) ((SetType) type).getSubType();
-					} else
-						continue;
-
-				} else if ((type instanceof EnumType)) {
-					e = (EnumType) type;
-				} else
-					continue;
-
-				if (!printed.contains(e)) {
-					e.id = counter;
-					if (!first) {
-						out.append("; ");
-					}
-					out.append("ENUM" + counter + " = {");
-					Iterator<String> it2 = e.modelvalues.iterator();
-					while (it2.hasNext()) {
-						out.append(it2.next());
-						if (it2.hasNext()) {
-							out.append(", ");
-						}
-					}
-					if (e.hasNoVal()) {
-						out.append(", noVal" + counter);
-					}
-					out.append("}");
-					printed.add(e);
-					counter++;
-					first = false;
-				}
-
-			}
-
-		}
+//		if (operatorModelvalues != null && operatorModelvalues.size() > 0) {
+//			for (int i = 0; i < operatorModelvalues.size(); i++) {
+//				OpDefNode def = operatorModelvalues.get(i);
+//				TLAType type = (TLAType) def.getToolObject(TYPE_ID);
+//				EnumType e = null;
+//				if (type instanceof SetType) {
+//					if (((SetType) type).getSubType() instanceof EnumType) {
+//						e = (EnumType) ((SetType) type).getSubType();
+//					} else
+//						continue;
+//
+//				} else if ((type instanceof EnumType)) {
+//					e = (EnumType) type;
+//				} else
+//					continue;
+//
+//				if (!printed.contains(e)) {
+//					e.id = counter;
+//					if (!first) {
+//						out.append("; ");
+//					}
+//					out.append("ENUM" + counter + " = {");
+//					Iterator<String> it2 = e.modelvalues.iterator();
+//					while (it2.hasNext()) {
+//						out.append(it2.next());
+//						if (it2.hasNext()) {
+//							out.append(", ");
+//						}
+//					}
+//					if (e.hasNoVal()) {
+//						out.append(", noVal" + counter);
+//					}
+//					out.append("}");
+//					printed.add(e);
+//					counter++;
+//					first = false;
+//				}
+//
+//			}
+//
+//		}
 
 		out.append("\n");
 		return out;

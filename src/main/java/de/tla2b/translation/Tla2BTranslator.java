@@ -122,16 +122,16 @@ public class Tla2BTranslator implements TranslationGlobals {
 		typechecker = new TypeChecker(moduleNode, conEval, specAnalyser);
 		typechecker.start();
 
-		specAnalyser.evalIfThenElse();
+		//specAnalyser.evalIfThenElse();
 
 		SymbolRenamer symRenamer = new SymbolRenamer(moduleNode, specAnalyser);
 		symRenamer.start();
-		BMachinePrinter p = new BMachinePrinter(moduleNode, conEval,
-				specAnalyser);
+//		BMachinePrinter p = new BMachinePrinter(moduleNode, conEval,
+//				specAnalyser);
 		// BAstCreator bAstCreator = new BAstCreator(moduleNode, conEval,
 		// specAnalyser);
 
-		return p.start();
+		return null;
 	}
 
 	public static ModuleNode parseModule(String moduleName)

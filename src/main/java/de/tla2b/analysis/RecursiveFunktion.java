@@ -20,7 +20,7 @@ public class RecursiveFunktion extends BuiltInOPs {
 			throws NotImplementedException {
 		def = n;
 		this.rfs = rfs;
-		evalDef();
+		//evalDef();
 	}
 
 

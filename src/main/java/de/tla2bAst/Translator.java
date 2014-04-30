@@ -108,7 +108,7 @@ public class Translator implements TranslationGlobals {
 		parse();
 	}
 
-	public ModuleNode parseModule2()
+	public ModuleNode parseModule()
 			throws de.tla2b.exceptions.FrontEndException {
 		String fileName = moduleFile.getName();
 		ToolIO.setUserDir(moduleFile.getParent());
@@ -158,7 +158,7 @@ public class Translator implements TranslationGlobals {
 	}
 
 	private void parse() throws FrontEndException {
-		moduleNode = parseModule2();
+		moduleNode = parseModule();
 
 		modelConfig = null;
 		if (configFile != null) {
@@ -193,25 +193,21 @@ public class Translator implements TranslationGlobals {
 		} else {
 			specAnalyser = new SpecAnalyser(moduleNode);
 		}
-
 		specAnalyser.start();
-
 		TypeChecker typechecker = new TypeChecker(moduleNode, conEval,
 				specAnalyser);
 		typechecker.start();
-
-		specAnalyser.evalIfThenElse();
+		//specAnalyser.evalIfThenElse();
 
 		SymbolRenamer symRenamer = new SymbolRenamer(moduleNode, specAnalyser);
 		symRenamer.start();
-		BMachinePrinter p = new BMachinePrinter(moduleNode, conEval,
-				specAnalyser);
-		bMachineString = p.start().toString();
+//		BMachinePrinter p = new BMachinePrinter(moduleNode, conEval,
+//				specAnalyser);
+//		bMachineString = p.start().toString();
 
 		UsedExternalFunctions usedExternalFunctions = new UsedExternalFunctions(
 				moduleNode, specAnalyser);
 
-		
 		BMacroHandler bMacroHandler = new BMacroHandler(specAnalyser, conEval);
 		BAstCreator bAstCreator = new BAstCreator(moduleNode, conEval,
 				specAnalyser, usedExternalFunctions, predicateVsExpression, bMacroHandler);
@@ -304,6 +300,10 @@ public class Translator implements TranslationGlobals {
 
 	public String getBMachineString() {
 		return bMachineString;
+	}
+	
+	public ModuleNode getModuleNode(){
+		return moduleNode;
 	}
 
 }

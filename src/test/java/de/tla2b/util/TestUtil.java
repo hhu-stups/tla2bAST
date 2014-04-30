@@ -115,6 +115,10 @@ public class TestUtil {
 		Translator trans = new Translator(tlaModule, config);
 		Start resultNode = trans.translate();
 		
+		ASTPrettyPrinter aP = new ASTPrettyPrinter();
+		resultNode.apply(aP);
+		System.out.println(aP.getResultString());
+		
 		//BParser.printASTasProlog(System.out, new BParser(), new File("./test.mch"), resultNode, false, true, null);
 		
 		String result = getTreeAsString(resultNode);
@@ -197,20 +201,10 @@ public class TestUtil {
 		ToolIO.reset();
 		moduleFileName = moduleFileName.replace('/', FileUtil.separatorChar);
 		TestTypeChecker testTypeChecker = new TestTypeChecker();
-		testTypeChecker.start(moduleFileName, null);
+		testTypeChecker.start(moduleFileName);
 		return testTypeChecker;
 	}
 	
-	public static TestTypeChecker typeCheck(String moduleFileName, String configFileName) throws FrontEndException, TLA2BException{
-		ToolIO.setMode(ToolIO.TOOL);
-		ToolIO.reset();
-		moduleFileName = moduleFileName.replace('/', FileUtil.separatorChar);
-		configFileName = configFileName.replace('/', FileUtil.separatorChar);
-		TestTypeChecker testTypeChecker = new TestTypeChecker();
-		testTypeChecker.start(moduleFileName, configFileName);
-		return testTypeChecker;
-	}
-
 
 	public static String fileToString(String fileName) throws IOException {
 		StringBuilder res = new StringBuilder();

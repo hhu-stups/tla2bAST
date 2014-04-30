@@ -11,7 +11,7 @@ import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.global.TranslationGlobals;
 import de.tla2b.translation.Tla2BTranslator;
 import de.tla2b.types.TLAType;
-
+import de.tla2bAst.Translator;
 import tla2sany.semantic.FormalParamNode;
 import tla2sany.semantic.ModuleNode;
 import tla2sany.semantic.OpDeclNode;
@@ -33,17 +33,15 @@ public class TestTypeChecker implements TranslationGlobals {
 
 	public void startTest(String moduleString, String configString)
 			throws FrontEndException, TLA2BException {
-		Tla2BTranslator translator = new Tla2BTranslator();
-		translator.startTest(moduleString, configString);
+		Translator translator = new Translator(moduleString, configString);
 		translator.translate();
 		moduleNode = translator.getModuleNode();
 		init();
 	}
 	
-	public void start(String moduleFileName, String configFileName)
+	public void start(String moduleFileName)
 			throws FrontEndException, TLA2BException {
-		Tla2BTranslator translator = new Tla2BTranslator();
-		translator.start(moduleFileName, configFileName);
+		Translator translator = new Translator(moduleFileName);
 		translator.translate();
 		moduleNode = translator.getModuleNode();
 		init();

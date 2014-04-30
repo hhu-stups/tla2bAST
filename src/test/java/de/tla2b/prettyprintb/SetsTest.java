@@ -196,4 +196,17 @@ public class SetsTest {
 				+ "PROPERTIES {x|x : {1, 2, 3} & (x : {1} or x : {2})} = {1, 2} \n" + "END";
 		compare(expected, module);
 	}
+	
+	@Test
+	public void testConstructor4() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "ASSUME {1} = {x : <<x, y>> \\in {1} \\X {2}} \n"
+				+ "=================================";
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES {1} = {t_ | #(x,y).((x,y) : {1} * {2} & t_ = x)} \n"
+				+ "END";
+		compare(expected, module);
+	}
+
 }

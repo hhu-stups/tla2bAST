@@ -112,4 +112,16 @@ public class MCTest {
 		String file = "src/test/resources/examples/SumAndProduct/SumAndProductConstraint.tla";
 		runModule(file);
 	}
+	
+	@Test
+	public void testuf50_02() throws Exception {
+		String file = "src/test/resources/examples/uf50_02/uf50_02.tla";
+		runModule(file);
+	}
+	
+	@Test
+	public void testRecursiveFunction() throws Exception {
+		String file = "src/test/resources/examples/RecursiveFunction/RecursiveFunction.tla";
+		runModule(file);
+	}
 }
