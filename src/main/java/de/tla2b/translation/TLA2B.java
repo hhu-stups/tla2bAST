@@ -16,6 +16,7 @@ import de.tla2b.exceptions.FrontEndException;
 import de.tla2b.exceptions.NotImplementedException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.global.TranslationGlobals;
+import de.tla2b.util.FileUtils;
 import util.FileUtil;
 import util.ToolIO;
 

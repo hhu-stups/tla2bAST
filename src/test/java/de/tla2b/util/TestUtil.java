@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import util.FileUtil;
 import de.be4.classicalb.core.parser.BParser;
 import de.be4.classicalb.core.parser.exceptions.BException;
 import de.be4.classicalb.core.parser.node.Node;
@@ -21,7 +22,6 @@ import de.tla2b.output.Renamer;
 import de.tla2b.translation.Tla2BTranslator;
 import de.tla2bAst.Translator;
 import tla2sany.semantic.AbortException;
-import util.FileUtil;
 import util.ToolIO;
 
 public class TestUtil {
@@ -38,8 +38,6 @@ public class TestUtil {
 	public static void runModule(String tlaFile) throws Exception{
 		Translator t = new Translator(tlaFile);
 		Start start = t.translate();
-		System.out.println(t.getBMachineString());
-		System.out.println("---------------------");
 		//String printResult = getAstStringofBMachineString(t.getBMachineString());
 		//System.out.println(printResult);
 		//System.out.println(getTreeAsString(start));
@@ -205,19 +203,6 @@ public class TestUtil {
 		return testTypeChecker;
 	}
 	
-
-	public static String fileToString(String fileName) throws IOException {
-		StringBuilder res = new StringBuilder();
-		BufferedReader in = new BufferedReader(new FileReader(fileName));
-		String str;
-		while ((str = in.readLine()) != null) {
-			res.append(str + "\n");
-		}
-		in.close();
-		return res.toString();
-	}
-
-
 	public static String getAstStringofBMachineString(final String testMachine)
 			throws BException {
 		final BParser parser = new BParser("testcase");

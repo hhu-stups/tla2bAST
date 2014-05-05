@@ -13,7 +13,7 @@ import de.tla2b.config.ConfigfileEvaluator;
 import de.tla2b.config.ModuleOverrider;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.global.TranslationGlobals;
-import de.tla2b.pprint.BMachinePrinter;
+import de.tla2b.util.FileUtils;
 import tla2sany.drivers.FrontEndException;
 import tla2sany.drivers.SANY;
 import tla2sany.modanalyzer.SpecObj;
@@ -112,9 +112,9 @@ public class Tla2BTranslator implements TranslationGlobals {
 
 			ModuleOverrider modOver = new ModuleOverrider(moduleNode, conEval);
 			modOver.start();
-			specAnalyser = new SpecAnalyser(moduleNode, conEval);
+			specAnalyser = SpecAnalyser.createSpecAnalyser(moduleNode, conEval);
 		} else {
-			specAnalyser = new SpecAnalyser(moduleNode);
+			specAnalyser = SpecAnalyser.createSpecAnalyser(moduleNode);
 		}
 
 		specAnalyser.start();

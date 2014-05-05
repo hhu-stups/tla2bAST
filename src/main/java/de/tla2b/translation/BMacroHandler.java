@@ -15,6 +15,7 @@ import tla2sany.semantic.OpApplNode;
 import tla2sany.semantic.OpDefNode;
 import tla2sany.semantic.SymbolNode;
 import de.tla2b.analysis.AbstractASTVisitor;
+import de.tla2b.analysis.BOperation;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.config.ConfigfileEvaluator;
 
@@ -25,7 +26,7 @@ public class BMacroHandler extends AbstractASTVisitor {
 		ArrayList<OpDefNode> bDefs = new ArrayList<OpDefNode>();
 		for (int i = 0; i < moduleNode.getOpDefs().length; i++) {
 			OpDefNode def = moduleNode.getOpDefs()[i];
-			if (specAnalyser.getBDefinitions().contains(def)) {
+			if(specAnalyser.getUsedDefinitions().contains(def)){
 				if (conEval != null
 						&& conEval.getConstantOverrideTable()
 								.containsValue(def)) {
@@ -40,6 +41,16 @@ public class BMacroHandler extends AbstractASTVisitor {
 		}
 
 		visitAssumptions(moduleNode.getAssumptions());
+		
+		for (BOperation op :  specAnalyser.getBOperations()) {
+			definitionParameters = new HashSet<FormalParamNode>();
+			localVariables = new HashSet<FormalParamNode>();
+
+			visitExprNode(op.getNode());
+
+			definitionParameters = null;
+			localVariables = null;
+		}
 	}
 
 	private HashSet<FormalParamNode> definitionParameters;
@@ -72,6 +83,7 @@ public class BMacroHandler extends AbstractASTVisitor {
 		localVariables = null;
 
 	}
+	
 
 	@Override
 	public void visitBuiltInNode(OpApplNode n) {

@@ -44,14 +44,15 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 	private OpDefNode next;
 	private ArrayList<OpDefNode> invariants;
 
-	private ModuleNode moduleNode;
+	private final ModuleNode moduleNode;
 	private ExprNode nextExpr;
 	private String nextName;
+
 	private ArrayList<OpDeclNode> bConstants;
 	// used to check if a b constant has arguments and is not overriden in the
 	// configfile
 
-	private ArrayList<BOperation> bOperations;
+	private final ArrayList<BOperation> bOperations = new ArrayList<BOperation>();
 	private ArrayList<ExprNode> inits;
 	private ArrayList<LetInNode> globalLets = new ArrayList<LetInNode>();
 	// these local definitions occur in assume nodes or in BOperations and will
@@ -75,40 +76,44 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 
 	private ConfigfileEvaluator conEval;
 
-	/**
-	 * @param m
-	 * @param conEval
-	 */
-	public SpecAnalyser(ModuleNode m, ConfigfileEvaluator conEval) {
+	private SpecAnalyser(ModuleNode m) {
 		this.moduleNode = m;
-		this.spec = conEval.getSpecNode();
-		this.init = conEval.getInitNode();
-		this.next = conEval.getNextNode();
-		this.invariants = conEval.getInvariants();
-		this.bConstants = conEval.getbConstantList();
-		this.conEval = conEval;
+		this.bConstants = new ArrayList<OpDeclNode>();
 	}
 
-	public SpecAnalyser(ModuleNode m) {
-		this.moduleNode = m;
+	public static SpecAnalyser createSpecAnalyser(ModuleNode m,
+			ConfigfileEvaluator conEval) {
+		SpecAnalyser specAnalyser = new SpecAnalyser(m);
+		specAnalyser.spec = conEval.getSpecNode();
+		specAnalyser.init = conEval.getInitNode();
+		specAnalyser.next = conEval.getNextNode();
+		specAnalyser.invariants = conEval.getInvariants();
+		specAnalyser.bConstants = conEval.getbConstantList();
+		specAnalyser.conEval = conEval;
+
+		return specAnalyser;
+	}
+
+	public static SpecAnalyser createSpecAnalyser(ModuleNode m) {
+		SpecAnalyser specAnalyser = new SpecAnalyser(m);
 		Hashtable<String, OpDefNode> definitions = new Hashtable<String, OpDefNode>();
 		for (int i = 0; i < m.getOpDefs().length; i++) {
 			definitions.put(m.getOpDefs()[i].getName().toString(),
 					m.getOpDefs()[i]);
 		}
-		this.spec = definitions.get("Spec");
-		this.init = definitions.get("Init");
-		this.next = definitions.get("Next");
-
+		specAnalyser.spec = definitions.get("Spec");
+		specAnalyser.init = definitions.get("Init");
+		specAnalyser.next = definitions.get("Next");
 		// TODO are constant in the right order
-		this.bConstants = new ArrayList<OpDeclNode>();
-		this.bConstants.addAll(Arrays.asList(m.getConstantDecls()));
+
+		specAnalyser.bConstants.addAll(Arrays.asList(m.getConstantDecls()));
+
+		return specAnalyser;
 	}
 
 	public void start() throws SemanticErrorException, FrontEndException,
 			ConfigFileErrorException, NotImplementedException {
-		
-		
+
 		if (spec != null) {
 			evalSpec();
 		} else {
@@ -231,7 +236,6 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 			ConfigFileErrorException {
 		if (nextExpr == null)
 			return;
-		bOperations = new ArrayList<BOperation>();
 		findOperationsInSemanticNode(nextExpr, nextName,
 				new ArrayList<OpApplNode>());
 	}
@@ -293,7 +297,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 			usedDefinitions.add(def);
 			if (def.getParams().length > 0) {
 				BOperation op = new BOperation(def.getName().toString(), n,
-						existQuans);
+						existQuans, this);
 				bOperations.add(op);
 				return;
 			} else {
@@ -349,7 +353,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 			case OPCODE_fa: // $FcnApply f[1]
 			case OPCODE_ite: // IF THEN ELSE
 			case OPCODE_case: {
-				BOperation op = new BOperation(name, n, existQuans);
+				BOperation op = new BOperation(name, n, existQuans, this);
 				bOperations.add(op);
 				return;
 			}
@@ -585,17 +589,17 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		}
 	}
 
-//	public void evalIfThenElse() {
-//		boolean b = false;
-//		for (int i = 0; i < ifThenElseNodes.size() && !b; i++) {
-//			OpApplNode node = ifThenElseNodes.get(i);
-//			TLAType t = (TLAType) node.getToolObject(TYPE_ID);
-//			if (t.getKind() != BOOL)
-//				b = true;
-//		}
-//		if (b)
-//			definitionMacros.add(IF_THEN_ELSE);
-//	}
+	// public void evalIfThenElse() {
+	// boolean b = false;
+	// for (int i = 0; i < ifThenElseNodes.size() && !b; i++) {
+	// OpApplNode node = ifThenElseNodes.get(i);
+	// TLAType t = (TLAType) node.getToolObject(TYPE_ID);
+	// if (t.getKind() != BOOL)
+	// b = true;
+	// }
+	// if (b)
+	// definitionMacros.add(IF_THEN_ELSE);
+	// }
 
 	public ArrayList<LetInNode> getGlobalLets() {
 		return this.globalLets;

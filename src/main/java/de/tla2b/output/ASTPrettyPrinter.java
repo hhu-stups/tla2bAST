@@ -9,6 +9,7 @@ import de.be4.classicalb.core.parser.analysis.ExtendedDFAdapter;
 import de.be4.classicalb.core.parser.node.AAbstractMachineParseUnit;
 import de.be4.classicalb.core.parser.node.AAnySubstitution;
 import de.be4.classicalb.core.parser.node.ABecomesSuchSubstitution;
+import de.be4.classicalb.core.parser.node.ABlockSubstitution;
 import de.be4.classicalb.core.parser.node.ADefinitionExpression;
 import de.be4.classicalb.core.parser.node.ADefinitionPredicate;
 import de.be4.classicalb.core.parser.node.AExpressionDefinitionDefinition;
@@ -17,10 +18,13 @@ import de.be4.classicalb.core.parser.node.ALambdaExpression;
 import de.be4.classicalb.core.parser.node.AOperation;
 import de.be4.classicalb.core.parser.node.AOperationsMachineClause;
 import de.be4.classicalb.core.parser.node.APredicateDefinitionDefinition;
+import de.be4.classicalb.core.parser.node.ASelectSubstitution;
+import de.be4.classicalb.core.parser.node.ASkipSubstitution;
 import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.be4.classicalb.core.parser.node.PMachineClause;
 import de.be4.classicalb.core.parser.node.POperation;
+import de.be4.classicalb.core.parser.node.PSubstitution;
 import de.be4.classicalb.core.parser.node.Start;
 import de.be4.classicalb.core.parser.node.TIdentifierLiteral;
 import de.be4.classicalb.core.parser.node.Token;
@@ -173,7 +177,8 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 		putSymbol("AEmptySetExpression", "{}");
 		putSymbol("ABoolSetExpression", "BOOL");
 		putSymbol("AStringSetExpression", "STRING");
-
+		putSymbol("ASkipSubstitution", "skip");
+		
 		putPreEnd("APowSubsetExpression", "POW(", ")");
 		putPreEnd("AConvertBoolExpression", "bool(", ")");
 		putPreEnd("ADomainExpression", "dom(", ")");
@@ -189,6 +194,10 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 		putPreEnd("ATailExpression", "tail(", ")");
 		putPreEnd("AEmptySequenceExpression", "[", "]");
 
+		putPreEnd("ABlockSubstitution", "BEGIN ", " END");
+		// TODO other substitutions
+		
+		
 		put("ASetExtensionExpression", null, "{", ", ", "}", null, null);
 		put("AStructExpression", "struct", "(", ", ", ")", null, null);
 		put("ARecExpression", "rec", "(", ", ", ")", null, null);
@@ -471,6 +480,35 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 		node.getWhere().apply(this);
 		sb.append(" THEN ");
 		node.getThen().apply(this);
+		sb.append(" END");
+	}
+
+	@Override
+	public void caseASelectSubstitution(final ASelectSubstitution node) {
+		sb.append("SELECT ");
+		node.getCondition().apply(this);
+		sb.append(" THEN ");
+		betweenChildren(node);
+		node.getThen().apply(this);
+		{
+			final List<PSubstitution> copy = new ArrayList<PSubstitution>(
+					node.getWhenSubstitutions());
+			beginList(node);
+			for (final Iterator<PSubstitution> iterator = copy.iterator(); iterator
+					.hasNext();) {
+				final PSubstitution e = iterator.next();
+				e.apply(this);
+
+				if (iterator.hasNext()) {
+					betweenListElements(node);
+				}
+			}
+			endList(node);
+		}
+		betweenChildren(node);
+		if (node.getElse() != null) {
+			node.getElse().apply(this);
+		}
 		sb.append(" END");
 	}
 
