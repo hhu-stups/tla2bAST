@@ -41,16 +41,6 @@ public class BMacroHandler extends AbstractASTVisitor {
 		}
 
 		visitAssumptions(moduleNode.getAssumptions());
-		
-		for (BOperation op :  specAnalyser.getBOperations()) {
-			definitionParameters = new HashSet<FormalParamNode>();
-			localVariables = new HashSet<FormalParamNode>();
-
-			visitExprNode(op.getNode());
-
-			definitionParameters = null;
-			localVariables = null;
-		}
 	}
 
 	private HashSet<FormalParamNode> definitionParameters;
@@ -97,10 +87,6 @@ public class BMacroHandler extends AbstractASTVisitor {
 		case OPCODE_sso: // $SubsetOf Represents {x \in S : P}
 		case OPCODE_soa: // $SetOfAll Represents {e : p1 \in S, p2,p3 \in S2}
 		{
-			ExprNode[] in = n.getBdedQuantBounds();
-			for (ExprNode exprNode : in) {
-				visitExprNode(exprNode);
-			}
 
 			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
 			HashSet<FormalParamNode> set = new HashSet<FormalParamNode>();
@@ -111,6 +97,10 @@ public class BMacroHandler extends AbstractASTVisitor {
 				}
 			}
 			localVariables.addAll(set);
+			ExprNode[] in = n.getBdedQuantBounds();
+			for (ExprNode exprNode : in) {
+				visitExprNode(exprNode);
+			}
 			ExprOrOpArgNode[] arguments = n.getArgs();
 			for (ExprOrOpArgNode exprOrOpArgNode : arguments) {
 				visitExprOrOpArgNode(exprOrOpArgNode);
@@ -126,7 +116,7 @@ public class BMacroHandler extends AbstractASTVisitor {
 		}
 
 	}
-
+	
 
 	private Set<String> getStringSet(Set<FormalParamNode> set) {
 		HashSet<String> stringSet = new HashSet<String>();

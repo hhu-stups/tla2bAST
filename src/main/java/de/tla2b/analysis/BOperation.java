@@ -53,6 +53,7 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 	private final ArrayList<ExprOrOpArgNode> beforeAfterPredicates;
 	private LinkedHashMap<SymbolNode, ExprOrOpArgNode> assignments = new LinkedHashMap<SymbolNode, ExprOrOpArgNode>();
 	private List<OpDeclNode> anyVariables;
+	private final SpecAnalyser specAnalyser;
 
 	final int SUBSTITUTE_PARAM = 29;
 
@@ -61,6 +62,7 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 		this.name = name;
 		this.node = n;
 		this.existQuans = existQuans;
+		this.specAnalyser = specAnalyser;
 		this.unchangedVariablesList = new ArrayList<OpDeclNode>();
 		this.guards = new ArrayList<ExprOrOpArgNode>();
 		this.beforeAfterPredicates = new ArrayList<ExprOrOpArgNode>();
@@ -74,7 +76,6 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 	}
 
 	public AOperation getBOperation(BAstCreator bASTCreator) {
-
 		AOperation operation = new AOperation();
 		List<PExpression> paramList = new ArrayList<PExpression>();
 		ArrayList<PPredicate> whereList = new ArrayList<PPredicate>();
@@ -214,7 +215,14 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 				}
 			}
 		}
+		anyVariables = new ArrayList<OpDeclNode>();
+		for (OpDeclNode var : specAnalyser.getModuleNode().getVariableDecls()) {
+			anyVariables.add(var);
+		}
 
+//		for (SymbolNode symbol : primedVariablesFinder.getAllVariables()) {
+//			anyVariables.add((OpDeclNode) symbol);
+//		}
 		anyVariables.removeAll(assignments.keySet());
 	}
 
@@ -305,7 +313,6 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 	private void findUnchangedVariables() {
 		unchangedVariables = new ArrayList<String>();
 		findUnchangedVaribalesInSemanticNode(node);
-		anyVariables.removeAll(unchangedVariablesList);
 	}
 
 	/**
@@ -387,7 +394,7 @@ class PrimedVariablesFinder extends AbstractASTVisitor {
 		this.all = new HashSet<SymbolNode>();
 		this.twiceUsedVariables = new HashSet<SymbolNode>();
 		this.table = new Hashtable<SemanticNode, Set<SymbolNode>>();
-		
+
 		for (ExprOrOpArgNode exprOrOpArgNode : list) {
 			findPrimedVariables(exprOrOpArgNode);
 		}
@@ -404,7 +411,7 @@ class PrimedVariablesFinder extends AbstractASTVisitor {
 
 		case OPCODE_prime: // prime
 		{
-			if (n.getArgs()[0] instanceof OpApplNode){
+			if (n.getArgs()[0] instanceof OpApplNode) {
 				OpApplNode varNode = (OpApplNode) n.getArgs()[0];
 				SymbolNode var = varNode.getOperator();
 
@@ -429,4 +436,7 @@ class PrimedVariablesFinder extends AbstractASTVisitor {
 		return this.twiceUsedVariables;
 	}
 
+	public Set<SymbolNode> getAllVariables() {
+		return this.all;
+	}
 }

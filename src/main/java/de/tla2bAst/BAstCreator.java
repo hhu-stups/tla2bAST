@@ -442,7 +442,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 					valueList);
 			any.setThen(assign);
 			operation.setOperationBody(any);
-			//opList.add(operation);
+			// opList.add(operation);
 			opList.add(op.getBOperation(this));
 		}
 
@@ -823,7 +823,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 					.getToolObject(SUBSTITUTE_PARAM);
 			if (e == null) {
 				if (recursiveFunctionHandler.isRecursiveFunction(param)) {
-					ArrayList<SymbolNode> list = recursiveFunctionHandler.getAdditionalParams(param);
+					ArrayList<SymbolNode> list = recursiveFunctionHandler
+							.getAdditionalParams(param);
 					if (list.size() > 0) {
 						AFunctionExpression call = new AFunctionExpression();
 						call.setIdentifier(createIdentifierNode(param));
@@ -903,7 +904,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		}
 
 		if (specAnalyser.getRecursiveFunctions().contains(def)) {
-			ArrayList<SymbolNode> list = recursiveFunctionHandler.getAdditionalParams(def);
+			ArrayList<SymbolNode> list = recursiveFunctionHandler
+					.getAdditionalParams(def);
 			if (list.size() > 0) {
 				AFunctionExpression call = new AFunctionExpression();
 				call.setIdentifier(createIdentifierNode(def));
@@ -1426,13 +1428,14 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			lambda.setExpression(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
 
 			if (recursiveFunctionHandler.isRecursiveFunction(n)) {
-				
-				ArrayList<SymbolNode> externParams = recursiveFunctionHandler.getAdditionalParams(n);
-				if(externParams.size()>0){
+
+				ArrayList<SymbolNode> externParams = recursiveFunctionHandler
+						.getAdditionalParams(n);
+				if (externParams.size() > 0) {
 					ALambdaExpression lambda2 = new ALambdaExpression();
 					ArrayList<PExpression> shiftedParams = new ArrayList<PExpression>();
 					List<PPredicate> predList2 = new ArrayList<PPredicate>();
-					for (SymbolNode p :externParams) {
+					for (SymbolNode p : externParams) {
 						shiftedParams.add(createIdentifierNode(p));
 
 						AMemberPredicate member = new AMemberPredicate();
@@ -1952,8 +1955,30 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		}
 
 		case OPCODE_unchanged: {
-			return new AEqualPredicate(new ABooleanTrueExpression(),
-					new ABooleanTrueExpression());
+			OpApplNode node = (OpApplNode) n.getArgs()[0];
+			if (node.getOperator().getKind() == VariableDeclKind) {
+				AEqualPredicate equal = new AEqualPredicate();
+				equal.setLeft(createIdentifierNode(getName(node.getOperator())
+						+ "_n"));
+				equal.setRight(createIdentifierNode(node.getOperator()));
+				return equal;
+			} else if (node.getOperator().getKind() == UserDefinedOpKind) {
+				OpDefNode operator = (OpDefNode) node.getOperator();
+				ExprNode e = operator.getBody();
+				OpApplNode opApplNode = (OpApplNode) e;
+				node = opApplNode;
+			}
+
+			ArrayList<PPredicate> list = new ArrayList<PPredicate>();
+			for (int i = 0; i < node.getArgs().length; i++) {
+				OpApplNode var = (OpApplNode) node.getArgs()[i];
+				AEqualPredicate equal = new AEqualPredicate();
+				equal.setLeft(createIdentifierNode(getName(var.getOperator())
+						+ "_n"));
+				equal.setRight(createIdentifierNode(var.getOperator()));
+				list.add(equal);
+			}
+			return createConjunction(list);
 		}
 
 		case OPCODE_uc: { // CHOOSE x : P
