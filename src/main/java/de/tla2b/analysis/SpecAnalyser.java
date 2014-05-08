@@ -17,8 +17,8 @@ import de.tla2b.exceptions.NotImplementedException;
 import de.tla2b.exceptions.SemanticErrorException;
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.global.TranslationGlobals;
+import de.tla2b.translation.UsedDefinitionsFinder;
 import de.tla2b.types.IType;
-
 import tla2sany.semantic.ASTConstants;
 import tla2sany.semantic.AssumeNode;
 import tla2sany.semantic.ExprNode;
@@ -74,7 +74,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 
 	private ArrayList<RecursiveDefinition> recursiveDefinitions = new ArrayList<RecursiveDefinition>();
 
-	private ConfigfileEvaluator conEval;
+	private ConfigfileEvaluator configFileEvaluator;
 
 	private SpecAnalyser(ModuleNode m) {
 		this.moduleNode = m;
@@ -89,7 +89,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		specAnalyser.next = conEval.getNextNode();
 		specAnalyser.invariants = conEval.getInvariants();
 		specAnalyser.bConstants = conEval.getbConstantList();
-		specAnalyser.conEval = conEval;
+		specAnalyser.configFileEvaluator = conEval;
 
 		return specAnalyser;
 	}
@@ -123,7 +123,11 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		findOperations();
 
 		findDefinitions();
-		usedDefinitions.addAll(bDefinitionsSet);
+		
+		UsedDefinitionsFinder definitionFinder = new UsedDefinitionsFinder(this);
+		
+		usedDefinitions = definitionFinder.getUsedDefinitions();
+		//usedDefinitions.addAll(bDefinitionsSet);
 
 		// test whether there is a init predicate if there is a variable
 		if (moduleNode.getVariableDecls().length > 0 && inits == null) {
@@ -371,8 +375,8 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 	 */
 
 	private void findDefinitions() throws ConfigFileErrorException {
-		if (conEval != null) {
-			bDefinitionsSet.addAll(conEval.getConstantOverrideTable().values());
+		if (configFileEvaluator != null) {
+			bDefinitionsSet.addAll(configFileEvaluator.getConstantOverrideTable().values());
 		}
 
 		AssumeNode[] assumes = moduleNode.getAssumptions();
@@ -386,6 +390,10 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 			}
 		}
 
+		
+//		if(nextExpr != null){
+//			findDefintionInExprNode(nextExpr, null);
+//		}
 		if (bOperations != null) {
 			for (int i = 0; i < bOperations.size(); i++) {
 				ExprNode node = bOperations.get(i).getNode();
@@ -422,7 +430,8 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		for (OpDefNode def : defSet) {
 			findDefintionInExprNode(def.getBody(), null);
 		}
-
+		
+		//bDefinitionsSet.remove(next);
 	}
 
 	/**
@@ -567,7 +576,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 	 * 
 	 */
 	private void evalRecursiveFunctions() throws NotImplementedException {
-		Set<OpDefNode> set = new HashSet<OpDefNode>(bDefinitionsSet);
+		Set<OpDefNode> set = new HashSet<OpDefNode>(usedDefinitions);
 		for (OpDefNode def : set) {
 			if (def.getInRecursive()) {
 				bDefinitionsSet.remove(def);
@@ -645,4 +654,12 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		return this.moduleNode;
 	}
 
+	public ConfigfileEvaluator getConfigFileEvaluator(){
+		return configFileEvaluator;
+	}
+	
+	public ArrayList<OpDefNode> getInvariants(){
+		return invariants;
+	}
+	
 }

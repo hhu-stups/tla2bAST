@@ -174,8 +174,9 @@ public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
 	}
 
 	public void visitUserDefinedNode(OpApplNode n) {
-		ExprOrOpArgNode[] arguments = n.getArgs();
-		for (ExprOrOpArgNode exprOrOpArgNode : arguments) {
+
+		
+		for (ExprOrOpArgNode exprOrOpArgNode : n.getArgs()) {
 			visitExprOrOpArgNode(exprOrOpArgNode);
 		}
 	}

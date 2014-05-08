@@ -69,6 +69,10 @@ jacocoTestReport {
 //}
 
 
+test { 
+	exclude('testing')
+}
+
 jar { from sourceSets.main.allJava }
 jar	{
 	from configurations.releaseJars.collect { it.isDirectory() ? it : zipTree(it) }
