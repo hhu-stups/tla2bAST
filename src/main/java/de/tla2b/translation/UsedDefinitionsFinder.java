@@ -19,26 +19,32 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor implements
 
 	private final HashSet<OpDefNode> usedDefinitions = new HashSet<OpDefNode>();
 	
+	
 	public UsedDefinitionsFinder(SpecAnalyser specAnalyser) {
-		
-		if(specAnalyser.getConfigFileEvaluator() != null){
-			Collection<OpDefNode> cons = specAnalyser.getConfigFileEvaluator().getConstantOverrideTable().values();
+
+		if (specAnalyser.getConfigFileEvaluator() != null) {
+			Collection<OpDefNode> cons = specAnalyser.getConfigFileEvaluator()
+					.getConstantOverrideTable().values();
 			for (OpDefNode def : cons) {
 				visitExprNode(def.getBody());
 			}
-			Collection<OpDefNode> ops = specAnalyser.getConfigFileEvaluator().getOperatorOverrideTable().values();
+			Collection<OpDefNode> ops = specAnalyser.getConfigFileEvaluator()
+					.getOperatorOverrideTable().values();
 			for (OpDefNode def : cons) {
 				visitExprNode(def.getBody());
 			}
 			usedDefinitions.addAll(cons);
 			usedDefinitions.addAll(ops);
 		}
-		
+
 		visitAssumptions(specAnalyser.getModuleNode().getAssumptions());
-	
-		
-		if(specAnalyser.getNext() != null){
+
+		if (specAnalyser.getNext() != null) {
 			visitExprNode(specAnalyser.getNext());
+		}
+
+		if (specAnalyser.getInitDef() != null) {
+			usedDefinitions.add(specAnalyser.getInitDef());
 		}
 
 		if (specAnalyser.getInits() != null) {
@@ -46,7 +52,7 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor implements
 				visitExprNode(specAnalyser.getInits().get(i));
 			}
 		}
-	
+
 		if (specAnalyser.getInvariants() != null) {
 			for (int i = 0; i < specAnalyser.getInvariants().size(); i++) {
 				OpDefNode def = specAnalyser.getInvariants().get(i);
@@ -56,14 +62,14 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor implements
 		}
 	}
 
-	public HashSet<OpDefNode> getUsedDefinitions(){
+	public HashSet<OpDefNode> getUsedDefinitions() {
 		return usedDefinitions;
 	}
-	
+
 	@Override
 	public void visitUserDefinedNode(OpApplNode n) {
 		super.visitUserDefinedNode(n);
-		
+
 		OpDefNode def = (OpDefNode) n.getOperator();
 		ModuleNode moduleNode = def.getSource()
 				.getOriginallyDefinedInModuleNode();
@@ -79,7 +85,6 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor implements
 		if (usedDefinitions.add(def)) {
 			visitExprNode(def.getBody());
 		}
-
 
 	}
 }

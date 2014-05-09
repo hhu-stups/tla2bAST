@@ -55,8 +55,6 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 	private List<OpDeclNode> anyVariables;
 	private final SpecAnalyser specAnalyser;
 
-	final int SUBSTITUTE_PARAM = 29;
-
 	public BOperation(String name, ExprNode n,
 			ArrayList<OpApplNode> existQuans, SpecAnalyser specAnalyser) {
 		this.name = name;
@@ -220,9 +218,9 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 			anyVariables.add(var);
 		}
 
-//		for (SymbolNode symbol : primedVariablesFinder.getAllVariables()) {
-//			anyVariables.add((OpDeclNode) symbol);
-//		}
+		// for (SymbolNode symbol : primedVariablesFinder.getAllVariables()) {
+		// anyVariables.add((OpDeclNode) symbol);
+		// }
 		anyVariables.removeAll(assignments.keySet());
 	}
 

@@ -73,7 +73,6 @@ public class BMachinePrinter extends AbstractExpressionPrinter implements
 
 		this.inits = specAnalyser.getInits();
 		this.bOperations = specAnalyser.getBOperations();
-		this.globalLets = specAnalyser.getGlobalLets();
 		this.definitionMacro = specAnalyser.getDefinitionMacros();
 		this.bDefinitions = specAnalyser.getBDefinitions();
 		this.letParams = specAnalyser.getLetParams();

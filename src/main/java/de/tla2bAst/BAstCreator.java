@@ -159,7 +159,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 	private final BMacroHandler bMacroHandler;
 	private final RecursiveFunctionHandler recursiveFunctionHandler;
 
-	final int SUBSTITUTE_PARAM = 29;
+	
 
 	final HashSet<OpDefNode> allTLADefinitions;
 	List<OpDeclNode> bConstants;

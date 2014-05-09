@@ -15,7 +15,6 @@ import tla2sany.semantic.OpApplNode;
 import tla2sany.semantic.OpDefNode;
 import tla2sany.semantic.SymbolNode;
 import de.tla2b.analysis.AbstractASTVisitor;
-import de.tla2b.analysis.BOperation;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.config.ConfigfileEvaluator;
 

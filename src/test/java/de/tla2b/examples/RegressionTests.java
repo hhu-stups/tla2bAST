@@ -1,4 +1,4 @@
-package de.tla2b.regression;
+package de.tla2b.examples;
 
 import static de.tla2b.util.TestUtil.runModule;
 
@@ -33,8 +33,7 @@ public class RegressionTests extends AbstractParseModuleTest{
 		final ArrayList<String> list = new ArrayList<String>();
 		final ArrayList<String> ignoreList = new ArrayList<String>();
 		
-		list.add("./src/test/resources/examples"); 
-		ignoreList.add("./src/test/resources/testing/");
+		list.add("./src/test/resources/regression"); 
 		return getConfiguration2(list, ignoreList);
 	}
 }

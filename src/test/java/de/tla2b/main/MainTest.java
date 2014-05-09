@@ -8,7 +8,7 @@ public class MainTest {
 
 	@Test
 	public void testClub() throws Exception {
-		String file = "src/test/resources/examples/Club/Club.tla";
+		String file = "src/test/resources/regression/Club/Club.tla";
 		TLA2B.main(new String[] { file });
 	}
 	

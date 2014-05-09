@@ -53,72 +53,64 @@ public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
 
 	}
 
-	public void visitExprNode(ExprNode n) {
-
-		switch (n.getKind()) {
+	public void visitExprNode(ExprNode node) {
+		switch (node.getKind()) {
 		case OpApplKind: {
-			visitOpApplNode((OpApplNode) n);
+			visitOpApplNode((OpApplNode) node);
 			return;
 		}
-
 		case NumeralKind: {
-			visitNumeralNode((NumeralNode) n);
+			visitNumeralNode((NumeralNode) node);
 			return;
 		}
-
 		case StringKind: {
-			visitStringNode((StringNode) n);
+			visitStringNode((StringNode) node);
 			return;
 		}
-
 		case SubstInKind: {
-			visitStubstInNode((SubstInNode) n);
+			visitStubstInNode((SubstInNode) node);
 			return;
 		}
 		case AtNodeKind: { // @
-			visitAtNode((AtNode) n);
+			visitAtNode((AtNode) node);
 			return;
 		}
-
 		case LetInKind: {
-			visitLetInNode((LetInNode) n);
+			visitLetInNode((LetInNode) node);
 			return;
 		}
-
 		}
 	}
 
-	public void visitOpApplNode(OpApplNode n) {
-		switch (n.getOperator().getKind()) {
+	public void visitOpApplNode(OpApplNode node) {
+		switch (node.getOperator().getKind()) {
 		case VariableDeclKind: {
-			visitVariableNode(n);
+			visitVariableNode(node);
 			return;
 		}
 		case ConstantDeclKind: {
-			visitConstantNode(n);
+			visitConstantNode(node);
 			return;
 		}
 
 		case FormalParamKind: {
-			visitFormalParamNode(n);
+			visitFormalParamNode(node);
 			return;
 		}
 
 		case BuiltInKind: {
-			visitBuiltInNode(n);
+			visitBuiltInNode(node);
 			return;
 		}
 
 		case UserDefinedOpKind: {
-			
-			if(BBuiltInOPs.contains(n.getOperator().getName())){
-				visitBBuiltinsNode(n);
+			if (BBuiltInOPs.contains(node.getOperator().getName())) {
+				visitBBuiltinsNode(node);
 				return;
-			}else{
-				visitUserDefinedNode(n);
+			} else {
+				visitUserDefinedNode(node);
 				return;
 			}
-			
 
 		}
 		}
@@ -130,7 +122,7 @@ public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
 		for (ExprNode exprNode : in) {
 			visitExprNode(exprNode);
 		}
-		
+
 		ExprOrOpArgNode[] arguments = n.getArgs();
 		for (ExprOrOpArgNode exprOrOpArgNode : arguments) {
 			visitExprOrOpArgNode(exprOrOpArgNode);
@@ -142,23 +134,23 @@ public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
 		for (ExprNode exprNode : in) {
 			visitExprNode(exprNode);
 		}
-		
+
 		ExprOrOpArgNode[] arguments = n.getArgs();
 		for (ExprOrOpArgNode exprOrOpArgNode : arguments) {
-			// exprOrOpArgNode == null in case the OTHER construct 
-			if(exprOrOpArgNode != null){
+			// exprOrOpArgNode == null in case the OTHER construct
+			if (exprOrOpArgNode != null) {
 				visitExprOrOpArgNode(exprOrOpArgNode);
 			}
-			
+
 		}
 	}
 
-	public void visitLetInNode(LetInNode n) {
-		OpDefNode[] lets = n.getLets();
+	public void visitLetInNode(LetInNode node) {
+		OpDefNode[] lets = node.getLets();
 		for (OpDefNode opDefNode : lets) {
 			visitLocalDefinition(opDefNode);
 		}
-		visitExprNode(n.getBody());
+		visitExprNode(node.getBody());
 	}
 
 	public void visitLocalDefinition(OpDefNode opDefNode) {
@@ -174,8 +166,6 @@ public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
 	}
 
 	public void visitUserDefinedNode(OpApplNode n) {
-
-		
 		for (ExprOrOpArgNode exprOrOpArgNode : n.getArgs()) {
 			visitExprOrOpArgNode(exprOrOpArgNode);
 		}

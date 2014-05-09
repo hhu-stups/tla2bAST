@@ -13,7 +13,6 @@ import de.tla2b.config.ConfigfileEvaluator;
 import de.tla2b.config.ModuleOverrider;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.global.TranslationGlobals;
-import de.tla2b.util.FileUtils;
 import tla2sany.drivers.FrontEndException;
 import tla2sany.drivers.SANY;
 import tla2sany.modanalyzer.SpecObj;

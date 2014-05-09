@@ -22,6 +22,8 @@ public interface TranslationGlobals {
 	final int TYPE_ID = 5;
 	final int LET_PARAMS_ID = 13;
 	final int NEW_NAME = 20;
+	
+	final int SUBSTITUTE_PARAM = 29;
 
 	final String CHOOSE = " CHOOSE(X) == \"a member of X\"; EXTERNAL_FUNCTION_CHOOSE(T) == (POW(T)-->T)";
 	final String IF_THEN_ELSE = " IF_THEN_ELSE(P, a, b) == (%t_.(t_ = TRUE & P = TRUE | a )\\/%t_.(t_= TRUE & not(P= TRUE) | b ))(TRUE)";
