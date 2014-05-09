@@ -2,7 +2,7 @@
  * @author Dominik Hansen <Dominik.Hansen at hhu.de>
  **/
 
-package de.tla2b.translation;
+package de.tla2b.old;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -249,7 +249,7 @@ public class TLA2B implements TranslationGlobals {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		ExpressionTranslator et = new ExpressionTranslator(expr);
+		ExpressionTranslatorOld et = new ExpressionTranslatorOld(expr);
 		try {
 			et.start();
 		} catch (TLA2BException e) {

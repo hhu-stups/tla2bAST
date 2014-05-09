@@ -83,7 +83,16 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 
 		return specAnalyser;
 	}
-
+	
+	
+	public static SpecAnalyser createSpecAnalyserForTlaExpression(ModuleNode m){
+		SpecAnalyser specAnalyser = new SpecAnalyser(m);
+		OpDefNode expr = m.getOpDefs()[m.getOpDefs().length-1];
+		specAnalyser.usedDefinitions.add(expr);
+		specAnalyser.bDefinitionsSet.add(expr);
+		return specAnalyser;
+	}
+	
 	public static SpecAnalyser createSpecAnalyser(ModuleNode m) {
 		SpecAnalyser specAnalyser = new SpecAnalyser(m);
 		Hashtable<String, OpDefNode> definitions = new Hashtable<String, OpDefNode>();

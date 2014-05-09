@@ -17,9 +17,9 @@ import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.Start;
 import de.tla2b.exceptions.FrontEndException;
 import de.tla2b.exceptions.TLA2BException;
+import de.tla2b.old.Tla2BTranslator;
 import de.tla2b.output.ASTPrettyPrinter;
 import de.tla2b.output.Renamer;
-import de.tla2b.translation.Tla2BTranslator;
 import de.tla2bAst.Translator;
 import tla2sany.semantic.AbortException;
 import util.ToolIO;
@@ -38,12 +38,6 @@ public class TestUtil {
 	public static void runModule(String tlaFile) throws Exception{
 		Translator t = new Translator(tlaFile);
 		Start start = t.translate();
-		//String printResult = getAstStringofBMachineString(t.getBMachineString());
-		//System.out.println(printResult);
-		//System.out.println(getTreeAsString(start));
-		//BParser.printASTasProlog(System.out, new BParser(), new File("./test.mch"), resultNode, false, true, null);
-		
-		
 		
 		System.out.println("-------------------");
 		ASTPrettyPrinter aP = new ASTPrettyPrinter();
@@ -65,6 +59,21 @@ public class TestUtil {
 		assertEquals(result, ppResult);
 		//System.out.println(t.getBDefinitions().getDefinitionNames());
 	}
+	
+	public static void compareExpr(String bExpr, String tlaExpr) throws BException{
+		ToolIO.setMode(ToolIO.TOOL);
+		ToolIO.reset();
+		Start resultNode = Translator.translateTlaExpression(tlaExpr);
+		Renamer renamer = new Renamer(resultNode);
+		ASTPrettyPrinter aP = new ASTPrettyPrinter(renamer);
+		resultNode.apply(aP);
+		System.out.println(aP.getResultString());
+		String bAstString = getAstStringofBExpressionString(bExpr);
+		String result = getAstStringofBExpressionString(aP.getResultString());
+		//String tlaAstString = getTreeAsString(resultNode);
+		assertEquals(bAstString, result);
+	}
+	
 	
 	public static void compare(String bMachine, String tlaModule) throws BException, TLA2BException{
 		ToolIO.setMode(ToolIO.TOOL);
@@ -207,6 +216,17 @@ public class TestUtil {
 			throws BException {
 		final BParser parser = new BParser("testcase");
 		final Start startNode = parser.parse(testMachine, false);
+		
+		final Ast2String ast2String = new Ast2String();
+		startNode.apply(ast2String);
+		final String string = ast2String.toString();
+		return string;
+	}
+	
+	public static String getAstStringofBExpressionString(final String expr)
+			throws BException {
+		final BParser parser = new BParser("testcase");
+		final Start startNode = parser.parse("#FORMULA " + expr, false);
 		
 		final Ast2String ast2String = new Ast2String();
 		startNode.apply(ast2String);

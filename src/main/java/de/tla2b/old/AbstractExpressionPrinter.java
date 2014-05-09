@@ -2,7 +2,7 @@
  * @author Dominik Hansen <Dominik.Hansen at hhu.de>
  **/
 
-package de.tla2b.pprint;
+package de.tla2b.old;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -20,7 +20,6 @@ import de.tla2b.types.SetType;
 import de.tla2b.types.StructType;
 import de.tla2b.types.TLAType;
 import de.tla2b.types.TupleType;
-
 import tla2sany.semantic.ASTConstants;
 import tla2sany.semantic.AtNode;
 import tla2sany.semantic.ExprNode;

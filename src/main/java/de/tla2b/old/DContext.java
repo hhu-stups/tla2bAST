@@ -2,7 +2,7 @@
  * @author Dominik Hansen <Dominik.Hansen at hhu.de>
  **/
 
-package de.tla2b.pprint;
+package de.tla2b.old;
 
 public class DContext {
 	public StringBuilder indent;

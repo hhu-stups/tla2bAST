@@ -2,7 +2,7 @@
  * @author Dominik Hansen <Dominik.Hansen at hhu.de>
  **/
 
-package de.tla2b.pprint;
+package de.tla2b.old;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -19,7 +19,6 @@ import de.tla2b.global.TranslationGlobals;
 import de.tla2b.types.EnumType;
 import de.tla2b.types.SetType;
 import de.tla2b.types.TLAType;
-
 import tla2sany.semantic.AssumeNode;
 import tla2sany.semantic.ExprNode;
 import tla2sany.semantic.FormalParamNode;

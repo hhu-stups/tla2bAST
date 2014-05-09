@@ -9,17 +9,16 @@ import de.be4.classicalb.core.parser.analysis.ExtendedDFAdapter;
 import de.be4.classicalb.core.parser.node.AAbstractMachineParseUnit;
 import de.be4.classicalb.core.parser.node.AAnySubstitution;
 import de.be4.classicalb.core.parser.node.ABecomesSuchSubstitution;
-import de.be4.classicalb.core.parser.node.ABlockSubstitution;
 import de.be4.classicalb.core.parser.node.ADefinitionExpression;
 import de.be4.classicalb.core.parser.node.ADefinitionPredicate;
 import de.be4.classicalb.core.parser.node.AExpressionDefinitionDefinition;
+import de.be4.classicalb.core.parser.node.AExpressionParseUnit;
 import de.be4.classicalb.core.parser.node.AIdentifierExpression;
 import de.be4.classicalb.core.parser.node.ALambdaExpression;
 import de.be4.classicalb.core.parser.node.AOperation;
 import de.be4.classicalb.core.parser.node.AOperationsMachineClause;
 import de.be4.classicalb.core.parser.node.APredicateDefinitionDefinition;
 import de.be4.classicalb.core.parser.node.ASelectSubstitution;
-import de.be4.classicalb.core.parser.node.ASkipSubstitution;
 import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.be4.classicalb.core.parser.node.PMachineClause;
@@ -178,7 +177,7 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 		putSymbol("ABoolSetExpression", "BOOL");
 		putSymbol("AStringSetExpression", "STRING");
 		putSymbol("ASkipSubstitution", "skip");
-		
+
 		putPreEnd("APowSubsetExpression", "POW(", ")");
 		putPreEnd("AConvertBoolExpression", "bool(", ")");
 		putPreEnd("ADomainExpression", "dom(", ")");
@@ -196,8 +195,7 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 
 		putPreEnd("ABlockSubstitution", "BEGIN ", " END");
 		// TODO other substitutions
-		
-		
+
 		put("ASetExtensionExpression", null, "{", ", ", "}", null, null);
 		put("AStructExpression", "struct", "(", ", ", ")", null, null);
 		put("ARecExpression", "rec", "(", ", ", ")", null, null);

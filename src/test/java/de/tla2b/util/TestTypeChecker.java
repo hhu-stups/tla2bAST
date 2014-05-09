@@ -9,7 +9,7 @@ import java.util.Hashtable;
 import de.tla2b.exceptions.FrontEndException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.global.TranslationGlobals;
-import de.tla2b.translation.Tla2BTranslator;
+import de.tla2b.old.Tla2BTranslator;
 import de.tla2b.types.TLAType;
 import de.tla2bAst.Translator;
 import tla2sany.semantic.FormalParamNode;

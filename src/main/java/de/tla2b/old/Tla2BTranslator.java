@@ -1,4 +1,4 @@
-package de.tla2b.translation;
+package de.tla2b.old;
 
 import java.io.File;
 import java.io.FileWriter;

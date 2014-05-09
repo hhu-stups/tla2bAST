@@ -20,12 +20,14 @@ import de.tla2b.config.ConfigfileEvaluator;
 
 public class BMacroHandler extends AbstractASTVisitor {
 
+	private final Hashtable<FormalParamNode, String> renamingTable = new Hashtable<FormalParamNode, String>();
+
 	public BMacroHandler(SpecAnalyser specAnalyser, ConfigfileEvaluator conEval) {
 		ModuleNode moduleNode = specAnalyser.getModuleNode();
 		ArrayList<OpDefNode> bDefs = new ArrayList<OpDefNode>();
 		for (int i = 0; i < moduleNode.getOpDefs().length; i++) {
 			OpDefNode def = moduleNode.getOpDefs()[i];
-			if(specAnalyser.getUsedDefinitions().contains(def)){
+			if (specAnalyser.getUsedDefinitions().contains(def)) {
 				if (conEval != null
 						&& conEval.getConstantOverrideTable()
 								.containsValue(def)) {
@@ -40,6 +42,9 @@ public class BMacroHandler extends AbstractASTVisitor {
 		}
 
 		visitAssumptions(moduleNode.getAssumptions());
+	}
+
+	public BMacroHandler() {
 	}
 
 	private HashSet<FormalParamNode> definitionParameters;
@@ -72,7 +77,6 @@ public class BMacroHandler extends AbstractASTVisitor {
 		localVariables = null;
 
 	}
-	
 
 	@Override
 	public void visitBuiltInNode(OpApplNode n) {
@@ -115,7 +119,6 @@ public class BMacroHandler extends AbstractASTVisitor {
 		}
 
 	}
-	
 
 	private Set<String> getStringSet(Set<FormalParamNode> set) {
 		HashSet<String> stringSet = new HashSet<String>();
@@ -156,8 +159,6 @@ public class BMacroHandler extends AbstractASTVisitor {
 		}
 	}
 
-	Hashtable<FormalParamNode, String> renamingTable = new Hashtable<FormalParamNode, String>();
-
 	@Override
 	public void visitFormalParamNode(OpApplNode n) {
 		FormalParamNode param = (FormalParamNode) n.getOperator();
@@ -168,7 +169,6 @@ public class BMacroHandler extends AbstractASTVisitor {
 		hasSymbolAValidName(n);
 	}
 
-	
 	public void visitConstantNode(OpApplNode n) {
 		hasSymbolAValidName(n);
 	}
@@ -176,8 +176,8 @@ public class BMacroHandler extends AbstractASTVisitor {
 	public void visitVariableNode(OpApplNode n) {
 		hasSymbolAValidName(n);
 	}
-	
-	private void hasSymbolAValidName(OpApplNode n){
+
+	private void hasSymbolAValidName(OpApplNode n) {
 		SymbolNode symbol = n.getOperator();
 		String symbolName = symbol.getName().toString();
 		if (illegalParams != null) {
@@ -190,8 +190,7 @@ public class BMacroHandler extends AbstractASTVisitor {
 			}
 		}
 	}
-	
-	
+
 	Set<String> globalNames = new HashSet<String>();
 
 	private Boolean existingName(String name) {

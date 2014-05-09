@@ -2,7 +2,7 @@
  * @author Dominik Hansen <Dominik.Hansen at hhu.de>
  **/
 
-package de.tla2b.translation;
+package de.tla2b.old;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -16,8 +16,6 @@ import de.tla2b.analysis.TypeChecker;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.exceptions.TLA2BIOException;
 import de.tla2b.exceptions.TypeErrorException;
-import de.tla2b.pprint.ExpressionPrinter;
-
 import tla2sany.drivers.FrontEndException;
 import tla2sany.drivers.InitException;
 import tla2sany.drivers.SANY;
@@ -29,7 +27,7 @@ import tla2sany.st.SyntaxTreeConstants;
 import tla2sany.st.TreeNode;
 import util.ToolIO;
 
-public class ExpressionTranslator implements SyntaxTreeConstants {
+public class ExpressionTranslatorOld implements SyntaxTreeConstants {
 	private String TLAExpression;
 	private ArrayList<String> variables;
 	private ArrayList<String> noVariables;
@@ -39,7 +37,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 			throws TLA2BException {
 		ToolIO.reset();
 		ToolIO.setMode(ToolIO.TOOL);
-		ExpressionTranslator et = new ExpressionTranslator(tlaExpression);
+		ExpressionTranslatorOld et = new ExpressionTranslatorOld(tlaExpression);
 		try {
 			et.start();
 		} catch (RuntimeException e) {
@@ -49,7 +47,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		return et.BExpression.toString();
 	}
 
-	public ExpressionTranslator(String TLAExpression) {
+	public ExpressionTranslatorOld(String TLAExpression) {
 		this.TLAExpression = TLAExpression;
 		this.variables = new ArrayList<String>();
 		this.noVariables = new ArrayList<String>();

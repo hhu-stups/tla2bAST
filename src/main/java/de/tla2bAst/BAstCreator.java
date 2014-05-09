@@ -57,6 +57,7 @@ import de.be4.classicalb.core.parser.node.AEqualPredicate;
 import de.be4.classicalb.core.parser.node.AEquivalencePredicate;
 import de.be4.classicalb.core.parser.node.AExistsPredicate;
 import de.be4.classicalb.core.parser.node.AExpressionDefinitionDefinition;
+import de.be4.classicalb.core.parser.node.AExpressionParseUnit;
 import de.be4.classicalb.core.parser.node.AFinSubsetExpression;
 import de.be4.classicalb.core.parser.node.AFirstExpression;
 import de.be4.classicalb.core.parser.node.AForallPredicate;
@@ -128,7 +129,6 @@ import de.be4.classicalb.core.parser.node.TStringLiteral;
 import de.tla2b.analysis.BOperation;
 import de.tla2b.analysis.PredicateVsExpression;
 import de.tla2b.analysis.RecursiveDefinition;
-import de.tla2b.analysis.RecursiveFunktion;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.analysis.UsedExternalFunctions;
 import de.tla2b.analysis.PredicateVsExpression.DefinitionType;
@@ -159,13 +159,10 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 	private final BMacroHandler bMacroHandler;
 	private final RecursiveFunctionHandler recursiveFunctionHandler;
 
-	
-
-	final HashSet<OpDefNode> allTLADefinitions;
-	List<OpDeclNode> bConstants;
+	private List<OpDeclNode> bConstants;
 
 	private ModuleNode moduleNode;
-	private final UsedExternalFunctions usedExternalFunctions;
+	private UsedExternalFunctions usedExternalFunctions;
 
 	private Definitions bDefinitions = new Definitions();
 
@@ -176,6 +173,22 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 	public Definitions getBDefinitions() {
 		// used for the recursive machine loader
 		return bDefinitions;
+	}
+
+	public Start expressionStart;
+
+	public BAstCreator(ModuleNode moduleNode, SpecAnalyser specAnalyser) {
+		this.moduleNode = moduleNode;
+		this.specAnalyser = specAnalyser;
+		this.bMacroHandler = new BMacroHandler();
+		this.predicateVsExpression = new PredicateVsExpression(moduleNode);
+		this.recursiveFunctionHandler = new RecursiveFunctionHandler(specAnalyser);
+		
+		ExprNode expr = moduleNode.getOpDefs()[moduleNode.getOpDefs().length - 1]
+				.getBody();
+		AExpressionParseUnit expressionParseUnit = new AExpressionParseUnit();
+		expressionParseUnit.setExpression(visitExprNodeExpression(expr));
+		expressionStart = new Start(expressionParseUnit, new EOF());
 	}
 
 	public BAstCreator(ModuleNode moduleNode, ConfigfileEvaluator conEval,
@@ -192,8 +205,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		this.moduleNode = moduleNode;
 		this.specAnalyser = specAnalyser;
 		this.usedExternalFunctions = usedExternalFunctions;
-		this.allTLADefinitions = new HashSet<OpDefNode>(
-				Arrays.asList(moduleNode.getOpDefs()));
 
 		if (conEval != null) {
 			this.bConstants = conEval.getbConstantList();
@@ -920,7 +931,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			}
 		}
 
-		if (allTLADefinitions.contains(def)) {
+		if (Arrays.asList(moduleNode.getOpDefs()).contains(def)) {
 			List<PExpression> params = new ArrayList<PExpression>();
 			for (int i = 0; i < n.getArgs().length; i++) {
 				params.add(visitExprOrOpArgNodeExpression(n.getArgs()[i]));
@@ -1704,6 +1715,21 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			implication.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
 			return new AConvertBoolExpression(new AForallPredicate(list,
 					implication));
+		}
+
+		case OPCODE_be: { // \E x \in S : P
+			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
+			ArrayList<PExpression> list = new ArrayList<PExpression>();
+			for (int i = 0; i < params.length; i++) {
+				for (int j = 0; j < params[i].length; j++) {
+					list.add(createIdentifierNode(params[i][j]));
+				}
+			}
+			AConjunctPredicate conjunction = new AConjunctPredicate();
+			conjunction.setLeft(visitBounded(n));
+			conjunction.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
+			AExistsPredicate exists = new AExistsPredicate(list, conjunction);
+			return new AConvertBoolExpression(exists);
 		}
 
 		}
