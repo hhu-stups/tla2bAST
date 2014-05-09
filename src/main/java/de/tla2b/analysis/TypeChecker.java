@@ -54,7 +54,8 @@ public class TypeChecker extends BuiltInOPs implements IType, ASTConstants,
 	// every record node [a |-> 1 .. ] will be added to this List
 	private ModuleNode moduleNode;
 	private ArrayList<OpDeclNode> bConstList;
-
+	private SpecAnalyser specAnalyser;
+	
 	private Hashtable<OpDeclNode, ValueObj> constantAssignments;
 
 	private ConfigfileEvaluator conEval;
@@ -67,6 +68,7 @@ public class TypeChecker extends BuiltInOPs implements IType, ASTConstants,
 	public TypeChecker(ModuleNode moduleNode, ConfigfileEvaluator conEval,
 			SpecAnalyser specAnalyser) {
 		this.moduleNode = moduleNode;
+		this.specAnalyser= specAnalyser;
 		if (conEval != null) {
 			this.bConstList = conEval.getbConstantList();
 			this.constantAssignments = conEval.getConstantAssignments();
@@ -79,9 +81,9 @@ public class TypeChecker extends BuiltInOPs implements IType, ASTConstants,
 		paramId = TYPE_ID;
 	}
 
-	public TypeChecker(ModuleNode moduleNode) {
+	public TypeChecker(ModuleNode moduleNode, SpecAnalyser specAnalyser) {
 		this.moduleNode = moduleNode;
-
+		this.specAnalyser = specAnalyser;
 		Set<OpDefNode> usedDefinitions = new HashSet<OpDefNode>();
 		OpDefNode[] defs = moduleNode.getOpDefs();
 		// used the last definition of the module
@@ -229,7 +231,7 @@ public class TypeChecker extends BuiltInOPs implements IType, ASTConstants,
 	 * @param def
 	 * @throws TLA2BException
 	 */
-	private void visitOpDefNode(OpDefNode def) throws TLA2BException {
+	public void visitOpDefNode(OpDefNode def) throws TLA2BException {
 		FormalParamNode[] params = def.getParams();
 		for (int i = 0; i < params.length; i++) {
 			FormalParamNode p = params[i];
@@ -386,7 +388,15 @@ public class TypeChecker extends BuiltInOPs implements IType, ASTConstants,
 			String vName = symbolNode.getName().toString();
 			TLAType v = (TLAType) symbolNode.getToolObject(TYPE_ID);
 			if (v == null) {
-				throw new RuntimeException(vName + " has no type yet!");
+				SymbolNode var = this.specAnalyser.getSymbolNodeByName(vName);
+				if(var != null){
+					// symbolNode is variable of an expression, e.g. v + 1 
+					v = (TLAType) var.getToolObject(TYPE_ID);
+				}else{
+					throw new RuntimeException(vName + " has no type yet!");
+				}
+				
+				
 			}
 			try {
 				TLAType result = expected.unify(v);

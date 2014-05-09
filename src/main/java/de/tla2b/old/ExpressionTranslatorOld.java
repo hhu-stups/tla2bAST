@@ -120,7 +120,7 @@ public class ExpressionTranslatorOld implements SyntaxTreeConstants {
 
 		ModuleNode moduleNode = parseModule(moduleName, expr);
 
-		TypeChecker tc = new TypeChecker(moduleNode);
+		TypeChecker tc = null;//= new TypeChecker(moduleNode);
 		try {
 			tc.start();
 		} catch (TLA2BException e) {

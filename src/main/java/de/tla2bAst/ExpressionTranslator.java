@@ -17,7 +17,6 @@ import tla2sany.semantic.ModuleNode;
 import tla2sany.st.SyntaxTreeConstants;
 import tla2sany.st.TreeNode;
 import util.ToolIO;
-import de.be4.classicalb.core.parser.node.AExpressionParseUnit;
 import de.be4.classicalb.core.parser.node.Start;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.analysis.SymbolRenamer;
@@ -25,23 +24,30 @@ import de.tla2b.analysis.TypeChecker;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.old.Tla2BTranslator;
 
-public class ExpressionTranslator implements SyntaxTreeConstants{
+public class ExpressionTranslator implements SyntaxTreeConstants {
 
 	private final String tlaExpression;
 	private final ArrayList<String> variables = new ArrayList<String>();
 	private final ArrayList<String> noVariables = new ArrayList<String>();
 	private Start expressionStart;
+	private ModuleNode moduleNode;
+	private String expr;
+	private Translator translator;
 	
-	public Start getBExpressionParseUnit(){
+	public Start getBExpressionParseUnit() {
 		return expressionStart;
 	}
-	
-	
+
 	public ExpressionTranslator(String tlaExpression) {
 		this.tlaExpression = tlaExpression;
 	}
-	
-	public void start(){
+
+	public ExpressionTranslator(String tlaExpression, Translator translator) {
+		this.tlaExpression = tlaExpression;
+		this.translator = translator;
+	}
+
+	public void parse() {
 		String dir = System.getProperty("java.io.tmpdir");
 		ToolIO.setUserDir(dir);
 
@@ -54,8 +60,8 @@ public class ExpressionTranslator implements SyntaxTreeConstants{
 			moduleName = tempFile.getName().substring(0,
 					tempFile.getName().indexOf("."));
 
-			module = "----MODULE " + moduleName + " ----\n"
-					+ "Expression == " + tlaExpression + "\n====";
+			module = "----MODULE " + moduleName + " ----\n" + "Expression == "
+					+ tlaExpression + "\n====";
 
 			FileWriter fw = new FileWriter(tempFile);
 			fw.write(module);
@@ -85,8 +91,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants{
 		sb.append(" == ");
 		sb.append(tlaExpression);
 		sb.append("\n====================");
-		
-		
+
 		try {
 			FileWriter fw = new FileWriter(tempFile);
 			fw.write(sb.toString());
@@ -97,26 +102,43 @@ public class ExpressionTranslator implements SyntaxTreeConstants{
 			throw new RuntimeException(e.getMessage());
 		}
 		ToolIO.reset();
-		expressionStart = translate(moduleName, sb.toString());
-	}
-	
-	
-	private static Start translate(String moduleName, String expr) {
-		ModuleNode moduleNode = null;
+		
+		this.expr = sb.toString();
+		
+		this.moduleNode = null;
 		try {
-			moduleNode = parseModule(moduleName, expr);
+			moduleNode = parseModule(moduleName, sb.toString());
 		} catch (de.tla2b.exceptions.FrontEndException e) {
 			throw new RuntimeException(e.getLocalizedMessage());
 		}
+	}
+
+	public Start translateIncludingModel() throws TLA2BException{
+		SpecAnalyser specAnalyser = SpecAnalyser
+				.createSpecAnalyserForTlaExpression(moduleNode);
+		TypeChecker tc = translator.getTypeChecker();
+		tc.visitOpDefNode(specAnalyser.getExpressionOpdefNode());
 		
-		SpecAnalyser specAnalyser = SpecAnalyser.createSpecAnalyserForTlaExpression(moduleNode);
-		TypeChecker tc = new TypeChecker(moduleNode);
+		
+		SymbolRenamer symRenamer = new SymbolRenamer(moduleNode, specAnalyser);
+		symRenamer.start();
+		BAstCreator bASTCreator = new BAstCreator(moduleNode, specAnalyser);
+
+		this.expressionStart = bASTCreator.expressionStart;
+		return this.expressionStart;
+	}
+	
+	
+	public Start translate() {
+		SpecAnalyser specAnalyser = SpecAnalyser
+				.createSpecAnalyserForTlaExpression(moduleNode);
+		TypeChecker tc = new TypeChecker(moduleNode, specAnalyser);
 		try {
 			tc.start();
 		} catch (TLA2BException e) {
-			//String[] m = ToolIO.getAllMessages();
-			String message = "****TypeError****\n"
-					+ e.getLocalizedMessage() + "\n" + expr + "\n";
+			// String[] m = ToolIO.getAllMessages();
+			String message = "****TypeError****\n" + e.getLocalizedMessage()
+					+ "\n" + expr + "\n";
 			// System.out.println(message);
 			throw new RuntimeException(message);
 		}
@@ -124,10 +146,11 @@ public class ExpressionTranslator implements SyntaxTreeConstants{
 		SymbolRenamer symRenamer = new SymbolRenamer(moduleNode, specAnalyser);
 		symRenamer.start();
 		BAstCreator bASTCreator = new BAstCreator(moduleNode, specAnalyser);
-		
-		return bASTCreator.expressionStart;
+
+		this.expressionStart = bASTCreator.expressionStart;
+		return this.expressionStart;
 	}
-	
+
 	public static ModuleNode parseModule(String moduleName, String module)
 			throws de.tla2b.exceptions.FrontEndException {
 		SpecObj spec = new SpecObj(moduleName, null);
@@ -139,9 +162,8 @@ public class ExpressionTranslator implements SyntaxTreeConstants{
 		}
 
 		if (spec.parseErrors.isFailure()) {
-			//String[] m = ToolIO.getAllMessages();
-			String message = module + "\n\n"
-					+ spec.parseErrors;
+			// String[] m = ToolIO.getAllMessages();
+			String message = module + "\n\n" + spec.parseErrors;
 			// System.out.println(spec.parseErrors);
 			message += Tla2BTranslator.allMessagesToString(ToolIO
 					.getAllMessages());
@@ -149,7 +171,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants{
 		}
 
 		if (spec.semanticErrors.isFailure()) {
-			//String[] m = ToolIO.getAllMessages();
+			// String[] m = ToolIO.getAllMessages();
 			String message = module + "\n\n" + spec.semanticErrors;
 			message += Tla2BTranslator.allMessagesToString(ToolIO
 					.getAllMessages());
@@ -175,14 +197,13 @@ public class ExpressionTranslator implements SyntaxTreeConstants{
 		}
 		return n;
 	}
-	
-	
+
 	/**
 	 * @param moduleFileName
 	 * @throws de.tla2b.exceptions.FrontEndException
 	 */
-	private SpecObj parseModuleWithoutSemanticAnalyse(String moduleFileName, String module)
-			{
+	private SpecObj parseModuleWithoutSemanticAnalyse(String moduleFileName,
+			String module) {
 		SpecObj spec = new SpecObj(moduleFileName, null);
 
 		try {
@@ -199,13 +220,11 @@ public class ExpressionTranslator implements SyntaxTreeConstants{
 			String message = module + "\n\n";
 			message += Tla2BTranslator.allMessagesToString(ToolIO
 					.getAllMessages());
-			//throw new de.tla2b.exceptions.FrontEndException(message, spec);
+			// throw new de.tla2b.exceptions.FrontEndException(message, spec);
 			throw new RuntimeException(message);
 		}
 		return spec;
 	}
-
-	
 
 	/**
 	 * @param spec

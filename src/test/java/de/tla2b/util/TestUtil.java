@@ -74,6 +74,13 @@ public class TestUtil {
 		assertEquals(bAstString, result);
 	}
 	
+	public static void compareExprIncludingModel(String bExpr, String tlaExpr, String moduleString) throws TLA2BException{
+		Translator trans = new Translator(moduleString, null);
+		trans.translate();
+		Start result = trans.translateExpression(tlaExpr);
+		
+	}
+	
 	
 	public static void compare(String bMachine, String tlaModule) throws BException, TLA2BException{
 		ToolIO.setMode(ToolIO.TOOL);

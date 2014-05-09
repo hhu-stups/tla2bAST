@@ -41,6 +41,10 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 	private OpDefNode next;
 	private ArrayList<OpDefNode> invariants = new ArrayList<OpDefNode>();
 
+	private OpDefNode expressionOpdefNode;
+	private Hashtable<String, SymbolNode> namingHashTable = new Hashtable<String, SymbolNode>();
+	
+	
 	private final ModuleNode moduleNode;
 	private ExprNode nextExpr;
 
@@ -85,11 +89,13 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 	}
 	
 	
+	
 	public static SpecAnalyser createSpecAnalyserForTlaExpression(ModuleNode m){
 		SpecAnalyser specAnalyser = new SpecAnalyser(m);
-		OpDefNode expr = m.getOpDefs()[m.getOpDefs().length-1];
-		specAnalyser.usedDefinitions.add(expr);
-		specAnalyser.bDefinitionsSet.add(expr);
+		
+		specAnalyser.expressionOpdefNode = m.getOpDefs()[m.getOpDefs().length-1];
+		specAnalyser.usedDefinitions.add(specAnalyser.expressionOpdefNode);
+		specAnalyser.bDefinitionsSet.add(specAnalyser.expressionOpdefNode);
 		return specAnalyser;
 	}
 	
@@ -161,6 +167,19 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 			}
 		}
 		findRecursiveConstructs();
+		
+		
+		
+		for (OpDeclNode var : moduleNode.getVariableDecls()) {
+			namingHashTable.put(var.getName().toString(), var);
+		}
+		for (OpDeclNode con : moduleNode.getConstantDecls()) {
+			namingHashTable.put(con.getName().toString(), con);
+		}
+		for (OpDefNode def : usedDefinitions) {
+			namingHashTable.put(def.getName().toString(), def);
+		}
+		
 	}
 
 	private void evalInit() {
@@ -307,6 +326,14 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 	
 	public OpDefNode getInitDef(){
 		return init;
+	}
+	
+	public OpDefNode getExpressionOpdefNode(){
+		return expressionOpdefNode;
+	}
+	
+	public SymbolNode getSymbolNodeByName(String name){
+		return namingHashTable.get(name);
 	}
 	
 }

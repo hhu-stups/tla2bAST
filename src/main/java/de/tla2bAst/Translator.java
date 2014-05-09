@@ -44,9 +44,14 @@ public class Translator implements TranslationGlobals {
 	// private String moduleName;
 	private ModuleNode moduleNode;
 	private ModelConfig modelConfig;
-
 	private String bMachineString;
 
+	private SpecAnalyser specAnalyser;
+	private TypeChecker typechecker;
+	
+	
+	
+	
 	public Translator(String moduleFileName) throws FrontEndException {
 		this.moduleFileName = moduleFileName;
 
@@ -181,8 +186,6 @@ public class Translator implements TranslationGlobals {
 		PredicateVsExpression predicateVsExpression = new PredicateVsExpression(
 				moduleNode);
 
-		SpecAnalyser specAnalyser;
-
 		ConfigfileEvaluator conEval = null;
 		if (modelConfig != null) {
 
@@ -196,10 +199,10 @@ public class Translator implements TranslationGlobals {
 			specAnalyser = SpecAnalyser.createSpecAnalyser(moduleNode);
 		}
 		specAnalyser.start();
-		TypeChecker typechecker = new TypeChecker(moduleNode, conEval,
+		typechecker = new TypeChecker(moduleNode, conEval,
 				specAnalyser);
 		typechecker.start();
-
+		
 		SymbolRenamer symRenamer = new SymbolRenamer(moduleNode, specAnalyser);
 		symRenamer.start();
 		UsedExternalFunctions usedExternalFunctions = new UsedExternalFunctions(
@@ -271,10 +274,18 @@ public class Translator implements TranslationGlobals {
 
 	}
 
+	public Start translateExpression(String tlaExpression) throws TLA2BException{
+		ExpressionTranslator expressionTranslator = new ExpressionTranslator(tlaExpression, this);
+		expressionTranslator.parse();
+		Start start = expressionTranslator.translateIncludingModel();
+		return start;
+	}
+	
 
 	public static Start translateTlaExpression(String tlaExpression){
 		ExpressionTranslator expressionTranslator = new ExpressionTranslator(tlaExpression);
-		expressionTranslator.start();
+		expressionTranslator.parse();
+		expressionTranslator.translate();
 		return expressionTranslator.getBExpressionParseUnit();
 	}
 	
@@ -290,5 +301,13 @@ public class Translator implements TranslationGlobals {
 	public ModuleNode getModuleNode() {
 		return moduleNode;
 	}
+	
+	protected TypeChecker getTypeChecker(){
+		return this.typechecker;
+	}
 
+	protected SpecAnalyser getSpecAnalyser(){
+		return this.specAnalyser;
+	}
+	
 }
