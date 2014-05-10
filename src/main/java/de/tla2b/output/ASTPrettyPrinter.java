@@ -12,9 +12,9 @@ import de.be4.classicalb.core.parser.node.ABecomesSuchSubstitution;
 import de.be4.classicalb.core.parser.node.ADefinitionExpression;
 import de.be4.classicalb.core.parser.node.ADefinitionPredicate;
 import de.be4.classicalb.core.parser.node.AExpressionDefinitionDefinition;
-import de.be4.classicalb.core.parser.node.AExpressionParseUnit;
 import de.be4.classicalb.core.parser.node.AIdentifierExpression;
 import de.be4.classicalb.core.parser.node.ALambdaExpression;
+import de.be4.classicalb.core.parser.node.AMinusOrSetSubtractExpression;
 import de.be4.classicalb.core.parser.node.AOperation;
 import de.be4.classicalb.core.parser.node.AOperationsMachineClause;
 import de.be4.classicalb.core.parser.node.APredicateDefinitionDefinition;
@@ -150,7 +150,7 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 
 		putInfixOperator("AAddExpression", "+", 180, left);
 		putInfixOperator("AMinusOrSetSubtractExpression", "-", 180, left);
-
+		
 		putInfixOperator("ACartesianProductExpression", "*", 190, left);
 		putInfixOperator("AMultOrCartExpression", "*", 190, left);
 		putInfixOperator("ADivExpression", "/", 190, left);

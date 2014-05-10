@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import sun.audio.AudioPlayer;
 import tla2sany.semantic.ASTConstants;
 import tla2sany.semantic.AssumeNode;
 import tla2sany.semantic.AtNode;
@@ -24,6 +25,7 @@ import tla2sany.semantic.OpDefNode;
 import tla2sany.semantic.StringNode;
 import tla2sany.semantic.SymbolNode;
 import tlc2.tool.BuiltInOPs;
+import tlc2.value.ModelValue;
 import tlc2.value.SetEnumValue;
 import tlc2.value.Value;
 import tlc2.value.ValueConstants;
@@ -79,6 +81,7 @@ import de.be4.classicalb.core.parser.node.ALessPredicate;
 import de.be4.classicalb.core.parser.node.AMachineHeader;
 import de.be4.classicalb.core.parser.node.AMachineMachineVariant;
 import de.be4.classicalb.core.parser.node.AMemberPredicate;
+import de.be4.classicalb.core.parser.node.AMinusExpression;
 import de.be4.classicalb.core.parser.node.AMinusOrSetSubtractExpression;
 import de.be4.classicalb.core.parser.node.AMultOrCartExpression;
 import de.be4.classicalb.core.parser.node.ANaturalSetExpression;
@@ -235,6 +238,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 
 	}
 
+	
+	
 	private void createSetsClause() {
 		if (conEval == null || conEval.getEnumerationSet() == null
 				|| conEval.getEnumerationSet().size() == 0)
@@ -245,6 +250,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		OpDeclNode[] cons = moduleNode.getConstantDecls();
 		for (int i = 0; i < cons.length; i++) {
 			TLAType type = (TLAType) cons[i].getToolObject(TYPE_ID);
+
 			EnumType e = null;
 			if (type instanceof SetType) {
 				if (((SetType) type).getSubType() instanceof EnumType) {
@@ -260,7 +266,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 				}
 			}
 		}
-
+		
 		ArrayList<PSet> sets = new ArrayList<PSet>();
 		for (int i = 0; i < printed.size(); i++) {
 			AEnumeratedSetSet eSet = new AEnumeratedSetSet();
@@ -693,8 +699,21 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			return new AIntegerExpression(new TIntegerLiteral(
 					tlcValue.toString()));
 
+		case SETENUMVALUE: {
+			SetEnumValue s = (SetEnumValue) tlcValue;
+			ArrayList<PExpression> list = new ArrayList<PExpression>();
+			for (int i = 0; i < s.elems.size(); i++) {
+				Value v = s.elems.elementAt(i);
+				ModelValue m = (ModelValue) v;
+				AIdentifierExpression id = createIdentifierNode(m.toString());
+				list.add(id);
+			}
+			return new ASetExtensionExpression(list);
 		}
 
+		}
+
+		System.out.println(tlcValue);
 		throw new RuntimeException();
 	}
 
@@ -1174,18 +1193,48 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			return new ATailExpression(
 					visitExprOrOpArgNodeExpression(n.getArgs()[0]));
 
-		case B_OPCODE_subseq: { // SubSeq(s,m,n)
-			ARestrictFrontExpression restrictFront = new ARestrictFrontExpression();
-			restrictFront
-					.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			restrictFront
-					.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[2]));
-
-			ARestrictTailExpression restrictTail = new ARestrictTailExpression();
-			restrictTail.setLeft(restrictFront);
-			restrictTail
-					.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-			return restrictTail;
+		case B_OPCODE_subseq: { // SubSeq(s,a,b)
+			//%p.(p : 1..(b-a+1)| s(p+a-1))
+			ALambdaExpression lambda = new ALambdaExpression();
+			lambda.setIdentifiers(createIdentifierList("t_"));
+			AMemberPredicate member = new AMemberPredicate();
+			member.setLeft(createIdentifierNode("t_"));
+			AIntervalExpression interval = new AIntervalExpression();
+			interval.setLeftBorder(new AIntegerExpression(new TIntegerLiteral("1")));
+			AMinusOrSetSubtractExpression minus = new AMinusOrSetSubtractExpression();
+			minus.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[2]));
+			minus.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+			AAddExpression add = new AAddExpression();
+			add.setLeft(minus);
+			add.setRight(new AIntegerExpression(new TIntegerLiteral("1")));
+			interval.setRightBorder(add);
+			member.setRight(interval);
+			lambda.setPredicate(member);
+			AAddExpression add2 = new AAddExpression();
+			add2.setLeft(createIdentifierNode("t_"));
+			add2.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+			AMinusOrSetSubtractExpression minus2 = new AMinusOrSetSubtractExpression();
+			minus2.setLeft(add2);
+			minus2.setRight(new AIntegerExpression(new TIntegerLiteral("1")));
+			ArrayList<PExpression> params = new ArrayList<PExpression>();
+			params.add(minus2);
+			AFunctionExpression func = new AFunctionExpression();
+			func.setIdentifier(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+			func.setParameters(params);
+			lambda.setExpression(func);
+			return lambda;
+			
+//			ARestrictFrontExpression restrictFront = new ARestrictFrontExpression();
+//			restrictFront
+//					.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+//			restrictFront
+//					.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[2]));
+//
+//			ARestrictTailExpression restrictTail = new ARestrictTailExpression();
+//			restrictTail.setLeft(restrictFront);
+//			restrictTail
+//					.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+//			return restrictTail;
 		}
 
 		}

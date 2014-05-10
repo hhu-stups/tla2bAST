@@ -86,7 +86,7 @@ public class SequencesTest {
 				+ "ASSUME SubSeq(<<1,2,3,4,5>>, 2, 3) = <<2,3>> \n"
 				+ "=================================";
 		final String expected = "MACHINE Testing\n"
-				+ "PROPERTIES ([1,2,3,4,5] /|\\ 3) \\|/ 2 = [2,3] \n"
+				+ "PROPERTIES %(t_).(t_ : 1 .. (3 - 2) + 1 | [1,2,3,4,5](((t_ + 2) - 1))) = [2,3] \n"
 				+ "END";
 		compare(expected, module);
 	}
