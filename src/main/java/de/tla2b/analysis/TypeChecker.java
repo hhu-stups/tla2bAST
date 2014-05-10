@@ -101,6 +101,9 @@ public class TypeChecker extends BuiltInOPs implements IType, ASTConstants,
 					&& constantAssignments.containsKey(con)) {
 				TLAType t = constantAssignments.get(con).getType();
 				con.setToolObject(TYPE_ID, t);
+				if(t instanceof AbstractHasFollowers){
+					((AbstractHasFollowers) t).addFollower(con);
+				}
 			} else {
 				Untyped u = new Untyped();
 				con.setToolObject(TYPE_ID, u);
