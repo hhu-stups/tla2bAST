@@ -395,8 +395,6 @@ public class TypeChecker extends BuiltInOPs implements IType, ASTConstants,
 				}else{
 					throw new RuntimeException(vName + " has no type yet!");
 				}
-				
-				
 			}
 			try {
 				TLAType result = expected.unify(v);

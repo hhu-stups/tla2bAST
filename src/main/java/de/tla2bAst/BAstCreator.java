@@ -2,7 +2,6 @@ package de.tla2bAst;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -182,8 +181,9 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		this.specAnalyser = specAnalyser;
 		this.bMacroHandler = new BMacroHandler();
 		this.predicateVsExpression = new PredicateVsExpression(moduleNode);
-		this.recursiveFunctionHandler = new RecursiveFunctionHandler(specAnalyser);
-		
+		this.recursiveFunctionHandler = new RecursiveFunctionHandler(
+				specAnalyser);
+
 		ExprNode expr = moduleNode.getOpDefs()[moduleNode.getOpDefs().length - 1]
 				.getBody();
 		AExpressionParseUnit expressionParseUnit = new AExpressionParseUnit();
@@ -289,6 +289,11 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 								.containsValue(def)) {
 					continue;
 				}
+				if (def.getOriginallyDefinedInModuleNode().getName().toString()
+						.equals("MC")) {
+					continue;
+				}
+
 				bDefs.add(def);
 			}
 
@@ -695,8 +700,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 
 	private void createInvariantClause() {
 		OpDeclNode[] vars = moduleNode.getVariableDecls();
-		if (vars.length == 0)
-			return;
 
 		List<PPredicate> predList = new ArrayList<PPredicate>();
 		for (int i = 0; i < vars.length; i++) {
@@ -711,15 +714,23 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 
 		if (conEval != null) {
 			for (OpDefNode def : conEval.getInvariants()) {
-				ADefinitionPredicate defPred = new ADefinitionPredicate();
-				defPred.setDefLiteral(new TDefLiteralPredicate(getName(def)));
-				predList.add(defPred);
+				if (def.getOriginallyDefinedInModuleNode().getName().toString()
+						.equals("MC")) {
+					predList.add(visitExprNodePredicate(def.getBody()));
+				} else {
+					ADefinitionPredicate defPred = new ADefinitionPredicate();
+					defPred.setDefLiteral(new TDefLiteralPredicate(getName(def)));
+					predList.add(defPred);
+				}
 			}
 		}
 
-		AInvariantMachineClause invClause = new AInvariantMachineClause(
-				createConjunction(predList));
-		machineClauseList.add(invClause);
+		if (predList.size() > 0) {
+			AInvariantMachineClause invClause = new AInvariantMachineClause(
+					createConjunction(predList));
+			machineClauseList.add(invClause);
+		}
+
 	}
 
 	private PPredicate visitAssumeNode(AssumeNode assumeNode) {
