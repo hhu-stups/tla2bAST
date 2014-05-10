@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
 
+import tla2sany.semantic.ExprNode;
+import tla2sany.semantic.ExprOrOpArgNode;
 import tla2sany.semantic.FormalParamNode;
 import tla2sany.semantic.OpApplNode;
 import tla2sany.semantic.OpDefNode;
@@ -15,6 +17,7 @@ import de.tla2b.analysis.SpecAnalyser;
 public class RecursiveFunctionHandler extends AbstractASTVisitor {
 
 	private ArrayList<FormalParamNode> paramList;
+	private ArrayList<FormalParamNode> ignoreParamList;
 	private ArrayList<SymbolNode> externParams;
 
 	private HashSet<OpApplNode> recursiveFunctions = new HashSet<OpApplNode>();
@@ -35,6 +38,7 @@ public class RecursiveFunctionHandler extends AbstractASTVisitor {
 				}
 			}
 			externParams = new ArrayList<SymbolNode>();
+			ignoreParamList = new ArrayList<FormalParamNode>();
 			visitExprNode(recFunc.getBody());
 			paramList = null;
 			additionalParamsTable.put(body, externParams);
@@ -45,11 +49,11 @@ public class RecursiveFunctionHandler extends AbstractASTVisitor {
 
 	public void visitFormalParamNode(OpApplNode n) {
 		FormalParamNode param = (FormalParamNode) n.getOperator();
-		if (!paramList.contains(param)) {
+		if (!paramList.contains(param) && !ignoreParamList.contains(param)) {
 			externParams.add(param);
 		}
 	}
-	
+
 	public void visitVariableNode(OpApplNode n) {
 		externParams.add(n.getOperator());
 	}
@@ -58,9 +62,48 @@ public class RecursiveFunctionHandler extends AbstractASTVisitor {
 		return additionalParamsTable.get(n);
 	}
 
-	
 	public boolean isRecursiveFunction(SemanticNode n) {
 		return additionalParamsTable.containsKey(n);
 	}
-	
+
+	@Override
+	public void visitBuiltInNode(OpApplNode n) {
+		switch (getOpCode(n.getOperator().getName())) {
+		case OPCODE_rfs:
+		case OPCODE_nrfs:
+		case OPCODE_fc: // Represents [x \in S |-> e]
+		case OPCODE_be: // \E x \in S : P
+		case OPCODE_bf: // \A x \in S : P
+		case OPCODE_bc: // CHOOSE x \in S: P
+		case OPCODE_sso: // $SubsetOf Represents {x \in S : P}
+		case OPCODE_soa: // $SetOfAll Represents {e : p1 \in S, p2,p3 \in S2}
+		{
+			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
+			HashSet<FormalParamNode> set = new HashSet<FormalParamNode>();
+			for (int i = 0; i < params.length; i++) {
+				for (int j = 0; j < params[i].length; j++) {
+					FormalParamNode param = params[i][j];
+					set.add(param);
+				}
+			}
+			ignoreParamList.addAll(set);
+			ExprNode[] in = n.getBdedQuantBounds();
+			for (ExprNode exprNode : in) {
+				visitExprNode(exprNode);
+			}
+			ExprOrOpArgNode[] arguments = n.getArgs();
+			for (ExprOrOpArgNode exprOrOpArgNode : arguments) {
+				visitExprOrOpArgNode(exprOrOpArgNode);
+			}
+			return;
+		}
+		default: {
+			super.visitBuiltInNode(n);
+			return;
+		}
+
+		}
+
+	}
+
 }
