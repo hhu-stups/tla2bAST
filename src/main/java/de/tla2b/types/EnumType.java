@@ -9,6 +9,7 @@ import java.util.LinkedHashSet;
 
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
+import de.tla2b.output.TypeVisitorInterface;
 import de.tla2bAst.BAstCreator;
 
 
@@ -50,8 +51,8 @@ public class EnumType extends AbstractHasFollowers {
 
 	@Override
 	public EnumType unify(TLAType o) throws UnificationException {
-		if (o instanceof Untyped) {
-			((Untyped) o).setFollowersTo(this);
+		if (o instanceof UntypedType) {
+			((UntypedType) o).setFollowersTo(this);
 			return this;
 		}
 		if (o instanceof EnumType) {
@@ -83,4 +84,10 @@ public class EnumType extends AbstractHasFollowers {
 	public PExpression getBNode() {
 		return BAstCreator.createIdentifierNode("ENUM" + id);
 	}
+
+	public void apply(TypeVisitorInterface t) {
+		t.caseEnumType(this);
+	}
+
+
 }

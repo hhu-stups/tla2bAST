@@ -2,6 +2,7 @@ package de.tla2b.types;
 
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
+import de.tla2b.output.TypeVisitorInterface;
 
 public class ModelValueType extends TLAType {
 
@@ -38,8 +39,8 @@ public class ModelValueType extends TLAType {
 	public ModelValueType unify(TLAType o) throws UnificationException {
 		if (o.getKind() == MODELVALUE) {
 			return this;
-		} else if (o instanceof Untyped) {
-			((Untyped) o).setFollowersTo(this);
+		} else if (o instanceof UntypedType) {
+			((UntypedType) o).setFollowersTo(this);
 			return this;
 		} else
 			throw new UnificationException();
@@ -59,5 +60,9 @@ public class ModelValueType extends TLAType {
 	public PExpression getBNode() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public void apply(TypeVisitorInterface visitor) {
+		visitor.caseModelValueType(this);
 	}
 }

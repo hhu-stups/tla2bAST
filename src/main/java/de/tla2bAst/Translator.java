@@ -9,11 +9,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
 
 import de.be4.classicalb.core.parser.BParser;
 import de.be4.classicalb.core.parser.Definitions;
 import de.be4.classicalb.core.parser.analysis.prolog.RecursiveMachineLoader;
 import de.be4.classicalb.core.parser.exceptions.BException;
+import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.Start;
 import de.tla2b.analysis.InstanceTransformation;
 import de.tla2b.analysis.PredicateVsExpression;
@@ -28,9 +31,11 @@ import de.tla2b.exceptions.FrontEndException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.global.TranslationGlobals;
 import de.tla2b.output.ASTPrettyPrinter;
+import de.tla2b.output.PrologPrinter;
 import de.tla2b.output.Renamer;
 import de.tla2b.translation.BMacroHandler;
 import de.tla2b.translation.RecursiveFunctionHandler;
+import de.tla2b.types.TLAType;
 import de.tla2b.util.FileUtils;
 import tla2sany.drivers.SANY;
 import tla2sany.modanalyzer.SpecObj;
@@ -43,6 +48,7 @@ public class Translator implements TranslationGlobals {
 	private File moduleFile;
 	private File configFile;
 	private Start BAst;
+	private Hashtable<Node, TLAType> typeTable;
 
 	private Definitions bDefinitions;
 
@@ -216,6 +222,7 @@ public class Translator implements TranslationGlobals {
 				specAnalyser, usedExternalFunctions, predicateVsExpression,
 				bMacroHandler, recursiveFunctionHandler);
 		this.BAst = bAstCreator.getStartNode();
+		this.typeTable = bAstCreator.getTypeTable();
 		this.bDefinitions = bAstCreator.getBDefinitions();
 		return BAst;
 	}
@@ -240,8 +247,15 @@ public class Translator implements TranslationGlobals {
 			final RecursiveMachineLoader rml = parseAllMachines(getBAST(),
 					getModuleFile(), bParser);
 			//rml.printAsProlog(new PrintWriter(System.out), false);
-			rml.printAsProlog(new PrintWriter(probFile), false);
+			//rml.printAsProlog(new PrintWriter(probFile), false);
+
+			String moduleName = FileUtils.removeExtention(moduleFile.getName());
+			PrologPrinter prologPrinter = new PrologPrinter(rml, bParser,
+					moduleFile, moduleName, typeTable);
+			prologPrinter.printAsProlog(new PrintWriter(probFile), false);
 			System.out.println(probFile.getAbsolutePath() + " created.");
+			
+			prologPrinter.printAsProlog(new PrintWriter(System.out), false);
 		} catch (BException e) {
 			e.printStackTrace();
 		} catch (FileNotFoundException e) {
@@ -309,7 +323,6 @@ public class Translator implements TranslationGlobals {
 			final File f, final BParser bparser) throws BException {
 		final RecursiveMachineLoader rml = new RecursiveMachineLoader(
 				f.getParent(), bparser.getContentProvider());
-
 		rml.loadAllMachines(f, ast, null, bparser.getDefinitions(),
 				bparser.getPragmas());
 		return rml;
@@ -358,6 +371,10 @@ public class Translator implements TranslationGlobals {
 
 	public File getModuleFile() {
 		return moduleFile;
+	}
+
+	public Hashtable<Node, TLAType> getTypeTable() {
+		return this.typeTable;
 	}
 
 }

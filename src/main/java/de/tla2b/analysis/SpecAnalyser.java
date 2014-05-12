@@ -35,7 +35,7 @@ import tlc2.tool.BuiltInOPs;
 import tlc2.tool.ToolGlobals;
 
 public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
-		ToolGlobals, IType, TranslationGlobals {
+		ToolGlobals, TranslationGlobals {
 	private OpDefNode spec;
 	private OpDefNode init;
 	private OpDefNode next;

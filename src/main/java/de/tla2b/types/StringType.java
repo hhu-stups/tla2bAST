@@ -7,6 +7,7 @@ package de.tla2b.types;
 import de.be4.classicalb.core.parser.node.AStringSetExpression;
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
+import de.tla2b.output.TypeVisitorInterface;
 
 public class StringType extends TLAType {
 
@@ -42,9 +43,9 @@ public class StringType extends TLAType {
 	public StringType unify(TLAType o) throws UnificationException {
 		if (o.getKind() == STRING) {
 			return this;
-		} else if (o instanceof Untyped) {
-			((Untyped) o).setFollowersTo(this);
-			((Untyped) o).deleteFollowers();
+		} else if (o instanceof UntypedType) {
+			((UntypedType) o).setFollowersTo(this);
+			((UntypedType) o).deleteFollowers();
 			return this;
 		} else
 			throw new UnificationException();
@@ -63,6 +64,10 @@ public class StringType extends TLAType {
 	@Override
 	public PExpression getBNode() {
 		return new AStringSetExpression();
+	}
+
+	public void apply(TypeVisitorInterface visitor) {
+		visitor.caseStringType(this);
 	}
 	
 }

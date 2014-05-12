@@ -24,110 +24,14 @@ import tla2sany.semantic.OpDeclNode;
 import tla2sany.semantic.OpDefNode;
 import tla2sany.semantic.StringNode;
 import tla2sany.semantic.SymbolNode;
+import tla2tex.TLA;
 import tlc2.tool.BuiltInOPs;
 import tlc2.value.ModelValue;
 import tlc2.value.SetEnumValue;
 import tlc2.value.Value;
 import tlc2.value.ValueConstants;
 import de.be4.classicalb.core.parser.Definitions;
-import de.be4.classicalb.core.parser.node.AAbstractConstantsMachineClause;
-import de.be4.classicalb.core.parser.node.AAbstractMachineParseUnit;
-import de.be4.classicalb.core.parser.node.AAddExpression;
-import de.be4.classicalb.core.parser.node.AAnySubstitution;
-import de.be4.classicalb.core.parser.node.AAssignSubstitution;
-import de.be4.classicalb.core.parser.node.ABecomesSuchSubstitution;
-import de.be4.classicalb.core.parser.node.ABoolSetExpression;
-import de.be4.classicalb.core.parser.node.ABooleanFalseExpression;
-import de.be4.classicalb.core.parser.node.ABooleanTrueExpression;
-import de.be4.classicalb.core.parser.node.ACardExpression;
-import de.be4.classicalb.core.parser.node.AComprehensionSetExpression;
-import de.be4.classicalb.core.parser.node.AConcatExpression;
-import de.be4.classicalb.core.parser.node.AConjunctPredicate;
-import de.be4.classicalb.core.parser.node.AConvertBoolExpression;
-import de.be4.classicalb.core.parser.node.ACoupleExpression;
-import de.be4.classicalb.core.parser.node.ADefinitionExpression;
-import de.be4.classicalb.core.parser.node.ADefinitionPredicate;
-import de.be4.classicalb.core.parser.node.ADefinitionsMachineClause;
-import de.be4.classicalb.core.parser.node.ADisjunctPredicate;
-import de.be4.classicalb.core.parser.node.ADivExpression;
-import de.be4.classicalb.core.parser.node.ADomainExpression;
-import de.be4.classicalb.core.parser.node.AEmptySequenceExpression;
-import de.be4.classicalb.core.parser.node.AEmptySetExpression;
-import de.be4.classicalb.core.parser.node.AEnumeratedSetSet;
-import de.be4.classicalb.core.parser.node.AEqualPredicate;
-import de.be4.classicalb.core.parser.node.AEquivalencePredicate;
-import de.be4.classicalb.core.parser.node.AExistsPredicate;
-import de.be4.classicalb.core.parser.node.AExpressionDefinitionDefinition;
-import de.be4.classicalb.core.parser.node.AExpressionParseUnit;
-import de.be4.classicalb.core.parser.node.AFinSubsetExpression;
-import de.be4.classicalb.core.parser.node.AFirstExpression;
-import de.be4.classicalb.core.parser.node.AForallPredicate;
-import de.be4.classicalb.core.parser.node.AFunctionExpression;
-import de.be4.classicalb.core.parser.node.AGeneralUnionExpression;
-import de.be4.classicalb.core.parser.node.AGreaterEqualPredicate;
-import de.be4.classicalb.core.parser.node.AGreaterPredicate;
-import de.be4.classicalb.core.parser.node.AIdentifierExpression;
-import de.be4.classicalb.core.parser.node.AImplicationPredicate;
-import de.be4.classicalb.core.parser.node.AInitialisationMachineClause;
-import de.be4.classicalb.core.parser.node.AInsertTailExpression;
-import de.be4.classicalb.core.parser.node.AIntegerExpression;
-import de.be4.classicalb.core.parser.node.AIntegerSetExpression;
-import de.be4.classicalb.core.parser.node.AIntersectionExpression;
-import de.be4.classicalb.core.parser.node.AIntervalExpression;
-import de.be4.classicalb.core.parser.node.AInvariantMachineClause;
-import de.be4.classicalb.core.parser.node.ALambdaExpression;
-import de.be4.classicalb.core.parser.node.ALessEqualPredicate;
-import de.be4.classicalb.core.parser.node.ALessPredicate;
-import de.be4.classicalb.core.parser.node.AMachineHeader;
-import de.be4.classicalb.core.parser.node.AMachineMachineVariant;
-import de.be4.classicalb.core.parser.node.AMemberPredicate;
-import de.be4.classicalb.core.parser.node.AMinusExpression;
-import de.be4.classicalb.core.parser.node.AMinusOrSetSubtractExpression;
-import de.be4.classicalb.core.parser.node.AMultOrCartExpression;
-import de.be4.classicalb.core.parser.node.ANaturalSetExpression;
-import de.be4.classicalb.core.parser.node.ANegationPredicate;
-import de.be4.classicalb.core.parser.node.ANotEqualPredicate;
-import de.be4.classicalb.core.parser.node.ANotMemberPredicate;
-import de.be4.classicalb.core.parser.node.AOperation;
-import de.be4.classicalb.core.parser.node.AOperationsMachineClause;
-import de.be4.classicalb.core.parser.node.AOverwriteExpression;
-import de.be4.classicalb.core.parser.node.APowSubsetExpression;
-import de.be4.classicalb.core.parser.node.APowerOfExpression;
-import de.be4.classicalb.core.parser.node.APredicateDefinitionDefinition;
-import de.be4.classicalb.core.parser.node.APropertiesMachineClause;
-import de.be4.classicalb.core.parser.node.ARecEntry;
-import de.be4.classicalb.core.parser.node.ARecExpression;
-import de.be4.classicalb.core.parser.node.ARecordFieldExpression;
-import de.be4.classicalb.core.parser.node.ARestrictFrontExpression;
-import de.be4.classicalb.core.parser.node.ARestrictTailExpression;
-import de.be4.classicalb.core.parser.node.ASeqExpression;
-import de.be4.classicalb.core.parser.node.ASequenceExtensionExpression;
-import de.be4.classicalb.core.parser.node.ASetExtensionExpression;
-import de.be4.classicalb.core.parser.node.ASetsMachineClause;
-import de.be4.classicalb.core.parser.node.ASizeExpression;
-import de.be4.classicalb.core.parser.node.AStringExpression;
-import de.be4.classicalb.core.parser.node.AStringSetExpression;
-import de.be4.classicalb.core.parser.node.AStructExpression;
-import de.be4.classicalb.core.parser.node.ASubsetPredicate;
-import de.be4.classicalb.core.parser.node.ASubstitutionDefinitionDefinition;
-import de.be4.classicalb.core.parser.node.ATailExpression;
-import de.be4.classicalb.core.parser.node.ATotalFunctionExpression;
-import de.be4.classicalb.core.parser.node.AUnaryMinusExpression;
-import de.be4.classicalb.core.parser.node.AUnionExpression;
-import de.be4.classicalb.core.parser.node.AVariablesMachineClause;
-import de.be4.classicalb.core.parser.node.EOF;
-import de.be4.classicalb.core.parser.node.PDefinition;
-import de.be4.classicalb.core.parser.node.PExpression;
-import de.be4.classicalb.core.parser.node.PMachineClause;
-import de.be4.classicalb.core.parser.node.POperation;
-import de.be4.classicalb.core.parser.node.PPredicate;
-import de.be4.classicalb.core.parser.node.PRecEntry;
-import de.be4.classicalb.core.parser.node.PSet;
-import de.be4.classicalb.core.parser.node.Start;
-import de.be4.classicalb.core.parser.node.TDefLiteralPredicate;
-import de.be4.classicalb.core.parser.node.TIdentifierLiteral;
-import de.be4.classicalb.core.parser.node.TIntegerLiteral;
-import de.be4.classicalb.core.parser.node.TStringLiteral;
+import de.be4.classicalb.core.parser.node.*;
 import de.tla2b.analysis.BOperation;
 import de.tla2b.analysis.PredicateVsExpression;
 import de.tla2b.analysis.RecursiveDefinition;
@@ -153,8 +57,8 @@ import de.tla2b.types.TLAType;
 import de.tla2b.types.TupleType;
 
 public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
-		ASTConstants, IType, BBuildIns, Priorities, ValueConstants {
-	Start start;
+		ASTConstants, BBuildIns, Priorities, ValueConstants {
+
 	List<PMachineClause> machineClauseList;
 	ConfigfileEvaluator conEval;
 	SpecAnalyser specAnalyser;
@@ -169,14 +73,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 
 	private Definitions bDefinitions = new Definitions();
 
-	public Start getStartNode() {
-		return start;
-	}
-
-	public Definitions getBDefinitions() {
-		// used for the recursive machine loader
-		return bDefinitions;
-	}
+	private Start start;
+	private final Hashtable<Node, TLAType> typeTable = new Hashtable<Node, TLAType>();
 
 	public Start expressionStart;
 
@@ -501,6 +399,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 				AIdentifierExpression id = new AIdentifierExpression(
 						createTIdentifierLiteral(getName(opDeclNode)));
 				list.add(id);
+				TLAType type = (TLAType) opDeclNode.getToolObject(TYPE_ID);
+				typeTable.put(id, type);
 			}
 			AVariablesMachineClause varClause = new AVariablesMachineClause(
 					list);
@@ -521,6 +421,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			AIdentifierExpression id = new AIdentifierExpression(
 					createTIdentifierLiteral(getName(opDeclNode)));
 			constantsList.add(id);
+			TLAType type = (TLAType) opDeclNode.getToolObject(TYPE_ID);
+			typeTable.put(id, type);
 		}
 
 		for (RecursiveDefinition recDef : specAnalyser
@@ -528,12 +430,16 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			AIdentifierExpression id = new AIdentifierExpression(
 					createTIdentifierLiteral(getName(recDef.getOpDefNode())));
 			constantsList.add(id);
+			TLAType type = (TLAType) recDef.getOpDefNode().getToolObject(TYPE_ID);
+			typeTable.put(id, type);
 		}
 
 		for (OpDefNode recFunc : specAnalyser.getRecursiveFunctions()) {
 			AIdentifierExpression id = new AIdentifierExpression(
 					createTIdentifierLiteral(getName(recFunc)));
 			constantsList.add(id);
+			TLAType type = (TLAType) recFunc.getToolObject(TYPE_ID);
+			typeTable.put(id, type);
 		}
 
 		if (constantsList.size() > 0) {
@@ -541,6 +447,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 					constantsList);
 			machineClauseList.add(abstractConstantsClause);
 		}
+		
+		
 
 	}
 
@@ -1421,7 +1329,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 
 			AExistsPredicate exist = new AExistsPredicate();
 			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-			ExprNode[] bounds = n.getBdedQuantBounds();
 
 			List<PExpression> idList = new ArrayList<PExpression>();
 			List<PPredicate> predList = new ArrayList<PPredicate>();
@@ -1593,7 +1500,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			List<PRecEntry> recList = new ArrayList<PRecEntry>();
 			if (struct.isExtensible()) {
 				for (int i = 0; i < struct.getFields().size(); i++) {
-					String fieldName = struct.getFields().get(i); 																// name
+					String fieldName = struct.getFields().get(i); // name
 					AIdentifierExpression field = createIdentifierNode(fieldName);
 					ARecEntry rec = new ARecEntry();
 					rec.setIdentifier(field);
@@ -1679,7 +1586,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 						rec.setValue(pairTable.get(fieldName));
 					} else {
 						// this struct is extensible
-						throw new NotImplementedException("Missing case handling extensible structs.");
+						throw new NotImplementedException(
+								"Missing case handling extensible structs.");
 					}
 					recList.add(rec);
 				}
@@ -1760,7 +1668,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		case OPCODE_exc: // Except
 		{
 			TLAType type = (TLAType) n.getToolObject(TYPE_ID);
-			if (type.getKind() == STRUCT) {
+			if (type.getKind() == IType.STRUCT) {
 				Hashtable<String, PExpression> temp = new Hashtable<String, PExpression>();
 				for (int i = 1; i < n.getArgs().length; i++) {
 					OpApplNode pair = (OpApplNode) n.getArgs()[i];
@@ -2266,4 +2174,18 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		list.add(expr);
 		return list;
 	}
+
+	public Start getStartNode() {
+		return start;
+	}
+
+	public Definitions getBDefinitions() {
+		// used for the recursive machine loader
+		return bDefinitions;
+	}
+
+	public Hashtable<Node, TLAType> getTypeTable() {
+		return this.typeTable;
+	}
+
 }

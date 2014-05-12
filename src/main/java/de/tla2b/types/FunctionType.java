@@ -3,6 +3,7 @@ package de.tla2b.types;
 import de.be4.classicalb.core.parser.node.APartialFunctionExpression;
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
+import de.tla2b.output.TypeVisitorInterface;
 
 public class FunctionType extends AbstractHasFollowers {
 	private TLAType domain;
@@ -16,8 +17,8 @@ public class FunctionType extends AbstractHasFollowers {
 
 	public FunctionType() {
 		super(FUNCTION);
-		this.setDomain(new Untyped());
-		this.setRange(new Untyped());
+		this.setDomain(new UntypedType());
+		this.setRange(new UntypedType());
 	}
 
 
@@ -65,8 +66,8 @@ public class FunctionType extends AbstractHasFollowers {
 	public FunctionType unify(TLAType o) throws UnificationException {
 		if (!this.compare(o))
 			throw new UnificationException();
-		if (o instanceof Untyped) {
-			((Untyped) o).setFollowersTo(this);
+		if (o instanceof UntypedType) {
+			((UntypedType) o).setFollowersTo(this);
 			return this;
 		}
 		if (o instanceof FunctionType) {
@@ -117,6 +118,10 @@ public class FunctionType extends AbstractHasFollowers {
 	@Override
 	public PExpression getBNode() {
 		return new APartialFunctionExpression(domain.getBNode(), range.getBNode());
+	}
+
+	public void apply(TypeVisitorInterface vistor) {
+		vistor.caseFunctionType(this);
 	}
 
 }

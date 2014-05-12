@@ -3,6 +3,7 @@ package de.tla2b.types;
 import de.be4.classicalb.core.parser.node.APowSubsetExpression;
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
+import de.tla2b.output.TypeVisitorInterface;
 
 public class SetType extends AbstractHasFollowers {
 	private TLAType subType;
@@ -45,7 +46,7 @@ public class SetType extends AbstractHasFollowers {
 			((AbstractHasFollowers) o).setFollowersTo(this);
 		}
 		
-		if (o instanceof StructOrFunction){
+		if (o instanceof StructOrFunctionType){
 			return (SetType)o.unify(this);
 		}
 		if (o instanceof SetType) {
@@ -67,7 +68,7 @@ public class SetType extends AbstractHasFollowers {
 		if (o.getKind() == UNTYPED)
 			return true;
 		
-		if (o instanceof StructOrFunction){
+		if (o instanceof StructOrFunctionType){
 			return o.compare(this);
 		}
 
@@ -105,6 +106,10 @@ public class SetType extends AbstractHasFollowers {
 	@Override
 	public PExpression getBNode() {
 		return new APowSubsetExpression(this.getSubType().getBNode());
+	}
+
+	public void apply(TypeVisitorInterface visitor) {
+		visitor.caseSetType(this);
 	}
 
 }

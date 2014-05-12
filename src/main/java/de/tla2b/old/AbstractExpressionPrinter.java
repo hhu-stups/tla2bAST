@@ -34,7 +34,7 @@ import tla2sany.semantic.SymbolNode;
 import tlc2.tool.BuiltInOPs;
 
 public abstract class AbstractExpressionPrinter extends BuiltInOPs implements
-		ASTConstants, IType, BBuildIns, Priorities, TranslationGlobals {
+		ASTConstants, BBuildIns, Priorities, TranslationGlobals {
 	// private int substitutionId = 10;
 
 	final int NOBOOL = 0;
@@ -235,7 +235,7 @@ public abstract class AbstractExpressionPrinter extends BuiltInOPs implements
 
 		}
 		TLAType defType = (TLAType) n.getToolObject(TYPE_ID);
-		if (defType != null && defType.getKind() == BOOL) {
+		if (defType != null && defType.getKind() == IType.BOOL) {
 			return makeBoolValue(out, expected, P_max);
 		}
 		return new ExprReturn(out);
@@ -564,7 +564,7 @@ public abstract class AbstractExpressionPrinter extends BuiltInOPs implements
 			String oldRecOrFunc = visitExprOrOpArgNode(n.getArgs()[0], d,
 					NOBOOL).out.toString();
 
-			if (t.getKind() == STRUCT) {
+			if (t.getKind() == IType.STRUCT) {
 				StructType structType = (StructType) t;
 
 				Hashtable<String, String> temp = new Hashtable<String, String>();
@@ -884,7 +884,7 @@ public abstract class AbstractExpressionPrinter extends BuiltInOPs implements
 		if (head == null) {
 			return val;
 		}
-		if (type.getKind() == STRUCT) {
+		if (type.getKind() == IType.STRUCT) {
 			StructType structType = (StructType) type;
 			String field = ((StringNode) head).getRep().toString();
 
@@ -945,7 +945,7 @@ public abstract class AbstractExpressionPrinter extends BuiltInOPs implements
 	protected ExprReturn evalIfThenElse(OpApplNode n, DContext d, int expected) {
 		TLAType t = (TLAType) n.getToolObject(TYPE_ID);
 
-		if (t.getKind() == BOOL) {
+		if (t.getKind() == IType.BOOL) {
 			d.indent.append(" ");
 			ExprReturn iif = visitExprOrOpArgNode(n.getArgs()[0], d, PREDICATE);
 			ExprReturn then = visitExprOrOpArgNode(n.getArgs()[1], d, PREDICATE);
@@ -1367,18 +1367,18 @@ public abstract class AbstractExpressionPrinter extends BuiltInOPs implements
 
 	private String getDummy(TLAType type) {
 		switch (type.getKind()) {
-		case INTEGER:
+		case IType.INTEGER:
 			return "0";
 
-		case STRING:
+		case IType.STRING:
 			return "\"\"";
 
-		case POW:
+		case IType.POW:
 			return "{}";
 
-		case BOOL:
+		case IType.BOOL:
 			return "FALSE";
-		case MODELVALUE:
+		case IType.MODELVALUE:
 			EnumType e = (EnumType) type;
 			return "noVal" + e.id;
 		default:

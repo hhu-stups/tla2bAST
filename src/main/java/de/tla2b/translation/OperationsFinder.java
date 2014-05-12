@@ -15,10 +15,9 @@ import de.tla2b.analysis.BOperation;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.global.TranslationGlobals;
-import de.tla2b.types.IType;
 
 public class OperationsFinder extends AbstractASTVisitor implements
-		ASTConstants, ToolGlobals, IType, TranslationGlobals {
+		ASTConstants, ToolGlobals, TranslationGlobals {
 	private final SpecAnalyser specAnalyser;
 
 	private String currentName;

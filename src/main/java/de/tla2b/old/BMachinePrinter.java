@@ -17,6 +17,7 @@ import de.tla2b.config.ValueObj;
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.global.TranslationGlobals;
 import de.tla2b.types.EnumType;
+import de.tla2b.types.IType;
 import de.tla2b.types.SetType;
 import de.tla2b.types.TLAType;
 import tla2sany.semantic.AssumeNode;
@@ -687,7 +688,7 @@ public class BMachinePrinter extends AbstractExpressionPrinter implements
 
 		}
 		TLAType defType = (TLAType) n.getToolObject(TYPE_ID);
-		if (defType != null && defType.getKind() == BOOL) {
+		if (defType != null && defType.getKind() == IType.BOOL) {
 			return makeBoolValue(out, expected, P_max);
 		}
 		return new ExprReturn(out);

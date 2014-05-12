@@ -4,6 +4,7 @@ package de.tla2b.types;
 import de.be4.classicalb.core.parser.node.AMultOrCartExpression;
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
+import de.tla2b.output.TypeVisitorInterface;
 
 public class PairType extends AbstractHasFollowers {
 
@@ -12,8 +13,8 @@ public class PairType extends AbstractHasFollowers {
 
 	public PairType() {
 		super(PAIR);
-		setFirst(new Untyped());
-		setSecond(new Untyped());
+		setFirst(new UntypedType());
+		setSecond(new UntypedType());
 	}
 
 	public PairType(TLAType f, TLAType s) {
@@ -133,6 +134,10 @@ public class PairType extends AbstractHasFollowers {
 		card.setLeft(first.getBNode());
 		card.setRight(second.getBNode());
 		return card;
+	}
+
+	public void apply(TypeVisitorInterface visitor) {
+		visitor.casePairType(this);
 	}
 
 }

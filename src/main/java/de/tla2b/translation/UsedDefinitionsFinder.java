@@ -12,10 +12,9 @@ import de.tla2b.analysis.AbstractASTVisitor;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.global.TranslationGlobals;
-import de.tla2b.types.IType;
 
 public class UsedDefinitionsFinder extends AbstractASTVisitor implements
-		ASTConstants, ToolGlobals, IType, TranslationGlobals {
+		ASTConstants, ToolGlobals, TranslationGlobals {
 
 	private final HashSet<OpDefNode> usedDefinitions = new HashSet<OpDefNode>();
 	

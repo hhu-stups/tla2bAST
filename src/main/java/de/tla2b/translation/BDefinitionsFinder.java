@@ -15,7 +15,7 @@ import de.tla2b.global.TranslationGlobals;
 import de.tla2b.types.IType;
 
 public class BDefinitionsFinder extends AbstractASTVisitor implements
-		ASTConstants, ToolGlobals, IType, TranslationGlobals {
+		ASTConstants, ToolGlobals, TranslationGlobals {
 	private final HashSet<OpDefNode> bDefinitionsSet = new HashSet<OpDefNode>();
 
 	public BDefinitionsFinder(SpecAnalyser specAnalyser) {

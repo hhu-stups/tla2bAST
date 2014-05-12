@@ -11,19 +11,20 @@ import java.util.Map.Entry;
 
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
+import de.tla2b.output.TypeVisitorInterface;
 
 
 
-public class StructOrFunction extends AbstractHasFollowers {
+public class StructOrFunctionType extends AbstractHasFollowers {
 	private LinkedHashMap<String, TLAType> types;
 
-	public StructOrFunction(String name, TLAType type) {
+	public StructOrFunctionType(String name, TLAType type) {
 		super(STRUCT_OR_FUNCTION);
 		types = new LinkedHashMap<String, TLAType>();
 		types.put(name, type);
 	}
 
-	public StructOrFunction() {
+	public StructOrFunctionType() {
 		super(STRUCT_OR_FUNCTION);
 		types = new LinkedHashMap<String, TLAType>();
 	}
@@ -99,8 +100,8 @@ public class StructOrFunction extends AbstractHasFollowers {
 				return false;
 		}
 
-		if (o instanceof StructOrFunction) {
-			StructOrFunction s = (StructOrFunction) o;
+		if (o instanceof StructOrFunctionType) {
+			StructOrFunctionType s = (StructOrFunctionType) o;
 
 			Iterator<String> thisKeys = types.keySet().iterator();
 			while (thisKeys.hasNext()) {
@@ -144,7 +145,7 @@ public class StructOrFunction extends AbstractHasFollowers {
 
 	@Override
 	public TLAType cloneTLAType() {
-		StructOrFunction res = new StructOrFunction();
+		StructOrFunctionType res = new StructOrFunctionType();
 		for (String field : types.keySet()) {
 			res.types.put(field, this.types.get(field));
 		}
@@ -156,8 +157,8 @@ public class StructOrFunction extends AbstractHasFollowers {
 		if (!this.compare(o))
 			throw new UnificationException();
 
-		if (o instanceof Untyped) {
-			((Untyped) o).setFollowersTo(this);
+		if (o instanceof UntypedType) {
+			((UntypedType) o).setFollowersTo(this);
 			return this;
 		}
 
@@ -179,8 +180,8 @@ public class StructOrFunction extends AbstractHasFollowers {
 			}
 			return o.unify(res);
 		}
-		if (o instanceof StructOrFunction) {
-			StructOrFunction other = (StructOrFunction) o;
+		if (o instanceof StructOrFunctionType) {
+			StructOrFunctionType other = (StructOrFunctionType) o;
 			for (String field : other.types.keySet()) {
 				TLAType type = other.types.get(field);
 				if (this.types.containsKey(field)) {
@@ -227,6 +228,10 @@ public class StructOrFunction extends AbstractHasFollowers {
 	@Override
 	public PExpression getBNode() {
 		return null;
+	}
+
+	public void apply(TypeVisitorInterface visitor) {
+		visitor.caseStructOrFunction(this);
 	}
 
 }

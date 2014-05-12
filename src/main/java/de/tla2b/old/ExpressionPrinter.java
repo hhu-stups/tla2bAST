@@ -8,6 +8,7 @@ package de.tla2b.old;
 import java.util.Hashtable;
 
 import de.tla2b.global.BBuiltInOPs;
+import de.tla2b.types.IType;
 import de.tla2b.types.TLAType;
 import tla2sany.semantic.ExprOrOpArgNode;
 import tla2sany.semantic.FormalParamNode;
@@ -59,7 +60,7 @@ public class ExpressionPrinter extends AbstractExpressionPrinter {
 	protected ExprReturn evalIfThenElse(OpApplNode n, DContext d, int expected) {
 		TLAType t = (TLAType) n.getToolObject(TYPE_ID);
 
-		if (t.getKind() == BOOL) {
+		if (t.getKind() == IType.BOOL) {
 			d.indent.append(" ");
 			ExprReturn iif = visitExprOrOpArgNode(n.getArgs()[0], d, PREDICATE);
 			ExprReturn then = visitExprOrOpArgNode(n.getArgs()[1], d, PREDICATE);

@@ -6,6 +6,7 @@ import java.util.List;
 import de.be4.classicalb.core.parser.node.AMultOrCartExpression;
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
+import de.tla2b.output.TypeVisitorInterface;
 
 public class TupleType extends AbstractHasFollowers {
 	private ArrayList<TLAType> types;
@@ -19,7 +20,7 @@ public class TupleType extends AbstractHasFollowers {
 		super(TUPLE);
 		ArrayList<TLAType> list = new ArrayList<TLAType>();
 		for (int i = 0; i < size; i++) {
-			list.add(new Untyped());
+			list.add(new UntypedType());
 		}
 		setTypes(list);
 	}
@@ -135,8 +136,8 @@ public class TupleType extends AbstractHasFollowers {
 		if (!this.compare(o)) {
 			throw new UnificationException();
 		}
-		if (o instanceof Untyped) {
-			((Untyped) o).setFollowersTo(this);
+		if (o instanceof UntypedType) {
+			((UntypedType) o).setFollowersTo(this);
 			return this;
 		}
 		if (o instanceof TupleType) {
@@ -162,7 +163,7 @@ public class TupleType extends AbstractHasFollowers {
 		}
 		if (o instanceof FunctionType) {
 			// TODO
-			if (compareToAll(new Untyped())) {
+			if (compareToAll(new UntypedType())) {
 				// Function
 				TLAType t = types.get(0);
 				for (int i = 1; i < types.size(); i++) {
@@ -217,6 +218,10 @@ public class TupleType extends AbstractHasFollowers {
 
 		}
 		return card;
+	}
+
+	public void apply(TypeVisitorInterface visitor) {
+		visitor.caseTupleType(this);
 	}
 
 }

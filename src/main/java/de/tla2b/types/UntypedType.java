@@ -2,10 +2,11 @@ package de.tla2b.types;
 
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
+import de.tla2b.output.TypeVisitorInterface;
 
-public class Untyped extends AbstractHasFollowers {
+public class UntypedType extends AbstractHasFollowers {
 
-	public Untyped() {
+	public UntypedType() {
 		super(UNTYPED);
 	}
 
@@ -43,12 +44,16 @@ public class Untyped extends AbstractHasFollowers {
 	}
 
 	@Override
-	public Untyped cloneTLAType() {
-		return new Untyped();
+	public UntypedType cloneTLAType() {
+		return new UntypedType();
 	}
 
 	@Override
 	public PExpression getBNode() {
 		return null;
+	}
+
+	public void apply(TypeVisitorInterface visitor) {
+		visitor.caseUntyped(this);
 	}
 }

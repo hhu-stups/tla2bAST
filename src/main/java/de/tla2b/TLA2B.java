@@ -4,19 +4,12 @@
 
 package de.tla2b;
 
-import java.io.File;
-import java.io.PrintStream;
-import java.io.PrintWriter;
 
-import de.be4.classicalb.core.parser.BParser;
 import de.tla2b.exceptions.FrontEndException;
 import de.tla2b.exceptions.NotImplementedException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.global.TranslationGlobals;
 import de.tla2bAst.Translator;
-import de.be4.classicalb.core.parser.analysis.prolog.RecursiveMachineLoader;
-import de.be4.classicalb.core.parser.exceptions.BException;
-import de.be4.classicalb.core.parser.node.Start;
 
 public class TLA2B implements TranslationGlobals {
 	private String mainFile;
@@ -69,7 +62,7 @@ public class TLA2B implements TranslationGlobals {
 			System.err.println(e.getMessage());
 			System.exit(-1);
 		}
-		translator.createMachineFile();
+		//translator.createMachineFile();
 		translator.createProbFile();
 	}
 

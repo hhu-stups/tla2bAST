@@ -2,6 +2,7 @@ package de.tla2b.types;
 
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
+import de.tla2b.output.TypeVisitorInterface;
 
 
 public abstract class TLAType implements IType {
@@ -40,5 +41,4 @@ public abstract class TLAType implements IType {
 	public final String printObjectToString() {
 		return super.toString();
 	}
-
 }

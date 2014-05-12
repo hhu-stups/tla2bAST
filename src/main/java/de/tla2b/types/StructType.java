@@ -1,6 +1,7 @@
 package de.tla2b.types;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -15,6 +16,7 @@ import de.be4.classicalb.core.parser.node.AStructExpression;
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.be4.classicalb.core.parser.node.PRecEntry;
 import de.tla2b.exceptions.UnificationException;
+import de.tla2b.output.TypeVisitorInterface;
 import de.tla2bAst.BAstCreator;
 
 public class StructType extends AbstractHasFollowers {
@@ -85,7 +87,7 @@ public class StructType extends AbstractHasFollowers {
 		if (o.getKind() == UNTYPED)
 			return true;
 
-		if (o instanceof StructOrFunction) {
+		if (o instanceof StructOrFunctionType) {
 			return o.compare(this);
 		}
 		if (o instanceof StructType) {
@@ -113,7 +115,7 @@ public class StructType extends AbstractHasFollowers {
 		if (o instanceof AbstractHasFollowers)
 			((AbstractHasFollowers) o).setFollowersTo(this);
 
-		if (o instanceof StructOrFunction) {
+		if (o instanceof StructOrFunctionType) {
 			return (StructType) o.unify(this);
 		}
 
@@ -235,4 +237,13 @@ public class StructType extends AbstractHasFollowers {
 		}
 		return new AStructExpression(recList);
 	}
+
+	public void apply(TypeVisitorInterface visitor) {
+		visitor.caseStructType(this);
+	}
+	
+	public LinkedHashMap<String, TLAType> getTypeTable(){
+		return this.types;
+	}
+	
 }

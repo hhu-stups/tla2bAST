@@ -20,7 +20,7 @@ import de.tla2b.types.IntType;
 import de.tla2b.types.SetType;
 import de.tla2b.types.StringType;
 import de.tla2b.types.TLAType;
-import de.tla2b.types.Untyped;
+import de.tla2b.types.UntypedType;
 import tla2sany.semantic.InstanceNode;
 import tla2sany.semantic.ModuleNode;
 import tla2sany.semantic.OpDeclNode;
@@ -505,7 +505,7 @@ public class ConfigfileEvaluator {
 			return IntType.getInstance();
 		} else if (o.getClass().getName().equals("tlc2.value.SetEnumValue")) {
 			SetEnumValue set = (SetEnumValue) o;
-			SetType t = new SetType(new Untyped());
+			SetType t = new SetType(new UntypedType());
 			if (set.size() == 0) {
 				throw new ConfigFileErrorException(
 						"empty set is not permitted!");

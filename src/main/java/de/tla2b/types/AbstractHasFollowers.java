@@ -74,8 +74,8 @@ public abstract class AbstractHasFollowers extends TLAType {
 				((FunctionType) follower).update(this, newType);
 			} else if (follower instanceof StructType) {
 				((StructType) follower).setNewType(this, newType);
-			} else if (follower instanceof StructOrFunction) {
-				((StructOrFunction) follower).setNewType(this, newType);
+			} else if (follower instanceof StructOrFunctionType) {
+				((StructOrFunctionType) follower).setNewType(this, newType);
 			} else {
 				throw new RuntimeException("Unknown follower type: "
 						+ follower.getClass());

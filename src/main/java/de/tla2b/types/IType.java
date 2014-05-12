@@ -1,5 +1,7 @@
 package de.tla2b.types;
 
+import de.tla2b.output.TypeVisitorInterface;
+
 public interface IType {
 	public final int UNTYPED = 0;
 	public final int INTEGER = 1;
@@ -14,4 +16,5 @@ public interface IType {
 	public final int FUNCTION = 10;
 	public final int TUPLE = 11;
 	
+	void apply(TypeVisitorInterface visitor);
 }
