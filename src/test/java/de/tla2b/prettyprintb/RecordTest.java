@@ -33,18 +33,6 @@ public class RecordTest {
 		compare(expected, module);
 	}
 	
-	
-	@Test
-	public void testStructExpansion() throws Exception {
-		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "ASSUME [a: {2}] = [a : {1}, b : BOOLEAN] \n"
-				+ "=================================";
-
-		final String expected = "MACHINE Testing\n"
-				+ "PROPERTIES struct(a : {2},b : BOOL) = struct(a : {1},b : BOOL) \n"
-				+ "END";
-		compare(expected, module);
-	}
 
 	/**********************************************************************
 	 * Record: [L1 |-> e1, L2 |-> e2]

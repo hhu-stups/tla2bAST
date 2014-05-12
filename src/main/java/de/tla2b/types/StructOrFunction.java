@@ -172,7 +172,7 @@ public class StructOrFunction extends AbstractHasFollowers {
 			return found.unify(o);
 		}
 		if (o instanceof StructType) {
-			StructType res = new StructType();
+			StructType res = StructType.getIncompleteStruct();
 
 			for (String field : types.keySet()) {
 				res.add(field, this.types.get(field));

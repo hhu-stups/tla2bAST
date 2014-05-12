@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import de.be4.classicalb.core.parser.node.ABoolSetExpression;
+import de.be4.classicalb.core.parser.node.AMultOrCartExpression;
+import de.be4.classicalb.core.parser.node.APowSubsetExpression;
 import de.be4.classicalb.core.parser.node.ARecEntry;
 import de.be4.classicalb.core.parser.node.AStructExpression;
 import de.be4.classicalb.core.parser.node.PExpression;
@@ -14,14 +17,26 @@ import de.be4.classicalb.core.parser.node.PRecEntry;
 import de.tla2b.exceptions.UnificationException;
 import de.tla2bAst.BAstCreator;
 
-
-
 public class StructType extends AbstractHasFollowers {
 	private LinkedHashMap<String, TLAType> types;
+	private boolean extensible;
+	private boolean incompleteStruct;
 
 	public StructType() {
 		super(STRUCT);
 		types = new LinkedHashMap<String, TLAType>();
+		extensible = false;
+		incompleteStruct = false;
+	}
+
+	public static StructType getIncompleteStruct() {
+		StructType s = new StructType();
+		s.incompleteStruct = true;
+		return s;
+	}
+
+	public boolean isExtensible() {
+		return extensible;
 	}
 
 	public TLAType getType(String fieldName) {
@@ -65,12 +80,12 @@ public class StructType extends AbstractHasFollowers {
 	}
 
 	public boolean compare(TLAType o) {
-		if(this.contains(o)|| o.contains(this))
+		if (this.contains(o) || o.contains(this))
 			return false;
 		if (o.getKind() == UNTYPED)
 			return true;
-		
-		if (o instanceof StructOrFunction){
+
+		if (o instanceof StructOrFunction) {
 			return o.compare(this);
 		}
 		if (o instanceof StructType) {
@@ -98,12 +113,33 @@ public class StructType extends AbstractHasFollowers {
 		if (o instanceof AbstractHasFollowers)
 			((AbstractHasFollowers) o).setFollowersTo(this);
 
-		if (o instanceof StructOrFunction){
+		if (o instanceof StructOrFunction) {
 			return (StructType) o.unify(this);
 		}
-		
+
 		if (o instanceof StructType) {
 			StructType s = (StructType) o;
+			boolean extendStruct = false;
+			
+			if (this.incompleteStruct && s.incompleteStruct) {
+				extendStruct = false;
+			} else if (this.incompleteStruct) {
+				if (s.types.keySet().containsAll(this.types.keySet())) {
+					extendStruct = false;
+				} else {
+					extendStruct = true;
+				}
+			} else if (s.incompleteStruct) {
+				if (this.types.keySet().containsAll(s.types.keySet())) {
+					extendStruct = false;
+				} else {
+					extendStruct = true;
+				}
+			} else {
+				extendStruct = !s.types.keySet().equals(this.types.keySet());
+			}
+			this.extensible = this.extensible || s.extensible || extendStruct;
+
 			Iterator<String> keys = s.types.keySet().iterator();
 			while (keys.hasNext()) {
 				String fieldName = (String) keys.next();
@@ -118,6 +154,7 @@ public class StructType extends AbstractHasFollowers {
 					}
 					this.types.put(fieldName, sType);
 				}
+				this.incompleteStruct = false;
 			}
 			return this;
 		}
@@ -166,7 +203,7 @@ public class StructType extends AbstractHasFollowers {
 	public String toString() {
 		String res = "struct(";
 		Iterator<String> keys = types.keySet().iterator();
-		if(!keys.hasNext())
+		if (!keys.hasNext())
 			res += "...";
 		while (keys.hasNext()) {
 			String fieldName = (String) keys.next();
@@ -177,14 +214,23 @@ public class StructType extends AbstractHasFollowers {
 		res += ")";
 		return res;
 	}
-	
+
 	@Override
 	public PExpression getBNode() {
 		List<PRecEntry> recList = new ArrayList<PRecEntry>();
 		for (Entry<String, TLAType> entry : types.entrySet()) {
 			ARecEntry rec = new ARecEntry();
 			rec.setIdentifier(BAstCreator.createIdentifierNode(entry.getKey()));
-			rec.setValue(entry.getValue().getBNode());
+			if (extensible) {
+
+				AMultOrCartExpression cart = new AMultOrCartExpression();
+				cart.setLeft(new ABoolSetExpression());
+				cart.setRight(entry.getValue().getBNode());
+				APowSubsetExpression pow = new APowSubsetExpression(cart);
+				rec.setValue(pow);
+			} else {
+				rec.setValue(entry.getValue().getBNode());
+			}
 			recList.add(rec);
 		}
 		return new AStructExpression(recList);

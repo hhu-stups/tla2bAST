@@ -961,19 +961,21 @@ public class TypeChecker extends BuiltInOPs implements IType, ASTConstants,
 			String fieldName = ((StringNode) n.getArgs()[1]).getRep()
 					.toString();
 			StructType r = (StructType) visitExprOrOpArgNode(n.getArgs()[0],
-					new StructType());
+					StructType.getIncompleteStruct());
 
-			StructType expectedStruct = new StructType();
+			StructType expectedStruct = StructType.getIncompleteStruct();
 			expectedStruct.add(fieldName, expected);
 
 			try {
 				r = r.unify(expectedStruct);
-				return r.getType(fieldName);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
 						"Struct has no field %s with type %s: %s\n%s",
 						fieldName, r.getType(fieldName), r, n.getLocation()));
 			}
+			n.setToolObject(TYPE_ID, r);
+			r.addFollower(n);
+			return r.getType(fieldName);
 		}
 
 		/***********************************************************************

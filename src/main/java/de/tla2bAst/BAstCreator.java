@@ -137,6 +137,7 @@ import de.tla2b.analysis.PredicateVsExpression.DefinitionType;
 import de.tla2b.analysis.UsedExternalFunctions.EXTERNAL_FUNCTIONS;
 import de.tla2b.config.ConfigfileEvaluator;
 import de.tla2b.config.ValueObj;
+import de.tla2b.exceptions.NotImplementedException;
 import de.tla2b.global.BBuildIns;
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.global.Priorities;
@@ -238,8 +239,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 
 	}
 
-	
-	
 	private void createSetsClause() {
 		if (conEval == null || conEval.getEnumerationSet() == null
 				|| conEval.getEnumerationSet().size() == 0)
@@ -266,7 +265,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 				}
 			}
 		}
-		
+
 		ArrayList<PSet> sets = new ArrayList<PSet>();
 		for (int i = 0; i < printed.size(); i++) {
 			AEnumeratedSetSet eSet = new AEnumeratedSetSet();
@@ -1194,13 +1193,14 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 					visitExprOrOpArgNodeExpression(n.getArgs()[0]));
 
 		case B_OPCODE_subseq: { // SubSeq(s,a,b)
-			//%p.(p : 1..(b-a+1)| s(p+a-1))
+			// %p.(p : 1..(b-a+1)| s(p+a-1))
 			ALambdaExpression lambda = new ALambdaExpression();
 			lambda.setIdentifiers(createIdentifierList("t_"));
 			AMemberPredicate member = new AMemberPredicate();
 			member.setLeft(createIdentifierNode("t_"));
 			AIntervalExpression interval = new AIntervalExpression();
-			interval.setLeftBorder(new AIntegerExpression(new TIntegerLiteral("1")));
+			interval.setLeftBorder(new AIntegerExpression(new TIntegerLiteral(
+					"1")));
 			AMinusOrSetSubtractExpression minus = new AMinusOrSetSubtractExpression();
 			minus.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[2]));
 			minus.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
@@ -1223,18 +1223,20 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			func.setParameters(params);
 			lambda.setExpression(func);
 			return lambda;
-			
-//			ARestrictFrontExpression restrictFront = new ARestrictFrontExpression();
-//			restrictFront
-//					.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-//			restrictFront
-//					.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[2]));
-//
-//			ARestrictTailExpression restrictTail = new ARestrictTailExpression();
-//			restrictTail.setLeft(restrictFront);
-//			restrictTail
-//					.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-//			return restrictTail;
+
+			// ARestrictFrontExpression restrictFront = new
+			// ARestrictFrontExpression();
+			// restrictFront
+			// .setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+			// restrictFront
+			// .setRight(visitExprOrOpArgNodeExpression(n.getArgs()[2]));
+			//
+			// ARestrictTailExpression restrictTail = new
+			// ARestrictTailExpression();
+			// restrictTail.setLeft(restrictFront);
+			// restrictTail
+			// .setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+			// return restrictTail;
 		}
 
 		}
@@ -1589,56 +1591,125 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 
 			}
 			List<PRecEntry> recList = new ArrayList<PRecEntry>();
-			for (int i = 0; i < struct.getFields().size(); i++) {
-				String fieldName = struct.getFields().get(i); // renamed name
-				AIdentifierExpression field = createIdentifierNode(fieldName);
-				ARecEntry rec = new ARecEntry();
-				rec.setIdentifier(field);
-				if (pairTable.containsKey(fieldName)) {
-					rec.setValue(pairTable.get(fieldName));
-				} else {
-					rec.setValue(struct.getType(fieldName).getBNode());
+			if (struct.isExtensible()) {
+				for (int i = 0; i < struct.getFields().size(); i++) {
+					String fieldName = struct.getFields().get(i); 																// name
+					AIdentifierExpression field = createIdentifierNode(fieldName);
+					ARecEntry rec = new ARecEntry();
+					rec.setIdentifier(field);
+					AMultOrCartExpression cart = new AMultOrCartExpression();
+					cart.setLeft(new ABoolSetExpression());
+					if (pairTable.containsKey(fieldName)) {
+						cart.setRight(pairTable.get(fieldName));
+					} else {
+						cart.setRight(struct.getType(fieldName).getBNode());
+					}
+					rec.setValue(new APowSubsetExpression(cart));
+					recList.add(rec);
 				}
-				recList.add(rec);
-			}
+			} else {
+				for (int i = 0; i < struct.getFields().size(); i++) {
+					String fieldName = struct.getFields().get(i);
+					AIdentifierExpression field = createIdentifierNode(fieldName);
+					ARecEntry rec = new ARecEntry();
+					rec.setIdentifier(field);
+					if (pairTable.containsKey(fieldName)) {
+						rec.setValue(pairTable.get(fieldName));
+					} else {
+						rec.setValue(struct.getType(fieldName).getBNode());
+					}
+					recList.add(rec);
+				}
 
+			}
 			return new AStructExpression(recList);
 		}
 
 		case OPCODE_rc: { // [h_1 |-> 1, h_2 |-> 2]
 			StructType struct = (StructType) n.getToolObject(TYPE_ID);
-			Hashtable<String, PExpression> pairTable = new Hashtable<String, PExpression>();
-			ExprOrOpArgNode[] args = n.getArgs();
-			for (int i = 0; i < args.length; i++) {
-				OpApplNode pair = (OpApplNode) args[i];
-				StringNode stringNode = (StringNode) pair.getArgs()[0];
-				pairTable.put(stringNode.getRep().toString(),
-						visitExprOrOpArgNodeExpression(pair.getArgs()[1]));
-			}
-			List<PRecEntry> recList = new ArrayList<PRecEntry>();
-			for (int i = 0; i < struct.getFields().size(); i++) {
-				String fieldName = struct.getFields().get(i);
-				AIdentifierExpression field = createIdentifierNode(fieldName);
-				ARecEntry rec = new ARecEntry();
-				rec.setIdentifier(field);
-				if (pairTable.containsKey(fieldName)) {
-					rec.setValue(pairTable.get(fieldName));
-				} else {
-					// insert null element
+			if (struct.isExtensible()) {
+				Hashtable<String, PExpression> pairTable = new Hashtable<String, PExpression>();
+				ExprOrOpArgNode[] args = n.getArgs();
+				for (int i = 0; i < args.length; i++) {
+					OpApplNode pair = (OpApplNode) args[i];
+					StringNode stringNode = (StringNode) pair.getArgs()[0];
+					pairTable.put(stringNode.getRep().toString(),
+							visitExprOrOpArgNodeExpression(pair.getArgs()[1]));
 				}
-				recList.add(rec);
+				List<PRecEntry> recList = new ArrayList<PRecEntry>();
+				for (int i = 0; i < struct.getFields().size(); i++) {
+					String fieldName = struct.getFields().get(i);
+					AIdentifierExpression field = createIdentifierNode(fieldName);
+					ARecEntry rec = new ARecEntry();
+					rec.setIdentifier(field);
+					if (pairTable.containsKey(fieldName)) {
+
+						ACoupleExpression couple = new ACoupleExpression();
+						List<PExpression> coupleList = new ArrayList<PExpression>();
+						coupleList.add(new ABooleanTrueExpression());
+						coupleList.add(pairTable.get(fieldName));
+						couple.setList(coupleList);
+						ASetExtensionExpression set = new ASetExtensionExpression(
+								makePexpressionList(couple));
+						rec.setValue(set);
+					} else {
+						AEmptySetExpression emptySet = new AEmptySetExpression();
+						rec.setValue(emptySet);
+					}
+					recList.add(rec);
+				}
+				return new ARecExpression(recList);
+
+			} else {
+				Hashtable<String, PExpression> pairTable = new Hashtable<String, PExpression>();
+				ExprOrOpArgNode[] args = n.getArgs();
+				for (int i = 0; i < args.length; i++) {
+					OpApplNode pair = (OpApplNode) args[i];
+					StringNode stringNode = (StringNode) pair.getArgs()[0];
+					pairTable.put(stringNode.getRep().toString(),
+							visitExprOrOpArgNodeExpression(pair.getArgs()[1]));
+				}
+				List<PRecEntry> recList = new ArrayList<PRecEntry>();
+				for (int i = 0; i < struct.getFields().size(); i++) {
+					String fieldName = struct.getFields().get(i);
+					AIdentifierExpression field = createIdentifierNode(fieldName);
+					ARecEntry rec = new ARecEntry();
+					rec.setIdentifier(field);
+					if (pairTable.containsKey(fieldName)) {
+						rec.setValue(pairTable.get(fieldName));
+					} else {
+						// this struct is extensible
+						throw new NotImplementedException("Missing case handling extensible structs.");
+					}
+					recList.add(rec);
+				}
+				return new ARecExpression(recList);
 			}
 
-			return new ARecExpression(recList);
 		}
 
 		case OPCODE_rs: { // $RcdSelect r.c
-			ARecordFieldExpression rcdSelect = new ARecordFieldExpression();
-			rcdSelect.setRecord(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			StringNode stringNode = (StringNode) n.getArgs()[1];
-			rcdSelect.setIdentifier(createIdentifierNode(stringNode.getRep()
-					.toString())); // TODO renamed
-			return rcdSelect;
+			StructType struct = (StructType) n.getToolObject(TYPE_ID);
+			if (struct.isExtensible()) {
+				ARecordFieldExpression rcdSelect = new ARecordFieldExpression();
+				rcdSelect
+						.setRecord(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				StringNode stringNode = (StringNode) n.getArgs()[1];
+				rcdSelect.setIdentifier(createIdentifierNode(stringNode
+						.getRep().toString()));
+				AFunctionExpression funcCall = new AFunctionExpression();
+				funcCall.setIdentifier(rcdSelect);
+				funcCall.setParameters(makePexpressionList(new ABooleanTrueExpression()));
+				return funcCall;
+			} else {
+				ARecordFieldExpression rcdSelect = new ARecordFieldExpression();
+				rcdSelect
+						.setRecord(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				StringNode stringNode = (StringNode) n.getArgs()[1];
+				rcdSelect.setIdentifier(createIdentifierNode(stringNode
+						.getRep().toString()));
+				return rcdSelect;
+			}
 		}
 
 		case OPCODE_prime: // prime
@@ -2190,4 +2261,9 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		return list;
 	}
 
+	public static List<PExpression> makePexpressionList(PExpression expr) {
+		ArrayList<PExpression> list = new ArrayList<PExpression>();
+		list.add(expr);
+		return list;
+	}
 }

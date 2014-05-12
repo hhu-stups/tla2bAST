@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import static de.tla2b.util.TestUtil.compareExpr;
 
-public class TestComplexExpression {
+public class ComplexExpressionTest {
 
 	@Test
 	public void testExcept() throws Exception {
