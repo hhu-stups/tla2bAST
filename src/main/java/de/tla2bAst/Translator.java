@@ -2,13 +2,18 @@ package de.tla2bAst;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Date;
 
+import de.be4.classicalb.core.parser.BParser;
 import de.be4.classicalb.core.parser.Definitions;
+import de.be4.classicalb.core.parser.analysis.prolog.RecursiveMachineLoader;
+import de.be4.classicalb.core.parser.exceptions.BException;
 import de.be4.classicalb.core.parser.node.Start;
 import de.tla2b.analysis.InstanceTransformation;
 import de.tla2b.analysis.PredicateVsExpression;
@@ -48,10 +53,7 @@ public class Translator implements TranslationGlobals {
 
 	private SpecAnalyser specAnalyser;
 	private TypeChecker typechecker;
-	
-	
-	
-	
+
 	public Translator(String moduleFileName) throws FrontEndException {
 		this.moduleFileName = moduleFileName;
 
@@ -62,7 +64,8 @@ public class Translator implements TranslationGlobals {
 	}
 
 	private void findConfigFile() {
-		String configFileName = FileUtils.removeExtention(moduleFile.getAbsolutePath());
+		String configFileName = FileUtils.removeExtention(moduleFile
+				.getAbsolutePath());
 		configFileName = configFileName + ".cfg";
 		configFile = new File(configFileName);
 		if (!configFile.exists()) {
@@ -199,10 +202,9 @@ public class Translator implements TranslationGlobals {
 			specAnalyser = SpecAnalyser.createSpecAnalyser(moduleNode);
 		}
 		specAnalyser.start();
-		typechecker = new TypeChecker(moduleNode, conEval,
-				specAnalyser);
+		typechecker = new TypeChecker(moduleNode, conEval, specAnalyser);
 		typechecker.start();
-		
+
 		SymbolRenamer symRenamer = new SymbolRenamer(moduleNode, specAnalyser);
 		symRenamer.start();
 		UsedExternalFunctions usedExternalFunctions = new UsedExternalFunctions(
@@ -216,6 +218,35 @@ public class Translator implements TranslationGlobals {
 		this.BAst = bAstCreator.getStartNode();
 		this.bDefinitions = bAstCreator.getBDefinitions();
 		return BAst;
+	}
+
+	public void createProbFile() {
+		String fileName = FileUtils.removeExtention(moduleFile
+				.getAbsolutePath());
+		fileName = fileName + ".prob";
+		File probFile;
+		probFile = new File(fileName);
+		try {
+			probFile.createNewFile();
+		} catch (IOException e) {
+			System.err.println(String.format("Could not create File %s.",
+					probFile.getName()));
+			System.exit(-1);
+		}
+
+		BParser bParser = new BParser();
+		bParser.getDefinitions().addAll(getBDefinitions());
+		try {
+			final RecursiveMachineLoader rml = parseAllMachines(getBAST(),
+					getModuleFile(), bParser);
+			//rml.printAsProlog(new PrintWriter(System.out), false);
+			rml.printAsProlog(new PrintWriter(probFile), false);
+			System.out.println(probFile.getAbsolutePath() + " created.");
+		} catch (BException e) {
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void createMachineFile() {
@@ -274,21 +305,32 @@ public class Translator implements TranslationGlobals {
 
 	}
 
-	public Start translateExpression(String tlaExpression) throws TLA2BException{
-		ExpressionTranslator expressionTranslator = new ExpressionTranslator(tlaExpression, this);
+	public static RecursiveMachineLoader parseAllMachines(final Start ast,
+			final File f, final BParser bparser) throws BException {
+		final RecursiveMachineLoader rml = new RecursiveMachineLoader(
+				f.getParent(), bparser.getContentProvider());
+
+		rml.loadAllMachines(f, ast, null, bparser.getDefinitions(),
+				bparser.getPragmas());
+		return rml;
+	}
+
+	public Start translateExpression(String tlaExpression)
+			throws TLA2BException {
+		ExpressionTranslator expressionTranslator = new ExpressionTranslator(
+				tlaExpression, this);
 		expressionTranslator.parse();
 		Start start = expressionTranslator.translateIncludingModel();
 		return start;
 	}
-	
 
-	public static Start translateTlaExpression(String tlaExpression){
-		ExpressionTranslator expressionTranslator = new ExpressionTranslator(tlaExpression);
+	public static Start translateTlaExpression(String tlaExpression) {
+		ExpressionTranslator expressionTranslator = new ExpressionTranslator(
+				tlaExpression);
 		expressionTranslator.parse();
 		expressionTranslator.translate();
 		return expressionTranslator.getBExpressionParseUnit();
 	}
-	
 
 	public Definitions getBDefinitions() {
 		return bDefinitions;
@@ -301,13 +343,21 @@ public class Translator implements TranslationGlobals {
 	public ModuleNode getModuleNode() {
 		return moduleNode;
 	}
-	
-	protected TypeChecker getTypeChecker(){
+
+	protected TypeChecker getTypeChecker() {
 		return this.typechecker;
 	}
 
-	protected SpecAnalyser getSpecAnalyser(){
+	protected SpecAnalyser getSpecAnalyser() {
 		return this.specAnalyser;
 	}
-	
+
+	public Start getBAST() {
+		return BAst;
+	}
+
+	public File getModuleFile() {
+		return moduleFile;
+	}
+
 }
