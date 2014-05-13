@@ -108,9 +108,11 @@ public class TlaTypePrinter implements PositionPrinter, TypeVisitorInterface {
 	}
 
 	public void casePairType(PairType type) {
-		pout.openTerm("couple", true);
+		pout.openTerm("tuple");
+		pout.openList();
 		type.getFirst().apply(this);
 		type.getSecond().apply(this);
+		pout.closeList();
 		pout.closeTerm();
 	}
 
@@ -129,11 +131,18 @@ public class TlaTypePrinter implements PositionPrinter, TypeVisitorInterface {
 	}
 
 	public void caseStructType(StructType type) {
-		pout.openTerm("struct");
+		pout.openTerm("record");
 		pout.openList();
 		ArrayList<String> fields = type.getFields();
 		for (String field : fields) {
+			if (type.isExtensible()) {
+				pout.openTerm("opt");
+			} else {
+				pout.openTerm("field");
+			}
+			pout.printAtom(field);
 			type.getType(field).apply(this);
+			pout.closeTerm();
 		}
 		pout.closeList();
 		pout.closeTerm();
