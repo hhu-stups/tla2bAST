@@ -17,7 +17,6 @@ import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.Start;
 import de.tla2b.exceptions.FrontEndException;
 import de.tla2b.exceptions.TLA2BException;
-import de.tla2b.old.Tla2BTranslator;
 import de.tla2b.output.ASTPrettyPrinter;
 import de.tla2b.output.Renamer;
 import de.tla2bAst.Translator;
@@ -26,14 +25,14 @@ import util.ToolIO;
 
 public class TestUtil {
 
-	public static StringBuilder translateString(String moduleString)
-			throws FrontEndException, TLA2BException, AbortException {
-		ToolIO.setMode(ToolIO.TOOL);
-		ToolIO.reset();
-		Tla2BTranslator translator = new Tla2BTranslator();
-		translator.startTest(moduleString, null);
-		return translator.translate();
-	}
+//	public static StringBuilder translateString(String moduleString)
+//			throws FrontEndException, TLA2BException, AbortException {
+//		ToolIO.setMode(ToolIO.TOOL);
+//		ToolIO.reset();
+//		Tla2BTranslator translator = new Tla2BTranslator();
+//		translator.startTest(moduleString, null);
+//		return translator.translate();
+//	}
 	
 	public static void runModule(String tlaFile) throws Exception{
 		Translator t = new Translator(tlaFile);
@@ -105,22 +104,6 @@ public class TestUtil {
 		assertEquals(expected, getTreeAsString(ast));
 	}
 	
-	public static void compareWithPrintResult(String tlaModule) throws Exception{
-		ToolIO.setMode(ToolIO.TOOL);
-		
-		Translator trans = new Translator(tlaModule);
-		Start resultNode = trans.translate();
-		
-		String printResult = getAstStringofBMachineString(trans.getBMachineString());
-		
-		//BParser.printASTasProlog(System.out, new BParser(), new File("./test.mch"), resultNode, false, true, null);
-		
-		String result = getTreeAsString(resultNode);
-		assertEquals(printResult, result);
-		System.out.println(result);
-	}
-	
-	
 	public static void compare(String bMachine, String tlaModule, String config) throws BException, TLA2BException{
 		ToolIO.setMode(ToolIO.TOOL);
 		String expected = getAstStringofBMachineString(bMachine);
@@ -147,37 +130,37 @@ public class TestUtil {
 	}
 	
 
-	public static StringBuilder translateString(String moduleString, String configString)
-			throws FrontEndException, TLA2BException, AbortException {
-		ToolIO.setMode(ToolIO.TOOL);
-		ToolIO.reset();
-		Tla2BTranslator translator = new Tla2BTranslator();
-		translator.startTest(moduleString, configString);
-		return translator.translate();
-	}
+//	public static StringBuilder translateString(String moduleString, String configString)
+//			throws FrontEndException, TLA2BException, AbortException {
+//		ToolIO.setMode(ToolIO.TOOL);
+//		ToolIO.reset();
+//		Tla2BTranslator translator = new Tla2BTranslator();
+//		translator.startTest(moduleString, configString);
+//		return translator.translate();
+//	}
 	
 	
-	public static StringBuilder translate(String moduleFileName)
-			throws FrontEndException, TLA2BException, AbortException {
-		ToolIO.setMode(ToolIO.TOOL);
-		ToolIO.reset();
-		moduleFileName = moduleFileName.replace('/', FileUtil.separatorChar);
-		Tla2BTranslator translator = new Tla2BTranslator();
-		translator.start(moduleFileName, null);
-		StringBuilder res = translator.translate();
-		return res;
-	}
-	
-	public static StringBuilder translate(String moduleFileName, String configFileName)
-			throws FrontEndException, TLA2BException {
-		ToolIO.setMode(ToolIO.TOOL);
-		ToolIO.reset();
-		moduleFileName = moduleFileName.replace('/', FileUtil.separatorChar);
-		configFileName = configFileName.replace('/', FileUtil.separatorChar);
-		Tla2BTranslator translator = new Tla2BTranslator();
-		translator.start(moduleFileName, configFileName);
-		return translator.translate();
-	}
+//	public static StringBuilder translate(String moduleFileName)
+//			throws FrontEndException, TLA2BException, AbortException {
+//		ToolIO.setMode(ToolIO.TOOL);
+//		ToolIO.reset();
+//		moduleFileName = moduleFileName.replace('/', FileUtil.separatorChar);
+//		Tla2BTranslator translator = new Tla2BTranslator();
+//		translator.start(moduleFileName, null);
+//		StringBuilder res = translator.translate();
+//		return res;
+//	}
+//	
+//	public static StringBuilder translate(String moduleFileName, String configFileName)
+//			throws FrontEndException, TLA2BException {
+//		ToolIO.setMode(ToolIO.TOOL);
+//		ToolIO.reset();
+//		moduleFileName = moduleFileName.replace('/', FileUtil.separatorChar);
+//		configFileName = configFileName.replace('/', FileUtil.separatorChar);
+//		Tla2BTranslator translator = new Tla2BTranslator();
+//		translator.start(moduleFileName, configFileName);
+//		return translator.translate();
+//	}
 	
 	
 	public static void renamerTest(String tlaFile) throws Exception{

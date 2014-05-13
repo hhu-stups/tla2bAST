@@ -1,7 +1,6 @@
 package de.tla2b.types;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -122,7 +121,7 @@ public class StructType extends AbstractHasFollowers {
 		if (o instanceof StructType) {
 			StructType s = (StructType) o;
 			boolean extendStruct = false;
-			
+
 			if (this.incompleteStruct && s.incompleteStruct) {
 				extendStruct = false;
 			} else if (this.incompleteStruct) {
@@ -203,18 +202,20 @@ public class StructType extends AbstractHasFollowers {
 
 	@Override
 	public String toString() {
-		String res = "struct(";
+		StringBuilder sb = new StringBuilder();
+		sb.append("struct(");
 		Iterator<String> keys = types.keySet().iterator();
-		if (!keys.hasNext())
-			res += "...";
+		if (!keys.hasNext()) {
+			sb.append("...");
+		}
 		while (keys.hasNext()) {
 			String fieldName = (String) keys.next();
-			res += fieldName + ":" + types.get(fieldName);
+			sb.append(fieldName).append(":").append(types.get(fieldName));
 			if (keys.hasNext())
-				res += ",";
+				sb.append(",");
 		}
-		res += ")";
-		return res;
+		sb.append(")");
+		return sb.toString();
 	}
 
 	@Override
@@ -241,9 +242,9 @@ public class StructType extends AbstractHasFollowers {
 	public void apply(TypeVisitorInterface visitor) {
 		visitor.caseStructType(this);
 	}
-	
-	public LinkedHashMap<String, TLAType> getTypeTable(){
+
+	public LinkedHashMap<String, TLAType> getTypeTable() {
 		return this.types;
 	}
-	
+
 }

@@ -48,20 +48,35 @@ public class TlaTypePrinter implements PositionPrinter, TypeVisitorInterface {
 	}
 
 	public void printPosition(final Node node) {
-		pout.openTerm("info");
-		final Integer id = nodeIds.lookup(node);
-		pout.printNumber(id);
-
-		pout.openTerm("tla_type");
 		TLAType type = typeTable.get(node);
-		if (type == null) {
+		if (type != null) {
+			pout.openTerm("info");
+		}
+
+		final Integer id = nodeIds.lookup(node);
+		if (id == null) {
 			pout.printAtom("none");
 		} else {
-			type.apply(this);
+			if (positions == null) {
+				pout.printNumber(id);
+			} else {
+				pout.openTerm("pos", true);
+				pout.printNumber(id);
+				pout.printNumber(nodeIds.lookupFileNumber(node));
+				pout.printNumber(positions.getBeginLine(node));
+				pout.printNumber(positions.getBeginColumn(node));
+				pout.printNumber(positions.getEndLine(node));
+				pout.printNumber(positions.getEndColumn(node));
+				pout.closeTerm();
+			}
 		}
-		pout.closeTerm();
+		if (type != null) {
+			pout.openTerm("tla_type");
+			type.apply(this);
+			pout.closeTerm();
 
-		pout.closeTerm();
+			pout.closeTerm();
+		}
 	}
 
 	public void setPrologTermOutput(final IPrologTermOutput pout) {
@@ -125,8 +140,13 @@ public class TlaTypePrinter implements PositionPrinter, TypeVisitorInterface {
 	}
 
 	public void caseTupleType(TupleType type) {
-		// TODO Auto-generated method stub
-
+		pout.openTerm("tuple");
+		pout.openList();
+		for (TLAType t : type.getTypes()) {
+			t.apply(this);
+		}
+		pout.closeList();
+		pout.closeTerm();
 	}
 
 	public void caseUntyped(UntypedType type) {

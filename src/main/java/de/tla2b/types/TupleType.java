@@ -184,18 +184,17 @@ public class TupleType extends AbstractHasFollowers {
 
 	@Override
 	public String toString() {
-		String res = "";
+		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < types.size(); i++) {
 			if (types.get(i) instanceof TupleType && i != 0) {
-				res += "(" + types.get(i) + ")";
+				sb.append("(").append(types.get(i)).append(")");
 			} else
-				res += types.get(i);
-
+				sb.append(types.get(i));
 			if (i < types.size() - 1) {
-				res += "*";
+				sb.append("*");
 			}
 		}
-		return res;
+		return sb.toString();
 	}
 
 	@Override

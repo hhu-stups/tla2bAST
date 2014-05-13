@@ -41,6 +41,7 @@ public class UsedExternalFunctions extends AbstractASTVisitor {
 		case OPCODE_bc: {
 			usedExternalFunctions.add(EXTERNAL_FUNCTIONS.CHOOSE);
 		}
+		default:
 		}
 
 		ExprNode[] in = n.getBdedQuantBounds();

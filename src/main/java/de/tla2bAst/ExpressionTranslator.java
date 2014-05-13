@@ -22,7 +22,6 @@ import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.analysis.SymbolRenamer;
 import de.tla2b.analysis.TypeChecker;
 import de.tla2b.exceptions.TLA2BException;
-import de.tla2b.old.Tla2BTranslator;
 
 public class ExpressionTranslator implements SyntaxTreeConstants {
 
@@ -33,7 +32,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 	private ModuleNode moduleNode;
 	private String expr;
 	private Translator translator;
-	
+
 	public Start getBExpressionParseUnit() {
 		return expressionStart;
 	}
@@ -67,8 +66,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 			fw.write(module);
 			fw.close();
 		} catch (IOException e) {
-			throw new RuntimeException("Can not create file "
-					+ tempFile.getName() + " in directory '" + dir + "'");
+			throw new RuntimeException("Can not create file temporary file in directory '" + dir + "'");
 		}
 
 		SpecObj spec = parseModuleWithoutSemanticAnalyse(moduleName, module);
@@ -102,9 +100,9 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 			throw new RuntimeException(e.getMessage());
 		}
 		ToolIO.reset();
-		
+
 		this.expr = sb.toString();
-		
+
 		this.moduleNode = null;
 		try {
 			moduleNode = parseModule(moduleName, sb.toString());
@@ -113,13 +111,12 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		}
 	}
 
-	public Start translateIncludingModel() throws TLA2BException{
+	public Start translateIncludingModel() throws TLA2BException {
 		SpecAnalyser specAnalyser = SpecAnalyser
 				.createSpecAnalyserForTlaExpression(moduleNode);
 		TypeChecker tc = translator.getTypeChecker();
 		tc.visitOpDefNode(specAnalyser.getExpressionOpdefNode());
-		
-		
+
 		SymbolRenamer symRenamer = new SymbolRenamer(moduleNode, specAnalyser);
 		symRenamer.start();
 		BAstCreator bASTCreator = new BAstCreator(moduleNode, specAnalyser);
@@ -127,8 +124,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		this.expressionStart = bASTCreator.expressionStart;
 		return this.expressionStart;
 	}
-	
-	
+
 	public Start translate() {
 		SpecAnalyser specAnalyser = SpecAnalyser
 				.createSpecAnalyserForTlaExpression(moduleNode);
@@ -165,16 +161,14 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 			// String[] m = ToolIO.getAllMessages();
 			String message = module + "\n\n" + spec.parseErrors;
 			// System.out.println(spec.parseErrors);
-			message += Tla2BTranslator.allMessagesToString(ToolIO
-					.getAllMessages());
+			message += allMessagesToString(ToolIO.getAllMessages());
 			throw new de.tla2b.exceptions.FrontEndException(message, spec);
 		}
 
 		if (spec.semanticErrors.isFailure()) {
 			// String[] m = ToolIO.getAllMessages();
 			String message = module + "\n\n" + spec.semanticErrors;
-			message += Tla2BTranslator.allMessagesToString(ToolIO
-					.getAllMessages());
+			message += allMessagesToString(ToolIO.getAllMessages());
 			throw new de.tla2b.exceptions.FrontEndException(message, spec);
 		}
 
@@ -183,17 +177,14 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		if (spec.getInitErrors().isFailure()) {
 			System.err.println(spec.getInitErrors());
 			throw new de.tla2b.exceptions.FrontEndException(
-					Tla2BTranslator
-							.allMessagesToString(ToolIO.getAllMessages()),
-					spec);
+
+			allMessagesToString(ToolIO.getAllMessages()), spec);
 		}
 
 		if (n == null) { // Parse Error
 			// System.out.println("Rootmodule null");
 			throw new de.tla2b.exceptions.FrontEndException(
-					Tla2BTranslator
-							.allMessagesToString(ToolIO.getAllMessages()),
-					spec);
+					allMessagesToString(ToolIO.getAllMessages()), spec);
 		}
 		return n;
 	}
@@ -218,8 +209,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 
 		if (spec.parseErrors.isFailure()) {
 			String message = module + "\n\n";
-			message += Tla2BTranslator.allMessagesToString(ToolIO
-					.getAllMessages());
+			message += allMessagesToString(ToolIO.getAllMessages());
 			// throw new de.tla2b.exceptions.FrontEndException(message, spec);
 			throw new RuntimeException(message);
 		}
@@ -266,7 +256,6 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		KEYWORDS.add("SetSummation");
 		KEYWORDS.add("PermutedSequences");
 		KEYWORDS.add("@");
-
 	}
 
 	/**
@@ -332,5 +321,13 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		for (int i = 0; i < treeNode.heirs().length; i++) {
 			searchVarInSyntaxTree(treeNode.heirs()[i]);
 		}
+	}
+
+	public static String allMessagesToString(String[] allMessages) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < allMessages.length - 1; i++) {
+			sb.append(allMessages[i] + "\n");
+		}
+		return sb.toString();
 	}
 }

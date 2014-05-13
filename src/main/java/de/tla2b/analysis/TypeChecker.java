@@ -239,7 +239,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 			FormalParamNode p = params[i];
 			if (p.getArity() > 0) {
 				throw new FrontEndException(String.format(
-						"TLA2B do not support 2nd-order operators: '%s'\n %s ",
+						"TLA2B do not support 2nd-order operators: '%s'%n %s ",
 						def.getName(), def.getLocation()));
 			}
 			UntypedType u = new UntypedType();
@@ -288,7 +288,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 			} catch (UnificationException e) {
 				throw new TypeErrorException(
 						String.format(
-								"Expected %s, found %s at '%s'(assigned in the configuration file),\n%s ",
+								"Expected %s, found %s at '%s'(assigned in the configuration file),%n%s ",
 								expected, valueNode.getType(),
 								valueNode.getValue(), exprNode.getLocation()));
 			}
@@ -303,7 +303,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				return IntType.getInstance().unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found INTEGER at '%s',\n%s ", expected,
+						"Expected %s, found INTEGER at '%s',%n%s ", expected,
 						((NumeralNode) exprNode).val(), exprNode.getLocation()));
 			}
 		case StringKind: {
@@ -311,7 +311,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				return StringType.getInstance().unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found STRING at '%s',\n%s ", expected,
+						"Expected %s, found STRING at '%s',%n%s ", expected,
 						((StringNode) exprNode).getRep(),
 						exprNode.getLocation()));
 			}
@@ -326,7 +326,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				return res;
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found %s at '@',\n%s ", expected, type,
+						"Expected %s, found %s at '@',%n%s ", expected, type,
 						exprNode.getLocation()));
 			}
 
@@ -378,7 +378,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				return result;
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found %s at constant '%s',\n%s",
+						"Expected %s, found %s at constant '%s',%n%s",
 						expected, c, con.getName(), n.getLocation())
 
 				);
@@ -404,7 +404,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				return result;
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found %s at variable '%s',\n%s",
+						"Expected %s, found %s at variable '%s',%n%s",
 						expected, v, vName, n.getLocation()));
 			}
 		}
@@ -426,7 +426,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				return result;
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found %s at parameter '%s',\n%s",
+						"Expected %s, found %s at parameter '%s',%n%s",
 						expected, t, pName, n.getLocation()));
 			}
 		}
@@ -451,7 +451,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found %s at definition '%s',\n%s",
+						"Expected %s, found %s at definition '%s',%n%s",
 						expected, found, def.getName(), n.getLocation()));
 			}
 			boolean untyped = false;
@@ -464,7 +464,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				if (pType == null) {
 					pType = new UntypedType();
 					// throw new RuntimeException("Parameter " + p.getName()
-					// + " has no type yet!\n" + p.getLocation());
+					// + " has no type yet!%n" + p.getLocation());
 				}
 				pType = pType.cloneTLAType();
 				if (pType.isUntyped())
@@ -520,7 +520,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				BoolType.getInstance().unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found BOOL at '%s',\n%s", expected, n
+						"Expected %s, found BOOL at '%s',%n%s", expected, n
 								.getOperator().getName(), n.getLocation()));
 			}
 			TLAType left = visitExprOrOpArgNode(n.getArgs()[0],
@@ -545,7 +545,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				BoolType.getInstance().unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found BOOL at '%s',\n%s", expected, n
+						"Expected %s, found BOOL at '%s',%n%s", expected, n
 								.getOperator().getName(), n.getLocation()));
 			}
 			for (int i = 0; i < n.getArgs().length; i++) {
@@ -564,7 +564,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				BoolType.getInstance().unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found BOOL at '%s',\n%s", expected, n
+						"Expected %s, found BOOL at '%s',%n%s", expected, n
 								.getOperator().getName(), n.getLocation()));
 			}
 			evalBoundedVariables(n);
@@ -582,7 +582,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found POW(_A) at set enumeration,\n%s",
+						"Expected %s, found POW(_A) at set enumeration,%n%s",
 						expected, n.getLocation()));
 			}
 			TLAType current = found.getSubType();
@@ -597,7 +597,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 		{
 			if (!BoolType.getInstance().compare(expected)) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found BOOL at '%s',\n%s", expected, n
+						"Expected %s, found BOOL at '%s',%n%s", expected, n
 								.getOperator().getName(), n.getLocation()));
 			}
 			TLAType element = visitExprOrOpArgNode(n.getArgs()[0],
@@ -616,7 +616,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found POW(_A) at '%s',\n%s", expected, n
+						"Expected %s, found POW(_A) at '%s',%n%s", expected, n
 								.getOperator().getName(), n.getLocation()));
 			}
 			TLAType left = visitExprOrOpArgNode(n.getArgs()[0], found);
@@ -630,7 +630,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				BoolType.getInstance().unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found BOOL at '%s',\n%s", expected, n
+						"Expected %s, found BOOL at '%s',%n%s", expected, n
 								.getOperator().getName(), n.getLocation()));
 			}
 			TLAType left = visitExprOrOpArgNode(n.getArgs()[0], new SetType(
@@ -651,7 +651,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found %s at '%s',\n%s", expected, found,
+						"Expected %s, found %s at '%s',%n%s", expected, found,
 						n.getOperator().getName(), n.getLocation()));
 			}
 			visitExprOrOpArgNode(n.getArgs()[0], BoolType.getInstance());
@@ -665,7 +665,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found POW(_A) at '%s',\n%s", expected, n
+						"Expected %s, found POW(_A) at '%s',%n%s", expected, n
 								.getOperator().getName(), n.getLocation()));
 			}
 			evalBoundedVariables(n);
@@ -680,7 +680,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found POW(_A) at 'SUBSET',\n%s",
+						"Expected %s, found POW(_A) at 'SUBSET',%n%s",
 						expected, n.getLocation()));
 			}
 			visitExprOrOpArgNode(n.getArgs()[0], found.getSubType());
@@ -694,7 +694,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found POW(_A) at 'SUBSET',\n%s",
+						"Expected %s, found POW(_A) at 'SUBSET',%n%s",
 						expected, n.getLocation()));
 			}
 			SetType setOfSet = (SetType) visitExprOrOpArgNode(n.getArgs()[0],
@@ -743,7 +743,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found %s at Tuple,\n%s", expected, found,
+						"Expected %s, found %s at Tuple,%n%s", expected, found,
 						n.getLocation()));
 			}
 			n.setToolObject(TYPE_ID, found);
@@ -845,8 +845,8 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				res = new SetType(func.getDomain()).unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected '%s', found '%s' at 'DOMAIN(..)',\n%s",
-						expected, n.getLocation()));
+						"Expected '%s', found '%s' at 'DOMAIN(..)',%n%s",
+						expected, func, n.getLocation()));
 			}
 			return res;
 		}
@@ -866,7 +866,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected '%s', found '%s' at Set of Function,\n%s",
+						"Expected '%s', found '%s' at Set of Function,%n%s",
 						expected, found, n.getLocation()));
 			}
 			return found;
@@ -897,7 +897,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found %s at Cartesian Product,\n%s",
+						"Expected %s, found %s at Cartesian Product,%n%s",
 						expected, found, n.getLocation()));
 			}
 			return found;
@@ -922,13 +922,11 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found %s at Set of Records,\n%s",
+						"Expected %s, found %s at Set of Records,%n%s",
 						expected, found, n.getLocation()));
 			}
 			n.setToolObject(TYPE_ID, found);
-			if (found instanceof AbstractHasFollowers) {
-				((AbstractHasFollowers) found).addFollower(n);
-			}
+			found.addFollower(n);
 			return found;
 		}
 
@@ -946,13 +944,12 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found %s at Record,\n%s", expected,
+						"Expected %s, found %s at Record,%n%s", expected,
 						found, n.getLocation()));
 			}
 			n.setToolObject(TYPE_ID, found);
-			if (found instanceof AbstractHasFollowers) {
-				((AbstractHasFollowers) found).addFollower(n);
-			}
+			found.addFollower(n);
+
 			recList.add(n);
 			return found;
 
@@ -972,7 +969,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				r = r.unify(expectedStruct);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Struct has no field %s with type %s: %s\n%s",
+						"Struct has no field %s with type %s: %s%n%s",
 						fieldName, r.getType(fieldName), r, n.getLocation()));
 			}
 			n.setToolObject(TYPE_ID, r);
@@ -1019,9 +1016,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 			TLAType found = new UntypedType();
 			FormalParamNode x = n.getUnbdedQuantSymbols()[0];
 			x.setToolObject(TYPE_ID, found);
-			if (found instanceof AbstractHasFollowers) {
-				((AbstractHasFollowers) found).addFollower(x);
-			}
+			((AbstractHasFollowers) found).addFollower(x);
 			visitExprOrOpArgNode(n.getArgs()[0], BoolType.getInstance());
 
 			found = (TLAType) x.getToolObject(TYPE_ID);
@@ -1029,7 +1024,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found %s at 'CHOOSE',\n%s", expected,
+						"Expected %s, found %s at 'CHOOSE',%n%s", expected,
 						found, n.getLocation()));
 			}
 			return found;
@@ -1050,7 +1045,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found %s at 'CHOOSE',\n%s", expected,
+						"Expected %s, found %s at 'CHOOSE',%n%s", expected,
 						found, n.getLocation()));
 			}
 			FormalParamNode x = n.getBdedQuantSymbolLists()[0][0];
@@ -1112,7 +1107,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 						tuple = (TupleType) tuple.unify(subType);
 					} catch (UnificationException e) {
 						throw new TypeErrorException(String.format(
-								"Expected %s, found %s ,\n%s", tuple, subType,
+								"Expected %s, found %s ,%n%s", tuple, subType,
 								n.getLocation()));
 					}
 
@@ -1191,7 +1186,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 					t = t.unify(s);
 				} catch (UnificationException e) {
 					throw new TypeErrorException(String.format(
-							"Expected %s, found %s at 'EXCEPT',\n%s", t, s,
+							"Expected %s, found %s at 'EXCEPT',%n%s", t, s,
 							pair.getLocation()));
 				}
 
@@ -1220,7 +1215,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 					t = t.unify(func);
 				} catch (UnificationException e) {
 					throw new TypeErrorException(String.format(
-							"Expected %s, found %s at 'EXCEPT',\n%s", t, func,
+							"Expected %s, found %s at 'EXCEPT',%n%s", t, func,
 							pair.getLocation()));
 				}
 			}
@@ -1270,7 +1265,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				BoolType.getInstance().unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found BOOL at '%s',\n%s", expected, n
+						"Expected %s, found BOOL at '%s',%n%s", expected, n
 								.getOperator().getName(), n.getLocation()));
 			}
 			for (int i = 0; i < n.getArgs().length; i++) {
@@ -1289,7 +1284,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				IntType.getInstance().unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found INTEGER at '%s',\n%s", expected, n
+						"Expected %s, found INTEGER at '%s',%n%s", expected, n
 								.getOperator().getName(), n.getLocation()));
 			}
 			for (int i = 0; i < n.getArgs().length; i++) {
@@ -1304,7 +1299,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				expected.unify(new SetType(IntType.getInstance()));
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found POW(INTEGER) at '..',\n%s",
+						"Expected %s, found POW(INTEGER) at '..',%n%s",
 						expected, n.getLocation()));
 			}
 
@@ -1322,7 +1317,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				return found;
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found POW(INTEGER) at 'Nat',\n%s",
+						"Expected %s, found POW(INTEGER) at 'Nat',%n%s",
 						expected, n.getLocation()));
 			}
 		}
@@ -1338,7 +1333,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				return found;
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found POW(INTEGER) at 'Int',\n%s",
+						"Expected %s, found POW(INTEGER) at 'Int',%n%s",
 						expected, n.getLocation()));
 			}
 		}
@@ -1349,7 +1344,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				IntType.getInstance().unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found INTEGER at '-',\n%s", expected,
+						"Expected %s, found INTEGER at '-',%n%s", expected,
 						n.getLocation()));
 			}
 			visitExprOrOpArgNode(n.getArgs()[0], IntType.getInstance());
@@ -1365,7 +1360,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				BoolType.getInstance().unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found BOOL at 'IsFiniteSet',\n%s",
+						"Expected %s, found BOOL at 'IsFiniteSet',%n%s",
 						expected, n.getLocation()));
 			}
 			visitExprOrOpArgNode(n.getArgs()[0], new SetType(new UntypedType()));
@@ -1378,7 +1373,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				IntType.getInstance().unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found INTEGER at 'Cardinality',\n%s",
+						"Expected %s, found INTEGER at 'Cardinality',%n%s",
 						expected, n.getLocation()));
 			}
 			visitExprOrOpArgNode(n.getArgs()[0], new SetType(new UntypedType()));
@@ -1399,7 +1394,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				set_of_seq = set_of_seq.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found %s at 'Seq',\n%s", expected,
+						"Expected %s, found %s at 'Seq',%n%s", expected,
 						set_of_seq, n.getLocation()));
 			}
 			return set_of_seq;
@@ -1410,7 +1405,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				IntType.getInstance().unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found INTEGER at 'Len',\n%s", expected,
+						"Expected %s, found INTEGER at 'Len',%n%s", expected,
 						n.getLocation()));
 			}
 			visitExprOrOpArgNode(n.getArgs()[0],
@@ -1427,7 +1422,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found POW(INTEGER*_A) at '\\o',\n%s",
+						"Expected %s, found POW(INTEGER*_A) at '\\o',%n%s",
 						expected, n.getLocation()));
 			}
 			return found;
@@ -1443,7 +1438,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found %s at 'Append',\n%s", expected,
+						"Expected %s, found %s at 'Append',%n%s", expected,
 						found, n.getLocation()));
 			}
 			return found;
@@ -1459,7 +1454,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found %s at 'Head',\n%s", expected,
+						"Expected %s, found %s at 'Head',%n%s", expected,
 						found, n.getLocation()));
 			}
 			return found;
@@ -1473,7 +1468,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found %s at 'Tail',\n%s", expected,
+						"Expected %s, found %s at 'Tail',%n%s", expected,
 						found, n.getLocation()));
 			}
 			return found;
@@ -1489,7 +1484,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found %s at 'SubSeq',\n%s", expected,
+						"Expected %s, found %s at 'SubSeq',%n%s", expected,
 						found, n.getLocation()));
 			}
 			return found;
@@ -1510,7 +1505,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				IntType.getInstance().unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found INTEGER at '%s',\n%s", expected, n
+						"Expected %s, found INTEGER at '%s',%n%s", expected, n
 								.getOperator().getName(), n.getLocation()));
 			}
 			visitExprOrOpArgNode(n.getArgs()[0],
@@ -1527,7 +1522,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found %s at 'PermutedSequences',\n%s",
+						"Expected %s, found %s at 'PermutedSequences',%n%s",
 						expected, found, n.getLocation()));
 			}
 			return found;
@@ -1546,8 +1541,8 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found %s at '%s',\n%s", expected, n
-								.getOperator().getName(), n.getLocation()));
+						"Expected %s, found %s at '%s',%n%s", expected, found,
+						n.getOperator().getName(), n.getLocation()));
 			}
 			return found;
 		}
@@ -1568,7 +1563,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found %s at '%s',\n%s", expected, found,
+						"Expected %s, found %s at '%s',%n%s", expected, found,
 						n.getOperator().getName(), n.getLocation()));
 			}
 			return found;
@@ -1584,7 +1579,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				return found;
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found POW(BOOL) at 'BOOLEAN',\n%s",
+						"Expected %s, found POW(BOOL) at 'BOOLEAN',%n%s",
 						expected, n.getLocation()));
 			}
 
@@ -1595,7 +1590,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				return found;
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found POW(STRING) at 'STRING',\n%s",
+						"Expected %s, found POW(STRING) at 'STRING',%n%s",
 						expected, n.getLocation()));
 			}
 
@@ -1606,7 +1601,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				return BoolType.getInstance();
 			} catch (Exception e) {
 				throw new TypeErrorException(String.format(
-						"Expected %s, found BOOL at '%s',\n%s", expected, n
+						"Expected %s, found BOOL at '%s',%n%s", expected, n
 								.getOperator().getName(), n.getLocation()));
 			}
 

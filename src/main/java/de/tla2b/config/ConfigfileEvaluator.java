@@ -53,10 +53,10 @@ public class ConfigfileEvaluator {
 	private final ArrayList<OpDefNode> invariantNodeList = new ArrayList<OpDefNode>();
 	private ArrayList<String> enumeratedSet;
 	private LinkedHashMap<String, EnumType> enumeratedTypes;
-	private Hashtable<OpDeclNode, ValueObj> constantAssignments;
+	public Hashtable<OpDeclNode, ValueObj> constantAssignments;
 	// k = 1, the ValueObj describes the right side of the assignment and
 	// contains it type
-	private Hashtable<OpDefNode, ValueObj> operatorAssignments;
+	public Hashtable<OpDefNode, ValueObj> operatorAssignments;
 	// def = 1
 
 	private ArrayList<OpDefNode> operatorModelvalues;
@@ -66,10 +66,10 @@ public class ConfigfileEvaluator {
 	// a TLA+ constant if the constant is substituted by a modelvalue with the
 	// same name (the constant name is moved to an enumerated set) or if the
 	// constants has arguments and is overriden by an operator
-	private Hashtable<OpDefNode, OpDefNode> operatorOverrideTable;
+	public Hashtable<OpDefNode, OpDefNode> operatorOverrideTable;
 	// This table contains mappings for operators which are overridden in the
 	// configuration file
-	private Hashtable<OpDeclNode, OpDefNode> constantOverrideTable;
+	public Hashtable<OpDeclNode, OpDefNode> constantOverrideTable;
 
 	// This table contains mappings for constants which are overridden in the
 	// configuration file. All constants with arguments have to be overridden in
@@ -240,7 +240,7 @@ public class ConfigfileEvaluator {
 				if (conNode.getArity() != rightDefNode.getArity()) {
 					throw new ConfigFileErrorException(
 							String.format(
-									"Invalid substitution for %s.\n Constant %s has %s arguments while %s has %s arguments.",
+									"Invalid substitution for %s.%n Constant %s has %s arguments while %s has %s arguments.",
 									left, left, conNode.getArity(), right,
 									rightDefNode.getArity()));
 				}
@@ -254,7 +254,7 @@ public class ConfigfileEvaluator {
 				if (defNode.getArity() != rightDefNode.getArity()) {
 					throw new ConfigFileErrorException(
 							String.format(
-									"Invalid substitution for %s.\n Operator %s has %s arguments while %s has %s arguments.",
+									"Invalid substitution for %s.%n Operator %s has %s arguments while %s has %s arguments.",
 									left, left, defNode.getArity(), right,
 									rightDefNode.getArity()));
 				}
@@ -402,7 +402,7 @@ public class ConfigfileEvaluator {
 					if (defNode.getArity() != rightDefNode.getArity()) {
 						throw new ConfigFileErrorException(
 								String.format(
-										"Invalid substitution for %s.\n Operator %s has %s arguments while %s has %s arguments.",
+										"Invalid substitution for %s.%n Operator %s has %s arguments while %s has %s arguments.",
 										left, left, defNode.getArity(), right,
 										rightDefNode.getArity()));
 					}
@@ -421,7 +421,7 @@ public class ConfigfileEvaluator {
 						// */
 						// throw new ConfigFileErrorException(
 						// String.format(
-						// "Invalid substitution for constant '%s' of module '%s'.\n A Constant of an instanced module can not be overriden.",
+						// "Invalid substitution for constant '%s' of module '%s'.%n A Constant of an instanced module can not be overriden.",
 						// left, mNode.getName().toString()));
 						// }
 					}
@@ -430,7 +430,7 @@ public class ConfigfileEvaluator {
 					if (conNode.getArity() != rightDefNode.getArity()) {
 						throw new ConfigFileErrorException(
 								String.format(
-										"Invalid substitution for %s.\n Constant %s has %s arguments while %s has %s arguments.",
+										"Invalid substitution for %s.%n Constant %s has %s arguments while %s has %s arguments.",
 										left, left, conNode.getArity(), right,
 										rightDefNode.getArity()));
 					}

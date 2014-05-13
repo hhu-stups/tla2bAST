@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import sun.audio.AudioPlayer;
 import tla2sany.semantic.ASTConstants;
 import tla2sany.semantic.AssumeNode;
 import tla2sany.semantic.AtNode;
@@ -24,7 +23,6 @@ import tla2sany.semantic.OpDeclNode;
 import tla2sany.semantic.OpDefNode;
 import tla2sany.semantic.StringNode;
 import tla2sany.semantic.SymbolNode;
-import tla2tex.TLA;
 import tlc2.tool.BuiltInOPs;
 import tlc2.value.ModelValue;
 import tlc2.value.SetEnumValue;

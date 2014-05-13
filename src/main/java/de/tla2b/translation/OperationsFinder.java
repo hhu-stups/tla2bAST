@@ -47,19 +47,19 @@ public class OperationsFinder extends AbstractASTVisitor implements
 		}
 		case NumeralKind: {
 			throw new RuntimeException(String.format(
-					"Expected an action.\n%s", n.getLocation().toString()));
+					"Expected an action.%n%s", n.getLocation().toString()));
 		}
 		case StringKind: {
 			throw new RuntimeException(String.format(
-					"Expected an action.\n%s", n.getLocation().toString()));
+					"Expected an action.%n%s", n.getLocation().toString()));
 		}
 		case SubstInKind: {
 			throw new RuntimeException(String.format(
-					"Expected an action.\n%s", n.getLocation().toString()));
+					"Expected an action.%n%s", n.getLocation().toString()));
 		}
 		case AtNodeKind: { // @
 			throw new RuntimeException(String.format(
-					"Expected an action.\n%s", n.getLocation().toString()));
+					"Expected an action.%n%s", n.getLocation().toString()));
 		}
 		case LetInKind: {
 			// we do not visit the local definitions
@@ -148,7 +148,7 @@ public class OperationsFinder extends AbstractASTVisitor implements
 
 		}
 		throw new RuntimeException(String.format(
-				"Expected an action at '%s' :\n%s", n.getOperator().getName()
+				"Expected an action at '%s' :%n%s", n.getOperator().getName()
 						.toString(), n.getLocation().toString()));
 
 	}

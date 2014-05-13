@@ -13,8 +13,6 @@ import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
 import de.tla2b.output.TypeVisitorInterface;
 
-
-
 public class StructOrFunctionType extends AbstractHasFollowers {
 	private LinkedHashMap<String, TLAType> types;
 
@@ -49,15 +47,17 @@ public class StructOrFunctionType extends AbstractHasFollowers {
 
 	@Override
 	public String toString() {
-		String res = "StructOrFunction(";
+		StringBuilder sb = new StringBuilder();
+		sb.append("StructOrFunction(");
 		for (Iterator<String> keys = types.keySet().iterator(); keys.hasNext();) {
 			String key = keys.next();
-			res += "\""+key + "\" : " + types.get(key);
+			sb.append("\"").append(key).append("\"");
+			sb.append(" : ").append(types.get(key));
 			if (keys.hasNext())
-				res += ", ";
+				sb.append(", ");
 		}
-		res += ")";
-		return res;
+		sb.append(")");
+		return sb.toString();
 	}
 
 	@Override
@@ -168,8 +168,8 @@ public class StructOrFunctionType extends AbstractHasFollowers {
 			while (itr.hasNext()) {
 				temp = temp.unify(itr.next());
 			}
-			SetType found = new SetType(new PairType(
-					StringType.getInstance(), temp));
+			SetType found = new SetType(new PairType(StringType.getInstance(),
+					temp));
 			return found.unify(o);
 		}
 		if (o instanceof StructType) {
@@ -221,8 +221,7 @@ public class StructOrFunctionType extends AbstractHasFollowers {
 
 	public SetType getFunction() {
 		Iterator<TLAType> itr = types.values().iterator();
-		return new SetType(new PairType(StringType.getInstance(),
-				itr.next()));
+		return new SetType(new PairType(StringType.getInstance(), itr.next()));
 	}
 
 	@Override

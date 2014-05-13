@@ -2,7 +2,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
 apply plugin: 'jacoco'
-//apply plugin: 'findbugs'
+apply plugin: 'findbugs'
 
 project.version = '1.0.5-SNAPSHOT'
 project.group = 'de.prob'
@@ -33,8 +33,6 @@ dependencies {
 	
 	//compile(group: 'de.prob', name: 'de.prob.core.kernel', version: '2.0.0-milestone-13-SNAPSHOT')
 
-
-
 	testCompile (group: 'junit', name: 'junit', version: '4.7')
 
 	releaseJars (group: 'de.tla', name: 'tlatools', version: '1.0.0-SNAPSHOT')
@@ -57,16 +55,16 @@ jacocoTestReport {
     }
 }
 
-//tasks.withType(FindBugs) {
-//    reports {
-//        xml.enabled = false
-//        html.enabled = true
-//    }
-//}
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
 
-//findbugs { 
-//	ignoreFailures = true 
-//}
+findbugs { 
+	ignoreFailures = true 
+}
 
 
 test { 
