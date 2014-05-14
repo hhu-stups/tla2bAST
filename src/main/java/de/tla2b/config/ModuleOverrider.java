@@ -177,13 +177,16 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 		case BuiltInKind:// Buildin operator can not be overridden by in the
 							// configuration file
 			ExprNode[] ins = n.getBdedQuantBounds();
-			for (int i = 0; i < ins.length; i++) {
+			if(ins != null){
+				for (int i = 0; i < ins.length; i++) {
 
-				OpApplNode res = visitExprOrOpArgNode(ins[i]);
-				if (res != null) {
-					ins[i] = res;
+					OpApplNode res = visitExprOrOpArgNode(ins[i]);
+					if (res != null) {
+						ins[i] = res;
+					}
 				}
 			}
+
 			break;
 
 		case UserDefinedOpKind: {

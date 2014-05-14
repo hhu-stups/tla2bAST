@@ -107,7 +107,7 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 
 		case StringKind: {
 			StringNode str = (StringNode) n;
-			return new StringNode(str.getTreeNode(), true);
+			return new StringNode(str.getTreeNode(), false);
 		}
 
 		case SubstInKind: {
