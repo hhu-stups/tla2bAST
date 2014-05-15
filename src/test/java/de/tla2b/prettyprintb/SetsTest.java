@@ -17,7 +17,7 @@ public class SetsTest {
 				+ "ASSUME k = {1,2,3}\n"
 				+ "=================================";
 
-		final String expected = "MACHINE Testing\n" + "ABSTRACT_CONSTANTS k\n"
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
 				+ "PROPERTIES k : POW(INTEGER) & k = {1,2,3} \n" + "END";
 		compare(expected, module);
 	}
@@ -29,7 +29,7 @@ public class SetsTest {
 				+ "ASSUME k = {TRUE, 1 = 1}\n"
 				+ "=================================";
 
-		final String expected = "MACHINE Testing\n" + "ABSTRACT_CONSTANTS k\n"
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
 				+ "PROPERTIES k : POW(BOOL) & k = {TRUE, bool(1=1)} \n" + "END";
 		compare(expected, module);
 	}

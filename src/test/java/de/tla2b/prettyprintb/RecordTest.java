@@ -27,7 +27,7 @@ public class RecordTest {
 				+ "=================================";
 
 		final String expected = "MACHINE Testing\n"
-				+ "ABSTRACT_CONSTANTS k\n"
+				+ "CONSTANTS k\n"
 				+ "PROPERTIES k : POW(struct(a:INTEGER, b:BOOL)) & k = struct(a : {1}, b : BOOL) \n"
 				+ "END";
 		compare(expected, module);
@@ -45,7 +45,7 @@ public class RecordTest {
 				+ "=================================";
 
 		final String expected = "MACHINE Testing\n"
-				+ "ABSTRACT_CONSTANTS k\n"
+				+ "CONSTANTS k\n"
 				+ "PROPERTIES k : struct(a:INTEGER, b:BOOL) & k = rec(a : 1, b : TRUE) \n"
 				+ "END";
 		compare(expected, module);
@@ -88,7 +88,7 @@ public class RecordTest {
 				+ "=================================";
 
 		final String expected = "MACHINE Testing\n"
-				+ "ABSTRACT_CONSTANTS k\n"
+				+ "CONSTANTS k\n"
 				+ "PROPERTIES k : struct(a:INTEGER, b:BOOL) & (k = rec(a : 1, b : TRUE) & k'b = TRUE) \n"
 				+ "END";
 		compare(expected, module);
@@ -104,7 +104,7 @@ public class RecordTest {
 				+ "ASSUME k = [a |-> 1, b |-> TRUE] /\\ k2 = [k EXCEPT !.a = 2] \n"
 				+ "=================================";
 		final String expected = "MACHINE Testing\n"
-				+ "ABSTRACT_CONSTANTS k, k2\n"
+				+ "CONSTANTS k, k2\n"
 				+ "PROPERTIES k : struct(a:INTEGER, b:BOOL) & k2 : struct(a:INTEGER, b:BOOL) & (k = rec(a : 1, b : TRUE) & k2 = rec(a : 2, b : k'b)) \n"
 				+ "END";
 		compare(expected, module);
@@ -122,7 +122,7 @@ public class RecordTest {
 				+ "=================================";
 
 		final String expected = "MACHINE Testing\n"
-				+ "ABSTRACT_CONSTANTS k, k2\n"
+				+ "CONSTANTS k, k2\n"
 				+ "PROPERTIES k : struct(a:INTEGER, b:BOOL) & k2 : struct(a:INTEGER, b:BOOL) & (k = rec(a : 1, b : TRUE) & k2 = rec(a : k'a + 1, b : k'b)) \n"
 				+ "END";
 		compare(expected, module);

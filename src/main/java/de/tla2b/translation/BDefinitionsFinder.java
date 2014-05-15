@@ -53,8 +53,9 @@ public class BDefinitionsFinder extends AbstractASTVisitor implements
 
 	public void visitUserDefinedNode(OpApplNode n) {
 		OpDefNode def = (OpDefNode) n.getOperator();
-		bDefinitionsSet.add(def);
-		visitExprNode(def.getBody());
+		if(bDefinitionsSet.add(def)){
+			visitExprNode(def.getBody());
+		}
 		for (ExprOrOpArgNode exprOrOpArgNode : n.getArgs()) {
 			visitExprOrOpArgNode(exprOrOpArgNode);
 		}

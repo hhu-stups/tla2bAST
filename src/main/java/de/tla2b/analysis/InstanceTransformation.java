@@ -4,11 +4,9 @@
 
 package de.tla2b.analysis;
 
-
 import java.util.Hashtable;
 
 import de.tla2b.global.BBuiltInOPs;
-
 import tla2sany.semantic.ASTConstants;
 import tla2sany.semantic.AbortException;
 import tla2sany.semantic.AtNode;
@@ -16,6 +14,7 @@ import tla2sany.semantic.Context;
 import tla2sany.semantic.ExprNode;
 import tla2sany.semantic.ExprOrOpArgNode;
 import tla2sany.semantic.FormalParamNode;
+import tla2sany.semantic.InstanceNode;
 import tla2sany.semantic.LetInNode;
 import tla2sany.semantic.ModuleNode;
 import tla2sany.semantic.NumeralNode;
@@ -35,6 +34,7 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 	Hashtable<String, OpDefNode> defsHash;
 	private int substitutionId = 11;
 
+
 	/**
 	 * @param con
 	 */
@@ -43,7 +43,8 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 
 		defsHash = new Hashtable<String, OpDefNode>();
 		for (int i = 0; i < defs.length; i++) {
-			defsHash.put(defs[i].getName().toString(), defs[i]);
+			OpDefNode def = defs[i];
+			defsHash.put(def.getName().toString(), def);
 		}
 	}
 
@@ -51,23 +52,26 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 	 * @throws AbortException
 	 * 
 	 */
-	public void start()  {
+	public void start() {
 		for (int i = 0; i < defs.length; i++) {
 			OpDefNode def = defs[i];
 			if (def.getSource() != def
 					&& !BBuiltInOPs.contains(def.getSource().getName())) {
 				// instance
 				String defName = def.getName().toString();
-				String prefix = defName.substring(0,
-						defName.lastIndexOf('!') + 1);
-				def.setParams(generateNewParams(def.getParams()));
-				ExprNode body;
-				try {
-					body = generateNewExprNode(def.getBody(), prefix);
-				} catch (AbortException e) {
-					throw new RuntimeException();
+
+				if (def.getBody() instanceof SubstInNode) {
+					String prefix = defName.substring(0,
+							defName.lastIndexOf('!') + 1);
+					def.setParams(generateNewParams(def.getParams()));
+					ExprNode body;
+					try {
+						body = generateNewExprNode(def.getBody(), prefix);
+					} catch (AbortException e) {
+						throw new RuntimeException();
+					}
+					def.setBody(body);
 				}
-				def.setBody(body);
 			}
 		}
 	}
@@ -116,7 +120,8 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 			Subst[] subs = substInNode.getSubsts();
 			for (int i = 0; i < subs.length; i++) {
 				OpDeclNode op = subs[i].getOp();
-				op.setToolObject(substitutionId, subs[i].getExpr());
+				ExprOrOpArgNode expr = subs[i].getExpr();
+				op.setToolObject(substitutionId, expr);
 			}
 			return generateNewExprNode(substInNode.getBody(), prefix);
 		}
@@ -195,8 +200,7 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 			FormalParamNode f = (FormalParamNode) n.getOperator()
 					.getToolObject(substitutionId);
 			if (f == null) {
-				System.out.println(n.toString(4));
-				System.out.println(n);
+				throw new RuntimeException();
 			}
 			return new OpApplNode(f, generateNewArgs(n.getArgs(), prefix),
 					n.getTreeNode(), null);
@@ -224,8 +228,11 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 			// normal userdefined Operator
 			String opName = prefix + n.getOperator().getName().toString();
 			OpDefNode op = defsHash.get(opName);
-			return new OpApplNode(op, generateNewArgs(n.getArgs(), prefix),
-					n.getTreeNode(), null);
+			if (op == null) {
+				throw new RuntimeException();
+			}
+			return new OpApplNode(op, generateNewArgs(n.getArgs(),
+					prefix), n.getTreeNode(), null);
 		}
 		}
 		throw new RuntimeException("OpApplkind not implemented jet");

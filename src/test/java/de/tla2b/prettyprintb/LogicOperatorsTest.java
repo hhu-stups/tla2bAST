@@ -17,7 +17,7 @@ public class LogicOperatorsTest {
 				+ "ASSUME k = (2 # 1)\n"
 				+ "=================================";
 
-		final String expected = "MACHINE Testing\n" + "ABSTRACT_CONSTANTS k\n"
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
 				+ "PROPERTIES k : BOOL & k = bool(2 /= 1)\n" + "END";
 		compare(expected, module);
 	}
@@ -29,7 +29,7 @@ public class LogicOperatorsTest {
 				+ "ASSUME k = TRUE\n"
 				+ "=================================";
 
-		final String expected = "MACHINE Testing\n" + "ABSTRACT_CONSTANTS k\n"
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
 				+ "PROPERTIES k : BOOL & k = TRUE \n" + "END";
 		compare(expected, module);
 	}
@@ -53,7 +53,7 @@ public class LogicOperatorsTest {
 				+ "ASSUME k = (FALSE \\land TRUE) \n"
 				+ "=================================";
 		final String expected = "MACHINE Testing\n"
-				+ "ABSTRACT_CONSTANTS k\n"
+				+ "CONSTANTS k\n"
 				+ "PROPERTIES k : BOOL & k = bool(FALSE = TRUE & TRUE = TRUE) \n"
 				+ "END";
 		compare(expected, module);
@@ -146,7 +146,7 @@ public class LogicOperatorsTest {
 				+ "=================================";
 
 		final String expected = "MACHINE Testing\n"
-				+ "ABSTRACT_CONSTANTS S\n"
+				+ "CONSTANTS S\n"
 				+ "PROPERTIES S : POW(INTEGER) & (S = {1, 2, 3} & #u.(u : seq(S) & !s.(s : S => #n.(n : 1 .. size(u) & u(n) = s)))) \n"
 				+ "END";
 		compare(expected, module);

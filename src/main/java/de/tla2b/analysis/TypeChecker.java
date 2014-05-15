@@ -99,6 +99,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 			OpDeclNode con = cons[i];
 			if (constantAssignments != null
 					&& constantAssignments.containsKey(con)) {
+
 				TLAType t = constantAssignments.get(con).getType();
 				con.setToolObject(TYPE_ID, t);
 				if (t instanceof AbstractHasFollowers) {
@@ -224,7 +225,6 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 			}
 			if (usedDefinitions.contains(def))
 				visitOpDefNode(def);
-
 		}
 
 	}
@@ -246,7 +246,10 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 			p.setToolObject(paramId, u);
 			u.addFollower(p);
 		}
-		TLAType defType = visitExprNode(def.getBody(), new UntypedType());
+		UntypedType u = new UntypedType();
+		// def.setToolObject(TYPE_ID, u);
+		// u.addFollower(def);
+		TLAType defType = visitExprNode(def.getBody(), u);
 		def.setToolObject(TYPE_ID, defType);
 		if (defType instanceof AbstractHasFollowers) {
 			((AbstractHasFollowers) defType).addFollower(def);
@@ -826,10 +829,10 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 				domType = visitExprOrOpArgNode(n.getArgs()[1],
 						new UntypedType());
 			}
+
 			FunctionType func = new FunctionType(domType, expected);
-			FunctionType res = (FunctionType) visitExprOrOpArgNode(
-					n.getArgs()[0], func);
-			return res.getRange();
+			TLAType res = visitExprOrOpArgNode(n.getArgs()[0], func);
+			return ((FunctionType) res).getRange();
 		}
 
 		/***********************************************************************

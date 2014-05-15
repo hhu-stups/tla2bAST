@@ -220,9 +220,12 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 
 		for (int i = 0; i < n.getArgs().length; i++) {
 			if (n.getArgs()[i] != null) {
-				OpApplNode res = visitExprOrOpArgNode(n.getArgs()[i]);
-				if (res != null) {
-					n.getArgs()[i] = res;
+				ExprOrOpArgNode arg =n.getArgs()[i];
+				if(arg != null){
+					OpApplNode res = visitExprOrOpArgNode(n.getArgs()[i]);
+					if (res != null) {
+						n.getArgs()[i] = res;
+					}
 				}
 			}
 

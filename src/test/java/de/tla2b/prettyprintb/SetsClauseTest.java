@@ -16,7 +16,7 @@ public class SetsClauseTest {
 
 		final String expected = "MACHINE Testing\n" 
 				+ "SETS ENUM1 = {s1,s2,s3} \n"
-				+ "ABSTRACT_CONSTANTS S "
+				+ "CONSTANTS S "
 				+ "PROPERTIES S = ENUM1 & S = S \n" + "END";
 		compare(expected, module, config);
 	}

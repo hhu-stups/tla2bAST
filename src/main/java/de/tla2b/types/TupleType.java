@@ -87,6 +87,9 @@ public class TupleType extends AbstractHasFollowers {
 					return false;
 				}
 			}
+			if(!compareToAll(range)){
+				return false;
+			}
 			return true;
 		}
 		return false;

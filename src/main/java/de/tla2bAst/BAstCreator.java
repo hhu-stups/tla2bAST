@@ -26,6 +26,7 @@ import tla2sany.semantic.SymbolNode;
 import tlc2.tool.BuiltInOPs;
 import tlc2.value.ModelValue;
 import tlc2.value.SetEnumValue;
+import tlc2.value.StringValue;
 import tlc2.value.Value;
 import tlc2.value.ValueConstants;
 import de.be4.classicalb.core.parser.Definitions;
@@ -123,6 +124,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 
 		createSetsClause();
 		createDefintionClause();
+		createAbstractConstantsClause();
 		createConstantsClause();
 		createPropertyClause();
 		createVariableClause();
@@ -406,29 +408,16 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		}
 	}
 
-	private void createConstantsClause() {
-		List<OpDeclNode> bConstants;
-		if (conEval != null) {
-			bConstants = conEval.getbConstantList();
-		} else {
-			bConstants = Arrays.asList(moduleNode.getConstantDecls());
-		}
-
+	private void createAbstractConstantsClause() {
 		List<PExpression> constantsList = new ArrayList<PExpression>();
-		for (OpDeclNode opDeclNode : bConstants) {
-			AIdentifierExpression id = new AIdentifierExpression(
-					createTIdentifierLiteral(getName(opDeclNode)));
-			constantsList.add(id);
-			TLAType type = (TLAType) opDeclNode.getToolObject(TYPE_ID);
-			typeTable.put(id, type);
-		}
 
 		for (RecursiveDefinition recDef : specAnalyser
 				.getRecursiveDefinitions()) {
 			AIdentifierExpression id = new AIdentifierExpression(
 					createTIdentifierLiteral(getName(recDef.getOpDefNode())));
 			constantsList.add(id);
-			TLAType type = (TLAType) recDef.getOpDefNode().getToolObject(TYPE_ID);
+			TLAType type = (TLAType) recDef.getOpDefNode().getToolObject(
+					TYPE_ID);
 			typeTable.put(id, type);
 		}
 
@@ -445,9 +434,29 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 					constantsList);
 			machineClauseList.add(abstractConstantsClause);
 		}
-		
-		
+	}
 
+	private void createConstantsClause() {
+		List<OpDeclNode> bConstants;
+		if (conEval != null) {
+			bConstants = conEval.getbConstantList();
+		} else {
+			bConstants = Arrays.asList(moduleNode.getConstantDecls());
+		}
+
+		List<PExpression> constantsList = new ArrayList<PExpression>();
+		for (OpDeclNode opDeclNode : bConstants) {
+			AIdentifierExpression id = new AIdentifierExpression(
+					createTIdentifierLiteral(getName(opDeclNode)));
+			constantsList.add(id);
+			TLAType type = (TLAType) opDeclNode.getToolObject(TYPE_ID);
+			typeTable.put(id, type);
+		}
+		if (constantsList.size() > 0) {
+			AConstantsMachineClause constantsClause = new AConstantsMachineClause(
+					constantsList);
+			machineClauseList.add(constantsClause);
+		}
 	}
 
 	public AIdentifierExpression createIdentifierNode(SymbolNode symbolNode) {
@@ -609,17 +618,25 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			ArrayList<PExpression> list = new ArrayList<PExpression>();
 			for (int i = 0; i < s.elems.size(); i++) {
 				Value v = s.elems.elementAt(i);
-				ModelValue m = (ModelValue) v;
-				AIdentifierExpression id = createIdentifierNode(m.toString());
-				list.add(id);
+				list.add(createTLCValue(v));
 			}
 			return new ASetExtensionExpression(list);
 		}
-
+		case MODELVALUE: {
+			ModelValue m = (ModelValue) tlcValue;
+			return createIdentifierNode(m.toString());
 		}
 
-		System.out.println(tlcValue);
-		throw new RuntimeException();
+		case STRINGVALUE: {
+			StringValue stringValue = (StringValue) tlcValue;
+			return new AStringExpression(new TStringLiteral(stringValue
+					.getVal().toString()));
+
+		}
+		default:
+			throw new NotImplementedException(
+					"TLC value in configuration file: " + tlcValue.getClass());
+		}
 	}
 
 	private void createInvariantClause() {

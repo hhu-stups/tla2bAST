@@ -96,7 +96,7 @@ public class MacroTest {
 		final String expected = "MACHINE Testing\n"
 				+ "DEFINITIONS \n"
 				+ "def(y) == !(x_1).(x_1 : {1} => y = 3); \n"
-				+ "ABSTRACT_CONSTANTS x\n"
+				+ "CONSTANTS x\n"
 				+ "PROPERTIES x : INTEGER & (x = 3 &  def(x)) \n" + "END";
 		compare(expected, module);
 	}

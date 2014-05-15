@@ -39,7 +39,7 @@ public class TupleTest {
 				+ "ASSUME k = BOOLEAN \\X ({1} \\X BOOLEAN) \n"
 				+ "=================================";
 		
-		final String expected = "MACHINE Testing\n"+ "ABSTRACT_CONSTANTS k\n"
+		final String expected = "MACHINE Testing\n"+ "CONSTANTS k\n"
 				+ "PROPERTIES k : POW(BOOL * (INTEGER * BOOL)) & k = BOOL*({1}*BOOL) \n" + "END";
 		compare(expected, module);
 	}

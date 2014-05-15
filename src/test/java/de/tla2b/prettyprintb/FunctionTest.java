@@ -5,13 +5,9 @@
 package de.tla2b.prettyprintb;
 
 import static de.tla2b.util.TestUtil.compare;
-import static org.junit.Assert.assertEquals;
 
 import org.junit.Ignore;
 import org.junit.Test;
-
-import de.tla2b.util.TestUtil;
-import util.ToolIO;
 
 public class FunctionTest {
 
@@ -23,7 +19,7 @@ public class FunctionTest {
 				+ "=================================";
 
 		final String expected = "MACHINE Testing\n"
-				+ "ABSTRACT_CONSTANTS k\n"
+				+ "CONSTANTS k\n"
 				+ "PROPERTIES k :  INTEGER +-> BOOL & k = %x.(x : {1}| bool(TRUE = TRUE)) \n"
 				+ "END";
 		compare(expected, module);
@@ -37,7 +33,7 @@ public class FunctionTest {
 				+ "=================================";
 
 		final String expected = "MACHINE Testing\n"
-				+ "ABSTRACT_CONSTANTS k\n"
+				+ "CONSTANTS k\n"
 				+ "PROPERTIES k : INTEGER * INTEGER +-> INTEGER & k = %x,y.(x : {1,2} & y : {1,2}| 1) \n"
 				+ "END";
 		compare(expected, module);
@@ -51,7 +47,7 @@ public class FunctionTest {
 				+ "=================================";
 
 		final String expected = "MACHINE Testing\n"
-				+ "ABSTRACT_CONSTANTS k\n"
+				+ "CONSTANTS k\n"
 				+ "PROPERTIES k : INTEGER * BOOL +-> INTEGER & k = %x,y.(x : {1} & y : BOOL| 1) \n"
 				+ "END";
 		compare(expected, module);
@@ -72,7 +68,7 @@ public class FunctionTest {
 				+ "=================================";
 
 		final String expected = "MACHINE Testing\n"
-				+ "ABSTRACT_CONSTANTS k,k2,k3\n"
+				+ "CONSTANTS k,k2,k3\n"
 				+ "PROPERTIES k : POW(INTEGER*INTEGER) & k2 : INTEGER & k3 : INTEGER \n"
 				+ " & k = fact & fact(k2) = k3 \n"
 				+ "DEFINITIONS IF_THEN_ELSE(P, a, b) == (%t_.(t_=TRUE & P = TRUE | a )\\/%t_.(t_=TRUE & not(P= TRUE) | b ))(TRUE); \n"
@@ -126,7 +122,7 @@ public class FunctionTest {
 				+ "ASSUME k = [BOOLEAN -> {1}] \n"
 				+ "=================================";
 
-		final String expected = "MACHINE Testing\n" + "ABSTRACT_CONSTANTS k\n"
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
 				+ "PROPERTIES k : POW(BOOL +-> INTEGER) &  k = BOOL --> {1}" 
 				+ "END";
 		compare(expected, module);

@@ -260,9 +260,10 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		Set<OpDefNode> set = new HashSet<OpDefNode>(usedDefinitions);
 		for (OpDefNode def : set) {
 			if (def.getInRecursive()) {
-				bDefinitionsSet.remove(def);
-				RecursiveDefinition rd = new RecursiveDefinition(def);
-				recursiveDefinitions.add(rd);
+				throw new NotImplementedException("Recursive definitions are currently not supported.");
+//				bDefinitionsSet.remove(def);
+//				RecursiveDefinition rd = new RecursiveDefinition(def);
+//				recursiveDefinitions.add(rd);
 			} else
 			if (def.getBody() instanceof OpApplNode) {
 				OpApplNode o = (OpApplNode) def.getBody();

@@ -1,13 +1,11 @@
 package de.tla2b.prettyprintb;
 
 import static de.tla2b.util.TestUtil.compare;
-import static org.junit.Assert.assertEquals;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
 import util.ToolIO;
-import de.tla2b.util.TestUtil;
 
 public class ExceptTest {
 
@@ -18,7 +16,7 @@ public class ExceptTest {
 				+ "ASSUME k = [k EXCEPT ![TRUE] = 0, ![FALSE] = 0]  \n"
 				+ "=================================";
 
-		final String expected = "MACHINE Testing\n" + "ABSTRACT_CONSTANTS k\n"
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
 				+ "PROPERTIES " + " k : BOOL +-> INTEGER "
 				+ "& k = k <+ {TRUE |-> 0, FALSE |-> 0}" + "END";
 		compare(expected, module);
@@ -31,7 +29,7 @@ public class ExceptTest {
 				+ "ASSUME k = [k EXCEPT ![TRUE] = 0, ![FALSE] = 0]  \n"
 				+ "=================================";
 
-		final String expected = "MACHINE Testing\n" + "ABSTRACT_CONSTANTS k\n"
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
 				+ "PROPERTIES " + " k : BOOL +-> INTEGER "
 				+ "& k = k <+ {TRUE |-> 0, FALSE |-> 0}" + "END";
 		compare(expected, module);
@@ -47,7 +45,7 @@ public class ExceptTest {
 				+ "=================================";
 
 		final String expected = "MACHINE Testing\n"
-				+ "ABSTRACT_CONSTANTS k \n"
+				+ "CONSTANTS k \n"
 				+ "PROPERTIES k : INTEGER +-> INTEGER & (k = %x.(x : {1, 2}| x) & (k <+ {1 |-> k(1) + 1})(1) = 2)\n"
 				+ "END";
 		compare(expected, module);
@@ -63,11 +61,12 @@ public class ExceptTest {
 				+ "ASSUME k = [x,y \\in {1,2} |-> x+y] /\\ k2 = [k EXCEPT ![1,1] = @ + 4] \n"
 				+ "=================================";
 
-		final String expected = "MACHINE Testing\n"
-				+ "ABSTRACT_CONSTANTS k, k2\n"
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k, k2\n"
 				+ "PROPERTIES  k : POW(INTEGER*INTEGER*INTEGER) "
 				+ "&  k2 : POW(INTEGER*INTEGER*INTEGER) "
 				+ "& k = %x,y.(x : {1, 2} & y : {1, 2}| x + y) "
 				+ "& k2 = k <+ {(1, 1) |-> k(1, 1) + 4} \n" + "END";
+		compare(expected, module);
 	}
+
 }

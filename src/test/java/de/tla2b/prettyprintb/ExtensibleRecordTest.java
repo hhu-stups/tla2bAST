@@ -38,7 +38,7 @@ public class ExtensibleRecordTest {
 				+ "=================================";
 
 		final String expected = "MACHINE Testing\n"
-				+ "ABSTRACT_CONSTANTS k \n"
+				+ "CONSTANTS k \n"
 				+ "PROPERTIES k : struct(b:POW(BOOL * INTEGER), a:POW(BOOL * INTEGER)) & ((k = rec(b:{}, a:{(TRUE,1)}) & k /= rec(b:{(TRUE,1)}, a:{})) & (k'a)(TRUE) = 1) \n"
 				+ "END";
 		compare(expected, module);
@@ -76,7 +76,7 @@ public class ExtensibleRecordTest {
 				+ "=================================";
 
 		final String expected = "MACHINE Testing\n"
-				+ "ABSTRACT_CONSTANTS k \n"
+				+ "CONSTANTS k \n"
 				+ "PROPERTIES k : struct(a:POW(BOOL * INTEGER), b:POW(BOOL * BOOL)) & (k = rec(a:{(TRUE,1)}, b:{}) & TRUE = (k'b)(TRUE)) \n"
 				+ "END";
 		compare(expected, module);

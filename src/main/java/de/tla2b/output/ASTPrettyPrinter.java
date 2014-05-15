@@ -9,12 +9,12 @@ import de.be4.classicalb.core.parser.analysis.ExtendedDFAdapter;
 import de.be4.classicalb.core.parser.node.AAbstractMachineParseUnit;
 import de.be4.classicalb.core.parser.node.AAnySubstitution;
 import de.be4.classicalb.core.parser.node.ABecomesSuchSubstitution;
+import de.be4.classicalb.core.parser.node.AConstantsMachineClause;
 import de.be4.classicalb.core.parser.node.ADefinitionExpression;
 import de.be4.classicalb.core.parser.node.ADefinitionPredicate;
 import de.be4.classicalb.core.parser.node.AExpressionDefinitionDefinition;
 import de.be4.classicalb.core.parser.node.AIdentifierExpression;
 import de.be4.classicalb.core.parser.node.ALambdaExpression;
-import de.be4.classicalb.core.parser.node.AMinusOrSetSubtractExpression;
 import de.be4.classicalb.core.parser.node.AOperation;
 import de.be4.classicalb.core.parser.node.AOperationsMachineClause;
 import de.be4.classicalb.core.parser.node.APredicateDefinitionDefinition;
@@ -103,6 +103,8 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 		putDeclarationClause("ASetsMachineClause", "SETS", ";");
 		putDeclarationClause("AAbstractConstantsMachineClause",
 				"ABSTRACT_CONSTANTS", ",");
+		putDeclarationClause("AConstantsMachineClause",
+				"CONSTANTS", ",");
 		putDeclarationClause("AVariablesMachineClause", "VARIABLES", ",");
 
 		put("AEnumeratedSetSet", null, null, ", ", null, " = {", "}");

@@ -2,6 +2,7 @@ package de.tla2b.typechecking;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.tla2b.exceptions.FrontEndException;
@@ -23,6 +24,20 @@ public class TupleTest {
 
 		TestTypeChecker t = TestUtil.typeCheckString(module);
 		assertEquals("INTEGER*BOOL", t.getConstantType("k").toString());
+	}
+	
+	
+	@Ignore
+	@Test
+	public void testTupleFunctionCall() throws FrontEndException, TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "CONSTANTS k \n"
+				+ "ASSUME k = <<1,TRUE,1>>[2] \n"
+				+ "=================================";
+
+		TestTypeChecker t = TestUtil.typeCheckString(module);
+		assertEquals("ka", t.getConstantType("k").toString());
 	}
 
 	@Test
