@@ -42,6 +42,9 @@ public class FunctionType extends AbstractHasFollowers {
 		if(o instanceof TupleType){
 			return o.compare(this);
 		}
+		if(o instanceof TupleOrFunction){
+			return o.compare(this);
+		}
 
 		return false;
 	}
@@ -76,6 +79,9 @@ public class FunctionType extends AbstractHasFollowers {
 			return this;
 		}
 		if (o instanceof TupleType){
+			return (FunctionType) o.unify(this);
+		}
+		if(o instanceof TupleOrFunction){
 			return (FunctionType) o.unify(this);
 		}
 		throw new RuntimeException();

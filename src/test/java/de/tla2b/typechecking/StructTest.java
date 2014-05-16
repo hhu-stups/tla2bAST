@@ -6,6 +6,7 @@ package de.tla2b.typechecking;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.tla2b.exceptions.FrontEndException;
@@ -13,7 +14,6 @@ import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.exceptions.TypeErrorException;
 import de.tla2b.util.TestTypeChecker;
 import de.tla2b.util.TestUtil;
-
 import util.ToolIO;
 
 public class StructTest {
@@ -271,6 +271,16 @@ public class StructTest {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3 \n"
 				+ "ASSUME k = [a|-> TRUE] /\\ k2 = [k EXCEPT !.a = @ = 1]\n"
+				+ "=================================";
+		TestUtil.typeCheckString(module);
+	}
+	
+	@Test (expected = TypeErrorException.class)
+	public void testRecord5() throws FrontEndException,
+			TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "CONSTANTS k, k2 \n"
+				+ "ASSUME k = [k EXCEPT !.a = 1] /\\ k ={k2} \n"
 				+ "=================================";
 		TestUtil.typeCheckString(module);
 	}

@@ -80,25 +80,6 @@ public class StructOrFunctionType extends AbstractHasFollowers {
 			}
 			return true;
 		}
-		if (o instanceof SetType) {
-			SetType p = (SetType) o;
-			TLAType sub = p.getSubType();
-			if (sub.getKind() == UNTYPED)
-				return true;
-
-			if (sub instanceof PairType) {
-				PairType pair = (PairType) sub;
-				if (pair.getFirst().compare(StringType.getInstance())) {
-					for (String key : types.keySet()) {
-						if (!pair.getSecond().compare(types.get(key)))
-							return false;
-					}
-					return true;
-				} else
-					return false;
-			} else
-				return false;
-		}
 
 		if (o instanceof StructOrFunctionType) {
 			StructOrFunctionType s = (StructOrFunctionType) o;
@@ -114,9 +95,7 @@ public class StructOrFunctionType extends AbstractHasFollowers {
 				}
 			}
 			return true;
-
 		}
-
 		return false;
 	}
 
@@ -135,12 +114,6 @@ public class StructOrFunctionType extends AbstractHasFollowers {
 	@Override
 	public boolean isUntyped() {
 		return true;
-		// Iterator<BType> itr = types.values().iterator();
-		// while (itr.hasNext()) {
-		// if (itr.next().isUntyped())
-		// return true;
-		// }
-		// return false;
 	}
 
 	@Override

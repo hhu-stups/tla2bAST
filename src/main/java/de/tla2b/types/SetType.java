@@ -68,10 +68,6 @@ public class SetType extends AbstractHasFollowers {
 		if (o.getKind() == UNTYPED)
 			return true;
 		
-		if (o instanceof StructOrFunctionType){
-			return o.compare(this);
-		}
-
 		if (o instanceof SetType) {
 			SetType p = (SetType) o;
 			// test sub types compatibility

@@ -27,7 +27,6 @@ public class TupleTest {
 	}
 	
 	
-	@Ignore
 	@Test
 	public void testTupleFunctionCall() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -37,7 +36,19 @@ public class TupleTest {
 				+ "=================================";
 
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		assertEquals("ka", t.getConstantType("k").toString());
+		assertEquals("BOOL", t.getConstantType("k").toString());
+	}
+	
+	@Test
+	public void testTupleFunctionCall2() throws FrontEndException, TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "CONSTANTS k \n"
+				+ "ASSUME k = <<1,TRUE,\"str\">>[3] \n"
+				+ "=================================";
+
+		TestTypeChecker t = TestUtil.typeCheckString(module);
+		assertEquals("STRING", t.getConstantType("k").toString());
 	}
 
 	@Test

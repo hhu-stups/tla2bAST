@@ -87,11 +87,15 @@ public class TupleType extends AbstractHasFollowers {
 					return false;
 				}
 			}
-			if(!compareToAll(range)){
+			if (!compareToAll(range)) {
 				return false;
 			}
 			return true;
 		}
+		if (o instanceof TupleOrFunction) {
+			return o.compare(this);
+		}
+
 		return false;
 	}
 
@@ -181,6 +185,9 @@ public class TupleType extends AbstractHasFollowers {
 				return this;
 			}
 
+		}
+		if (o instanceof TupleOrFunction) {
+			return o.unify(this);
 		}
 		throw new RuntimeException();
 	}

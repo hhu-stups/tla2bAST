@@ -15,6 +15,7 @@ public interface IType {
 	public final int STRUCT_OR_FUNCTION = 9;
 	public final int FUNCTION = 10;
 	public final int TUPLE = 11;
+	public final int TUPLE_OR_FUNCTION =12;
 	
 	void apply(TypeVisitorInterface visitor);
 }

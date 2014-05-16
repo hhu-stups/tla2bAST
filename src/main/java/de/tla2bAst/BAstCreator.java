@@ -1449,24 +1449,33 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		}
 
 		case OPCODE_fa: { // f[1]
-			AFunctionExpression func = new AFunctionExpression();
-			func.setIdentifier(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			List<PExpression> paramList = new ArrayList<PExpression>();
-
-			ExprOrOpArgNode dom = n.getArgs()[1];
-			if (dom instanceof OpApplNode
-					&& ((OpApplNode) dom).getOperator().getName().toString()
-							.equals("$Tuple")) {
-				OpApplNode domOpAppl = (OpApplNode) dom;
-				for (int i = 0; i < domOpAppl.getArgs().length; i++) {
-					paramList.add(visitExprOrOpArgNodeExpression(domOpAppl
-							.getArgs()[i]));
-				}
+			TLAType t = (TLAType) n.getArgs()[0].getToolObject(TYPE_ID);
+			if (t != null && t instanceof TupleType) {
+				NumeralNode num = (NumeralNode) n.getArgs()[1];
+				int field = num.val();
+				System.out.println(t);
+				return createProjectionFunction(n, field, t);
 			} else {
-				paramList.add(visitExprOrOpArgNodeExpression(dom));
+				AFunctionExpression func = new AFunctionExpression();
+				func.setIdentifier(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				List<PExpression> paramList = new ArrayList<PExpression>();
+
+				ExprOrOpArgNode dom = n.getArgs()[1];
+				if (dom instanceof OpApplNode
+						&& ((OpApplNode) dom).getOperator().getName()
+								.toString().equals("$Tuple")) {
+					OpApplNode domOpAppl = (OpApplNode) dom;
+					for (int i = 0; i < domOpAppl.getArgs().length; i++) {
+						paramList.add(visitExprOrOpArgNodeExpression(domOpAppl
+								.getArgs()[i]));
+					}
+				} else {
+					paramList.add(visitExprOrOpArgNodeExpression(dom));
+				}
+				func.setParameters(paramList);
+				return func;
 			}
-			func.setParameters(paramList);
-			return func;
+
 		}
 
 		case OPCODE_domain:
@@ -1789,6 +1798,76 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		}
 
 		throw new RuntimeException(n.getOperator().getName().toString());
+	}
+
+	private PExpression createProjectionFunction(OpApplNode n, int field,
+			TLAType t) {
+		TupleType tuple = (TupleType) t;
+		int size = tuple.getTypes().size();
+
+		AFunctionExpression returnFunc = new AFunctionExpression();
+		int index;
+		if (field == 1) {
+			index = 2;
+			AFirstProjectionExpression first = new AFirstProjectionExpression();
+			first.setExp1(tuple.getTypes().get(0).getBNode());
+			first.setExp2(tuple.getTypes().get(1).getBNode());
+			returnFunc.setIdentifier(first);
+		}else{
+			index = field;
+			ASecondProjectionExpression second = new ASecondProjectionExpression();
+			ArrayList<TLAType> typeList = new ArrayList<TLAType>();
+			for (int i = 0; i < field - 1; i++) {
+				typeList.add(tuple.getTypes().get(i));
+			}
+			second.setExp1(createNestedCoupleAsBNode(typeList));
+			second.setExp2(tuple.getTypes().get(field - 1).getBNode());
+			returnFunc.setIdentifier(second);
+		}
+		AFunctionExpression func = returnFunc;
+		for (int i = index; i < size; i++) {
+			AFunctionExpression newfunc = new AFunctionExpression();
+			AFirstProjectionExpression first = new AFirstProjectionExpression();
+			ArrayList<TLAType> typeList = new ArrayList<TLAType>();
+			for (int j = 0; j < i; j++) {
+				typeList.add(tuple.getTypes().get(j));
+			}
+			first.setExp1(createNestedCoupleAsBNode(typeList));
+			first.setExp2(tuple.getTypes().get(i).getBNode());
+			newfunc.setIdentifier(first);
+			
+			ArrayList<PExpression> list = new ArrayList<PExpression>();
+			list.add(newfunc);
+			func.setParameters(list);
+			func = newfunc;
+		}
+		ArrayList<PExpression> list = new ArrayList<PExpression>();
+		list.add(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+		func.setParameters(list);
+		return returnFunc;
+	}
+
+	public static PExpression createNestedCoupleAsBNode(List<TLAType> typeList) {
+		if (typeList.size() == 1) {
+			return typeList.get(0).getBNode();
+		}
+		List<PExpression> list = new ArrayList<PExpression>();
+		for (TLAType t : typeList) {
+			list.add(t.getBNode());
+		}
+		AMultOrCartExpression card = new AMultOrCartExpression();
+		card.setLeft(list.get(0));
+		for (int i = 1; i < list.size(); i++) {
+			if (i < list.size() - 1) {
+				AMultOrCartExpression old = card;
+				old.setRight(list.get(i));
+				card = new AMultOrCartExpression();
+				card.setLeft(old);
+			} else {
+				card.setRight(list.get(i));
+			}
+		}
+		return card;
 	}
 
 	private PExpression createUnboundedChoose(OpApplNode n) {

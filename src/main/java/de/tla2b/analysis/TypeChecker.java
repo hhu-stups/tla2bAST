@@ -825,14 +825,40 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 					domList.add(d);
 				}
 				domType = new TupleType(domList);
+				FunctionType func = new FunctionType(domType, expected);
+				TLAType res = visitExprOrOpArgNode(n.getArgs()[0], func);
+				return ((FunctionType) res).getRange();
 			} else {
+				ExprOrOpArgNode arg = n.getArgs()[1];
+				if (arg instanceof NumeralNode) {
+					NumeralNode num = (NumeralNode) arg;
+					UntypedType u = new UntypedType();
+					n.setToolObject(TYPE_ID, u);
+					u.addFollower(n);
+					TupleOrFunction tupleOrFunc = new TupleOrFunction(
+							num.val(), u);
+					TLAType funcOrTuple = visitExprOrOpArgNode(n.getArgs()[0], tupleOrFunc);
+					n.getArgs()[0].setToolObject(TYPE_ID, funcOrTuple);
+					if(funcOrTuple instanceof AbstractHasFollowers){
+						((AbstractHasFollowers) funcOrTuple).addFollower(n.getArgs()[0]);
+					}
+					
+					TLAType found = (TLAType) n.getToolObject(TYPE_ID);
+					try {
+						found = found.unify(expected);
+					} catch (UnificationException e) {
+						throw new TypeErrorException("Expected '" + expected
+								+ "', found '" + found + "'.\n" + n.getLocation());
+					}
+					return found;
+				}
 				domType = visitExprOrOpArgNode(n.getArgs()[1],
 						new UntypedType());
 			}
-
 			FunctionType func = new FunctionType(domType, expected);
 			TLAType res = visitExprOrOpArgNode(n.getArgs()[0], func);
 			return ((FunctionType) res).getRange();
+
 		}
 
 		/***********************************************************************

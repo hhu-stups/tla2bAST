@@ -9,15 +9,16 @@ import de.be4.classicalb.core.parser.analysis.ExtendedDFAdapter;
 import de.be4.classicalb.core.parser.node.AAbstractMachineParseUnit;
 import de.be4.classicalb.core.parser.node.AAnySubstitution;
 import de.be4.classicalb.core.parser.node.ABecomesSuchSubstitution;
-import de.be4.classicalb.core.parser.node.AConstantsMachineClause;
 import de.be4.classicalb.core.parser.node.ADefinitionExpression;
 import de.be4.classicalb.core.parser.node.ADefinitionPredicate;
 import de.be4.classicalb.core.parser.node.AExpressionDefinitionDefinition;
+import de.be4.classicalb.core.parser.node.AFirstProjectionExpression;
 import de.be4.classicalb.core.parser.node.AIdentifierExpression;
 import de.be4.classicalb.core.parser.node.ALambdaExpression;
 import de.be4.classicalb.core.parser.node.AOperation;
 import de.be4.classicalb.core.parser.node.AOperationsMachineClause;
 import de.be4.classicalb.core.parser.node.APredicateDefinitionDefinition;
+import de.be4.classicalb.core.parser.node.ASecondProjectionExpression;
 import de.be4.classicalb.core.parser.node.ASelectSubstitution;
 import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.PExpression;
@@ -103,8 +104,7 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 		putDeclarationClause("ASetsMachineClause", "SETS", ";");
 		putDeclarationClause("AAbstractConstantsMachineClause",
 				"ABSTRACT_CONSTANTS", ",");
-		putDeclarationClause("AConstantsMachineClause",
-				"CONSTANTS", ",");
+		putDeclarationClause("AConstantsMachineClause", "CONSTANTS", ",");
 		putDeclarationClause("AVariablesMachineClause", "VARIABLES", ",");
 
 		put("AEnumeratedSetSet", null, null, ", ", null, " = {", "}");
@@ -152,7 +152,7 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 
 		putInfixOperator("AAddExpression", "+", 180, left);
 		putInfixOperator("AMinusOrSetSubtractExpression", "-", 180, left);
-		
+
 		putInfixOperator("ACartesianProductExpression", "*", 190, left);
 		putInfixOperator("AMultOrCartExpression", "*", 190, left);
 		putInfixOperator("ADivExpression", "/", 190, left);
@@ -213,6 +213,9 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 
 		put("AComprehensionSetExpression", "{", "", ",", "", " | ", "}");
 
+		put("AFirstProjectionExpression", "prj1(", null, null, null, ", ", ")");
+		
+		put("ASecondProjectionExpression", "prj2(", null, null, null, ", ", ")");
 	}
 
 	@Override
