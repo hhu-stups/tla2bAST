@@ -256,7 +256,14 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 				}
 			}
 		}
-		beforeAfterPredicates.add(node);
+		if (node.level < 2) {
+			guards.add(node);
+			return;
+		} else {
+			beforeAfterPredicates.add(node);
+			return;
+		}
+		//beforeAfterPredicates.add(node);
 	}
 
 	private void evalParams() {
