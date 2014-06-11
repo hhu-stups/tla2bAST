@@ -723,23 +723,9 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			for (int j = 0; j < seq.getArgs().length; j++) {
 				list.add(seq.getArgs()[j]);
 			}
-			if (type instanceof FunctionType) {
+			PExpression base = visitExprNodeExpression(at.getAtBase());
+			return evalAtNode(list, type, base);
 
-				List<PExpression> params = new ArrayList<PExpression>();
-				params.add(visitExprOrOpArgNodeExpression(list.get(0)));
-
-				AFunctionExpression funCall = new AFunctionExpression();
-				funCall.setIdentifier(visitExprNodeExpression(at.getAtBase()));
-				funCall.setParameters(params);
-				return funCall;
-			} else {
-				ARecordFieldExpression select = new ARecordFieldExpression();
-				select.setRecord(visitExprNodeExpression(at.getAtBase()));
-				StringNode stringNode = (StringNode) list.get(0);
-				select.setIdentifier(createIdentifierNode(stringNode.getRep()
-						.toString())); // TODO renamed
-				return select;
-			}
 		}
 
 		case LetInKind: {
@@ -750,6 +736,33 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		}
 
 		throw new RuntimeException(n.getClass().toString());
+	}
+
+	private PExpression evalAtNode(LinkedList<ExprOrOpArgNode> list,
+			TLAType type, PExpression base) {
+		if(list.size() == 0){
+			return base;
+		}
+		
+		if (type instanceof FunctionType) {
+			FunctionType funcType = (FunctionType) type;
+			PExpression param = visitExprOrOpArgNodeExpression(list.poll());
+			List<PExpression> params = new ArrayList<PExpression>();
+			params.add(param);
+
+			AFunctionExpression funCall = new AFunctionExpression();
+			funCall.setIdentifier(base);
+			funCall.setParameters(params);
+			return evalAtNode(list, funcType.getRange(), funCall);
+		} else {
+			StructType structType = (StructType) type;
+			ARecordFieldExpression select = new ARecordFieldExpression();
+			select.setRecord(base);
+			StringNode stringNode = (StringNode) list.poll();
+			String fieldName = stringNode.getRep().toString();
+			select.setIdentifier(createIdentifierNode(fieldName)); // TODO renamed
+			return evalAtNode(list, structType.getType(fieldName), select);
+		}
 	}
 
 	private PPredicate visitOpApplNodePredicate(OpApplNode n) {
@@ -1453,7 +1466,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			if (t != null && t instanceof TupleType) {
 				NumeralNode num = (NumeralNode) n.getArgs()[1];
 				int field = num.val();
-				System.out.println(t);
 				return createProjectionFunction(n, field, t);
 			} else {
 				AFunctionExpression func = new AFunctionExpression();

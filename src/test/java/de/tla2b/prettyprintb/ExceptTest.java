@@ -23,6 +23,35 @@ public class ExceptTest {
 	}
 
 	@Test
+	public void testFunctionAt() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "CONSTANTS k \n"
+				+ "ASSUME k = [i \\in {3,4} |-> i] /\\ k # [k EXCEPT ![3] = @ + 1]  \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
+				+ "PROPERTIES " 
+				+ "k : INTEGER +-> INTEGER & (k = %(i).(i : {3, 4} | i) & k /= k <+ {(3,k(3) + 1)}) \n" 
+				+ "END";
+		compare(expected, module);
+	}
+	@Test
+	public void testNestedFunctionAt() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "CONSTANTS k \n"
+				+ "ASSUME k = [i \\in {TRUE} |-> <<5,6>>] /\\ k # [k EXCEPT ![TRUE][2] = @ + 1]  \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
+				+ "PROPERTIES " 
+				+ "k : BOOL +-> (INTEGER +-> INTEGER) & (k = %(i).(i : {TRUE} | [5,6]) & k /= k <+ {(TRUE,k(TRUE) <+ {(2,(k(TRUE))(2) + 1)})}) \n" 
+				+ "END";
+		compare(expected, module);
+	}
+	
+	@Test
 	public void testRecordExcept() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
@@ -32,6 +61,38 @@ public class ExceptTest {
 		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
 				+ "PROPERTIES "
 				+ "k : struct(a:INTEGER, b:BOOL) & (k = rec(a:1, b:TRUE) & k /= rec(a:2, b:FALSE))" 
+				+ "END";
+		compare(expected, module);
+
+	}
+	
+	@Test
+	public void testRecordAt() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "CONSTANTS k \n"
+				+ "ASSUME k = [a |-> 1, b |-> TRUE] /\\ k /= [k EXCEPT !.a = @ + 1]  \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
+				+ "PROPERTIES "
+				+ "k : struct(a:INTEGER, b:BOOL) & (k = rec(a:1, b:TRUE) & k /= rec(a:k'a + 1, b:k'b)) \n" 
+				+ "END";
+		compare(expected, module);
+
+	}
+	
+	@Test
+	public void testNestedRecordAt() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "CONSTANTS k \n"
+				+ "ASSUME k = [a |-> [b |-> 1]] /\\ k /= [k EXCEPT !.a.b = @ + 1]  \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
+				+ "PROPERTIES "
+				+ "k : struct(a:struct(b:INTEGER)) & (k = rec(a:rec(b:1)) & k /= rec(a:rec(b:(k'a)'b + 1))) \n" 
 				+ "END";
 		compare(expected, module);
 
@@ -53,6 +114,22 @@ public class ExceptTest {
 	}
 	
 	@Test
+	public void testRecordFunctionAt() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "CONSTANTS k \n"
+				+ "ASSUME k = [a |-> <<3>>] /\\ k /= [k EXCEPT !.a[1] = @ + 1]  \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
+				+ "PROPERTIES "
+				+ "k : struct(a:INTEGER +-> INTEGER) & (k = rec(a:[3]) & k /= rec(a:k'a <+ {(1,(k'a)(1) + 1)})) \n" 
+				+ "END";
+		compare(expected, module);
+
+	}
+	
+	@Test
 	public void testFunctionRecordExcept() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
@@ -62,6 +139,22 @@ public class ExceptTest {
 		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
 				+ "PROPERTIES "
 				+ "k : INTEGER +-> struct(a:INTEGER, b:BOOL) & (k = %(i).(i : {3, 4} | rec(a:i, b:TRUE)) & k /= k <+ {(3,rec(a:k(3)'a, b:FALSE))}) \n" 
+				+ "END";
+		compare(expected, module);
+
+	}
+	
+	@Test
+	public void testFunctionRecordAt() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "CONSTANTS k \n"
+				+ "ASSUME k = [i \\in {3,4} |->[a |-> i, b |-> TRUE ] ] /\\ k /= [k EXCEPT ![3].a = @ + 1]  \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
+				+ "PROPERTIES "
+				+ "k : INTEGER +-> struct(a:INTEGER, b:BOOL) & (k = %(i).(i : {3, 4} | rec(a:i, b:TRUE)) & k /= k <+ {(3,rec(a:k(3)'a + 1, b:k(3)'b))}) \n" 
 				+ "END";
 		compare(expected, module);
 
