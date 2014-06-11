@@ -23,15 +23,61 @@ public class ExceptTest {
 	}
 
 	@Test
-	public void testFunctionExcept2() throws Exception {
+	public void testRecordExcept() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
-				+ "ASSUME k = [k EXCEPT ![TRUE] = 0, ![FALSE] = 0]  \n"
+				+ "ASSUME k = [a |-> 1, b |-> TRUE] /\\ k /= [k EXCEPT !.a = 2, !.b = FALSE]  \n"
 				+ "=================================";
 
 		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
-				+ "PROPERTIES " + " k : BOOL +-> INTEGER "
-				+ "& k = k <+ {TRUE |-> 0, FALSE |-> 0}" + "END";
+				+ "PROPERTIES "
+				+ "k : struct(a:INTEGER, b:BOOL) & (k = rec(a:1, b:TRUE) & k /= rec(a:2, b:FALSE))" 
+				+ "END";
+		compare(expected, module);
+
+	}
+	
+	@Test
+	public void testRecordFunctionExcept() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "CONSTANTS k \n"
+				+ "ASSUME k = [a |-> <<3>>] /\\ k /= [k EXCEPT !.a[1] = 4]  \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
+				+ "PROPERTIES "
+				+ "k : struct(a:INTEGER +-> INTEGER) & (k = rec(a:[3]) & k /= rec(a:k'a <+ {(1,4)})) \n" 
+				+ "END";
+		compare(expected, module);
+
+	}
+	
+	@Test
+	public void testFunctionRecordExcept() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "CONSTANTS k \n"
+				+ "ASSUME k = [i \\in {3,4} |->[a |-> i, b |-> TRUE ] ] /\\ k /= [k EXCEPT ![3].b = FALSE]  \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
+				+ "PROPERTIES "
+				+ "k : INTEGER +-> struct(a:INTEGER, b:BOOL) & (k = %(i).(i : {3, 4} | rec(a:i, b:TRUE)) & k /= k <+ {(3,rec(a:k(3)'a, b:FALSE))}) \n" 
+				+ "END";
+		compare(expected, module);
+
+	}
+	
+	@Test
+	public void testRecordExceptNested() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "CONSTANTS k \n"
+				+ "ASSUME k = [a |-> [b |-> 1, c |-> 2]] /\\ k /= [k EXCEPT !.a.b = 2]  \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
+				+ "PROPERTIES "
+				+ "k : struct(a:struct(b:INTEGER, c:INTEGER)) & (k = rec(a:rec(b:1, c:2)) & k /= rec(a:rec(b:2, c:(k'a)'c))) \n" 
+				+ "END";
 		compare(expected, module);
 
 	}
@@ -68,5 +114,52 @@ public class ExceptTest {
 				+ "& k2 = k <+ {(1, 1) |-> k(1, 1) + 4} \n" + "END";
 		compare(expected, module);
 	}
+	
+	@Test
+	public void testFunctionExcept9() throws Exception {
+		ToolIO.reset();
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "CONSTANTS k \n"
+				+ "ASSUME k = [i \\in {3,4} |-> <<i, 7>>] /\\ [k EXCEPT ![4] = <<4, 8>>] # [k EXCEPT ![4][2] = 9] \n"
+				+ "=================================";
 
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
+				+ "PROPERTIES "
+				+ "k : INTEGER +-> (INTEGER +-> INTEGER) & (k = %(i).(i : {3, 4} | [i,7]) & k <+ {(4,[4,8])} /= k <+ {(4,k(4) <+ {(2,9)})}) \n"
+				+ "END";
+		compare(expected, module);
+	}
+	
+	@Test
+	public void testFunctionExceptNested() throws Exception {
+		ToolIO.reset();
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "CONSTANTS k \n"
+				+ "ASSUME k = [i \\in {3,4} |-> <<i, 7>>] /\\ k # [k EXCEPT ![4][2] = 8] \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
+				+ "PROPERTIES "
+				+ "k : INTEGER +-> (INTEGER +-> INTEGER) & (k = %(i).(i : {3, 4} | [i,7]) & k /= k <+ {(4,k(4) <+ {(2,8)})}) \n"
+				+ "END";
+		compare(expected, module);
+	}
+	
+	@Test
+	public void testFunctionExceptNested2() throws Exception {
+		ToolIO.reset();
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "CONSTANTS k \n"
+				+ "ASSUME k = [i \\in {3,4} |-> << <<8>> >>] /\\ k # [k EXCEPT ![4][1][1] = 7] \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
+				+ "PROPERTIES "
+				+ "k : INTEGER +-> (INTEGER +-> (INTEGER +-> INTEGER)) & (k = %(i).(i : {3, 4} | [[8]]) & k /= k <+ {(4,k(4) <+ {(1,(k(4))(1) <+ {(1,7)})})}) \n"
+				+ "END";
+		compare(expected, module);
+	}
 }

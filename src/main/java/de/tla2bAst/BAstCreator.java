@@ -1693,18 +1693,34 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		{
 			TLAType type = (TLAType) n.getToolObject(TYPE_ID);
 			if (type.getKind() == IType.STRUCT) {
+				StructType structType = (StructType) type;
 				Hashtable<String, PExpression> temp = new Hashtable<String, PExpression>();
 				for (int i = 1; i < n.getArgs().length; i++) {
 					OpApplNode pair = (OpApplNode) n.getArgs()[i];
+
 					ExprOrOpArgNode first = pair.getArgs()[0];
-					ExprOrOpArgNode second = pair.getArgs()[1];
+					ExprOrOpArgNode val = pair.getArgs()[1];
 					OpApplNode seq = (OpApplNode) first;
 
-					PExpression val = visitExprOrOpArgNodeExpression(second);
+					LinkedList<ExprOrOpArgNode> seqList = new LinkedList<ExprOrOpArgNode>();
+					for (int j = 0; j < seq.getArgs().length; j++) {
+						seqList.add(seq.getArgs()[j]);
+					}
 
-					StringNode stringNode = (StringNode) seq.getArgs()[0];
+					PExpression oldRec = visitExprOrOpArgNodeExpression(n
+							.getArgs()[0]);
+					//PExpression val =  visitExprOrOpArgNodeExpression(second);
+					ARecordFieldExpression select = new ARecordFieldExpression();
+					select.setRecord(oldRec);
+					
+					StringNode stringNode = (StringNode) seqList.poll();
 					String fieldName = stringNode.getRep().toString();
-					temp.put(fieldName, val);
+					select.setIdentifier(createIdentifierNode(fieldName));
+					
+					PExpression value = evalExceptValue(select,
+									seqList, structType.getType(fieldName), val);		
+							
+					temp.put(fieldName, value);
 				}
 
 				StructType st = (StructType) type;
@@ -1725,20 +1741,38 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 				}
 				ARecExpression rec = new ARecExpression(list);
 				return rec;
-
 			} else {
-				// FunctionType func = (FunctionType) type;
+				FunctionType func = (FunctionType) type;
 
 				List<PExpression> list = new ArrayList<PExpression>();
 				for (int i = 1; i < n.getArgs().length; i++) {
 					OpApplNode pair = (OpApplNode) n.getArgs()[i];
 
+					ExprOrOpArgNode first = pair.getArgs()[0];
+					ExprOrOpArgNode val = pair.getArgs()[1];
+					OpApplNode seq = (OpApplNode) first;
+
+					LinkedList<ExprOrOpArgNode> seqList = new LinkedList<ExprOrOpArgNode>();
+					for (int j = 0; j < seq.getArgs().length; j++) {
+						seqList.add(seq.getArgs()[j]);
+					}
+
+					PExpression oldFunc = visitExprOrOpArgNodeExpression(n
+							.getArgs()[0]);
+					PExpression firstArg = visitExprOrOpArgNodeExpression(seqList
+							.poll());
+					AFunctionExpression funcApplication = new AFunctionExpression();
+					funcApplication.setIdentifier(oldFunc);
+					List<PExpression> argList = new ArrayList<PExpression>();
+					argList.add(firstArg);
+					funcApplication.setParameters(argList);
+
+					PExpression value = evalExceptValue(funcApplication,
+							seqList, func.getRange(), val);
 					ACoupleExpression couple = new ACoupleExpression();
 					List<PExpression> coupleList = new ArrayList<PExpression>();
-					coupleList.add(visitExprOrOpArgNodeExpression(pair
-							.getArgs()[0]));
-					coupleList.add(visitExprOrOpArgNodeExpression(pair
-							.getArgs()[1]));
+					coupleList.add(firstArg);
+					coupleList.add(value);
 					couple.setList(coupleList);
 					list.add(couple);
 				}
@@ -1800,6 +1834,70 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		throw new RuntimeException(n.getOperator().getName().toString());
 	}
 
+	private PExpression evalExceptValue(PExpression prefix,
+			LinkedList<ExprOrOpArgNode> seqList, TLAType tlaType,
+			ExprOrOpArgNode val) {
+
+		ExprOrOpArgNode head = seqList.poll();
+		if (head == null) {
+			return visitExprOrOpArgNodeExpression(val);
+		}
+
+		if (tlaType instanceof StructType) {
+			StructType structType = (StructType) tlaType;
+			String field = ((StringNode) head).getRep().toString();
+
+			List<PRecEntry> list = new ArrayList<PRecEntry>();
+			for (int i = 0; i < structType.getFields().size(); i++) {
+				ARecEntry entry = new ARecEntry();
+				String fieldName = structType.getFields().get(i);
+				entry.setIdentifier(createIdentifierNode(fieldName));
+				
+				PExpression value = null;
+				ARecordFieldExpression select = new ARecordFieldExpression();
+				select.setRecord((PExpression)prefix.clone());
+				select.setIdentifier(createIdentifierNode(fieldName));
+				if(fieldName.equals(field)){
+
+					value = evalExceptValue(select, seqList, structType.getType(fieldName),
+							val);
+				}else{
+					value = select;
+				}
+				entry.setValue(value);
+				list.add(entry);
+				
+			}
+			
+			ARecExpression rec = new ARecExpression(list);
+			return rec;
+
+		} else {
+			FunctionType func = (FunctionType) tlaType;
+
+			ACoupleExpression couple = new ACoupleExpression();
+			List<PExpression> coupleList = new ArrayList<PExpression>();
+			coupleList.add(visitExprOrOpArgNodeExpression(head));
+
+			AFunctionExpression funcCall = new AFunctionExpression();
+			funcCall.setIdentifier(prefix);
+			List<PExpression> argList = new ArrayList<PExpression>();
+			argList.add(visitExprOrOpArgNodeExpression(head));
+			funcCall.setParameters(argList);
+			coupleList.add(evalExceptValue(funcCall, seqList, func.getRange(),
+					val));
+			couple.setList(coupleList);
+			List<PExpression> setList = new ArrayList<PExpression>();
+			setList.add(couple);
+			ASetExtensionExpression setExtension = new ASetExtensionExpression(
+					setList);
+			AOverwriteExpression overwrite = new AOverwriteExpression();
+			overwrite.setLeft((PExpression) prefix.clone());
+			overwrite.setRight(setExtension);
+			return overwrite;
+		}
+	}
+
 	private PExpression createProjectionFunction(OpApplNode n, int field,
 			TLAType t) {
 		TupleType tuple = (TupleType) t;
@@ -1813,7 +1911,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			first.setExp1(tuple.getTypes().get(0).getBNode());
 			first.setExp2(tuple.getTypes().get(1).getBNode());
 			returnFunc.setIdentifier(first);
-		}else{
+		} else {
 			index = field;
 			ASecondProjectionExpression second = new ASecondProjectionExpression();
 			ArrayList<TLAType> typeList = new ArrayList<TLAType>();
@@ -1835,7 +1933,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			first.setExp1(createNestedCoupleAsBNode(typeList));
 			first.setExp2(tuple.getTypes().get(i).getBNode());
 			newfunc.setIdentifier(first);
-			
+
 			ArrayList<PExpression> list = new ArrayList<PExpression>();
 			list.add(newfunc);
 			func.setParameters(list);

@@ -59,5 +59,24 @@ public class TupleVsSequenceTest {
 		assertEquals("INTEGER*BOOL", t.getConstantType("c"));
 	}
 	
+	@Test  
+	public void testTupleVsSequence5() throws FrontEndException, TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "CONSTANTS k\n"
+				+ "ASSUME k = <<1,2>> /\\ k \\in {1} \\X {2} \n"
+				+ "=================================";
+		TestTypeChecker t = TestUtil.typeCheckString(module);
+		assertEquals("INTEGER*INTEGER", t.getConstantType("k"));
+	}
+	
+	@Test  
+	public void testTupleVsSequence6() throws FrontEndException, TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "CONSTANTS k\n"
+				+ "ASSUME {k} = {<<x, y>> \\in {1} \\X {2}: TRUE} \n"
+				+ "=================================";
+		TestTypeChecker t = TestUtil.typeCheckString(module);
+		assertEquals("INTEGER*INTEGER", t.getConstantType("k"));
+	}
 	
 }

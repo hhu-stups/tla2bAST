@@ -63,7 +63,7 @@ public class ComplexExpressionTest {
 
 	@Test
 	public void testRecord2() throws Exception {
-		compareExpr("bool(r = rec(a:rec(x:1, y:TRUE), b:1) & r2 = rec(a:2, b:r'b))",
+		compareExpr("bool(r = rec(a:rec(x:1, y:TRUE), b:1) & r2 = rec(a:rec(x:2, y:(r'a)'y), b:r'b))",
 				"r = [a |-> [x|->1,y|->TRUE], b |-> 1] "
 						+ "/\\ r2 = [r EXCEPT !.a.x = 2]");
 	}

@@ -114,5 +114,17 @@ public class TupleTest {
 				+ "END";
 		compare(expected, module);
 	}
+	
+	@Test
+	public void testDomainOfTuple() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "ASSUME {1,2,3} = DOMAIN <<\"a\", \"b\", \"c\">> \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES {1, 2, 3} = dom([\"a\", \"b\", \"c\"]) \n"
+				+ "END";
+		compare(expected, module);
+	}
 
 }

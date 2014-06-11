@@ -9,9 +9,9 @@ import de.tla2b.exceptions.UnificationException;
 import de.tla2b.output.TypeVisitorInterface;
 
 public class TupleType extends AbstractHasFollowers {
-	private ArrayList<TLAType> types;
+	private List<TLAType> types;
 
-	public TupleType(ArrayList<TLAType> typeList) {
+	public TupleType(List<TLAType> typeList) {
 		super(TUPLE);
 		setTypes(typeList);
 	}
@@ -29,7 +29,7 @@ public class TupleType extends AbstractHasFollowers {
 		return new ArrayList<TLAType>(types);
 	}
 
-	public void setTypes(ArrayList<TLAType> types) {
+	public void setTypes(List<TLAType> types) {
 		this.types = types;
 		types = new ArrayList<TLAType>(types);
 		for (TLAType tlaType : types) {

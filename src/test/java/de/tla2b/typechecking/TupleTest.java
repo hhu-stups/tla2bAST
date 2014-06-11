@@ -72,7 +72,7 @@ public class TupleTest {
 				+ "=================================";
 
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		assertEquals("INTEGER*INTEGER*INTEGER", t.getConstantType("k").toString());
+		assertEquals("POW(INTEGER*INTEGER)", t.getConstantType("k").toString());
 	}
 
 	@Test
@@ -84,7 +84,7 @@ public class TupleTest {
 				+ "ASSUME k = <<1,1>> \n" + "=================================";
 
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		assertEquals("INTEGER*INTEGER", t.getConstantType("k").toString());
+		assertEquals("POW(INTEGER*INTEGER)", t.getConstantType("k").toString());
 	}
 
 	@Test

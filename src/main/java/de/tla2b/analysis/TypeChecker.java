@@ -740,7 +740,8 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 			} else if (list.size() == 1) {
 				found = new FunctionType(IntType.getInstance(), list.get(0));
 			} else {
-				found = new TupleType(list);
+				found = TupleOrFunction.createTupleOrFunctionType(list);
+				//found = new TupleType(list);
 			}
 			try {
 				found = found.unify(expected);
@@ -920,7 +921,6 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 						new SetType(new UntypedType()));
 				list.add(t.getSubType());
 			}
-
 			SetType found = new SetType(new TupleType(list));
 			try {
 				found = found.unify(expected);
@@ -929,6 +929,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 						"Expected %s, found %s at Cartesian Product,%n%s",
 						expected, found, n.getLocation()));
 			}
+			
 			return found;
 		}
 
