@@ -320,6 +320,7 @@ public class TupleOrFunction extends AbstractHasFollowers {
 			}
 		}
 
+		update();
 	}
 
 	public TLAType getFinalType() {

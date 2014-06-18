@@ -324,12 +324,14 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 			TLAType type = (TLAType) rightside.getToolObject(TYPE_ID);
 			try {
 				TLAType res = type.unify(expected);
+				setType(exprNode, res);
 				return res;
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
 						"Expected %s, found %s at '@',%n%s ", expected, type,
 						exprNode.getLocation()));
 			}
+			
 
 		}
 
@@ -356,6 +358,14 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 
 	}
 
+	private void setType(SemanticNode node, TLAType type){
+		node.setToolObject(TYPE_ID, type);
+		if (type instanceof AbstractHasFollowers){
+			((AbstractHasFollowers) type).addFollower(node);
+		}
+	}
+	
+	
 	/**
 	 * @param n
 	 * @param expected
@@ -852,15 +862,14 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 					TupleOrFunction tupleOrFunc = new TupleOrFunction(
 							num.val(), u);
 
-					TLAType funcOrTuple = visitExprOrOpArgNode(n.getArgs()[0],
+					TLAType res = visitExprOrOpArgNode(n.getArgs()[0],
 							tupleOrFunc);
-					n.getArgs()[0].setToolObject(TYPE_ID, funcOrTuple);
+					n.getArgs()[0].setToolObject(TYPE_ID, res);
 					tupleNodeList.add(n.getArgs()[0]);
-					if (funcOrTuple instanceof AbstractHasFollowers) {
-						((AbstractHasFollowers) funcOrTuple).addFollower(n
+					if (res instanceof AbstractHasFollowers) {
+						((AbstractHasFollowers) res).addFollower(n
 								.getArgs()[0]);
 					}
-
 					TLAType found = (TLAType) n.getToolObject(TYPE_ID);
 					try {
 						found = found.unify(expected);
@@ -1196,6 +1205,8 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 		return domType;
 	}
 
+	
+	
 	/**
 	 * @param n
 	 * @param expected
