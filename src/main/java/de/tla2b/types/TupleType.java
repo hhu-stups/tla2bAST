@@ -59,13 +59,7 @@ public class TupleType extends AbstractHasFollowers {
 		if (o instanceof TupleType) {
 			TupleType t = (TupleType) o;
 			if (this.types.size() != t.types.size()) {
-				for (int i = 0; i < t.types.size(); i++) {
-					if (!compareToAll(t.types.get(i))) {
-						return false;
-					}
-				}
-				// both are sequences with different lengths
-				return true;
+				return false;
 			}
 			for (int i = 0; i < types.size(); i++) {
 				if (!types.get(i).compare(t.types.get(i)))
@@ -73,42 +67,12 @@ public class TupleType extends AbstractHasFollowers {
 			}
 			return true;
 		}
-		if (o instanceof FunctionType) {
-			// TODO
-			FunctionType func = (FunctionType) o;
-			if (!(func.getDomain() instanceof IntType)) {
-				return false;
-			}
-			TLAType range = func.getRange();
-			for (int i = 0; i < types.size(); i++) {
-				if (types.get(i).compare(range)) {
-					continue;
-				} else {
-					return false;
-				}
-			}
-			if (!compareToAll(range)) {
-				return false;
-			}
-			return true;
-		}
+
 		if (o instanceof TupleOrFunction) {
 			return o.compare(this);
 		}
 
 		return false;
-	}
-
-	private boolean compareToAll(TLAType other) {
-		for (int i = 0; i < types.size(); i++) {
-			for (int j = i + 1; j < types.size(); j++) {
-				if (!types.get(i).compare(types.get(j)))
-					return false;
-			}
-			if (!types.get(i).compare(other))
-				return false;
-		}
-		return true;
 	}
 
 	@Override
@@ -149,43 +113,16 @@ public class TupleType extends AbstractHasFollowers {
 		}
 		if (o instanceof TupleType) {
 			TupleType tuple = (TupleType) o;
-			if (this.types.size() != tuple.types.size()) {
-				TLAType t = types.get(0);
-				for (int i = 1; i < types.size(); i++) {
-					t = t.unify(types.get(i));
-				}
-				for (int i = 0; i < tuple.types.size(); i++) {
-					t = t.unify(tuple.types.get(i));
-				}
-				return new FunctionType(IntType.getInstance(), t);
-			} else {
-				for (int i = 0; i < types.size(); i++) {
-					TLAType res = types.get(i).unify(tuple.types.get(i));
-					types.set(i, res);
-					if (res instanceof AbstractHasFollowers)
-						((AbstractHasFollowers) res).addFollower(this);
-				}
-				return this;
-			}
-		}
-		if (o instanceof FunctionType) {
-			// TODO
-			if (compareToAll(new UntypedType())) {
-				// Function
-				TLAType t = types.get(0);
-				for (int i = 1; i < types.size(); i++) {
-					t = t.unify(types.get(i));
-				}
-				FunctionType func = new FunctionType(IntType.getInstance(), t);
-				this.setFollowersTo(func);
-				return func.unify(o);
-			} else {
-				TLAType res = types.get(1).unify(((FunctionType) o).getRange());
-				types.set(1, res);
-				return this;
-			}
 
+			for (int i = 0; i < types.size(); i++) {
+				TLAType res = types.get(i).unify(tuple.types.get(i));
+				types.set(i, res);
+				if (res instanceof AbstractHasFollowers)
+					((AbstractHasFollowers) res).addFollower(this);
+			}
+			return this;
 		}
+
 		if (o instanceof TupleOrFunction) {
 			return o.unify(this);
 		}

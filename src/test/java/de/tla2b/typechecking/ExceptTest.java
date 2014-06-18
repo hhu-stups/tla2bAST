@@ -120,5 +120,17 @@ public class ExceptTest {
 		TestTypeChecker t = TestUtil.typeCheckString(module);
 		assertEquals("POW(INTEGER*BOOL)", t.getConstantType("k"));
 	}
+	
+	@Test
+	public void testRecordTest() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "CONSTANTS k\n"
+				+ "ASSUME k = [ [a |-> [i \\in 1..1 |-> i], b |-> [i \\in 1..1 |-> 2]] EXCEPT !.a[1] = 1].a[1] \n"
+				+ "=================================";
+
+		TestTypeChecker t = TestUtil.typeCheckString(module);
+		assertEquals("INTEGER", t.getConstantType("k"));
+	}
 
 }

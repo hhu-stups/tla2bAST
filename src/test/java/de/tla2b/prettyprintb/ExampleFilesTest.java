@@ -36,7 +36,7 @@ public class ExampleFilesTest extends AbstractParseModuleTest {
 		Start start = t.translate();
 		String resultTree = TestUtil.getTreeAsString(start);
 		
-		ASTPrettyPrinter aP = new ASTPrettyPrinter();
+		ASTPrettyPrinter aP = new ASTPrettyPrinter(start);
 		start.apply(aP);
 		System.out.println(aP.getResultString());
 

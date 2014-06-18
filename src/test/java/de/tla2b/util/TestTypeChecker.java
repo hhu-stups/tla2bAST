@@ -10,11 +10,13 @@ import de.tla2b.exceptions.FrontEndException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.global.TranslationGlobals;
 import de.tla2b.types.TLAType;
+import de.tla2b.types.TupleOrFunction;
 import de.tla2bAst.Translator;
 import tla2sany.semantic.FormalParamNode;
 import tla2sany.semantic.ModuleNode;
 import tla2sany.semantic.OpDeclNode;
 import tla2sany.semantic.OpDefNode;
+import tla2sany.semantic.SemanticNode;
 
 public class TestTypeChecker implements TranslationGlobals {
 
@@ -46,22 +48,28 @@ public class TestTypeChecker implements TranslationGlobals {
 		init();
 	}
 
+
+	private TLAType getBType(SemanticNode node){
+		TLAType type = (TLAType) node.getToolObject(toolId);
+		return type;
+	}
+	
 	private void init() {
 		for (int i = 0; i < moduleNode.getConstantDecls().length; i++) {
 			OpDeclNode con = moduleNode.getConstantDecls()[i];
 			constants.put(con.getName().toString(),
-					(TLAType) con.getToolObject(toolId));
+					getBType(con));
 		}
 
 		for (int i = 0; i < moduleNode.getVariableDecls().length; i++) {
 			OpDeclNode var = moduleNode.getVariableDecls()[i];
 			variables.put(var.getName().toString(),
-					(TLAType) var.getToolObject(toolId));
+					getBType(var));
 		}
 
 		for (int i = 0; i < moduleNode.getOpDefs().length; i++) {
 			OpDefNode def = moduleNode.getOpDefs()[i];
-			DefCon defCon = new DefCon((TLAType) def.getToolObject(5));
+			DefCon defCon = new DefCon(getBType(def));
 			if (defCon.getType() == null)
 				continue;
 
@@ -76,7 +84,7 @@ public class TestTypeChecker implements TranslationGlobals {
 			for (int j = 0; j < def.getParams().length; j++) {
 				FormalParamNode p = def.getParams()[j];
 				defCon.parameters.put(p.getName().toString(),
-						(TLAType) p.getToolObject(toolId));
+						getBType(p));
 			}
 			definitions.put(def.getName().toString(), defCon);
 		}

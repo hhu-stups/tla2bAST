@@ -113,8 +113,7 @@ public class FunctionTest {
 				+ "CONSTANTS k \n"
 				+ "ASSUME k = [<<x,y,z>> \\in ({1} \\times {1}) |-> TRUE]  \n"
 				+ "=================================";
-		TestTypeChecker t = TestUtil.typeCheckString(module);
-		System.out.println(t.getConstantType("k"));
+		TestUtil.typeCheckString(module);
 	}
 
 	@Test

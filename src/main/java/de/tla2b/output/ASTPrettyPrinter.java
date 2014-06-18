@@ -9,6 +9,7 @@ import de.be4.classicalb.core.parser.analysis.ExtendedDFAdapter;
 import de.be4.classicalb.core.parser.node.AAbstractMachineParseUnit;
 import de.be4.classicalb.core.parser.node.AAnySubstitution;
 import de.be4.classicalb.core.parser.node.ABecomesSuchSubstitution;
+import de.be4.classicalb.core.parser.node.AConjunctPredicate;
 import de.be4.classicalb.core.parser.node.ADefinitionExpression;
 import de.be4.classicalb.core.parser.node.ADefinitionPredicate;
 import de.be4.classicalb.core.parser.node.AExpressionDefinitionDefinition;
@@ -33,6 +34,7 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 	private final StringBuilder builder = new StringBuilder();
 	private final StringBuilder sb = new StringBuilder();
 	private Renamer renamer;
+	private final Indentation indentation;
 
 	private static final int no = 0;
 	private static final int left = 1;
@@ -41,11 +43,14 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 
 	private final static Hashtable<String, NodeInfo> infoTable = new Hashtable<String, NodeInfo>();
 
-	public ASTPrettyPrinter(Renamer renamer) {
+	public ASTPrettyPrinter(Start start, Renamer renamer) {
 		this.renamer = renamer;
+		
+		this.indentation = new Indentation(start);
 	}
 
-	public ASTPrettyPrinter() {
+	public ASTPrettyPrinter(Start start) {
+		this.indentation = new Indentation(start);
 	}
 
 	private static void putInfixOperator(String nodeName, String symbol,
@@ -251,7 +256,6 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 
 	@Override
 	public void defaultIn(final Node node) {
-		super.defaultIn(node);
 		if (makeBrackets(node)) {
 			sb.append("(");
 		}
@@ -259,6 +263,30 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 		builder.append(node.getClass().getSimpleName());
 		builder.append("(");
 	}
+	
+	@Override
+	public void defaultCase(final Node node) {
+		super.defaultCase(node);
+		if (node instanceof Token) {
+			builder.append(((Token) node).getText());
+
+			sb.append(((Token) node).getText());
+		} else {
+			builder.append(node.toString());
+			sb.append(node.toString());
+		}
+
+	}
+
+	@Override
+	public void defaultOut(final Node node) {
+		builder.append(")");
+		sb.append(getInfo(node).end);
+		if (makeBrackets(node)) {
+			sb.append(")");
+		}
+	}
+
 
 	private boolean makeBrackets(Node node) {
 		NodeInfo infoNode = getInfo(node);
@@ -287,40 +315,15 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 
 	}
 
-	@Override
-	public void defaultCase(final Node node) {
-		super.defaultCase(node);
-		if (node instanceof Token) {
-			builder.append(((Token) node).getText());
-
-			sb.append(((Token) node).getText());
-		} else {
-			builder.append(node.toString());
-			sb.append(node.toString());
-		}
-
-	}
-
-	@Override
-	public void defaultOut(final Node node) {
-		super.defaultOut(node);
-		builder.append(")");
-		sb.append(getInfo(node).end);
-		if (makeBrackets(node)) {
-			sb.append(")");
-		}
-	}
-
-	@Override
 	public void beginList(final Node parent) {
 		builder.append('[');
 		sb.append(getInfo(parent).beginList);
 	}
 
 	@Override
-	public void betweenListElements(final Node parent) {
+	public void betweenListElements(final Node node) {
 		builder.append(',');
-		sb.append(getInfo(parent).betweenListElements);
+		sb.append(getInfo(node).betweenListElements);
 	}
 
 	@Override
@@ -330,9 +333,12 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 	}
 
 	@Override
-	public void betweenChildren(final Node parent) {
+	public void betweenChildren(final Node node) {
 		builder.append(',');
-		sb.append(getInfo(parent).betweenChildren);
+		if(indentation.printNewLineInTheMiddle(node)){
+			sb.append("\n");
+		}
+		sb.append(getInfo(node).betweenChildren);
 	}
 
 	@Override
@@ -621,6 +627,11 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 		node.getExpression().apply(this);
 		sb.append(")");
 	}
+	
+    public void inAConjunctPredicate(AConjunctPredicate node)
+    {
+    	super.inAConjunctPredicate(node);
+    }
 
 }
 
@@ -702,6 +713,7 @@ class NodeInfo {
 
 	}
 
+	
 	public NodeInfo(String pre, String beginList, String betweenListElements,
 			String endList, String betweenChildren, String end,
 			Integer precedence, Integer associative) {

@@ -51,7 +51,7 @@ public class BBuiltInOPs implements BBuildIns{
 		//relations
 		B_Opcode_Table.put(OP_rel_inverse, B_OPCODE_rel_inverse);
 		
-		
+		B_Opcode_Table.put(OP_assert, B_OPCODE_assert);
 	}
 	
 	public static boolean contains(UniqueString s){

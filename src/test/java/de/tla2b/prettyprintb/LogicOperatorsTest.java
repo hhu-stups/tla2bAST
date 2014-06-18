@@ -136,6 +136,39 @@ public class LogicOperatorsTest {
 				+ "END";
 		compare(expected, module);
 	}
+	
+	@Test
+	public void testExistentialQuantifierSequence() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "ASSUME \\E <<x>> \\in {<<1>>} : x = 1 \n"
+				+ "=================================";
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES #x.([x] : {[1]} & x = 1) \n"
+				+ "END";
+		compare(expected, module);
+	}
+	
+	@Test
+	public void testExistentialQuantifierTuple() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "ASSUME \\E <<a,b>> \\in {<<1,TRUE>>} : a = 1 /\\ b = TRUE  \n"
+				+ "=================================";
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES #(a,b).((a,b) : {(1,TRUE)} & (a = 1 & b = TRUE)) \n"
+				+ "END";
+		compare(expected, module);
+	}
+	
+	@Test
+	public void testExistentialQuantifierAll() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "ASSUME \\E <<a,b>> \\in {<<1,TRUE>>}, <<c>> \\in {<<3>>}, d,e \\in {TRUE}:  a= 1 /\\ b = TRUE /\\ c = 3 /\\ d = TRUE /\\ e  \n"
+				+ "=================================";
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES #(a,b,c,d,e).(((((a,b) : {(1,TRUE)} & [c] : {[3]}) & d : {TRUE}) & e : {TRUE}) & ((((a = 1 & b = TRUE) & c = 3) & d = TRUE) & e = TRUE)) \n"
+				+ "END";
+		compare(expected, module);
+	}
 
 	@Test
 	public void testQuantifier() throws Exception {

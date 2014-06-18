@@ -83,7 +83,7 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 		}
 		for (int j = 0; j < this.getExistQuans().size(); j++) {
 			OpApplNode o = this.getExistQuans().get(j);
-			whereList.add(bASTCreator.visitBounded(o));
+			whereList.add(bASTCreator.visitBoundsOfLocalVariables(o));
 		}
 
 		operation.setOpName(BAstCreator.createTIdentifierLiteral(name));

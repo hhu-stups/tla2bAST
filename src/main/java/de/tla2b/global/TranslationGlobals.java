@@ -20,10 +20,12 @@ public interface TranslationGlobals {
 	final int DEF_OBJECT = 19;
 	final int PRINT_DEFINITION = 11;
 	final int TYPE_ID = 5;
+	final int EXCEPT_BASE = 6;
 	final int LET_PARAMS_ID = 13;
 	final int NEW_NAME = 20;
 	
 	final int SUBSTITUTE_PARAM = 29;
+	final int TUPLE = 30;
 
 	final String CHOOSE = " CHOOSE(X) == \"a member of X\"; EXTERNAL_FUNCTION_CHOOSE(T) == (POW(T)-->T)";
 	final String IF_THEN_ELSE = " IF_THEN_ELSE(P, a, b) == (%t_.(t_ = TRUE & P = TRUE | a )\\/%t_.(t_= TRUE & not(P= TRUE) | b ))(TRUE)";

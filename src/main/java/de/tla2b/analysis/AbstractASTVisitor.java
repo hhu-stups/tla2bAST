@@ -117,7 +117,7 @@ public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
 
 	}
 
-	private void visitBBuiltinsNode(OpApplNode n) {
+	public void visitBBuiltinsNode(OpApplNode n) {
 		ExprNode[] in = n.getBdedQuantBounds();
 		for (ExprNode exprNode : in) {
 			visitExprNode(exprNode);

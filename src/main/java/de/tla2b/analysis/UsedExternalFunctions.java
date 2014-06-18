@@ -3,16 +3,18 @@ package de.tla2b.analysis;
 import java.util.HashSet;
 import java.util.Set;
 
+import de.tla2b.global.BBuildIns;
+import de.tla2b.global.BBuiltInOPs;
 import tla2sany.semantic.ExprNode;
 import tla2sany.semantic.ExprOrOpArgNode;
 import tla2sany.semantic.ModuleNode;
 import tla2sany.semantic.OpApplNode;
 import tla2sany.semantic.OpDefNode;
 
-public class UsedExternalFunctions extends AbstractASTVisitor {
+public class UsedExternalFunctions extends AbstractASTVisitor implements BBuildIns{
 
 	public enum EXTERNAL_FUNCTIONS {
-		CHOOSE
+		CHOOSE, ASSERT
 	}
 
 	private final Set<EXTERNAL_FUNCTIONS> usedExternalFunctions;
@@ -55,6 +57,27 @@ public class UsedExternalFunctions extends AbstractASTVisitor {
 			if (exprOrOpArgNode != null) {
 				visitExprOrOpArgNode(exprOrOpArgNode);
 			}
+		}
+	}
+	
+	@Override
+	public void visitBBuiltinsNode(OpApplNode n) {
+		switch (BBuiltInOPs.getOpcode(n.getOperator().getName())) {
+		
+		case B_OPCODE_assert: {
+			usedExternalFunctions.add(EXTERNAL_FUNCTIONS.ASSERT);
+		}
+		}
+		
+		
+		ExprNode[] in = n.getBdedQuantBounds();
+		for (ExprNode exprNode : in) {
+			visitExprNode(exprNode);
+		}
+
+		ExprOrOpArgNode[] arguments = n.getArgs();
+		for (ExprOrOpArgNode exprOrOpArgNode : arguments) {
+			visitExprOrOpArgNode(exprOrOpArgNode);
 		}
 	}
 

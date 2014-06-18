@@ -52,6 +52,51 @@ public class FunctionTest {
 				+ "END";
 		compare(expected, module);
 	}
+	
+	@Test
+	public void testFunctionConstructor4() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "CONSTANTS k\n"
+				+ "ASSUME k = [<<x,y>> \\in {1} \\X {2} |-> x + y] \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "CONSTANTS k\n"
+				+ "PROPERTIES k : INTEGER * INTEGER +-> INTEGER & k = %(x, y).((x,y) : {1} * {2} | x + y) \n"
+				+ "END";
+		compare(expected, module);
+	}
+	
+	@Test
+	public void testFunctionConstructorTuple() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "CONSTANTS k\n"
+				+ "ASSUME k = [a \\in {1}, <<b,c>> \\in {2} \\X {3} |-> a + b + c] \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "CONSTANTS k\n"
+				+ "PROPERTIES k : INTEGER * (INTEGER * INTEGER) +-> INTEGER  & k = %(a, bc).(a : {1} & bc : {2} * {3} | (a + prj1(INTEGER, INTEGER)(bc)) + prj2(INTEGER, INTEGER)(bc)) \n"
+				+ "END";
+		compare(expected, module);
+	}
+	
+	@Test
+	public void testFunctionConstructorSequence() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "CONSTANTS k\n"
+				+ "ASSUME k = [<<a>> \\in {<<1>>}, <<b,c>> \\in {2} \\X {3} |-> a + b + c] \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "CONSTANTS k\n"
+				+ "PROPERTIES k : (INTEGER +-> INTEGER) * (INTEGER * INTEGER) +-> INTEGER  & k = %(a, bc).(a : {[1]} & bc : {2} * {3} | (a(1) + prj1(INTEGER, INTEGER)(bc)) + prj2(INTEGER, INTEGER)(bc)) \n"
+				+ "END";
+		compare(expected, module);
+	}
 
 	/**********************************************************************
 	 * recursive Function

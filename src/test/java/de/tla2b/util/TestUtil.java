@@ -39,7 +39,7 @@ public class TestUtil {
 		Start start = t.translate();
 		
 		System.out.println("-------------------");
-		ASTPrettyPrinter aP = new ASTPrettyPrinter();
+		ASTPrettyPrinter aP = new ASTPrettyPrinter(start);
 		start.apply(aP);
 		System.out.println(aP.getResultString());
 
@@ -64,7 +64,7 @@ public class TestUtil {
 		ToolIO.reset();
 		Start resultNode = Translator.translateTlaExpression(tlaExpr);
 		Renamer renamer = new Renamer(resultNode);
-		ASTPrettyPrinter aP = new ASTPrettyPrinter(renamer);
+		ASTPrettyPrinter aP = new ASTPrettyPrinter(resultNode, renamer);
 		resultNode.apply(aP);
 		System.out.println(aP.getResultString());
 		String bAstString = getAstStringofBExpressionString(bExpr);
@@ -90,7 +90,7 @@ public class TestUtil {
 		Start resultNode = trans.translate();
 		String result = getTreeAsString(resultNode);
 		System.out.println(result);
-		ASTPrettyPrinter aP = new ASTPrettyPrinter();
+		ASTPrettyPrinter aP = new ASTPrettyPrinter(resultNode);
 		resultNode.apply(aP);
 		System.out.println("-------------------");
 		System.out.println(aP.getResultString());
@@ -112,7 +112,7 @@ public class TestUtil {
 		Translator trans = new Translator(tlaModule, config);
 		Start resultNode = trans.translate();
 		
-		ASTPrettyPrinter aP = new ASTPrettyPrinter();
+		ASTPrettyPrinter aP = new ASTPrettyPrinter(resultNode);
 		resultNode.apply(aP);
 		System.out.println(aP.getResultString());
 		
@@ -129,45 +129,11 @@ public class TestUtil {
 		return ast2String.toString();
 	}
 	
-
-//	public static StringBuilder translateString(String moduleString, String configString)
-//			throws FrontEndException, TLA2BException, AbortException {
-//		ToolIO.setMode(ToolIO.TOOL);
-//		ToolIO.reset();
-//		Tla2BTranslator translator = new Tla2BTranslator();
-//		translator.startTest(moduleString, configString);
-//		return translator.translate();
-//	}
-	
-	
-//	public static StringBuilder translate(String moduleFileName)
-//			throws FrontEndException, TLA2BException, AbortException {
-//		ToolIO.setMode(ToolIO.TOOL);
-//		ToolIO.reset();
-//		moduleFileName = moduleFileName.replace('/', FileUtil.separatorChar);
-//		Tla2BTranslator translator = new Tla2BTranslator();
-//		translator.start(moduleFileName, null);
-//		StringBuilder res = translator.translate();
-//		return res;
-//	}
-//	
-//	public static StringBuilder translate(String moduleFileName, String configFileName)
-//			throws FrontEndException, TLA2BException {
-//		ToolIO.setMode(ToolIO.TOOL);
-//		ToolIO.reset();
-//		moduleFileName = moduleFileName.replace('/', FileUtil.separatorChar);
-//		configFileName = configFileName.replace('/', FileUtil.separatorChar);
-//		Tla2BTranslator translator = new Tla2BTranslator();
-//		translator.start(moduleFileName, configFileName);
-//		return translator.translate();
-//	}
-	
-	
 	public static void renamerTest(String tlaFile) throws Exception{
 		Translator t = new Translator(tlaFile);
 		Start start = t.translate();
 		Renamer renamer = new Renamer(start);
-		ASTPrettyPrinter aP = new ASTPrettyPrinter(renamer);
+		ASTPrettyPrinter aP = new ASTPrettyPrinter(start, renamer);
 		start.apply(aP);
 		System.out.println(aP.getResultString());
 		

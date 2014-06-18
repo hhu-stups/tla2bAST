@@ -17,8 +17,25 @@ public class ExceptTest {
 				+ "=================================";
 
 		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
-				+ "PROPERTIES " + " k : BOOL +-> INTEGER "
-				+ "& k = k <+ {TRUE |-> 0, FALSE |-> 0}" + "END";
+				+ "PROPERTIES " 
+				+ "k : BOOL +-> INTEGER & k = (k <+ {(TRUE,0)}) <+ {(FALSE,0)} \n "
+				+ "END";
+		compare(expected, module);
+	}
+	
+	@Test
+	public void testFunctionExcept2() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "CONSTANTS k, k2 \n"
+				+ "ASSUME k = [i \\in {3} |-> i] /\\ k2 = [k EXCEPT ![3] = @+1, ![3] = @+1]  \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n" 
+				+ "CONSTANTS k, k2\n"
+				+ "PROPERTIES " 
+				+ "(k : INTEGER +-> INTEGER & k2 : INTEGER +-> INTEGER) & (k = %(i).(i : {3} | i) & k2 = (k <+ {(3,k(3) + 1)}) <+ {(3,(k <+ {(3,k(3) + 1)})(3) + 1)}) \n "
+				+ "END";
 		compare(expected, module);
 	}
 
@@ -33,6 +50,21 @@ public class ExceptTest {
 		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
 				+ "PROPERTIES " 
 				+ "k : INTEGER +-> INTEGER & (k = %(i).(i : {3, 4} | i) & k /= k <+ {(3,k(3) + 1)}) \n" 
+				+ "END";
+		compare(expected, module);
+	}
+	
+	@Test
+	public void testFunctionTuple() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "CONSTANTS k \n"
+				+ "ASSUME k = [i \\in {3,4}, j \\in {5,6} |-> i+j] /\\ k # [k EXCEPT ![3,5] = 1]  \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
+				+ "PROPERTIES " 
+				+ "k : INTEGER * INTEGER +-> INTEGER & (k = %(i, j).(i : {3, 4} & j : {5, 6} | i + j) & k /= k <+ {((3,5),1)}) \n" 
 				+ "END";
 		compare(expected, module);
 	}
@@ -60,7 +92,7 @@ public class ExceptTest {
 
 		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
 				+ "PROPERTIES "
-				+ "k : struct(a:INTEGER, b:BOOL) & (k = rec(a:1, b:TRUE) & k /= rec(a:2, b:FALSE))" 
+				+ "k : struct(a:INTEGER, b:BOOL) & (k = rec(a:1, b:TRUE) & k /= rec(a:rec(a:2, b:k'b)'a, b:FALSE)) \n" 
 				+ "END";
 		compare(expected, module);
 
@@ -70,13 +102,13 @@ public class ExceptTest {
 	public void testRecordAt() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
-				+ "CONSTANTS k \n"
-				+ "ASSUME k = [a |-> 1, b |-> TRUE] /\\ k /= [k EXCEPT !.a = @ + 1]  \n"
+				+ "CONSTANTS k, k2 \n"
+				+ "ASSUME k = [a |-> 1, b |-> 1] /\\ k2 = [k EXCEPT !.b = @ + 1, !.b = @ + 1]  \n"
 				+ "=================================";
 
-		final String expected = "MACHINE Testing\n" + "CONSTANTS k\n"
+		final String expected = "MACHINE Testing\n" + "CONSTANTS k, k2\n"
 				+ "PROPERTIES "
-				+ "k : struct(a:INTEGER, b:BOOL) & (k = rec(a:1, b:TRUE) & k /= rec(a:k'a + 1, b:k'b)) \n" 
+				+ "(k : struct(a:INTEGER, b:INTEGER) & k2 : struct(a:INTEGER, b:INTEGER)) & (k = rec(a:1, b:1) & k2 = rec(a:rec(a:k'a, b:k'b + 1)'a, b:rec(a:k'a, b:k'b + 1)'b + 1)) \n" 
 				+ "END";
 		compare(expected, module);
 

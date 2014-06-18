@@ -81,6 +81,10 @@ public interface BBuildIns {
 	public static final UniqueString OP_rel_inverse = UniqueString
 			.uniqueStringOf("rel_inverse");
 	
+	//TLC
+	public static final UniqueString OP_assert = UniqueString
+	.uniqueStringOf("Assert");
+	
 	public static final int B_OPCODE_dotdot = 1;
 	public static final int B_OPCODE_plus = 2;
 	public static final int B_OPCODE_minus = 3;
@@ -123,4 +127,6 @@ public interface BBuildIns {
 	
 	
 	public static final int B_OPCODE_rel_inverse = B_OPCODE_pow1 + 1;
+	
+	public static final int B_OPCODE_assert = B_OPCODE_rel_inverse + 1;
 }

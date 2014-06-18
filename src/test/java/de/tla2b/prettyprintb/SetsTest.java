@@ -159,54 +159,74 @@ public class SetsTest {
 				+ "PROPERTIES {x | x : {1,2} & x = 1} = {1} \n" + "END";
 		compare(expected, module);
 	}
+	
+	@Test
+	public void testConstructor1Tuple() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "ASSUME {<<a,b>> \\in {<<1,2>>} : a = 1 /\\ b = 2} = {<<1,2>>} \n"
+				+ "=================================";
 
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES {a,b | (a,b) : {(1,2)} & (a = 1 & b = 2)} = {(1,2)} \n" + "END";
+		compare(expected, module);
+	}
+	
+	@Test
+	public void testConstructor1Tuple3Elements() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "ASSUME {<<a,b,c>> \\in {<<1,2,3>>} : a = 1 /\\ b = 2} = {<<1,2,3>>} \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES {a,b,c | (a,b,c) : {(1,2,3)} & (a = 1 & b = 2)} = {(1,2,3)} \n" + "END";
+		compare(expected, module);
+	}
+
+	@Test
+	public void testConstructor2Simple() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "ASSUME  {x :  x \\in {1}} = {1} \n"
+				+ "=================================";
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES {t_ | #(x).(x : {1} & t_ = x)} = {1} \n"
+				+ "END";
+		compare(expected, module);
+	}
+	
+	@Test
+	public void testConstructor2Simple2() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "ASSUME  {x + x :  x \\in {1}} = {2} \n"
+				+ "=================================";
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES {t_ | #(x).(x : {1} & t_ = x + x)} = {2} \n"
+				+ "END";
+		compare(expected, module);
+	}
+	
 	@Test
 	public void testConstructor2() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
-				+ "ASSUME {1} = {x + y+ 2:  x \\in {1,2}, y \\in {1} } \n"
+				+ "ASSUME  {x + y:  x \\in {1}, y \\in {2} } = {3} \n"
 				+ "=================================";
 		final String expected = "MACHINE Testing\n"
-				+ "PROPERTIES {1} = {t_|#x, y.(x : {1, 2} & y : {1} & t_ = x + y + 2)} \n"
+				+ "PROPERTIES {t_ | #(x,y).((x : {1} & y : {2}) & t_ = x + y)} = {3} \n"
 				+ "END";
 		compare(expected, module);
 	}
 	
 	@Test
-	public void testConstructor3() throws Exception {
+	public void testConstructor2Tuple() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
-				+ "ASSUME {<<1,2>>} = {<<x, y>> \\in {1} \\X {2}: TRUE} \n"
+				+ "ASSUME  {x + y:  <<x,y>> \\in {<<1,2>>}} = {3} \n"
 				+ "=================================";
 		final String expected = "MACHINE Testing\n"
-				+ "PROPERTIES {(1,2)} = {(x, y)|  (x,y) : {1} * {2} & TRUE = TRUE} \n"
+				+ "PROPERTIES {t_ | #(x,y).((x,y) : {(1,2)} & t_ = x + y)} = {3} \n"
 				+ "END";
 		compare(expected, module);
 	}
-
-	
-	@Test
-	public void testSetConstructor() throws Exception {
-		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "EXTENDS Naturals \n"
-				+ "ASSUME {x \\in {1,2,3} : x \\in {1}  \\/ x \\in {2}} = {1,2} \n"
-				+ "=================================";
-
-		final String expected = "MACHINE Testing\n"
-				+ "PROPERTIES {x|x : {1, 2, 3} & (x : {1} or x : {2})} = {1, 2} \n" + "END";
-		compare(expected, module);
-	}
-	
-	@Test
-	public void testConstructor4() throws Exception {
-		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "EXTENDS Naturals \n"
-				+ "ASSUME {1} = {x : <<x, y>> \\in {1} \\X {2}} \n"
-				+ "=================================";
-		final String expected = "MACHINE Testing\n"
-				+ "PROPERTIES {1} = {t_ | #(x,y).((x,y) : {1} * {2} & t_ = x)} \n"
-				+ "END";
-		compare(expected, module);
-	}
-
 }

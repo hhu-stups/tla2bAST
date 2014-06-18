@@ -5,6 +5,8 @@
 package de.tla2b.prettyprintb;
 
 import static de.tla2b.util.TestUtil.compare;
+
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class TupleTest {
@@ -127,4 +129,18 @@ public class TupleTest {
 		compare(expected, module);
 	}
 
+	@Test
+	public void testTupleCartesianProduct() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "ASSUME {<<1, 4>>, <<2,3>>} \\notin SUBSET ({1,2} \\X {3,4}) \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES {(1,4), (2,3)} /: POW({1, 2} * {3, 4}) \n"
+				+ "END";
+		compare(expected, module);
+	}
+	
+	
+	
 }

@@ -109,6 +109,9 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		specAnalyser.spec = definitions.get("Spec");
 		specAnalyser.init = definitions.get("Init");
 		specAnalyser.next = definitions.get("Next");
+		if(definitions.containsKey("Inv")){
+			specAnalyser.invariants.add(definitions.get("Inv"));
+		}
 		// TODO are constant in the right order
 
 		specAnalyser.bConstants.addAll(Arrays.asList(m.getConstantDecls()));

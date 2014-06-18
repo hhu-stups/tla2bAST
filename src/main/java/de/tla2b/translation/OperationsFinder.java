@@ -102,7 +102,7 @@ public class OperationsFinder extends AbstractASTVisitor implements
 
 				for (int i = 0; i < n.getArgs().length; i++) {
 					exists = new ArrayList<OpApplNode>(oldExists);
-					currentName = oldName;
+					currentName = oldName + i;
 					visitExprOrOpArgNode(n.getArgs()[i]);
 				}
 				return;
@@ -114,7 +114,7 @@ public class OperationsFinder extends AbstractASTVisitor implements
 
 			for (int i = 0; i < n.getArgs().length; i++) {
 				exists = new ArrayList<OpApplNode>(oldExists);
-				currentName = oldName;
+				currentName = oldName+ i;
 				visitExprOrOpArgNode(n.getArgs()[i]);
 			}
 			return;
