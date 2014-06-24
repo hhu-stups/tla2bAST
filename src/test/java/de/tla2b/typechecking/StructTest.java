@@ -6,7 +6,6 @@ package de.tla2b.typechecking;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import de.tla2b.exceptions.FrontEndException;

@@ -122,7 +122,7 @@ public class ExceptTest {
 	}
 	
 	@Test
-	public void testRecordTest() throws Exception {
+	public void testRecordExcept() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
 				+ "CONSTANTS k\n"
@@ -132,5 +132,19 @@ public class ExceptTest {
 		TestTypeChecker t = TestUtil.typeCheckString(module);
 		assertEquals("INTEGER", t.getConstantType("k"));
 	}
+	
+	@Test
+	public void testAtTuple() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "CONSTANTS k, k2\n"
+				+ "ASSUME k  = [i \\in Nat |-> <<1, \"s\">>] /\\ k2 = [ k EXCEPT ![22] = <<@[1],\"d\">>] \n"
+				+ "=================================";
+
+		TestTypeChecker t = TestUtil.typeCheckString(module);
+		assertEquals("POW(INTEGER*(INTEGER*STRING))", t.getConstantType("k"));
+		assertEquals("POW(INTEGER*(INTEGER*STRING))", t.getConstantType("k2"));
+	}
+	
 
 }

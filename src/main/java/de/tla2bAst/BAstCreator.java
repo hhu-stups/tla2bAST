@@ -2020,8 +2020,11 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		ADefinitionExpression defCall = new ADefinitionExpression();
 		defCall.setDefLiteral(new TIdentifierLiteral("CHOOSE"));
 		AComprehensionSetExpression comprehension = new AComprehensionSetExpression();
-		FormalParamNode x = n.getUnbdedQuantSymbols()[0];
-		comprehension.setIdentifiers(createIdentifierList(getName(x)));
+		List<PExpression> paramList = new ArrayList<PExpression>();
+		for (FormalParamNode param : n.getUnbdedQuantSymbols()) {
+			paramList.add(createIdentifierNode(param));
+		}
+		comprehension.setIdentifiers(paramList);
 		comprehension
 				.setPredicates(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
 		List<PExpression> list = new ArrayList<PExpression>();
@@ -2034,14 +2037,14 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		ADefinitionExpression defCall = new ADefinitionExpression();
 		defCall.setDefLiteral(new TIdentifierLiteral("CHOOSE"));
 		AComprehensionSetExpression comprehension = new AComprehensionSetExpression();
-		FormalParamNode x = n.getBdedQuantSymbolLists()[0][0];
-		comprehension.setIdentifiers(createIdentifierList(x));
-		AMemberPredicate member = new AMemberPredicate();
-		member.setLeft(createIdentifierNode(x));
-		ExprNode in = n.getBdedQuantBounds()[0];
-		member.setRight(visitExprNodeExpression(in));
+		List<PExpression> paramList = new ArrayList<PExpression>();
+		for (FormalParamNode param : n.getBdedQuantSymbolLists()[0]) {
+			paramList.add(createIdentifierNode(param));
+		}
+		comprehension.setIdentifiers(paramList);
+		PPredicate typingPredicate = visitBoundsOfLocalVariables(n);
 		AConjunctPredicate conj = new AConjunctPredicate();
-		conj.setLeft(member);
+		conj.setLeft(typingPredicate);
 		conj.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
 		comprehension.setPredicates(conj);
 		List<PExpression> list = new ArrayList<PExpression>();

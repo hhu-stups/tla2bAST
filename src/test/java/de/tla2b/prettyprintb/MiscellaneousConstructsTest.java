@@ -131,6 +131,21 @@ public class MiscellaneousConstructsTest {
 		compare(expected, module);
 	}
 	
+
+	
+	@Test
+	public void testUnBoundedChooseTuple() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "ASSUME <<1,TRUE>> = CHOOSE <<a,b>> \\in {<<1,TRUE>>}: TRUE \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "DEFINITIONS CHOOSE(X) == \"a member of X\"; EXTERNAL_FUNCTION_CHOOSE(T) == POW(T) --> T;"
+				+ "PROPERTIES (1,TRUE) = CHOOSE({a,b | (a,b) : {(1,TRUE)} & TRUE = TRUE}) \n" + "END";
+		compare(expected, module);
+	}
+	
+	
 	@Test
 	public void testBoundedChoosePredicate() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -140,6 +155,30 @@ public class MiscellaneousConstructsTest {
 		final String expected = "MACHINE Testing\n"
 				+ "DEFINITIONS CHOOSE(X) == \"a member of X\"; EXTERNAL_FUNCTION_CHOOSE(T) == POW(T) --> T;"
 				+ "PROPERTIES CHOOSE({x | x : {TRUE} & TRUE = TRUE}) = TRUE \n" + "END";
+		compare(expected, module);
+	}
+	
+	@Test
+	public void testBoundedChooseTuple() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "ASSUME <<1,TRUE>> = CHOOSE <<a,b>> \\in {<<1,TRUE>>}: TRUE \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "DEFINITIONS CHOOSE(X) == \"a member of X\"; EXTERNAL_FUNCTION_CHOOSE(T) == POW(T) --> T;"
+				+ "PROPERTIES (1,TRUE) = CHOOSE({a,b | (a,b) : {(1,TRUE)} & TRUE = TRUE}) \n" + "END";
+		compare(expected, module);
+	}
+	
+	@Test
+	public void testUnboundedChooseTuple() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "ASSUME <<1,TRUE>> = CHOOSE <<a,b>> : <<a,b>> = <<1,TRUE>>\n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "DEFINITIONS CHOOSE(X) == \"a member of X\"; EXTERNAL_FUNCTION_CHOOSE(T) == POW(T) --> T;"
+				+ "PROPERTIES (1,TRUE) = CHOOSE({a,b | (a,b) = (1,TRUE)}) \n" + "END";
 		compare(expected, module);
 	}
 }

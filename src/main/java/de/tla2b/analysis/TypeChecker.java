@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
 
@@ -331,7 +332,6 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 						"Expected %s, found %s at '@',%n%s ", expected, type,
 						exprNode.getLocation()));
 			}
-			
 
 		}
 
@@ -358,14 +358,17 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 
 	}
 
-	private void setType(SemanticNode node, TLAType type){
+	private void setType(SemanticNode node, TLAType type) {
 		node.setToolObject(TYPE_ID, type);
-		if (type instanceof AbstractHasFollowers){
+		if (type instanceof AbstractHasFollowers) {
 			((AbstractHasFollowers) type).addFollower(node);
 		}
 	}
-	
-	
+
+	private TLAType getType(OpApplNode n) {
+		return (TLAType) n.getToolObject(TYPE_ID);
+	}
+
 	/**
 	 * @param n
 	 * @param expected
@@ -431,8 +434,8 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 			if (t == null) {
 				t = (TLAType) symbolNode.getToolObject(TYPE_ID);
 			}
-			
-			if(t == null){
+
+			if (t == null) {
 				throw new RuntimeException();
 			}
 			try {
@@ -458,10 +461,14 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 			}
 
 			TLAType found = ((TLAType) def.getToolObject(TYPE_ID));
-			if (found == null)
+			if (found == null){
 				found = new UntypedType();
 			// throw new RuntimeException(def.getName() + " has no type yet!");
-			found = found.cloneTLAType();
+			}
+			if(n.getArgs().length != 0){
+				found = found.cloneTLAType();
+			}
+			
 			try {
 				found = found.unify(expected);
 			} catch (UnificationException e) {
@@ -867,8 +874,8 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 					n.getArgs()[0].setToolObject(TYPE_ID, res);
 					tupleNodeList.add(n.getArgs()[0]);
 					if (res instanceof AbstractHasFollowers) {
-						((AbstractHasFollowers) res).addFollower(n
-								.getArgs()[0]);
+						((AbstractHasFollowers) res)
+								.addFollower(n.getArgs()[0]);
 					}
 					TLAType found = (TLAType) n.getToolObject(TYPE_ID);
 					try {
@@ -1069,14 +1076,19 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 		}
 
 		case OPCODE_uc: {
-			TLAType found = new UntypedType();
-			FormalParamNode x = n.getUnbdedQuantSymbols()[0];
-			symbolNodeList.add(x);
-			x.setToolObject(TYPE_ID, found);
-			((AbstractHasFollowers) found).addFollower(x);
-			visitExprOrOpArgNode(n.getArgs()[0], BoolType.getInstance());
-
-			found = (TLAType) x.getToolObject(TYPE_ID);
+			List<TLAType> list = new ArrayList<TLAType>();
+			for (FormalParamNode param : n.getUnbdedQuantSymbols()) {
+				TLAType paramType = new UntypedType();
+				symbolNodeList.add(param);
+				setType(param, paramType);
+				list.add(paramType);
+			}
+			TLAType found = null;
+			if (list.size() == 1) {
+				found = list.get(0);
+			} else {
+				found = new TupleType(list);
+			}
 			try {
 				found = found.unify(expected);
 			} catch (UnificationException e) {
@@ -1084,32 +1096,21 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 						"Expected %s, found %s at 'CHOOSE',%n%s", expected,
 						found, n.getLocation()));
 			}
-			return found;
+			setType(n, found);
+			visitExprOrOpArgNode(n.getArgs()[0], BoolType.getInstance());
+
+			return getType(n);
+
 		}
 
 		case OPCODE_bc: { // CHOOSE x \in S: P
-			if (n.isBdedQuantATuple()[0]) {
-				throw new TypeErrorException(
-						"A tuple as parameter within the set constructor is not permitted.\n"
-								+ n.getLocation());
-			}
-			ExprNode[] bounds = n.getBdedQuantBounds();
-			SetType S = (SetType) visitExprNode(bounds[0], new SetType(
-					new UntypedType()));
-			TLAType found = S.getSubType();
-
+			TLAType found = evalBoundedVariables(n);
 			try {
 				found = found.unify(expected);
 			} catch (UnificationException e) {
 				throw new TypeErrorException(String.format(
 						"Expected %s, found %s at 'CHOOSE',%n%s", expected,
 						found, n.getLocation()));
-			}
-			FormalParamNode x = n.getBdedQuantSymbolLists()[0][0];
-			symbolNodeList.add(x);
-			x.setToolObject(TYPE_ID, found);
-			if (found instanceof AbstractHasFollowers) {
-				((AbstractHasFollowers) found).addFollower(x);
 			}
 			visitExprOrOpArgNode(n.getArgs()[0], BoolType.getInstance());
 			return found;
@@ -1205,8 +1206,6 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 		return domType;
 	}
 
-	
-	
 	/**
 	 * @param n
 	 * @param expected

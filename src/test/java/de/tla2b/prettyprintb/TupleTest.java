@@ -141,6 +141,23 @@ public class TupleTest {
 		compare(expected, module);
 	}
 	
+	@Ignore
+	@Test
+	public void testAtTuple() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "CONSTANTS k, k2 \n"
+				+ "ASSUME k =[i \\in Nat |-> <<1, \"s\">>] /\\ k2 = [ k EXCEPT ![22] = <<@[1],\"d\">>] \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "CONSTANTS k, k2 \n"
+				+ "PROPERTIES \n"
+				+ "(k : INTEGER +-> INTEGER * STRING & k2 : INTEGER +-> INTEGER * STRING)"
+				+ " & (k = %(i).(i : NATURAL | (1,\"s\")) & k2 = k <+ {(22,( prj1(INTEGER,STRING)(k(22)),\"d\") )}) \n"
+				+ "END";
+		compare(expected, module);
+	}
 	
 	
 }

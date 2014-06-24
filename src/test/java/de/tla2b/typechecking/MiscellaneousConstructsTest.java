@@ -105,5 +105,45 @@ public class MiscellaneousConstructsTest {
 		assertEquals("BOOL",t.getConstantType("k4"));
 	}
 	
+	@Test
+	public void testBoundedChoose() throws FrontEndException, TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "CONSTANTS k \n"
+				+ "ASSUME k = CHOOSE x \\in {1}: TRUE  \n"
+				+ "=================================";
+		TestTypeChecker t =TestUtil.typeCheckString(module);
+		assertEquals("INTEGER",t.getConstantType("k"));
+	}
+	
+	@Test
+	public void testUnboundedChoose() throws FrontEndException, TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "CONSTANTS k \n"
+				+ "ASSUME k = CHOOSE x : x = 1  \n"
+				+ "=================================";
+		TestTypeChecker t =TestUtil.typeCheckString(module);
+		assertEquals("INTEGER",t.getConstantType("k"));
+	}
+	
+	@Test
+	public void testUnboundedChooseTuple() throws FrontEndException, TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "CONSTANTS k \n"
+				+ "ASSUME k = CHOOSE <<a,b>> : <<a,b>> = <<1,TRUE>>  \n"
+				+ "=================================";
+		TestTypeChecker t =TestUtil.typeCheckString(module);
+		assertEquals("INTEGER*BOOL",t.getConstantType("k"));
+	}
+	
+	@Test
+	public void testBoundedChooseTuple() throws FrontEndException, TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "CONSTANTS k \n"
+				+ "ASSUME k = CHOOSE <<a,b>> \\in {<<1,TRUE>>}: TRUE  \n"
+				+ "=================================";
+		TestTypeChecker t =TestUtil.typeCheckString(module);
+		assertEquals("INTEGER*BOOL",t.getConstantType("k"));
+	}
+	
 	
 }
