@@ -266,8 +266,8 @@ public class Translator implements TranslationGlobals {
 			prologPrinter.printAsProlog(new PrintWriter(probFile, "UTF-8"), false);
 			System.out.println(probFile.getAbsolutePath() + " created.");
 
-			prologPrinter.printAsProlog(new PrintWriter(System.out), false);
-			;
+			//prologPrinter.printAsProlog(new PrintWriter(System.out), false);
+			
 		} catch (BException e) {
 			e.printStackTrace();
 		} catch (FileNotFoundException e) {
