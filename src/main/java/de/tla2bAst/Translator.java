@@ -1,6 +1,5 @@
 package de.tla2bAst;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -9,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
@@ -85,6 +83,12 @@ public class Translator implements TranslationGlobals {
 		moduleFile = new File(moduleFileName);
 		if (!moduleFile.exists()) {
 			throw new RuntimeException("Can not find module file: '"
+					+ moduleFileName + "'");
+		}
+		try {
+			moduleFile = moduleFile.getCanonicalFile();
+		} catch (IOException e) {
+			throw new RuntimeException("Can not access module file: '"
 					+ moduleFileName + "'");
 		}
 	}
