@@ -76,8 +76,12 @@ jar	{
 	from configurations.releaseJars.collect { it.isDirectory() ? it : zipTree(it) }
 }
 
-manifest.mainAttributes("Main-Class" : 'de.tla2b.TLA2B')
-manifest.mainAttributes("Class-Path": './tla/ tlatools.jar')
+jar {
+	manifest {
+		attributes "Main-Class" : 'de.tla2b.TLA2B'
+		attributes "Class-Path": './tla/ tlatools.jar'
+	}
+}
 
 task tla2b(dependsOn: build) << {
 	copy {
