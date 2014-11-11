@@ -46,7 +46,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		this.translator = translator;
 	}
 
-	public void parse() {
+	public void parse() throws de.tla2b.exceptions.FrontEndException {
 		String dir = System.getProperty("java.io.tmpdir");
 		ToolIO.setUserDir(dir);
 
@@ -66,7 +66,9 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 			fw.write(module);
 			fw.close();
 		} catch (IOException e) {
-			throw new RuntimeException("Can not create file temporary file in directory '" + dir + "'");
+			throw new de.tla2b.exceptions.FrontEndException(
+					"Can not create file temporary file in directory '" + dir
+							+ "'");
 		}
 
 		SpecObj spec = parseModuleWithoutSemanticAnalyse(moduleName, module);
@@ -96,8 +98,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 			fw.close();
 			tempFile.deleteOnExit();
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e.getMessage());
+			throw new de.tla2b.exceptions.FrontEndException(e.getMessage());
 		}
 		ToolIO.reset();
 
@@ -107,7 +108,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		try {
 			moduleNode = parseModule(moduleName, sb.toString());
 		} catch (de.tla2b.exceptions.FrontEndException e) {
-			throw new RuntimeException(e.getLocalizedMessage());
+			throw new de.tla2b.exceptions.FrontEndException(e.getLocalizedMessage());
 		}
 	}
 
@@ -154,19 +155,17 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 			SANY.frontEndMain(spec, moduleName, ToolIO.out);
 		} catch (FrontEndException e) {
 			// Error in Frontend, should never happens
-			return null;
+			throw new de.tla2b.exceptions.FrontEndException(
+					"Frontend error! This should never happen.", spec);
 		}
 
 		if (spec.parseErrors.isFailure()) {
-			// String[] m = ToolIO.getAllMessages();
 			String message = module + "\n\n" + spec.parseErrors;
-			// System.out.println(spec.parseErrors);
 			message += allMessagesToString(ToolIO.getAllMessages());
 			throw new de.tla2b.exceptions.FrontEndException(message, spec);
 		}
 
 		if (spec.semanticErrors.isFailure()) {
-			// String[] m = ToolIO.getAllMessages();
 			String message = module + "\n\n" + spec.semanticErrors;
 			message += allMessagesToString(ToolIO.getAllMessages());
 			throw new de.tla2b.exceptions.FrontEndException(message, spec);

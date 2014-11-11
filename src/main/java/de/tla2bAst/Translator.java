@@ -357,7 +357,12 @@ public class Translator implements TranslationGlobals {
 	public static Start translateTlaExpression(String tlaExpression) {
 		ExpressionTranslator expressionTranslator = new ExpressionTranslator(
 				tlaExpression);
-		expressionTranslator.parse();
+		try {
+			expressionTranslator.parse();
+		} catch (FrontEndException e) {
+			System.out.println(e.getMessage());
+			throw new RuntimeException();
+		}
 		expressionTranslator.translate();
 		return expressionTranslator.getBExpressionParseUnit();
 	}
