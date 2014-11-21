@@ -93,27 +93,36 @@ public class Translator implements TranslationGlobals {
 		}
 	}
 
-	// Used for Testing
+	// used to for external use
+	public static String translateModuleString(String moduleName,
+			String moduleString, String configString) throws TLA2BException {
+		Translator translator = new Translator(moduleName, moduleString,
+				configString);
+		Start bAST = translator.getBAST();
+		Renamer renamer = new Renamer(bAST);
+		ASTPrettyPrinter aP = new ASTPrettyPrinter(bAST, renamer);
+		bAST.apply(aP);
+		return aP.getResultString();
+	}
+
+	public Translator(String moduleName, String moduleString,
+			String configString) throws TLA2BException {
+		createTLATempFile(moduleString, moduleName);
+		createCfgFile(configString, moduleName);
+		parse();
+		translate();
+	}
+
+	// Used for Testing in tla2bAST project
 	public Translator(String moduleString, String configString)
 			throws FrontEndException {
 		String moduleName = "Testing";
-		File dir = new File("temp/");
-		dir.mkdirs();
+		createTLATempFile(moduleString, moduleName);
+		createCfgFile(configString, moduleName);
+		parse();
+	}
 
-		try {
-			moduleFile = new File("temp/" + moduleName + ".tla");
-			moduleFile.createNewFile();
-			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
-					new FileOutputStream(moduleFile), "UTF-8"));
-			try {
-				out.write(moduleString);
-			} finally {
-				out.close();
-			}
-			moduleFileName = moduleFile.getAbsolutePath();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	private void createCfgFile(String configString, String moduleName) {
 		modelConfig = null;
 		if (configString != null) {
 			configFile = new File("temp/" + moduleName + ".cfg");
@@ -130,8 +139,27 @@ public class Translator implements TranslationGlobals {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	private void createTLATempFile(String moduleString, String moduleName) {
+		File dir = new File("temp/");
+		dir.mkdirs();
 		dir.deleteOnExit();
-		parse();
+
+		try {
+			moduleFile = new File("temp/" + moduleName + ".tla");
+			moduleFile.createNewFile();
+			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
+					new FileOutputStream(moduleFile), "UTF-8"));
+			try {
+				out.write(moduleString);
+			} finally {
+				out.close();
+			}
+			moduleFileName = moduleFile.getAbsolutePath();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public ModuleNode parseModule()
@@ -263,11 +291,12 @@ public class Translator implements TranslationGlobals {
 			PrologPrinter prologPrinter = new PrologPrinter(rml, bParser,
 					moduleFile, moduleName, typeTable);
 			// prologPrinter.printAsProlog(new PrintWriter(probFile), false);
-			prologPrinter.printAsProlog(new PrintWriter(probFile, "UTF-8"), false);
+			prologPrinter.printAsProlog(new PrintWriter(probFile, "UTF-8"),
+					false);
 			System.out.println(probFile.getAbsolutePath() + " created.");
 
-			//prologPrinter.printAsProlog(new PrintWriter(System.out), false);
-			
+			// prologPrinter.printAsProlog(new PrintWriter(System.out), false);
+
 		} catch (BException e) {
 			e.printStackTrace();
 		} catch (FileNotFoundException e) {
