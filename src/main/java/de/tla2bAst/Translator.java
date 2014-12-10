@@ -291,8 +291,10 @@ public class Translator implements TranslationGlobals {
 			PrologPrinter prologPrinter = new PrologPrinter(rml, bParser,
 					moduleFile, moduleName, typeTable);
 			// prologPrinter.printAsProlog(new PrintWriter(probFile), false);
-			prologPrinter.printAsProlog(new PrintWriter(probFile, "UTF-8"),
-					false);
+
+			PrintWriter outWriter = new PrintWriter(probFile, "UTF-8");
+			prologPrinter.printAsProlog(outWriter, false);
+			outWriter.close();
 			System.out.println(probFile.getAbsolutePath() + " created.");
 
 			// prologPrinter.printAsProlog(new PrintWriter(System.out), false);
