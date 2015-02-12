@@ -25,41 +25,39 @@ import util.ToolIO;
 
 public class TestUtil {
 
-//	public static StringBuilder translateString(String moduleString)
-//			throws FrontEndException, TLA2BException, AbortException {
-//		ToolIO.setMode(ToolIO.TOOL);
-//		ToolIO.reset();
-//		Tla2BTranslator translator = new Tla2BTranslator();
-//		translator.startTest(moduleString, null);
-//		return translator.translate();
-//	}
-	
-	public static void runModule(String tlaFile) throws Exception{
+	// public static StringBuilder translateString(String moduleString)
+	// throws FrontEndException, TLA2BException, AbortException {
+	// ToolIO.setMode(ToolIO.TOOL);
+	// ToolIO.reset();
+	// Tla2BTranslator translator = new Tla2BTranslator();
+	// translator.startTest(moduleString, null);
+	// return translator.translate();
+	// }
+
+	public static void runModule(String tlaFile) throws Exception {
 		Translator t = new Translator(tlaFile);
 		Start start = t.translate();
-		
+
 		System.out.println("-------------------");
 		ASTPrettyPrinter aP = new ASTPrettyPrinter(start);
 		start.apply(aP);
 		System.out.println(aP.getResultString());
 
-		
 		final BParser parser = new BParser("testcase");
 		final Start ppStart = parser.parse(aP.getResultString(), false);
-		
-		
+
 		String result = getTreeAsString(start);
 		System.out.println(result);
 		String ppResult = getTreeAsString(ppStart);
 		System.out.println(ppResult);
-		
-		
+
 		System.out.println("-------------------");
 		assertEquals(result, ppResult);
-		//System.out.println(t.getBDefinitions().getDefinitionNames());
+		// System.out.println(t.getBDefinitions().getDefinitionNames());
 	}
-	
-	public static void compareExpr(String bExpr, String tlaExpr) throws BException{
+
+	public static void compareExpr(String bExpr, String tlaExpr)
+			throws BException {
 		ToolIO.setMode(ToolIO.TOOL);
 		ToolIO.reset();
 		Start resultNode = Translator.translateTlaExpression(tlaExpr);
@@ -69,23 +67,24 @@ public class TestUtil {
 		System.out.println(aP.getResultString());
 		String bAstString = getAstStringofBExpressionString(bExpr);
 		String result = getAstStringofBExpressionString(aP.getResultString());
-		//String tlaAstString = getTreeAsString(resultNode);
+		// String tlaAstString = getTreeAsString(resultNode);
 		assertEquals(bAstString, result);
 	}
-	
-	public static void compareExprIncludingModel(String bExpr, String tlaExpr, String moduleString) throws TLA2BException{
+
+	public static void compareExprIncludingModel(String bExpr, String tlaExpr,
+			String moduleString) throws TLA2BException {
 		Translator trans = new Translator(moduleString, null);
 		trans.translate();
 		Start result = trans.translateExpression(tlaExpr);
-		
+		// TODO
 	}
-	
-	
-	public static void compare(String bMachine, String tlaModule) throws BException, TLA2BException{
+
+	public static void compare(String bMachine, String tlaModule)
+			throws BException, TLA2BException {
 		ToolIO.setMode(ToolIO.TOOL);
 		String expected = getAstStringofBMachineString(bMachine);
 		System.out.println(expected);
-		
+
 		Translator trans = new Translator(tlaModule, null);
 		Start resultNode = trans.translate();
 		String result = getTreeAsString(resultNode);
@@ -96,70 +95,74 @@ public class TestUtil {
 		System.out.println(aP.getResultString());
 		final BParser parser = new BParser("testcase");
 		Start ast = parser.parse(aP.getResultString(), false);
-		//BParser.printASTasProlog(System.out, new BParser(), new File("./test.mch"), resultNode, false, true, null);
-		
-		
-		//System.out.println(result);
+		// BParser.printASTasProlog(System.out, new BParser(), new
+		// File("./test.mch"), resultNode, false, true, null);
+
+		// System.out.println(result);
 		assertEquals(expected, result);
 		assertEquals(expected, getTreeAsString(ast));
 	}
-	
-	public static void compare(String bMachine, String tlaModule, String config) throws BException, TLA2BException{
+
+	public static void compare(String bMachine, String tlaModule, String config)
+			throws BException, TLA2BException {
 		ToolIO.setMode(ToolIO.TOOL);
 		String expected = getAstStringofBMachineString(bMachine);
 		System.out.println(expected);
-		
+
 		Translator trans = new Translator(tlaModule, config);
 		Start resultNode = trans.translate();
-		
+
 		ASTPrettyPrinter aP = new ASTPrettyPrinter(resultNode);
 		resultNode.apply(aP);
 		System.out.println(aP.getResultString());
-		
-		//BParser.printASTasProlog(System.out, new BParser(), new File("./test.mch"), resultNode, false, true, null);
-		
+
+		// BParser.printASTasProlog(System.out, new BParser(), new
+		// File("./test.mch"), resultNode, false, true, null);
+
 		String result = getTreeAsString(resultNode);
 		System.out.println(result);
 		assertEquals(expected, result);
 	}
-	
-	public static String getTreeAsString(Node node){
+
+	public static String getTreeAsString(Node node) {
 		final Ast2String ast2String = new Ast2String();
 		node.apply(ast2String);
 		return ast2String.toString();
 	}
-	
-	public static void renamerTest(String tlaFile) throws Exception{
+
+	public static void renamerTest(String tlaFile) throws Exception {
 		Translator t = new Translator(tlaFile);
 		Start start = t.translate();
 		Renamer renamer = new Renamer(start);
 		ASTPrettyPrinter aP = new ASTPrettyPrinter(start, renamer);
 		start.apply(aP);
 		System.out.println(aP.getResultString());
-		
+
 		final BParser parser = new BParser("testcase");
 		parser.parse(aP.getResultString(), false);
 	}
-	
-	
-	public static TestTypeChecker typeCheckString(String moduleString) throws FrontEndException, TLA2BException{
+
+	public static TestTypeChecker typeCheckString(String moduleString)
+			throws FrontEndException, TLA2BException {
 		ToolIO.setMode(ToolIO.TOOL);
 		ToolIO.reset();
 		TestTypeChecker testTypeChecker = new TestTypeChecker();
 		testTypeChecker.startTest(moduleString, null);
 		return testTypeChecker;
-		
+
 	}
-	
-	public static TestTypeChecker typeCheckString(String moduleString, String configString) throws FrontEndException, TLA2BException{
+
+	public static TestTypeChecker typeCheckString(String moduleString,
+			String configString) throws FrontEndException, TLA2BException {
 		ToolIO.setMode(ToolIO.TOOL);
 		ToolIO.reset();
 		TestTypeChecker testTypeChecker = new TestTypeChecker();
 		testTypeChecker.startTest(moduleString, configString);
 		return testTypeChecker;
 	}
-	
-	public static TestTypeChecker typeCheck(String moduleFileName) throws FrontEndException, TLA2BException{
+
+	public static TestTypeChecker typeCheck(String moduleFileName)
+			throws FrontEndException, TLA2BException {
 		ToolIO.setMode(ToolIO.TOOL);
 		ToolIO.reset();
 		moduleFileName = moduleFileName.replace('/', FileUtil.separatorChar);
@@ -167,28 +170,27 @@ public class TestUtil {
 		testTypeChecker.start(moduleFileName);
 		return testTypeChecker;
 	}
-	
+
 	public static String getAstStringofBMachineString(final String testMachine)
 			throws BException {
 		final BParser parser = new BParser("testcase");
 		final Start startNode = parser.parse(testMachine, false);
-		
+
 		final Ast2String ast2String = new Ast2String();
 		startNode.apply(ast2String);
 		final String string = ast2String.toString();
 		return string;
 	}
-	
+
 	public static String getAstStringofBExpressionString(final String expr)
 			throws BException {
 		final BParser parser = new BParser("testcase");
 		final Start startNode = parser.parse("#FORMULA " + expr, false);
-		
+
 		final Ast2String ast2String = new Ast2String();
 		startNode.apply(ast2String);
 		final String string = ast2String.toString();
 		return string;
 	}
-	
-	
+
 }
