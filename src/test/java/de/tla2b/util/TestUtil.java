@@ -64,7 +64,7 @@ public class TestUtil {
 		Renamer renamer = new Renamer(resultNode);
 		ASTPrettyPrinter aP = new ASTPrettyPrinter(resultNode, renamer);
 		resultNode.apply(aP);
-		//System.out.println(aP.getResultString());
+		System.out.println(aP.getResultString());
 		String bAstString = getAstStringofBExpressionString(bExpr);
 		String result = getAstStringofBExpressionString(aP.getResultString());
 		// String tlaAstString = getTreeAsString(resultNode);

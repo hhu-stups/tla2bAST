@@ -118,6 +118,9 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 						.getName());
 				return OperatorTypes.bbuiltInOperatorIsPredicate(opcode);
 			}
+		} else if (expr.getKind() == LetInKind){
+			LetInNode letInNode = (LetInNode) expr;
+			return expressionIsAPredicate(letInNode.getBody());
 		}
 		return false;
 	}
@@ -941,24 +944,36 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 					new ABooleanTrueExpression());
 		}
 
-		List<PExpression> params = new ArrayList<PExpression>();
-		for (int i = 0; i < n.getArgs().length; i++) {
-			params.add(visitExprOrOpArgNodeExpression(n.getArgs()[i]));
+		if (Arrays.asList(moduleNode.getOpDefs()).contains(def)) {
+			List<PExpression> params = new ArrayList<PExpression>();
+			for (int i = 0; i < n.getArgs().length; i++) {
+				params.add(visitExprOrOpArgNodeExpression(n.getArgs()[i]));
+			}
+
+			if (predicateVsExpression.getDefinitionType(def) == DefinitionType.EXPRESSION) {
+				ADefinitionExpression defCall = new ADefinitionExpression();
+				defCall.setDefLiteral(new TIdentifierLiteral(getName(def)));
+				defCall.setParameters(params);
+				return new AEqualPredicate(defCall,
+						new ABooleanTrueExpression());
+
+			} else {
+				ADefinitionPredicate defCall = new ADefinitionPredicate();
+				defCall.setDefLiteral(new TDefLiteralPredicate(getName(def)));
+
+				defCall.setParameters(params);
+				return defCall;
+			}
+		}else{
+			FormalParamNode[] params = def.getParams();
+			for (int i = 0; i < params.length; i++) {
+				FormalParamNode param = params[i];
+				param.setToolObject(SUBSTITUTE_PARAM, n.getArgs()[i]);
+			}
+			PPredicate result = visitExprNodePredicate(def.getBody());
+			return result;
 		}
 
-		if (predicateVsExpression.getDefinitionType(def) == DefinitionType.EXPRESSION) {
-			ADefinitionExpression defCall = new ADefinitionExpression();
-			defCall.setDefLiteral(new TIdentifierLiteral(getName(def)));
-			defCall.setParameters(params);
-			return new AEqualPredicate(defCall, new ABooleanTrueExpression());
-
-		} else {
-			ADefinitionPredicate defCall = new ADefinitionPredicate();
-			defCall.setDefLiteral(new TDefLiteralPredicate(getName(def)));
-
-			defCall.setParameters(params);
-			return defCall;
-		}
 	}
 
 	private String getName(SymbolNode def) {

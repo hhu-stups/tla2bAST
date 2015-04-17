@@ -20,6 +20,17 @@ public class ComplexExpressionTest {
 	public void testLetIn() throws Exception {
 		compareExpr("1 + 1", "LET foo == 1 IN foo + foo");
 	}
+	
+	@Test
+	public void testLetPredicate() throws Exception {
+		compareExpr("1=1 & 1 = 1", "LET foo == 1 = 1 IN foo /\\ foo");
+	}
+	
+	@Test
+	public void testLetParameterPredicate() throws Exception {
+		compareExpr("1=1 & 1 = 2", "LET foo(a,b) == a = b IN foo(1,1) /\\ foo(1,2)");
+	}
+	
 
 	@Test
 	public void testLetDefWithArgs() throws Exception {
