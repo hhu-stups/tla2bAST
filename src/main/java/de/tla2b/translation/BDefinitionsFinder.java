@@ -12,7 +12,6 @@ import de.tla2b.analysis.AbstractASTVisitor;
 import de.tla2b.analysis.BOperation;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.global.TranslationGlobals;
-import de.tla2b.types.IType;
 
 public class BDefinitionsFinder extends AbstractASTVisitor implements
 		ASTConstants, ToolGlobals, TranslationGlobals {

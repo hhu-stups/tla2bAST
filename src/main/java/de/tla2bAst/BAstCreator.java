@@ -94,7 +94,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 
 		ExprNode expr = moduleNode.getOpDefs()[moduleNode.getOpDefs().length - 1]
 				.getBody();
-		System.out.println(expressionIsAPredicate(expr));
 		if (expressionIsAPredicate(expr)) {
 			APredicateParseUnit predicateParseUnit = new APredicateParseUnit();
 			predicateParseUnit.setPredicate(visitExprNodePredicate(expr));
@@ -832,7 +831,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		switch (n.getOperator().getKind()) {
 		case VariableDeclKind:
 		case ConstantDeclKind:
-		case FormalParamKind: { // TODO
+		case FormalParamKind: {
 			return new AEqualPredicate(createIdentifierNode(n.getOperator()),
 					new ABooleanTrueExpression());
 		}
@@ -1503,7 +1502,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		case OPCODE_fc: // Represents [x \in S |-> e].
 		case OPCODE_rfs: {
 			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-			// ExprNode[] bounds = n.getBdedQuantBounds(); TODO
 			List<PExpression> idList = new ArrayList<PExpression>();
 			for (int i = 0; i < params.length; i++) {
 				for (int j = 0; j < params[i].length; j++) {
@@ -1511,9 +1509,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 					idList.add(createIdentifierNode(p));
 				}
 			}
-
 			boolean[] isTuple = n.isBdedQuantATuple();
-
 			ALambdaExpression lambda = new ALambdaExpression();
 			List<PExpression> idList2 = new ArrayList<PExpression>();
 			for (int i = 0; i < params.length; i++) {
@@ -2134,12 +2130,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 	private List<PExpression> createIdentifierList(String name) {
 		ArrayList<PExpression> list = new ArrayList<PExpression>();
 		list.add(createIdentifierNode(name));
-		return list;
-	}
-
-	private List<PExpression> createIdentifierList(SymbolNode symbolNode) {
-		ArrayList<PExpression> list = new ArrayList<PExpression>();
-		list.add(createIdentifierNode(getName(symbolNode)));
 		return list;
 	}
 

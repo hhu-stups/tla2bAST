@@ -64,7 +64,7 @@ public class TestUtil {
 		Renamer renamer = new Renamer(resultNode);
 		ASTPrettyPrinter aP = new ASTPrettyPrinter(resultNode, renamer);
 		resultNode.apply(aP);
-		System.out.println(aP.getResultString());
+		//System.out.println(aP.getResultString());
 		String bAstString = getAstStringofBExpressionString(bExpr);
 		String result = getAstStringofBExpressionString(aP.getResultString());
 		// String tlaAstString = getTreeAsString(resultNode);
@@ -72,11 +72,16 @@ public class TestUtil {
 	}
 
 	public static void compareExprIncludingModel(String bExpr, String tlaExpr,
-			String moduleString) throws TLA2BException {
+			String moduleString) throws TLA2BException, BException {
 		Translator trans = new Translator(moduleString, null);
 		trans.translate();
-		Start result = trans.translateExpression(tlaExpr);
-		// TODO
+		Start resultNode = trans.translateExpression(tlaExpr);
+		Renamer renamer = new Renamer(resultNode);
+		ASTPrettyPrinter aP = new ASTPrettyPrinter(resultNode, renamer);
+		resultNode.apply(aP);
+		String bAstString = getAstStringofBExpressionString(bExpr);
+		String result = getAstStringofBExpressionString(aP.getResultString());
+		assertEquals(bAstString, result);
 	}
 
 	public static void compare(String bMachine, String tlaModule)

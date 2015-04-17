@@ -10,7 +10,6 @@ import de.tla2b.exceptions.FrontEndException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.global.TranslationGlobals;
 import de.tla2b.types.TLAType;
-import de.tla2b.types.TupleOrFunction;
 import de.tla2bAst.Translator;
 import tla2sany.semantic.FormalParamNode;
 import tla2sany.semantic.ModuleNode;

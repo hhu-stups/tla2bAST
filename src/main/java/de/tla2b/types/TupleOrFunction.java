@@ -204,7 +204,7 @@ public class TupleOrFunction extends AbstractHasFollowers {
 	public TLAType cloneTLAType() {
 		TupleOrFunction res = new TupleOrFunction();
 		for (Entry<Integer, TLAType> entry : this.types.entrySet()) {
-			res.types.put(new Integer(entry.getKey().intValue()), entry
+			res.types.put(Integer.valueOf(entry.getKey().intValue()), entry
 					.getValue().cloneTLAType());
 		}
 		return res;
@@ -390,14 +390,4 @@ public class TupleOrFunction extends AbstractHasFollowers {
 		}
 		return true;
 	}
-
-	private static boolean allTyped(List<TLAType> typeList) {
-		for (int i = 0; i < typeList.size(); i++) {
-			if (typeList.get(i).isUntyped()) {
-				return false;
-			}
-		}
-		return true;
-	}
-
 }

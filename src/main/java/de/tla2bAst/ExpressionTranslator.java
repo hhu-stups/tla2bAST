@@ -137,7 +137,6 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 					+ "\n" + expr + "\n";
 			throw new ExpressionTranslationException(message);
 		}
-
 		SymbolRenamer symRenamer = new SymbolRenamer(moduleNode, specAnalyser);
 		symRenamer.start();
 		BAstCreator bASTCreator = new BAstCreator(moduleNode, specAnalyser);

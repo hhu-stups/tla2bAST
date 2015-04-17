@@ -185,8 +185,9 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 			if (node instanceof OpApplNode) {
 				OpApplNode opApplNode = (OpApplNode) node;
 				if (opApplNode.getOperator().getKind() == BuiltInKind) {
-					switch (getOpCode(opApplNode.getOperator().getName())) {
-					case OPCODE_eq: {
+
+					if (OPCODE_eq == getOpCode(opApplNode.getOperator()
+							.getName())) {
 						ExprOrOpArgNode arg1 = opApplNode.getArgs()[0];
 						try {
 							OpApplNode arg11 = (OpApplNode) arg1;
@@ -204,12 +205,9 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 
 							}
 						} catch (ClassCastException e) {
-
 						}
+					}
 
-					}
-					default:
-					}
 				}
 			}
 		}
@@ -263,7 +261,7 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 			beforeAfterPredicates.add(node);
 			return;
 		}
-		//beforeAfterPredicates.add(node);
+		// beforeAfterPredicates.add(node);
 	}
 
 	private void evalParams() {

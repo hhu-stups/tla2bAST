@@ -14,7 +14,6 @@ import tla2sany.semantic.Context;
 import tla2sany.semantic.ExprNode;
 import tla2sany.semantic.ExprOrOpArgNode;
 import tla2sany.semantic.FormalParamNode;
-import tla2sany.semantic.InstanceNode;
 import tla2sany.semantic.LetInNode;
 import tla2sany.semantic.ModuleNode;
 import tla2sany.semantic.NumeralNode;

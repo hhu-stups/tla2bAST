@@ -20,7 +20,6 @@ import de.tla2b.global.TranslationGlobals;
 import de.tla2b.translation.BDefinitionsFinder;
 import de.tla2b.translation.OperationsFinder;
 import de.tla2b.translation.UsedDefinitionsFinder;
-import de.tla2b.types.IType;
 import tla2sany.semantic.ASTConstants;
 import tla2sany.semantic.ExprNode;
 import tla2sany.semantic.ExprOrOpArgNode;
@@ -43,8 +42,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 
 	private OpDefNode expressionOpdefNode;
 	private Hashtable<String, SymbolNode> namingHashTable = new Hashtable<String, SymbolNode>();
-	
-	
+
 	private final ModuleNode moduleNode;
 	private ExprNode nextExpr;
 
@@ -87,18 +85,16 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 
 		return specAnalyser;
 	}
-	
-	
-	
-	public static SpecAnalyser createSpecAnalyserForTlaExpression(ModuleNode m){
+
+	public static SpecAnalyser createSpecAnalyserForTlaExpression(ModuleNode m) {
 		SpecAnalyser specAnalyser = new SpecAnalyser(m);
-		
-		specAnalyser.expressionOpdefNode = m.getOpDefs()[m.getOpDefs().length-1];
+
+		specAnalyser.expressionOpdefNode = m.getOpDefs()[m.getOpDefs().length - 1];
 		specAnalyser.usedDefinitions.add(specAnalyser.expressionOpdefNode);
 		specAnalyser.bDefinitionsSet.add(specAnalyser.expressionOpdefNode);
 		return specAnalyser;
 	}
-	
+
 	public static SpecAnalyser createSpecAnalyser(ModuleNode m) {
 		SpecAnalyser specAnalyser = new SpecAnalyser(m);
 		Hashtable<String, OpDefNode> definitions = new Hashtable<String, OpDefNode>();
@@ -109,7 +105,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		specAnalyser.spec = definitions.get("Spec");
 		specAnalyser.init = definitions.get("Init");
 		specAnalyser.next = definitions.get("Next");
-		if(definitions.containsKey("Inv")){
+		if (definitions.containsKey("Inv")) {
 			specAnalyser.invariants.add(definitions.get("Inv"));
 		}
 		// TODO are constant in the right order
@@ -132,27 +128,27 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		for (OpDefNode inv : new ArrayList<OpDefNode>(invariants)) {
 			try {
 				OpApplNode opApplNode = (OpApplNode) inv.getBody();
-				
+
 				OpDefNode opDefNode = (OpDefNode) opApplNode.getOperator();
-				
-			    if (opDefNode.getKind() == UserDefinedOpKind && !BBuiltInOPs.contains(opDefNode.getName())){
+
+				if (opDefNode.getKind() == UserDefinedOpKind
+						&& !BBuiltInOPs.contains(opDefNode.getName())) {
 					int i = invariants.indexOf(inv);
 					invariants.set(i, opDefNode);
-			    }
+				}
 			} catch (ClassCastException e) {
 			}
 		}
-		
-		
+
 		OperationsFinder operationsFinder = new OperationsFinder(this);
 		bOperations = operationsFinder.getBOperations();
-		
+
 		UsedDefinitionsFinder definitionFinder = new UsedDefinitionsFinder(this);
 		this.usedDefinitions = definitionFinder.getUsedDefinitions();
-		
+
 		BDefinitionsFinder bDefinitionFinder = new BDefinitionsFinder(this);
 		this.bDefinitionsSet = bDefinitionFinder.getBDefinitionsSet();
-		//usedDefinitions.addAll(bDefinitionsSet);
+		// usedDefinitions.addAll(bDefinitionsSet);
 
 		// test whether there is a init predicate if there is a variable
 		if (moduleNode.getVariableDecls().length > 0 && inits == null) {
@@ -170,9 +166,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 			}
 		}
 		findRecursiveConstructs();
-		
-		
-		
+
 		for (OpDeclNode var : moduleNode.getVariableDecls()) {
 			namingHashTable.put(var.getName().toString(), var);
 		}
@@ -182,7 +176,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		for (OpDefNode def : usedDefinitions) {
 			namingHashTable.put(def.getName().toString(), def);
 		}
-		
+
 	}
 
 	private void evalInit() {
@@ -263,12 +257,12 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		Set<OpDefNode> set = new HashSet<OpDefNode>(usedDefinitions);
 		for (OpDefNode def : set) {
 			if (def.getInRecursive()) {
-				throw new NotImplementedException("Recursive definitions are currently not supported.");
-//				bDefinitionsSet.remove(def);
-//				RecursiveDefinition rd = new RecursiveDefinition(def);
-//				recursiveDefinitions.add(rd);
-			} else
-			if (def.getBody() instanceof OpApplNode) {
+				throw new NotImplementedException(
+						"Recursive definitions are currently not supported.");
+				// bDefinitionsSet.remove(def);
+				// RecursiveDefinition rd = new RecursiveDefinition(def);
+				// recursiveDefinitions.add(rd);
+			} else if (def.getBody() instanceof OpApplNode) {
 				OpApplNode o = (OpApplNode) def.getBody();
 				switch (getOpCode(o.getOperator().getName())) {
 				case OPCODE_rfs: { // recursive Function
@@ -297,7 +291,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 	}
 
 	public Hashtable<OpDefNode, FormalParamNode[]> getLetParams() {
-		return letParams;
+		return new Hashtable<OpDefNode, FormalParamNode[]>(letParams);
 	}
 
 	public ArrayList<String> getDefinitionMacros() {
@@ -320,24 +314,24 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		return this.moduleNode;
 	}
 
-	public ConfigfileEvaluator getConfigFileEvaluator(){
+	public ConfigfileEvaluator getConfigFileEvaluator() {
 		return configFileEvaluator;
 	}
-	
-	public ArrayList<OpDefNode> getInvariants(){
+
+	public ArrayList<OpDefNode> getInvariants() {
 		return invariants;
 	}
-	
-	public OpDefNode getInitDef(){
+
+	public OpDefNode getInitDef() {
 		return init;
 	}
-	
-	public OpDefNode getExpressionOpdefNode(){
+
+	public OpDefNode getExpressionOpdefNode() {
 		return expressionOpdefNode;
 	}
-	
-	public SymbolNode getSymbolNodeByName(String name){
+
+	public SymbolNode getSymbolNodeByName(String name) {
 		return namingHashTable.get(name);
 	}
-	
+
 }

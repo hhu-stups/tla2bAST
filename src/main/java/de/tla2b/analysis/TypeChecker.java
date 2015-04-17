@@ -45,7 +45,7 @@ import tlc2.tool.BuiltInOPs;
 public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 		TranslationGlobals {
 
-	private final int TEMP_TYPE_ID = 6;
+	private static final int TEMP_TYPE_ID = 6;
 	private int paramId;
 
 	private ArrayList<ExprNode> inits;
@@ -461,14 +461,15 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 			}
 
 			TLAType found = ((TLAType) def.getToolObject(TYPE_ID));
-			if (found == null){
+			if (found == null) {
 				found = new UntypedType();
-			// throw new RuntimeException(def.getName() + " has no type yet!");
+				// throw new RuntimeException(def.getName() +
+				// " has no type yet!");
 			}
-			if(n.getArgs().length != 0){
+			if (n.getArgs().length != 0) {
 				found = found.cloneTLAType();
 			}
-			
+
 			try {
 				found = found.unify(expected);
 			} catch (UnificationException e) {
