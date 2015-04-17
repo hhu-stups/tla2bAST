@@ -22,7 +22,7 @@ public class TestKeywords {
 
 	@Test
 	public void testExcept() throws Exception {
-		compareExpr("bool(x = a <+ {1 |-> 1})", "x = [a EXCEPT ![1] = 1]");
+		compareExpr("x = a <+ {1 |-> 1}", "x = [a EXCEPT ![1] = 1]");
 	}
 
 	@Test
@@ -32,6 +32,6 @@ public class TestKeywords {
 
 	@Test
 	public void testDom() throws Exception {
-		compareExpr("bool(dom_1 = 1)", "dom = 1");
+		compareExpr("dom_1 = 1", "dom = 1");
 	}
 }

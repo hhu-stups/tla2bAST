@@ -6,6 +6,7 @@ package de.tla2b.prettyprintb;
 
 import static de.tla2b.util.TestUtil.compare;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class BBuiltInsTest {
@@ -18,6 +19,19 @@ public class BBuiltInsTest {
 
 		final String expected = "MACHINE Testing\n"
 				+ "PROPERTIES TRUE : BOOL \n" + "END";
+		compare(expected, module);
+	}
+	
+	@Ignore
+	@Test
+	public void testSetSummation() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS TLA2B\n" 
+				+ "ASSUME SetSummation({1,2}) = 3\n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES SIGMA(t_).(t_ : {1,2}|t_) = 3 \n" + "END";
 		compare(expected, module);
 	}
 

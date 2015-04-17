@@ -43,6 +43,7 @@ import de.tla2b.config.ValueObj;
 import de.tla2b.exceptions.NotImplementedException;
 import de.tla2b.global.BBuildIns;
 import de.tla2b.global.BBuiltInOPs;
+import de.tla2b.global.OperatorTypes;
 import de.tla2b.global.Priorities;
 import de.tla2b.global.TranslationGlobals;
 import de.tla2b.translation.BMacroHandler;
@@ -77,6 +78,12 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 
 	public Start expressionStart;
 
+	/**
+	 * Creates a B AST node for a TLA expression
+	 * 
+	 * @param moduleNode
+	 * @param specAnalyser
+	 */
 	public BAstCreator(ModuleNode moduleNode, SpecAnalyser specAnalyser) {
 		this.moduleNode = moduleNode;
 		this.specAnalyser = specAnalyser;
@@ -87,9 +94,33 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 
 		ExprNode expr = moduleNode.getOpDefs()[moduleNode.getOpDefs().length - 1]
 				.getBody();
-		AExpressionParseUnit expressionParseUnit = new AExpressionParseUnit();
-		expressionParseUnit.setExpression(visitExprNodeExpression(expr));
-		expressionStart = new Start(expressionParseUnit, new EOF());
+		System.out.println(expressionIsAPredicate(expr));
+		if (expressionIsAPredicate(expr)) {
+			APredicateParseUnit predicateParseUnit = new APredicateParseUnit();
+			predicateParseUnit.setPredicate(visitExprNodePredicate(expr));
+			expressionStart = new Start(predicateParseUnit, new EOF());
+		} else {
+			AExpressionParseUnit expressionParseUnit = new AExpressionParseUnit();
+			expressionParseUnit.setExpression(visitExprNodeExpression(expr));
+			expressionStart = new Start(expressionParseUnit, new EOF());
+		}
+	}
+
+	private boolean expressionIsAPredicate(ExprNode expr) {
+		if (expr.getKind() == OpApplKind) {
+			OpApplNode opApplNode = (OpApplNode) expr;
+			int kind = opApplNode.getOperator().getKind();
+			if (kind == BuiltInKind) {
+				int opcode = getOpCode(opApplNode.getOperator().getName());
+				return OperatorTypes.tlaOperatorIsPredicate(opcode);
+			} else if (kind == UserDefinedOpKind
+					&& BBuiltInOPs.contains(opApplNode.getOperator().getName())) {
+				int opcode = BBuiltInOPs.getOpcode(opApplNode.getOperator()
+						.getName());
+				return OperatorTypes.bbuiltInOperatorIsPredicate(opcode);
+			}
+		}
+		return false;
 	}
 
 	public BAstCreator(ModuleNode moduleNode, ConfigfileEvaluator conEval,
@@ -1267,6 +1298,20 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			return new AConvertBoolExpression(pred);
 		}
 
+		case B_OPCODE_setsum: {
+			AGeneralSumExpression sum = new AGeneralSumExpression();
+			String variableName = "t_"; // TODO unused identifier name
+			List<PExpression> exprList = createPexpressionList(createIdentifierNode(variableName));
+			sum.setIdentifiers(exprList);
+			AMemberPredicate memberPredicate = new AMemberPredicate();
+			memberPredicate.setLeft(createIdentifierNode(variableName));
+			memberPredicate
+					.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+			sum.setPredicates(memberPredicate);
+			sum.setExpression(createIdentifierNode(variableName));
+			return sum;
+		}
+
 		}
 		throw new RuntimeException(n.getOperator().getName().toString());
 	}
@@ -1667,7 +1712,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 						coupleList.add(pairTable.get(fieldName));
 						couple.setList(coupleList);
 						ASetExtensionExpression set = new ASetExtensionExpression(
-								makePexpressionList(couple));
+								createPexpressionList(couple));
 						rec.setValue(set);
 					} else {
 						AEmptySetExpression emptySet = new AEmptySetExpression();
@@ -1718,7 +1763,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 						.getRep().toString()));
 				AFunctionExpression funcCall = new AFunctionExpression();
 				funcCall.setIdentifier(rcdSelect);
-				funcCall.setParameters(makePexpressionList(new ABooleanTrueExpression()));
+				funcCall.setParameters(createPexpressionList(new ABooleanTrueExpression()));
 				return funcCall;
 			} else {
 				ARecordFieldExpression rcdSelect = new ARecordFieldExpression();
@@ -2484,7 +2529,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		return list;
 	}
 
-	public static List<PExpression> makePexpressionList(PExpression expr) {
+	public static List<PExpression> createPexpressionList(PExpression expr) {
 		ArrayList<PExpression> list = new ArrayList<PExpression>();
 		list.add(expr);
 		return list;

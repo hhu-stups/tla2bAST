@@ -11,18 +11,29 @@ import static de.tla2b.util.TestUtil.compareExpr;
 public class SimpleExpressionTest {
 
 	@Test
-	public void testSimpleExpr() throws Exception {
+	public void testSimpleExpression() throws Exception {
 		compareExpr("1 + 2", "1 + 2");
 	}
 
 	@Test
+	public void testSimplePredicate() throws Exception {
+		compareExpr("1 = 1", "1 = 1");
+	}
+	
+	@Test
+	public void testSimplePredicate2() throws Exception {
+		compareExpr("1 < 1", "1 < 1");
+	}
+	
+	
+	@Test
 	public void testModulIntegers() throws Exception {
-		compareExpr("bool(-1 : INTEGER)", "-1 \\in Int");
+		compareExpr("-1 : INTEGER", "-1 \\in Int");
 	}
 
 	@Test
 	public void testExist() throws Exception {
-		compareExpr("bool(#a.(a : {1} & 2 > 1))", "\\E a \\in {1}: 2 > 1");
+		compareExpr("#a.(a : {1} & 2 > 1)", "\\E a \\in {1}: 2 > 1");
 	}
 
 	@Test

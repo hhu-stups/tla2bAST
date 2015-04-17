@@ -21,6 +21,7 @@ import de.be4.classicalb.core.parser.node.Start;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.analysis.SymbolRenamer;
 import de.tla2b.analysis.TypeChecker;
+import de.tla2b.exceptions.ExpressionTranslationException;
 import de.tla2b.exceptions.TLA2BException;
 
 public class ExpressionTranslator implements SyntaxTreeConstants {
@@ -46,7 +47,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		this.translator = translator;
 	}
 
-	public void parse() throws de.tla2b.exceptions.FrontEndException {
+	public void parse() {
 		String dir = System.getProperty("java.io.tmpdir");
 		ToolIO.setUserDir(dir);
 
@@ -66,9 +67,8 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 			fw.write(module);
 			fw.close();
 		} catch (IOException e) {
-			throw new de.tla2b.exceptions.FrontEndException(
-					"Can not create file temporary file in directory '" + dir
-							+ "'");
+			throw new ExpressionTranslationException(
+					"Can not create temporary file in directory '" + dir + "'");
 		}
 
 		SpecObj spec = parseModuleWithoutSemanticAnalyse(moduleName, module);
@@ -98,7 +98,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 			fw.close();
 			tempFile.deleteOnExit();
 		} catch (IOException e) {
-			throw new de.tla2b.exceptions.FrontEndException(e.getMessage());
+			throw new ExpressionTranslationException(e.getMessage());
 		}
 		ToolIO.reset();
 
@@ -108,7 +108,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		try {
 			moduleNode = parseModule(moduleName, sb.toString());
 		} catch (de.tla2b.exceptions.FrontEndException e) {
-			throw new de.tla2b.exceptions.FrontEndException(e.getLocalizedMessage());
+			throw new ExpressionTranslationException(e.getLocalizedMessage());
 		}
 	}
 
@@ -133,11 +133,9 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		try {
 			tc.start();
 		} catch (TLA2BException e) {
-			// String[] m = ToolIO.getAllMessages();
 			String message = "****TypeError****\n" + e.getLocalizedMessage()
 					+ "\n" + expr + "\n";
-			// System.out.println(message);
-			throw new RuntimeException(message);
+			throw new ExpressionTranslationException(message);
 		}
 
 		SymbolRenamer symRenamer = new SymbolRenamer(moduleNode, specAnalyser);
@@ -209,8 +207,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		if (spec.parseErrors.isFailure()) {
 			String message = module + "\n\n";
 			message += allMessagesToString(ToolIO.getAllMessages());
-			// throw new de.tla2b.exceptions.FrontEndException(message, spec);
-			throw new RuntimeException(message);
+			throw new ExpressionTranslationException(message);
 		}
 		return spec;
 	}

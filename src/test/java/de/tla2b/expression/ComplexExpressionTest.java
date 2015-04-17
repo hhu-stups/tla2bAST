@@ -12,7 +12,7 @@ public class ComplexExpressionTest {
 
 	@Test
 	public void testExcept() throws Exception {
-		compareExpr("bool(a = %u.(u : {3, 4, 5}| u + 1) & x = a <+ {3 |-> 1})",
+		compareExpr("a = %u.(u : {3, 4, 5}| u + 1) & x = a <+ {3 |-> 1}",
 				"a = [u \\in {3,4,5}|-> u + 1] /\\ x = [a EXCEPT ![3] = 1]");
 	}
 
@@ -33,7 +33,7 @@ public class ComplexExpressionTest {
 
 	@Test
 	public void testPrime() throws Exception {
-		compareExpr("bool(x_n = 1)", "x' = 1");
+		compareExpr("x_n = 1", "x' = 1");
 	}
 
 	@Test
@@ -44,7 +44,7 @@ public class ComplexExpressionTest {
 	@Test
 	public void testQuantifier() throws Exception {
 		compareExpr(
-				"bool(#x,z,y.(x : NATURAL & z : NATURAL & y : NATURAL & x = y))",
+				"#x,z,y.(x : NATURAL & z : NATURAL & y : NATURAL & x = y)",
 				"\\E x,z \\in Nat, y \\in Nat: x = y");
 	}
 
@@ -63,7 +63,7 @@ public class ComplexExpressionTest {
 
 	@Test
 	public void testRecord2() throws Exception {
-		compareExpr("bool(r = rec(a:rec(x:1, y:TRUE), b:1) & r2 = rec(a:rec(x:2, y:(r'a)'y), b:r'b))",
+		compareExpr("r = rec(a:rec(x:1, y:TRUE), b:1) & r2 = rec(a:rec(x:2, y:(r'a)'y), b:r'b)",
 				"r = [a |-> [x|->1,y|->TRUE], b |-> 1] "
 						+ "/\\ r2 = [r EXCEPT !.a.x = 2]");
 	}

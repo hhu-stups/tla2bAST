@@ -14,6 +14,7 @@ import de.be4.classicalb.core.parser.node.ADefinitionExpression;
 import de.be4.classicalb.core.parser.node.ADefinitionPredicate;
 import de.be4.classicalb.core.parser.node.AExpressionDefinitionDefinition;
 import de.be4.classicalb.core.parser.node.AFirstProjectionExpression;
+import de.be4.classicalb.core.parser.node.AGeneralSumExpression;
 import de.be4.classicalb.core.parser.node.AIdentifierExpression;
 import de.be4.classicalb.core.parser.node.ALambdaExpression;
 import de.be4.classicalb.core.parser.node.AOperation;
@@ -45,7 +46,7 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 
 	public ASTPrettyPrinter(Start start, Renamer renamer) {
 		this.renamer = renamer;
-		
+
 		this.indentation = new Indentation(start);
 	}
 
@@ -219,7 +220,7 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 		put("AComprehensionSetExpression", "{", "", ",", "", " | ", "}");
 
 		put("AFirstProjectionExpression", "prj1(", null, null, null, ", ", ")");
-		
+
 		put("ASecondProjectionExpression", "prj2(", null, null, null, ", ", ")");
 	}
 
@@ -263,7 +264,7 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 		builder.append(node.getClass().getSimpleName());
 		builder.append("(");
 	}
-	
+
 	@Override
 	public void defaultCase(final Node node) {
 		super.defaultCase(node);
@@ -286,7 +287,6 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 			sb.append(")");
 		}
 	}
-
 
 	private boolean makeBrackets(Node node) {
 		NodeInfo infoNode = getInfo(node);
@@ -335,7 +335,7 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 	@Override
 	public void betweenChildren(final Node node) {
 		builder.append(',');
-		if(indentation.printNewLineInTheMiddle(node)){
+		if (indentation.printNewLineInTheMiddle(node)) {
 			sb.append("\n");
 		}
 		sb.append(getInfo(node).betweenChildren);
@@ -627,11 +627,31 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 		node.getExpression().apply(this);
 		sb.append(")");
 	}
-	
-    public void inAConjunctPredicate(AConjunctPredicate node)
-    {
-    	super.inAConjunctPredicate(node);
-    }
+
+	@Override
+	public void caseAGeneralSumExpression(AGeneralSumExpression node) {
+		List<PExpression> copy = new ArrayList<PExpression>(
+				node.getIdentifiers());
+		sb.append("SIGMA(");
+		for (final Iterator<PExpression> iterator = copy.iterator(); iterator
+				.hasNext();) {
+			final PExpression e = iterator.next();
+			e.apply(this);
+
+			if (iterator.hasNext()) {
+				sb.append(", ");
+			}
+		}
+		sb.append(").(");
+		node.getPredicates().apply(this);
+		sb.append("|");
+		node.getExpression().apply(this);
+		sb.append(")");
+	}
+
+	public void inAConjunctPredicate(AConjunctPredicate node) {
+		super.inAConjunctPredicate(node);
+	}
 
 }
 
@@ -713,7 +733,6 @@ class NodeInfo {
 
 	}
 
-	
 	public NodeInfo(String pre, String beginList, String betweenListElements,
 			String endList, String betweenChildren, String end,
 			Integer precedence, Integer associative) {
