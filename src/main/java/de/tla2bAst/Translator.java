@@ -93,7 +93,14 @@ public class Translator implements TranslationGlobals {
 		}
 	}
 
-	// used to for external use
+	/**
+	 * External interface
+	 * @param moduleName
+	 * @param moduleString
+	 * @param configString
+	 * @return
+	 * @throws TLA2BException
+	 */
 	public static String translateModuleString(String moduleName,
 			String moduleString, String configString) throws TLA2BException {
 		Translator translator = new Translator(moduleName, moduleString,
@@ -371,8 +378,7 @@ public class Translator implements TranslationGlobals {
 			final File f, final BParser bparser) throws BException {
 		final RecursiveMachineLoader rml = new RecursiveMachineLoader(
 				f.getParent(), bparser.getContentProvider());
-		rml.loadAllMachines(f, ast, null, bparser.getDefinitions(),
-				bparser.getPragmas());
+		rml.loadAllMachines(f, ast, null, bparser.getDefinitions());
 		return rml;
 	}
 

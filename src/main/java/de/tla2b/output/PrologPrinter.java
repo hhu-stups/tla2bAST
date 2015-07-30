@@ -10,9 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.be4.classicalb.core.parser.BParser;
-import de.be4.classicalb.core.parser.analysis.pragma.Pragma;
 import de.be4.classicalb.core.parser.analysis.prolog.ASTProlog;
-import de.be4.classicalb.core.parser.analysis.prolog.NodeIdAssignment;
 import de.be4.classicalb.core.parser.analysis.prolog.RecursiveMachineLoader;
 import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.Start;
@@ -84,14 +82,6 @@ public class PrologPrinter {
 			pout.fullstop();
 		}
 
-		if (bParser.getPragmas().size() > 0) {
-			NodeIdAssignment ids = pprinter.nodeIds;
-			List<Pragma> pragmas = bParser.getPragmas();
-			for (Pragma pragma : pragmas) {
-				pragma.printProlog(pout, ids);
-				pout.fullstop();
-			}
-		}
 		pout.flush();
 	}
 }

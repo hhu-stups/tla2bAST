@@ -7,8 +7,6 @@ apply plugin: 'findbugs'
 project.version = '1.0.5-SNAPSHOT'
 project.group = 'de.prob'
 
-sourceCompatibility = 1.5
-
 repositories {
 	mavenCentral()
 	maven {
@@ -20,7 +18,7 @@ configurations { // configuration that holds jars to copy into lib
 	releaseJars 
 }
  
-def parser_version = '2.4.28-SNAPSHOT'
+def parser_version = '2.5.0-SNAPSHOT'
 
 dependencies {
 	//compile (group: 'com.microsoft', name: 'tla2tools', version: '1.4.6')
@@ -43,32 +41,34 @@ dependencies {
 }
 
 jacoco {
-    toolVersion = "0.6.2.201302030002"
+    toolVersion = "0.7.1.201405082137"
     reportsDir = file("$buildDir/customJacocoReportDir")
 }
 
-jacocoTestReport {
-    reports {
-        xml.enabled false
-        csv.enabled false
-        html.destination "${buildDir}/jacocoHtml"
-    }
-}
+// type 'gradle tla2b jacocoIntegrationTestReport' in order to run the jacoco code coverage analysis
+task jacocoIntegrationTestReport(type: JacocoReport) {
+	sourceSets sourceSets.main
+	//executionData files('build/jacoco/integrationTests.exec')
+	executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
+ }
 
 tasks.withType(FindBugs) {
+	// disable findbugs by default
+	// in order to run findbugs type 'gradle tlc4b findbugsMain findbugsTest'
+	task -> enabled = gradle.startParameter.taskNames.contains(task.name)
+	
     reports {
         xml.enabled = false
         html.enabled = true
     }
-}
-
-findbugs { 
-	ignoreFailures = true 
+	
+	ignoreFailures = true
 }
 
 
 test { 
 	exclude('testing')
+	allJvmArgs = [ "-Xss515m" ]
 }
 
 jar { from sourceSets.main.allJava }
@@ -79,7 +79,6 @@ jar	{
 jar {
 	manifest {
 		attributes "Main-Class" : 'de.tla2b.TLA2B'
-		attributes "Class-Path": './tla/ tlatools.jar'
 	}
 }
 

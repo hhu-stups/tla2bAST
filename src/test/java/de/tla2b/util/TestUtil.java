@@ -6,10 +6,6 @@ package de.tla2b.util;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-
 import util.FileUtil;
 import de.be4.classicalb.core.parser.BParser;
 import de.be4.classicalb.core.parser.exceptions.BException;
@@ -20,7 +16,6 @@ import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.output.ASTPrettyPrinter;
 import de.tla2b.output.Renamer;
 import de.tla2bAst.Translator;
-import tla2sany.semantic.AbortException;
 import util.ToolIO;
 
 public class TestUtil {
