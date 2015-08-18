@@ -143,8 +143,8 @@ uploadArchives {
 
         licenses {
           license {
-            name 'GNU Lesser General Public License, Version 2.1'
-            url 'http://www.gnu.org/licenses/lgpl-2.1.html'
+            name 'Eclipse Public License, Version 1.0'
+            url 'https://www.eclipse.org/legal/epl-v10.html'
           }
         }
 
