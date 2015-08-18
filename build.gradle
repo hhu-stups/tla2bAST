@@ -4,7 +4,7 @@ apply plugin: 'maven'
 apply plugin: 'jacoco'
 apply plugin: 'findbugs'
 
-project.version = '1.0.6-SNAPSHOT'
+project.version = '1.0.6'
 project.group = 'de.hhu.stups'
 project.archivesBaseName = "tla2bAST"
 
@@ -105,6 +105,11 @@ apply plugin: 'signing'
 signing {
     sign configurations.archives
 }
+
+artifacts {
+	 archives javadocJar, sourcesJar
+}
+
 uploadArchives {
   repositories {
     mavenDeployer {
