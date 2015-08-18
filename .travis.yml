@@ -10,7 +10,7 @@ before_install:
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in gradle.properties.enc -out
   gradle.properties -d
 
-after_success: find build/tla2b/TLA2B.jar -type f -exec
+after_success: find TLA2B.jar -type f -exec
   curl -u $FTP_USER:$FTP_PASS --ftp-create-dirs -T {} ftp://cobra.cs.uni-duesseldorf.de/upload/{}
   \;
 
