@@ -27,7 +27,7 @@ def parser_version = '2.5.0-SNAPSHOT'
 
 dependencies {
 	//compile (group: 'com.microsoft', name: 'tla2tools', version: '1.4.6')
-	compile (group: 'de.tla', name: 'tlatools', version: '1.0.0-SNAPSHOT')
+	compile (group: 'de.hhu.stups', name: 'tlatools', version: '1.0.0')
 	
 	compile (group: 'de.hhu.stups', name: 'prologlib', version: parser_version)
 	compile (group: 'de.hhu.stups', name: 'parserbase', version: parser_version)
@@ -38,7 +38,7 @@ dependencies {
 
 	testCompile (group: 'junit', name: 'junit', version: '4.7')
 
-	releaseJars (group: 'de.tla', name: 'tlatools', version: '1.0.0-SNAPSHOT')
+	releaseJars (group: 'de.hhu.stups', name: 'tlatools', version: '1.0.0')
 	releaseJars (group: 'de.hhu.stups', name: 'prologlib', version: parser_version)
 	releaseJars (group: 'de.hhu.stups', name: 'parserbase', version: parser_version)
 	releaseJars (group: 'de.hhu.stups', name: 'bparser', version: parser_version)
