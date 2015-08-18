@@ -92,7 +92,7 @@ jar {
 task tla2b(dependsOn: build) << {
 	copy {
 		from('build/libs/')
-		into('build/tla2b')
+		into('.')
 		include('tla2bAST-'+project.version+'.jar')
 		rename('tla2bAST-(.+)', 'TLA2B.jar')
 	}
