@@ -1,5 +1,4 @@
 language: java
-script: gradle tla2b uploadArchives
 before_install:
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out secring.gpg
   -d
