@@ -1,0 +1,21 @@
+language: java
+
+script: gradle tla2b check uploadArchives
+
+before_install:
+- openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out secring.gpg
+  -d
+- openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in pubring.gpg.enc -out pubring.gpg
+  -d
+- openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in gradle.properties.enc -out
+  gradle.properties -d
+
+after_success: find TLA2B.jar -type f -exec
+  curl -u $FTP_USER:$FTP_PASS --ftp-create-dirs -T {} ftp://cobra.cs.uni-duesseldorf.de/upload/{}
+  \;
+
+env:
+  global:
+  - secure: RSWp6NRFm5iSK76fm6Ms1FLyUKMKhXt1JrUAQ6x558R73mT7SUvdKbBn9Ffh+TiNO6JVsma3KFoHvYnx8Ys6OGipyXW8g2DKiyg3jm2im4HTtxJqpp7Rls0gm0jGpjOOLwkWl719DZLC6+cPoUuGWtAk8FbowkBz1uWySnJSltI=
+  - secure: COBSC/26p1nTF3rZgSdy1iz7biCnwULsTrc5R6HvcZwlve8jtMej6Nr0oecjcAFvZaaKrEZTSSRtI3W5gwC5Jxpffgrf0ZmJPXg1BPwamve97s7Gyhfb1wyJWRPOkt71AVqBXe6yvSnjm5jeExsE+mUIpurmG9eUaWGDU8gXRv0=
+  - secure: G0dFwNmRNpxhqUYJyx+Ua7/Grb+AMLCipOuysyeR6ImRPHCwI1i5Hd5pPnRqq30psTiWllFc5eijqVvx19bLIUARG0pH7rUBcKNeL0R9THpJcflOO3NNAx5wF01jpuK0CnkDfnz90FDpjvB6vPi2NCInMKypuozxMsMZVnhzm90=

@@ -4,19 +4,26 @@ apply plugin: 'maven'
 apply plugin: 'jacoco'
 apply plugin: 'findbugs'
 
-project.version = '1.0.5-SNAPSHOT'
-project.group = 'de.prob'
+project.version = '1.0.8-SNAPSHOT'
+project.group = 'de.hhu.stups'
+project.archivesBaseName = "tla2bAST"
+
 
 
 repositories {
 	mavenCentral()
+        maven {
+		name "sonatype snapshots"
+		url "https://oss.sonatype.org/content/repositories/snapshots"
+	}
 	maven {
-	    	url "http://cobra.cs.uni-duesseldorf.de/artifactory/repo"
+		name "cobra"
+		url "http://cobra.cs.uni-duesseldorf.de/artifactory/repo"
 	}
 }
 
 configurations { // configuration that holds jars to copy into lib
-	releaseJars 
+	releaseJars
 }
 
 configurations.all {
@@ -27,22 +34,22 @@ def parser_version = '2.5.0-SNAPSHOT'
 
 dependencies {
 	//compile (group: 'com.microsoft', name: 'tla2tools', version: '1.4.6')
-	compile (group: 'de.tla', name: 'tlatools', version: '1.0.0-SNAPSHOT')
-	
-	compile (group: 'de.prob', name: 'prologlib', version: parser_version)
-	compile (group: 'de.prob', name: 'parserbase', version: parser_version)
-	compile (group: 'de.prob', name: 'bparser', version: parser_version)
-	compile (group: 'de.prob', name: 'ltlparser', version: parser_version)
-	
+	compile (group: 'de.hhu.stups', name: 'tlatools', version: '1.0.0')
+
+	compile (group: 'de.hhu.stups', name: 'prologlib', version: parser_version)
+	compile (group: 'de.hhu.stups', name: 'parserbase', version: parser_version)
+	compile (group: 'de.hhu.stups', name: 'bparser', version: parser_version)
+	compile (group: 'de.hhu.stups', name: 'ltlparser', version: parser_version)
+
 	//compile(group: 'de.prob', name: 'de.prob.core.kernel', version: '2.0.0-milestone-13-SNAPSHOT')
 
 	testCompile (group: 'junit', name: 'junit', version: '4.7')
 
-	releaseJars (group: 'de.tla', name: 'tlatools', version: '1.0.0-SNAPSHOT')
-	releaseJars (group: 'de.prob', name: 'prologlib', version: parser_version)
-	releaseJars (group: 'de.prob', name: 'parserbase', version: parser_version)
-	releaseJars (group: 'de.prob', name: 'bparser', version: parser_version)
-	releaseJars (group: 'de.prob', name: 'ltlparser', version: parser_version)
+	releaseJars (group: 'de.hhu.stups', name: 'tlatools', version: '1.0.0')
+	releaseJars (group: 'de.hhu.stups', name: 'prologlib', version: parser_version)
+	releaseJars (group: 'de.hhu.stups', name: 'parserbase', version: parser_version)
+	releaseJars (group: 'de.hhu.stups', name: 'bparser', version: parser_version)
+	releaseJars (group: 'de.hhu.stups', name: 'ltlparser', version: parser_version)
 }
 
 jacoco {
@@ -61,17 +68,17 @@ tasks.withType(FindBugs) {
 	// disable findbugs by default
 	// in order to run findbugs type 'gradle tlc4b findbugsMain findbugsTest'
 	task -> enabled = gradle.startParameter.taskNames.contains(task.name)
-	
+
     reports {
         xml.enabled = false
         html.enabled = true
     }
-	
+
 	ignoreFailures = true
 }
 
 
-test { 
+test {
 	exclude('testing')
 	//allJvmArgs = [ "-Xss515m" ]
 }
@@ -90,8 +97,78 @@ jar {
 task tla2b(dependsOn: build) << {
 	copy {
 		from('build/libs/')
-		into('build/tla2b')
+		into('.')
 		include('tla2bAST-'+project.version+'.jar')
 		rename('tla2bAST-(.+)', 'TLA2B.jar')
 	}
+}
+
+if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
+
+apply plugin: 'signing'
+
+signing {
+    sign configurations.archives
+}
+
+
+task javadocJar(type: Jar) {
+	 classifier = 'javadoc'
+	 from javadoc
+}
+
+task sourcesJar(type: Jar) {
+	 classifier = 'sources'
+	 from sourceSets.main.allSource
+}
+
+artifacts {
+	 archives javadocJar, sourcesJar
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+      repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+        authentication(userName: ossrhUsername, password: ossrhPassword)
+      }
+
+      pom.project {
+        name 'TLA+ to B-AST'
+        packaging 'jar'
+        // optionally artifactId can be defined here
+        description "Translator from TLA+ to ProB's AST representation."
+        url 'https://github.com/hhu-stups/tla2bAST'
+
+        licenses {
+          license {
+            name 'Eclipse Public License, Version 1.0'
+            url 'https://www.eclipse.org/legal/epl-v10.html'
+          }
+        }
+
+        scm {
+          connection 'scm:git:git://github.com/hhu-stups/tla2bAST.git'
+          developerConnection 'scm:git:git@github.com:hhu-stups/tla2bAST.git'
+          url 'https://github.com/bendisposto/hhu-stups/tla2bAST'
+        }
+
+
+        developers {
+          developer {
+            id 'bendisposto'
+            name 'Jens Bendisposto'
+            email 'jens@bendisposto.de'
+          }
+        }
+      }
+    }
+  }
+}
 }
