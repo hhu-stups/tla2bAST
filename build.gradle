@@ -7,6 +7,7 @@ apply plugin: 'findbugs'
 project.version = '1.0.5-SNAPSHOT'
 project.group = 'de.prob'
 
+
 repositories {
 	mavenCentral()
 	maven {
@@ -17,6 +18,10 @@ repositories {
 configurations { // configuration that holds jars to copy into lib
 	releaseJars 
 }
+
+configurations.all {
+	resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+   }
  
 def parser_version = '2.5.0-SNAPSHOT'
 
@@ -68,7 +73,7 @@ tasks.withType(FindBugs) {
 
 test { 
 	exclude('testing')
-	allJvmArgs = [ "-Xss515m" ]
+	//allJvmArgs = [ "-Xss515m" ]
 }
 
 jar { from sourceSets.main.allJava }
