@@ -41,16 +41,16 @@ public class ModuleNaturalsTest {
 	}
 
 	/**********************************************************************
-	 * Arithmetic operator: +, -, *, \div, %, ^
+	 * Arithmetic operator: +, -, *, %, ^ (\div operator is not tested)
 	 **********************************************************************/
 	@Test
 	public void testArithmeticOperators() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
-				+ "ASSUME 1 + 2 = 4-1 /\\ 1 * 2 = 4 \\div 2 /\\  1 ^ 1 = 1 \n"
+				+ "ASSUME 1 + 2 = 4-1 /\\ 1 * 2 = 2 /\\  1 ^ 1 = 1 \n"
 				+ "=================================";
 		final String expected = "MACHINE Testing\n"
-				+ "PROPERTIES 1 + 2 = 4 - 1 & 1 * 2 = 4 / 2 & 1 ** 1 = 1 \n"
+				+ "PROPERTIES 1 + 2 = 4 - 1 & 1 * 2 = 2 & 1 ** 1 = 1 \n"
 				+ "END";
 		compare(expected, module);
 	}

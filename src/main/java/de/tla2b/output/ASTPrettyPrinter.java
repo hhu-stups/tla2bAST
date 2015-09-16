@@ -15,6 +15,7 @@ import de.be4.classicalb.core.parser.node.ADefinitionPredicate;
 import de.be4.classicalb.core.parser.node.AExpressionDefinitionDefinition;
 import de.be4.classicalb.core.parser.node.AGeneralSumExpression;
 import de.be4.classicalb.core.parser.node.AIdentifierExpression;
+import de.be4.classicalb.core.parser.node.AIfThenElseExpression;
 import de.be4.classicalb.core.parser.node.ALambdaExpression;
 import de.be4.classicalb.core.parser.node.AOperation;
 import de.be4.classicalb.core.parser.node.AOperationsMachineClause;
@@ -624,6 +625,19 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 		sb.append(" | ");
 		node.getExpression().apply(this);
 		sb.append(")");
+	}
+
+	@Override
+	public void caseAIfThenElseExpression(AIfThenElseExpression node) {
+		sb.append("(%t_.( t_ = 0 & ");
+		node.getCondition().apply(this);
+		sb.append(" | ");
+		node.getThen().apply(this);
+		sb.append(")\\/%t_.( t_ = 0 & not(");
+		node.getCondition().apply(this);
+		sb.append(") | ");
+		node.getElse().apply(this);
+		sb.append(" ))(0)");
 	}
 
 	@Override

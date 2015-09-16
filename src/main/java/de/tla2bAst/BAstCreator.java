@@ -118,7 +118,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 						.getName());
 				return OperatorTypes.bbuiltInOperatorIsPredicate(opcode);
 			}
-		} else if (expr.getKind() == LetInKind){
+		} else if (expr.getKind() == LetInKind) {
 			LetInNode letInNode = (LetInNode) expr;
 			return expressionIsAPredicate(letInNode.getBody());
 		}
@@ -964,7 +964,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 				defCall.setParameters(params);
 				return defCall;
 			}
-		}else{
+		} else {
 			FormalParamNode[] params = def.getParams();
 			for (int i = 0; i < params.length; i++) {
 				FormalParamNode param = params[i];
@@ -1193,7 +1193,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		}
 
 		case B_OPCODE_div: // /
-			return new ADivExpression(
+			return new AFlooredDivExpression(
 					visitExprOrOpArgNodeExpression(n.getArgs()[0]),
 					visitExprOrOpArgNodeExpression(n.getArgs()[1]));
 
@@ -1795,37 +1795,43 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		}
 
 		case OPCODE_ite: { // IF THEN ELSE
-			ALambdaExpression lambda1 = new ALambdaExpression();
-			lambda1.setIdentifiers(createIdentifierList("t_"));
-			AEqualPredicate eq1 = new AEqualPredicate(
-					createIdentifierNode("t_"), new AIntegerExpression(
-							new TIntegerLiteral("0")));
-			AConjunctPredicate c1 = new AConjunctPredicate();
-			c1.setLeft(eq1);
-			c1.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-			lambda1.setPredicate(c1);
-			lambda1.setExpression(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+			AIfThenElseExpression ifthenElse = new AIfThenElseExpression(
+					visitExprOrOpArgNodePredicate(n.getArgs()[0]),
+					visitExprOrOpArgNodeExpression(n.getArgs()[1]),
+					visitExprOrOpArgNodeExpression(n.getArgs()[2]));
+			return ifthenElse;
 
-			ALambdaExpression lambda2 = new ALambdaExpression();
-			lambda2.setIdentifiers(createIdentifierList("t_"));
-			AEqualPredicate eq2 = new AEqualPredicate(
-					createIdentifierNode("t_"), new AIntegerExpression(
-							new TIntegerLiteral("0")));
-			AConjunctPredicate c2 = new AConjunctPredicate();
-			c2.setLeft(eq2);
-			ANegationPredicate not = new ANegationPredicate(
-					visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-			c2.setRight(not);
-			lambda2.setPredicate(c2);
-			lambda2.setExpression(visitExprOrOpArgNodeExpression(n.getArgs()[2]));
-
-			AUnionExpression union = new AUnionExpression(lambda1, lambda2);
-			AFunctionExpression funCall = new AFunctionExpression();
-			funCall.setIdentifier(union);
-			List<PExpression> list = new ArrayList<PExpression>();
-			list.add(new AIntegerExpression(new TIntegerLiteral("0")));
-			funCall.setParameters(list);
-			return funCall;
+			// ALambdaExpression lambda1 = new ALambdaExpression();
+			// lambda1.setIdentifiers(createIdentifierList("t_"));
+			// AEqualPredicate eq1 = new AEqualPredicate(
+			// createIdentifierNode("t_"), new AIntegerExpression(
+			// new TIntegerLiteral("0")));
+			// AConjunctPredicate c1 = new AConjunctPredicate();
+			// c1.setLeft(eq1);
+			// c1.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
+			// lambda1.setPredicate(c1);
+			// lambda1.setExpression(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+			//
+			// ALambdaExpression lambda2 = new ALambdaExpression();
+			// lambda2.setIdentifiers(createIdentifierList("t_"));
+			// AEqualPredicate eq2 = new AEqualPredicate(
+			// createIdentifierNode("t_"), new AIntegerExpression(
+			// new TIntegerLiteral("0")));
+			// AConjunctPredicate c2 = new AConjunctPredicate();
+			// c2.setLeft(eq2);
+			// ANegationPredicate not = new ANegationPredicate(
+			// visitExprOrOpArgNodePredicate(n.getArgs()[0]));
+			// c2.setRight(not);
+			// lambda2.setPredicate(c2);
+			// lambda2.setExpression(visitExprOrOpArgNodeExpression(n.getArgs()[2]));
+			//
+			// AUnionExpression union = new AUnionExpression(lambda1, lambda2);
+			// AFunctionExpression funCall = new AFunctionExpression();
+			// funCall.setIdentifier(union);
+			// List<PExpression> list = new ArrayList<PExpression>();
+			// list.add(new AIntegerExpression(new TIntegerLiteral("0")));
+			// funCall.setParameters(list);
+			// return funCall;
 		}
 
 		case OPCODE_case: {

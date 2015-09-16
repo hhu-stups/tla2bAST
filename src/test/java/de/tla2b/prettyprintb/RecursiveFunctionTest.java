@@ -23,6 +23,7 @@ public class RecursiveFunctionTest {
 
 	}
 
+	@Ignore
 	@Test
 	public void testFactorial() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -39,6 +40,7 @@ public class RecursiveFunctionTest {
 
 	}
 
+	@Ignore
 	@Test
 	public void testFactorial2() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -54,6 +56,7 @@ public class RecursiveFunctionTest {
 		compare(expected, module);
 	}
 
+	@Ignore
 	@Test
 	public void testSum() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"

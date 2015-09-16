@@ -19,13 +19,12 @@ public class SimpleExpressionTest {
 	public void testSimplePredicate() throws Exception {
 		compareExpr("1 = 1", "1 = 1");
 	}
-	
+
 	@Test
 	public void testSimplePredicate2() throws Exception {
 		compareExpr("1 < 1", "1 < 1");
 	}
-	
-	
+
 	@Test
 	public void testModulIntegers() throws Exception {
 		compareExpr("-1 : INTEGER", "-1 \\in Int");
