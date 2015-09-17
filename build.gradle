@@ -35,8 +35,7 @@ configurations.all {
 def parser_version = '2.5.0-SNAPSHOT'
 
 dependencies {
-	//compile (group: 'com.microsoft', name: 'tla2tools', version: '1.4.6')
-	compile (group: 'de.hhu.stups', name: 'tlatools', version: '1.0.0')
+	compile (group: 'de.hhu.stups', name: 'tlatools', version: '1.0.2-SNAPSHOT')
 
 	compile (group: 'de.hhu.stups', name: 'prologlib', version: parser_version)
 	compile (group: 'de.hhu.stups', name: 'parserbase', version: parser_version)
