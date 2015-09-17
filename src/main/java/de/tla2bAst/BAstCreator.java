@@ -1178,17 +1178,17 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 					visitExprOrOpArgNodeExpression(n.getArgs()[0]),
 					visitExprOrOpArgNodeExpression(n.getArgs()[1])));
 
-		case B_OPCODE_mod: // modulo
+		case B_OPCODE_mod: // modulo  a % b =  a - b* (a/b) 
 		{
-			PExpression f = visitExprOrOpArgNodeExpression(n.getArgs()[0]);
-			PExpression s = visitExprOrOpArgNodeExpression(n.getArgs()[1]);
-			PExpression f2 = visitExprOrOpArgNodeExpression(n.getArgs()[0]);
-			PExpression s2 = visitExprOrOpArgNodeExpression(n.getArgs()[1]);
+			PExpression a = visitExprOrOpArgNodeExpression(n.getArgs()[0]);
+			PExpression b = visitExprOrOpArgNodeExpression(n.getArgs()[1]);
+			PExpression a2 = visitExprOrOpArgNodeExpression(n.getArgs()[0]);
+			PExpression b2 = visitExprOrOpArgNodeExpression(n.getArgs()[1]);
 
-			ADivExpression div = new ADivExpression(f, s);
-			AMultOrCartExpression mult = new AMultOrCartExpression(s2, div);
+			AFlooredDivExpression div = new AFlooredDivExpression(a, b);
+			AMultOrCartExpression mult = new AMultOrCartExpression(b2, div);
 			AMinusOrSetSubtractExpression minus = new AMinusOrSetSubtractExpression(
-					f2, mult);
+					a2, mult);
 			return minus;
 		}
 

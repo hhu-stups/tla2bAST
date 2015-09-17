@@ -13,6 +13,7 @@ import de.be4.classicalb.core.parser.node.AConjunctPredicate;
 import de.be4.classicalb.core.parser.node.ADefinitionExpression;
 import de.be4.classicalb.core.parser.node.ADefinitionPredicate;
 import de.be4.classicalb.core.parser.node.AExpressionDefinitionDefinition;
+import de.be4.classicalb.core.parser.node.AFlooredDivExpression;
 import de.be4.classicalb.core.parser.node.AGeneralSumExpression;
 import de.be4.classicalb.core.parser.node.AIdentifierExpression;
 import de.be4.classicalb.core.parser.node.AIfThenElseExpression;
@@ -638,6 +639,13 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 		sb.append(") | ");
 		node.getElse().apply(this);
 		sb.append(" ))(0)");
+	}
+
+	@Override
+	public void caseAFlooredDivExpression(AFlooredDivExpression node) {
+		node.getLeft().apply(this);
+		sb.append(" \\div ");
+		node.getRight().apply(this);
 	}
 
 	@Override

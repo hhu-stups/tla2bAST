@@ -62,7 +62,7 @@ public class TLA2B implements TranslationGlobals {
 			System.err.println(e.getMessage());
 			System.exit(-1);
 		}
-		translator.createMachineFile();
+		//translator.createMachineFile();
 		translator.createProbFile();
 	}
 
