@@ -24,19 +24,15 @@ repositories {
 	}
 }
 
-configurations { // configuration that holds jars to copy into lib
-	releaseJars
-}
-
 configurations.all {
 	resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
    }
  
 def parser_version = '2.5.0-SNAPSHOT'
+def tlatools_version = '1.0.2-SNAPSHOT'
 
 dependencies {
-	compile (group: 'de.hhu.stups', name: 'tlatools', version: '1.0.2-SNAPSHOT')
-
+	compile (group: 'de.hhu.stups', name: 'tlatools', version: tlatools_version)
 	compile (group: 'de.hhu.stups', name: 'prologlib', version: parser_version)
 	compile (group: 'de.hhu.stups', name: 'parserbase', version: parser_version)
 	compile (group: 'de.hhu.stups', name: 'bparser', version: parser_version)
@@ -44,13 +40,7 @@ dependencies {
 
 	//compile(group: 'de.prob', name: 'de.prob.core.kernel', version: '2.0.0-milestone-13-SNAPSHOT')
 
-	testCompile (group: 'junit', name: 'junit', version: '4.7')
-
-	releaseJars (group: 'de.hhu.stups', name: 'tlatools', version: '1.0.0')
-	releaseJars (group: 'de.hhu.stups', name: 'prologlib', version: parser_version)
-	releaseJars (group: 'de.hhu.stups', name: 'parserbase', version: parser_version)
-	releaseJars (group: 'de.hhu.stups', name: 'bparser', version: parser_version)
-	releaseJars (group: 'de.hhu.stups', name: 'ltlparser', version: parser_version)
+	testCompile (group: 'junit', name: 'junit', version: '4.+')
 }
 
 jacoco {
@@ -84,23 +74,25 @@ test {
 	//allJvmArgs = [ "-Xss515m" ]
 }
 
-jar { from sourceSets.main.allJava }
-jar	{
-	from configurations.releaseJars.collect { it.isDirectory() ? it : zipTree(it) }
-}
 
-jar {
+task createJar(type: Jar, dependsOn: build){
+	archiveName = 'TLA2B.jar'
+	//from sourceSets.main.allJava
+	from sourceSets.main.output
+	//from {configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+	from {configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+	exclude('**/*.java')
 	manifest {
 		attributes "Main-Class" : 'de.tla2b.TLA2B'
 	}
 }
 
-task tla2b(dependsOn: build) << {
+
+task tla2b(dependsOn: createJar) << {
 	copy {
 		from('build/libs/')
 		into('.')
-		include('tla2bAST-'+project.version+'.jar')
-		rename('tla2bAST-(.+)', 'TLA2B.jar')
+		include('TLA2B.jar')
 	}
 }
 

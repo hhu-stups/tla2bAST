@@ -11,7 +11,11 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import de.be4.classicalb.core.parser.BParser;
 import de.be4.classicalb.core.parser.Definitions;
@@ -19,6 +23,10 @@ import de.be4.classicalb.core.parser.analysis.prolog.RecursiveMachineLoader;
 import de.be4.classicalb.core.parser.exceptions.BException;
 import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.Start;
+import de.hhu.stups.sablecc.patch.IToken;
+import de.hhu.stups.sablecc.patch.PositionedNode;
+import de.hhu.stups.sablecc.patch.SourcePositions;
+import de.hhu.stups.sablecc.patch.SourcecodeRange;
 import de.tla2b.analysis.InstanceTransformation;
 import de.tla2b.analysis.PredicateVsExpression;
 import de.tla2b.analysis.SpecAnalyser;
@@ -52,6 +60,8 @@ public class Translator implements TranslationGlobals {
 	private Hashtable<Node, TLAType> typeTable;
 
 	private Definitions bDefinitions;
+
+	private BAstCreator bAstCreator;
 
 	// private String moduleName;
 	private ModuleNode moduleNode;
@@ -95,6 +105,7 @@ public class Translator implements TranslationGlobals {
 
 	/**
 	 * External interface
+	 * 
 	 * @param moduleName
 	 * @param moduleString
 	 * @param configString
@@ -263,9 +274,10 @@ public class Translator implements TranslationGlobals {
 		RecursiveFunctionHandler recursiveFunctionHandler = new RecursiveFunctionHandler(
 				specAnalyser);
 		BMacroHandler bMacroHandler = new BMacroHandler(specAnalyser, conEval);
-		BAstCreator bAstCreator = new BAstCreator(moduleNode, conEval,
-				specAnalyser, usedExternalFunctions, predicateVsExpression,
-				bMacroHandler, recursiveFunctionHandler);
+		bAstCreator = new BAstCreator(moduleNode, conEval, specAnalyser,
+				usedExternalFunctions, predicateVsExpression, bMacroHandler,
+				recursiveFunctionHandler);
+
 		this.BAst = bAstCreator.getStartNode();
 		this.typeTable = bAstCreator.getTypeTable();
 		this.bDefinitions = bAstCreator.getBDefinitions();
@@ -297,7 +309,7 @@ public class Translator implements TranslationGlobals {
 			String moduleName = FileUtils.removeExtention(moduleFile.getName());
 			PrologPrinter prologPrinter = new PrologPrinter(rml, bParser,
 					moduleFile, moduleName, typeTable);
-			// prologPrinter.printAsProlog(new PrintWriter(probFile), false);
+			prologPrinter.setPositions(bAstCreator.getSourcePositions());
 
 			PrintWriter outWriter = new PrintWriter(probFile, "UTF-8");
 			prologPrinter.printAsProlog(outWriter, false);
@@ -317,7 +329,7 @@ public class Translator implements TranslationGlobals {
 
 	public void createMachineFile() {
 		String bFile = FileUtils.removeExtention(moduleFile.getAbsolutePath());
-		bFile = bFile + "_tla.mch";
+		bFile = bFile + "_tla.txt";
 
 		File machineFile;
 		machineFile = new File(bFile);
@@ -378,7 +390,8 @@ public class Translator implements TranslationGlobals {
 			final File f, final BParser bparser) throws BException {
 		final RecursiveMachineLoader rml = new RecursiveMachineLoader(
 				f.getParent(), bparser.getContentProvider());
-		rml.loadAllMachines(f, ast, null, bparser.getDefinitions());
+		rml.loadAllMachines(f, ast, bparser.getSourcePositions(),
+				bparser.getDefinitions());
 		return rml;
 	}
 

@@ -1,11 +1,13 @@
 package de.tla2b.output;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Hashtable;
 
 import de.be4.classicalb.core.parser.analysis.prolog.NodeIdAssignment;
 import de.be4.classicalb.core.parser.analysis.prolog.PositionPrinter;
 import de.be4.classicalb.core.parser.node.Node;
+import de.hhu.stups.sablecc.patch.PositionedNode;
 import de.hhu.stups.sablecc.patch.SourcePositions;
 import de.prob.prolog.output.IPrologTermOutput;
 import de.tla2b.exceptions.NotImplementedException;
@@ -31,7 +33,7 @@ public class TlaTypePrinter implements PositionPrinter, TypeVisitorInterface {
 
 	private final Hashtable<Node, TLAType> typeTable;
 
-	private SourcePositions positions;
+	private HashSet<PositionedNode> positions;
 
 	// public TlaTypePrinter(final NodeIdAssignment nodeIds) {
 	// this.nodeIds = nodeIds;
@@ -43,7 +45,7 @@ public class TlaTypePrinter implements PositionPrinter, TypeVisitorInterface {
 		this.typeTable = typeTable;
 	}
 
-	public void setSourcePositions(final SourcePositions positions) {
+	public void setSourcePositions(final HashSet<PositionedNode> positions) {
 		this.positions = positions;
 	}
 
@@ -57,17 +59,18 @@ public class TlaTypePrinter implements PositionPrinter, TypeVisitorInterface {
 		if (id == null) {
 			pout.printAtom("none");
 		} else {
-			if (positions == null) {
-				pout.printNumber(id);
-			} else {
+			if (positions != null && positions.contains(node)) {
+				PositionedNode pNode = (PositionedNode) node;
 				pout.openTerm("pos", true);
 				pout.printNumber(id);
 				pout.printNumber(nodeIds.lookupFileNumber(node));
-				pout.printNumber(positions.getBeginLine(node));
-				pout.printNumber(positions.getBeginColumn(node));
-				pout.printNumber(positions.getEndLine(node));
-				pout.printNumber(positions.getEndColumn(node));
+				pout.printNumber(pNode.getStartPos().getLine());
+				pout.printNumber(pNode.getStartPos().getPos());
+				pout.printNumber(pNode.getEndPos().getLine());
+				pout.printNumber(pNode.getEndPos().getPos());
 				pout.closeTerm();
+			} else {
+				pout.printNumber(id);
 			}
 		}
 		if (type != null) {

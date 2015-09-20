@@ -177,7 +177,7 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 		case BuiltInKind:// Buildin operator can not be overridden by in the
 							// configuration file
 			ExprNode[] ins = n.getBdedQuantBounds();
-			if(ins != null){
+			if (ins != null) {
 				for (int i = 0; i < ins.length; i++) {
 
 					OpApplNode res = visitExprOrOpArgNode(ins[i]);
@@ -190,38 +190,46 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 			break;
 
 		case UserDefinedOpKind: {
-			if (operatorOverrideTable.containsKey(s)) {
-				SymbolNode newOperator = operatorOverrideTable.get(s);
-				OpApplNode newNode = null;
-				OpDefNode def = (OpDefNode) n.getOperator();
-				try {
-					newNode = new OpApplNode(newOperator, n.getArgs(),
-							n.getTreeNode(),
-							def.getOriginallyDefinedInModuleNode());
-				} catch (AbortException e) {
-					e.printStackTrace();
-				}
+			OpDefNode operator = (OpDefNode) n.getOperator();
+			if (!operatorOverrideTable.containsKey(operator.getSource())
+					&& !operatorOverrideTable.containsKey(operator))
+				break;
 
-				for (int i = 0; i < n.getArgs().length; i++) {
-					if (n.getArgs()[i] != null) {
-						OpApplNode res = visitExprOrOpArgNode(n.getArgs()[i]);
-						if (res != null) {
-							n.getArgs()[i] = res;
-						}
-					}
-
-				}
-				// n.setOperator(constantOverrideTable.get(s));
-				return newNode;
+			SymbolNode newOperator = null;
+			// IF there are two override statements in the configuration file
+			//(a: Add <- (Rule) Add2, b: R1!Add <- Add3)
+			// TLC uses variant a) overriding the source definition
+			if (operatorOverrideTable.containsKey(operator.getSource())) {
+				newOperator = operatorOverrideTable.get(operator.getSource());
+			} else {
+				newOperator = operatorOverrideTable.get(operator);
 			}
-			break;
+			OpApplNode newNode = null;
+			OpDefNode def = (OpDefNode) n.getOperator();
+			try {
+				newNode = new OpApplNode(newOperator, n.getArgs(),
+						n.getTreeNode(), def.getOriginallyDefinedInModuleNode());
+			} catch (AbortException e) {
+				e.printStackTrace();
+			}
+			for (int i = 0; i < n.getArgs().length; i++) {
+				if (n.getArgs()[i] != null) {
+					OpApplNode res = visitExprOrOpArgNode(n.getArgs()[i]);
+					if (res != null) {
+						n.getArgs()[i] = res;
+					}
+				}
+
+			}
+			// n.setOperator(constantOverrideTable.get(s));
+			return newNode;
 		}
 		}
 
 		for (int i = 0; i < n.getArgs().length; i++) {
 			if (n.getArgs()[i] != null) {
-				ExprOrOpArgNode arg =n.getArgs()[i];
-				if(arg != null){
+				ExprOrOpArgNode arg = n.getArgs()[i];
+				if (arg != null) {
 					OpApplNode res = visitExprOrOpArgNode(n.getArgs()[i]);
 					if (res != null) {
 						n.getArgs()[i] = res;

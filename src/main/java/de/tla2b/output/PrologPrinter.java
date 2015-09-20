@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import de.be4.classicalb.core.parser.analysis.prolog.ASTProlog;
 import de.be4.classicalb.core.parser.analysis.prolog.RecursiveMachineLoader;
 import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.Start;
+import de.hhu.stups.sablecc.patch.PositionedNode;
 import de.hhu.stups.sablecc.patch.SourcePositions;
 import de.prob.prolog.output.IPrologTermOutput;
 import de.prob.prolog.output.PrologTermOutput;
@@ -24,18 +26,22 @@ public class PrologPrinter {
 	BParser bParser;
 	String moduleName;
 
-	private final Map<String, SourcePositions> positions = new HashMap<String, SourcePositions>();
+	//private final Map<String, SourcePositions> positions = new HashMap<String, SourcePositions>();
+	private HashSet<PositionedNode> positions;
 	private final List<File> files = new ArrayList<File>();
 	private final Hashtable<Node, TLAType> typeTable;
-		
-	
-	public PrologPrinter(RecursiveMachineLoader rml, BParser bParser, File mainFile,
-			String moduleName, Hashtable<Node, TLAType> typeTable) {
+
+	public PrologPrinter(RecursiveMachineLoader rml, BParser bParser,
+			File mainFile, String moduleName, Hashtable<Node, TLAType> typeTable) {
 		this.rml = rml;
 		this.bParser = bParser;
 		this.moduleName = moduleName;
 		this.typeTable = typeTable;
 		files.add(mainFile);
+	}
+
+	public void setPositions( HashSet<PositionedNode> sourcePositions) {
+		positions = sourcePositions;
 	}
 
 	public void printAsProlog(final PrintWriter out, final boolean useIndention) {
@@ -47,9 +53,11 @@ public class PrologPrinter {
 		// final ClassicalPositionPrinter pprinter = new
 		// ClassicalPositionPrinter(
 		// rml.getNodeIdMapping());
-		
-		final TlaTypePrinter pprinter = new TlaTypePrinter(rml.getNodeIdMapping(), typeTable);
 
+		final TlaTypePrinter pprinter = new TlaTypePrinter(
+				rml.getNodeIdMapping(), typeTable);
+		pprinter.setSourcePositions(positions);
+		
 		final ASTProlog prolog = new ASTProlog(pout, pprinter);
 
 		// parser version
@@ -75,8 +83,8 @@ public class PrologPrinter {
 		for (final Map.Entry<String, Start> entry : rml.getParsedMachines()
 				.entrySet()) {
 			pout.openTerm("machine");
-			final SourcePositions src = positions.get(entry.getKey());
-			pprinter.setSourcePositions(src);
+			//final SourcePositions src = positions.get(entry.getKey());
+			//pprinter.setSourcePositions(src);
 			entry.getValue().apply(prolog);
 			pout.closeTerm();
 			pout.fullstop();

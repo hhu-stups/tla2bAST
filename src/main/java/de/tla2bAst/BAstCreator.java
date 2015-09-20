@@ -2,6 +2,7 @@ package de.tla2bAst;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -21,8 +22,11 @@ import tla2sany.semantic.NumeralNode;
 import tla2sany.semantic.OpApplNode;
 import tla2sany.semantic.OpDeclNode;
 import tla2sany.semantic.OpDefNode;
+import tla2sany.semantic.SemanticNode;
 import tla2sany.semantic.StringNode;
 import tla2sany.semantic.SymbolNode;
+import tla2sany.semantic.ThmOrAssumpDefNode;
+import tla2sany.st.Location;
 import tlc2.tool.BuiltInOPs;
 import tlc2.value.ModelValue;
 import tlc2.value.SetEnumValue;
@@ -31,6 +35,8 @@ import tlc2.value.Value;
 import tlc2.value.ValueConstants;
 import de.be4.classicalb.core.parser.Definitions;
 import de.be4.classicalb.core.parser.node.*;
+import de.hhu.stups.sablecc.patch.PositionedNode;
+import de.hhu.stups.sablecc.patch.SourcePosition;
 import de.tla2b.analysis.BOperation;
 import de.tla2b.analysis.PredicateVsExpression;
 import de.tla2b.analysis.RecursiveDefinition;
@@ -75,6 +81,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 
 	private Start start;
 	private final Hashtable<Node, TLAType> typeTable = new Hashtable<Node, TLAType>();
+	private final HashSet<PositionedNode> sourcePosition = new HashSet<PositionedNode>();
 
 	public Start expressionStart;
 
@@ -452,8 +459,11 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		if (bVariables.size() > 0) {
 			List<PExpression> list = new ArrayList<PExpression>();
 			for (OpDeclNode opDeclNode : bVariables) {
-				AIdentifierExpression id = new AIdentifierExpression(
-						createTIdentifierLiteral(getName(opDeclNode)));
+
+				AIdentifierExpression id = createPositionedNode(
+						new AIdentifierExpression(
+								createTIdentifierLiteral(getName(opDeclNode))),
+						opDeclNode);
 				list.add(id);
 				TLAType type = (TLAType) opDeclNode.getToolObject(TYPE_ID);
 				typeTable.put(id, type);
@@ -469,8 +479,10 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 
 		for (RecursiveDefinition recDef : specAnalyser
 				.getRecursiveDefinitions()) {
-			AIdentifierExpression id = new AIdentifierExpression(
-					createTIdentifierLiteral(getName(recDef.getOpDefNode())));
+			AIdentifierExpression id = createPositionedNode(
+					new AIdentifierExpression(
+							createTIdentifierLiteral(getName(recDef
+									.getOpDefNode()))), recDef.getOpDefNode());
 			constantsList.add(id);
 			TLAType type = (TLAType) recDef.getOpDefNode().getToolObject(
 					TYPE_ID);
@@ -502,8 +514,10 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 
 		List<PExpression> constantsList = new ArrayList<PExpression>();
 		for (OpDeclNode opDeclNode : bConstants) {
-			AIdentifierExpression id = new AIdentifierExpression(
-					createTIdentifierLiteral(getName(opDeclNode)));
+			AIdentifierExpression id = createPositionedNode(
+					new AIdentifierExpression(
+							createTIdentifierLiteral(getName(opDeclNode))),
+					opDeclNode);
 			constantsList.add(id);
 			TLAType type = (TLAType) opDeclNode.getToolObject(TYPE_ID);
 			typeTable.put(id, type);
@@ -517,19 +531,19 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 
 	public AIdentifierExpression createIdentifierNode(SymbolNode symbolNode) {
 		if (bMacroHandler.containsSymbolNode(symbolNode)) {
-			return createIdentifierNode(bMacroHandler.getNewName(symbolNode));
+			return createPositionedNode(
+					createIdentifierNode(bMacroHandler.getNewName(symbolNode)),
+					symbolNode);
 		} else {
-			return createIdentifierNode(symbolNode.getName().toString());
+			return createPositionedNode(createIdentifierNode(symbolNode
+					.getName().toString()), symbolNode);
 		}
 	}
 
 	private void createPropertyClause() {
 		List<PPredicate> propertiesList = new ArrayList<PPredicate>();
-
 		propertiesList.addAll(evalRecursiveDefinitions());
-
 		propertiesList.addAll(evalRecursiveFunctions());
-
 		for (OpDeclNode con : bConstants) {
 			if (conEval != null
 					&& conEval.getConstantAssignments().containsKey(con)
@@ -596,16 +610,30 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		}
 
 		AssumeNode[] assumes = moduleNode.getAssumptions();
+		List<PPredicate> assertionList = new ArrayList<PPredicate>();
 		for (AssumeNode assumeNode : assumes) {
-			propertiesList.add(visitAssumeNode(assumeNode));
+			ThmOrAssumpDefNode def = assumeNode.getDef();
+			if (def != null) {
+				ALabelPredicate aLabelPredicate = new ALabelPredicate(
+						new TPragmaIdOrString(def.getName().toString()),
+						createPositionedNode(visitAssumeNode(assumeNode),
+								assumeNode));
+				assertionList.add(aLabelPredicate);
+			} else {
+				propertiesList.add(visitAssumeNode(assumeNode));
+			}
 		}
-
 		if (propertiesList.size() > 0) {
 			APropertiesMachineClause propertiesClause = new APropertiesMachineClause();
 			propertiesClause.setPredicates(createConjunction(propertiesList));
-
 			machineClauseList.add(propertiesClause);
 		}
+		if (assertionList.size() > 0) {
+			AAssertionsMachineClause assertionClause = new AAssertionsMachineClause();
+			assertionClause.setPredicates(assertionList);
+			machineClauseList.add(assertionClause);
+		}
+
 	}
 
 	private List<PPredicate> evalRecursiveFunctions() {
@@ -616,7 +644,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 					visitExprNodeExpression(def.getBody()));
 			propertiesList.add(equals);
 		}
-
 		return propertiesList;
 	}
 
@@ -668,7 +695,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		case INTVALUE:
 			return new AIntegerExpression(new TIntegerLiteral(
 					tlcValue.toString()));
-
 		case SETENUMVALUE: {
 			SetEnumValue s = (SetEnumValue) tlcValue;
 			ArrayList<PExpression> list = new ArrayList<PExpression>();
@@ -682,12 +708,10 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			ModelValue m = (ModelValue) tlcValue;
 			return createIdentifierNode(m.toString());
 		}
-
 		case STRINGVALUE: {
 			StringValue stringValue = (StringValue) tlcValue;
 			return new AStringExpression(new TStringLiteral(stringValue
 					.getVal().toString()));
-
 		}
 		default:
 			throw new NotImplementedException(
@@ -740,45 +764,39 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		return visitExprNodePredicate(assumeNode.getAssume());
 	}
 
-	public PPredicate visitExprNodePredicate(ExprNode n) {
-		switch (n.getKind()) {
+	public PPredicate visitExprNodePredicate(ExprNode exprNode) {
+		switch (exprNode.getKind()) {
 		case OpApplKind:
-			return visitOpApplNodePredicate((OpApplNode) n);
-
+			return visitOpApplNodePredicate((OpApplNode) exprNode);
 		case LetInKind: {
-			LetInNode letInNode = (LetInNode) n;
+			LetInNode letInNode = (LetInNode) exprNode;
 			return visitExprNodePredicate(letInNode.getBody());
 		}
-
 		case NumeralKind: {
 			throw new RuntimeException();
 		}
-
+		default:
+			throw new NotImplementedException(exprNode.getClass().toString());
 		}
 
-		throw new RuntimeException(n.getClass().toString());
 	}
 
-	private PExpression visitExprNodeExpression(ExprNode n) {
-
-		switch (n.getKind()) {
-
+	private PExpression visitExprNodeExpression(ExprNode exprNode) {
+		switch (exprNode.getKind()) {
 		case OpApplKind:
-			return visitOpApplNodeExpression((OpApplNode) n);
-
+			return visitOpApplNodeExpression((OpApplNode) exprNode);
 		case NumeralKind: {
-			String number = String.valueOf(((NumeralNode) n).val());
-			return new AIntegerExpression(new TIntegerLiteral(number));
+			String number = String.valueOf(((NumeralNode) exprNode).val());
+			return createPositionedNode(new AIntegerExpression(
+					new TIntegerLiteral(number)), exprNode);
 		}
-
 		case StringKind: {
-			StringNode s = (StringNode) n;
-			return new AStringExpression(new TStringLiteral(s.getRep()
-					.toString()));
+			StringNode s = (StringNode) exprNode;
+			return createPositionedNode(new AStringExpression(
+					new TStringLiteral(s.getRep().toString())), exprNode);
 		}
-
 		case AtNodeKind: { // @
-			AtNode at = (AtNode) n;
+			AtNode at = (AtNode) exprNode;
 			TLAType type = (TLAType) at.getExceptRef().getToolObject(TYPE_ID);
 			OpApplNode seq = at.getAtModifier();
 			LinkedList<ExprOrOpArgNode> list = new LinkedList<ExprOrOpArgNode>();
@@ -788,18 +806,16 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			// PExpression base = visitExprNodeExpression(at.getAtBase());
 			PExpression base = (PExpression) at.getExceptComponentRef()
 					.getToolObject(EXCEPT_BASE);
-
 			return evalAtNode(list, type, (PExpression) base.clone());
 		}
-
 		case LetInKind: {
-			LetInNode letInNode = (LetInNode) n;
+			LetInNode letInNode = (LetInNode) exprNode;
 			return visitExprNodeExpression(letInNode.getBody());
 		}
-
+		default:
+			throw new NotImplementedException(exprNode.getClass().toString());
 		}
 
-		throw new RuntimeException(n.getClass().toString());
 	}
 
 	private PExpression evalAtNode(LinkedList<ExprOrOpArgNode> list,
@@ -807,13 +823,11 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		if (list.size() == 0) {
 			return base;
 		}
-
 		if (type instanceof FunctionType) {
 			FunctionType funcType = (FunctionType) type;
 			PExpression param = visitExprOrOpArgNodeExpression(list.poll());
 			List<PExpression> params = new ArrayList<PExpression>();
 			params.add(param);
-
 			AFunctionExpression funCall = new AFunctionExpression();
 			funCall.setIdentifier(base);
 			funCall.setParameters(params);
@@ -823,30 +837,32 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			ARecordFieldExpression select = new ARecordFieldExpression();
 			select.setRecord(base);
 			StringNode stringNode = (StringNode) list.poll();
+			// TODO rename field name
 			String fieldName = stringNode.getRep().toString();
-			select.setIdentifier(createIdentifierNode(fieldName)); // TODO
-																	// renamed
+			select.setIdentifier(createIdentifierNode(fieldName));
 			return evalAtNode(list, structType.getType(fieldName), select);
 		}
 	}
 
-	private PPredicate visitOpApplNodePredicate(OpApplNode n) {
-		switch (n.getOperator().getKind()) {
+	private PPredicate visitOpApplNodePredicate(OpApplNode opApplNode) {
+		switch (opApplNode.getOperator().getKind()) {
 		case VariableDeclKind:
 		case ConstantDeclKind:
 		case FormalParamKind: {
-			return new AEqualPredicate(createIdentifierNode(n.getOperator()),
-					new ABooleanTrueExpression());
+			return createPositionedNode(new AEqualPredicate(
+					createIdentifierNode(opApplNode.getOperator()),
+					new ABooleanTrueExpression()), opApplNode);
 		}
 		case BuiltInKind:
-			return visitBuiltInKindPredicate(n);
+			return visitBuiltInKindPredicate(opApplNode);
 
 		case UserDefinedOpKind: {
-			return visitUserdefinedOpPredicate(n);
+			return visitUserdefinedOpPredicate(opApplNode);
+		}
+		default:
+			throw new NotImplementedException(opApplNode.getClass().toString());
 		}
 
-		}
-		throw new RuntimeException(n.getOperator().getName().toString());
 	}
 
 	private PExpression visitOpApplNodeExpression(OpApplNode n) {
@@ -857,7 +873,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 		case VariableDeclKind: {
 			return createIdentifierNode(n.getOperator());
 		}
-
 		case FormalParamKind: {
 			FormalParamNode param = (FormalParamNode) n.getOperator();
 			ExprOrOpArgNode e = (ExprOrOpArgNode) param
@@ -880,7 +895,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 					return call;
 				}
 			}
-
 			FormalParamNode[] tuple = (FormalParamNode[]) param
 					.getToolObject(TUPLE);
 			if (tuple != null) {
@@ -915,18 +929,17 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 				}
 			}
 			return createIdentifierNode(n.getOperator());
-
 		}
-
 		case BuiltInKind:
 			return visitBuiltInKindExpression(n);
 
 		case UserDefinedOpKind: {
 			return visitUserdefinedOpExpression(n);
 		}
+		default:
+			throw new NotImplementedException(n.getOperator().getName()
+					.toString());
 		}
-
-		throw new RuntimeException(n.getOperator().getName().toString());
 	}
 
 	private PPredicate visitUserdefinedOpPredicate(OpApplNode n) {
@@ -938,29 +951,24 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 						.toString())) {
 			return visitBBuitInsPredicate(n);
 		}
-
 		if (specAnalyser.getRecursiveFunctions().contains(def)) {
 			return new AEqualPredicate(createIdentifierNode(def),
 					new ABooleanTrueExpression());
 		}
-
 		if (Arrays.asList(moduleNode.getOpDefs()).contains(def)) {
 			List<PExpression> params = new ArrayList<PExpression>();
 			for (int i = 0; i < n.getArgs().length; i++) {
 				params.add(visitExprOrOpArgNodeExpression(n.getArgs()[i]));
 			}
-
 			if (predicateVsExpression.getDefinitionType(def) == DefinitionType.EXPRESSION) {
 				ADefinitionExpression defCall = new ADefinitionExpression();
 				defCall.setDefLiteral(new TIdentifierLiteral(getName(def)));
 				defCall.setParameters(params);
 				return new AEqualPredicate(defCall,
 						new ABooleanTrueExpression());
-
 			} else {
 				ADefinitionPredicate defCall = new ADefinitionPredicate();
 				defCall.setDefLiteral(new TDefLiteralPredicate(getName(def)));
-
 				defCall.setParameters(params);
 				return defCall;
 			}
@@ -973,7 +981,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			PPredicate result = visitExprNodePredicate(def.getBody());
 			return result;
 		}
-
 	}
 
 	private String getName(SymbolNode def) {
@@ -1062,198 +1069,239 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 
 	}
 
-	private PPredicate visitBBuitInsPredicate(OpApplNode n) {
-		switch (BBuiltInOPs.getOpcode(n.getOperator().getName())) {
-
+	private PPredicate visitBBuitInsPredicate(OpApplNode opApplNode) {
+		PPredicate returnNode = null;
+		switch (BBuiltInOPs.getOpcode(opApplNode.getOperator().getName())) {
 		case B_OPCODE_lt: // <
-			return new ALessPredicate(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]),
-					visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+			returnNode = new ALessPredicate(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
+			break;
 
 		case B_OPCODE_gt: // >
-			return new AGreaterPredicate(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]),
-					visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+			returnNode = new AGreaterPredicate(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
+			break;
 
 		case B_OPCODE_leq: // <=
-			return new ALessEqualPredicate(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]),
-					visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+			returnNode = new ALessEqualPredicate(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
+			break;
 
 		case B_OPCODE_geq: // >=
-			return new AGreaterEqualPredicate(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]),
-					visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+			returnNode = new AGreaterEqualPredicate(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
+			break;
 
 		case B_OPCODE_finite: // IsFiniteSet({1,2,3})
 		{
 			AMemberPredicate member = new AMemberPredicate();
-			member.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+			member.setLeft(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
 			member.setRight(new AFinSubsetExpression(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0])));
-			return member;
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0])));
+			returnNode = member;
+			break;
 		}
 		case B_OPCODE_true: // TRUE
-			return new AEqualPredicate(new ABooleanTrueExpression(),
+			returnNode = new AEqualPredicate(new ABooleanTrueExpression(),
 					new ABooleanTrueExpression());
+			break;
 
 		case B_OPCODE_false: // FALSE
-			return new AEqualPredicate(new ABooleanFalseExpression(),
+			returnNode = new AEqualPredicate(new ABooleanFalseExpression(),
 					new ABooleanTrueExpression());
+			break;
 
 		case B_OPCODE_assert: {
 			ADefinitionPredicate pred = new ADefinitionPredicate();
 			pred.setDefLiteral(new TDefLiteralPredicate("ASSERT_TRUE"));
 			ArrayList<PExpression> list = new ArrayList<PExpression>();
-			list.add(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			if (n.getArgs()[1] instanceof StringNode) {
-				StringNode stringNode = (StringNode) n.getArgs()[1];
+			list.add(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
+			if (opApplNode.getArgs()[1] instanceof StringNode) {
+				StringNode stringNode = (StringNode) opApplNode.getArgs()[1];
 				list.add(new AStringExpression(new TStringLiteral(stringNode
 						.getRep().toString())));
 			} else {
 				list.add(new AStringExpression(new TStringLiteral("Error")));
 			}
 			pred.setParameters(list);
-			return pred;
+			returnNode = pred;
+			break;
 		}
-
 		}
-		throw new RuntimeException(n.getOperator().getName().toString());
+		if (returnNode != null) {
+			return createPositionedNode(returnNode, opApplNode);
+		} else {
+			throw new RuntimeException("Unexpected operator: "
+					+ opApplNode.getOperator().getName().toString() + "\n"
+					+ opApplNode.stn.getLocation());
+		}
 	}
 
-	private PExpression visitBBuitInsExpression(OpApplNode n) {
-		switch (BBuiltInOPs.getOpcode(n.getOperator().getName())) {
-
+	private PExpression visitBBuitInsExpression(OpApplNode opApplNode) {
+		PExpression returnNode = null;
+		switch (BBuiltInOPs.getOpcode(opApplNode.getOperator().getName())) {
 		case B_OPCODE_bool: // BOOLEAN
-			return new ABoolSetExpression();
-
+			returnNode = new ABoolSetExpression();
+			break;
 		case B_OPCODE_true: // TRUE
-			return new ABooleanTrueExpression();
+			returnNode = new ABooleanTrueExpression();
+			break;
 		case B_OPCODE_false: // FALSE
-			return new ABooleanFalseExpression();
+			returnNode = new ABooleanFalseExpression();
+			break;
 
-			/**********************************************************************
-			 * Standard Module Naturals
-			 **********************************************************************/
+		/**********************************************************************
+		 * Standard Module Naturals
+		 **********************************************************************/
 		case B_OPCODE_nat: // Nat
-			return new ANaturalSetExpression();
+			returnNode = new ANaturalSetExpression();
+			break;
 
 		case B_OPCODE_plus: // +
-			return new AAddExpression(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]),
-					visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+			returnNode = new AAddExpression(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
+			break;
 
 		case B_OPCODE_minus: // -
-			return new AMinusOrSetSubtractExpression(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]),
-					visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+			returnNode = new AMinusOrSetSubtractExpression(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
+			break;
 
 		case B_OPCODE_times: // *
-			return new AMultOrCartExpression(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]),
-					visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+			returnNode = new AMultOrCartExpression(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
+			break;
 
 		case B_OPCODE_exp: // x^y
-			return new APowerOfExpression(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]),
-					visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+			returnNode = new APowerOfExpression(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
+			break;
 
 		case B_OPCODE_lt: // <
-			return new AConvertBoolExpression(new ALessPredicate(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]),
-					visitExprOrOpArgNodeExpression(n.getArgs()[1])));
+			returnNode = new AConvertBoolExpression(new ALessPredicate(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1])));
+			break;
 
 		case B_OPCODE_gt: // >
-			return new AConvertBoolExpression(new AGreaterPredicate(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]),
-					visitExprOrOpArgNodeExpression(n.getArgs()[1])));
-
+			returnNode = new AConvertBoolExpression(new AGreaterPredicate(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1])));
+			break;
 		case B_OPCODE_leq: // <=
-			return new AConvertBoolExpression(new ALessEqualPredicate(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]),
-					visitExprOrOpArgNodeExpression(n.getArgs()[1])));
+			returnNode = new AConvertBoolExpression(new ALessEqualPredicate(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1])));
+			break;
 
 		case B_OPCODE_geq: // >=
-			return new AConvertBoolExpression(new AGreaterEqualPredicate(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]),
-					visitExprOrOpArgNodeExpression(n.getArgs()[1])));
+			returnNode = new AConvertBoolExpression(new AGreaterEqualPredicate(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1])));
+			break;
 
-		case B_OPCODE_mod: // modulo  a % b =  a - b* (a/b) 
+		case B_OPCODE_mod: // modulo a % b = a - b* (a/b)
 		{
-			PExpression a = visitExprOrOpArgNodeExpression(n.getArgs()[0]);
-			PExpression b = visitExprOrOpArgNodeExpression(n.getArgs()[1]);
-			PExpression a2 = visitExprOrOpArgNodeExpression(n.getArgs()[0]);
-			PExpression b2 = visitExprOrOpArgNodeExpression(n.getArgs()[1]);
+			PExpression a = visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]);
+			PExpression b = visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]);
+			PExpression a2 = visitExprOrOpArgNodeExpression(opApplNode
+					.getArgs()[0]);
+			PExpression b2 = visitExprOrOpArgNodeExpression(opApplNode
+					.getArgs()[1]);
 
 			AFlooredDivExpression div = new AFlooredDivExpression(a, b);
 			AMultOrCartExpression mult = new AMultOrCartExpression(b2, div);
 			AMinusOrSetSubtractExpression minus = new AMinusOrSetSubtractExpression(
 					a2, mult);
-			return minus;
+			returnNode = minus;
+			break;
 		}
 
-		case B_OPCODE_div: // /
-			return new AFlooredDivExpression(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]),
-					visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+		case B_OPCODE_div: // \div
+			AFlooredDivExpression aFlooredDivExpression = new AFlooredDivExpression(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
+
+			setPosition(aFlooredDivExpression, opApplNode);
+			returnNode = aFlooredDivExpression;
+			break;
 
 		case B_OPCODE_dotdot: // ..
-			return new AIntervalExpression(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]),
-					visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+			returnNode = new AIntervalExpression(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
+			break;
 
 		case B_OPCODE_int: // Int
-			return new AIntegerSetExpression();
+			returnNode = new AIntegerSetExpression();
+			break;
 
 		case B_OPCODE_uminus: // -x
-			return new AUnaryMinusExpression(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+			returnNode = new AUnaryMinusExpression(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
+			break;
 
 		case B_OPCODE_card: // Cardinality
-			return new ACardExpression(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+			returnNode = new ACardExpression(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
+			break;
 
 		case B_OPCODE_finite: // IsFiniteSet({1,2,3})
 		{
 			AMemberPredicate member = new AMemberPredicate();
-			member.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+			member.setLeft(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
 			member.setRight(new AFinSubsetExpression(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0])));
-			return new AConvertBoolExpression(member);
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0])));
+			returnNode = new AConvertBoolExpression(member);
+			break;
 		}
 
 		case B_OPCODE_string: // STRING
-			return new AStringSetExpression();
-
-			/**********************************************************************
-			 * Standard Module Sequences
-			 **********************************************************************/
+			returnNode = new AStringSetExpression();
+			break;
+		/**********************************************************************
+		 * Standard Module Sequences
+		 **********************************************************************/
 
 		case B_OPCODE_seq: // Seq(S) - set of sequences
-			return new ASeqExpression(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+			returnNode = new ASeqExpression(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
+			break;
 
 		case B_OPCODE_len: // length of the sequence
-			return new ASizeExpression(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+			returnNode = new ASizeExpression(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
+			break;
 
 		case B_OPCODE_conc: // s \o s2 - concatenation of s and s2
-			return new AConcatExpression(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]),
-					visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+			returnNode = new AConcatExpression(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
+			break;
 
 		case B_OPCODE_append: // Append(s,x)
-			return new AInsertTailExpression(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]),
-					visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+			returnNode = new AInsertTailExpression(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
+			break;
 
 		case B_OPCODE_head: // Head(s)
-			return new AFirstExpression(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+			returnNode = new AFirstExpression(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
+			break;
 
 		case B_OPCODE_tail: // Tail(s)
-			return new ATailExpression(
-					visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+			returnNode = new ATailExpression(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
+			break;
 
 		case B_OPCODE_subseq: { // SubSeq(s,a,b)
 			// %p.(p : 1..(b-a+1)| s(p+a-1))
@@ -1265,8 +1313,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			interval.setLeftBorder(new AIntegerExpression(new TIntegerLiteral(
 					"1")));
 			AMinusOrSetSubtractExpression minus = new AMinusOrSetSubtractExpression();
-			minus.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[2]));
-			minus.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+			minus.setLeft(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[2]));
+			minus.setRight(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
 			AAddExpression add = new AAddExpression();
 			add.setLeft(minus);
 			add.setRight(new AIntegerExpression(new TIntegerLiteral("1")));
@@ -1275,41 +1323,30 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			lambda.setPredicate(member);
 			AAddExpression add2 = new AAddExpression();
 			add2.setLeft(createIdentifierNode("t_"));
-			add2.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+			add2.setRight(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
 			AMinusOrSetSubtractExpression minus2 = new AMinusOrSetSubtractExpression();
 			minus2.setLeft(add2);
 			minus2.setRight(new AIntegerExpression(new TIntegerLiteral("1")));
 			ArrayList<PExpression> params = new ArrayList<PExpression>();
 			params.add(minus2);
 			AFunctionExpression func = new AFunctionExpression();
-			func.setIdentifier(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+			func.setIdentifier(visitExprOrOpArgNodeExpression(opApplNode
+					.getArgs()[0]));
 			func.setParameters(params);
 			lambda.setExpression(func);
-			return lambda;
-
-			// ARestrictFrontExpression restrictFront = new
-			// ARestrictFrontExpression();
-			// restrictFront
-			// .setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			// restrictFront
-			// .setRight(visitExprOrOpArgNodeExpression(n.getArgs()[2]));
-			//
-			// ARestrictTailExpression restrictTail = new
-			// ARestrictTailExpression();
-			// restrictTail.setLeft(restrictFront);
-			// restrictTail
-			// .setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-			// return restrictTail;
+			returnNode = lambda;
+			break;
 		}
 
 		case B_OPCODE_assert: {
 			ADefinitionPredicate pred = new ADefinitionPredicate();
 			pred.setDefLiteral(new TDefLiteralPredicate("ASSERT_TRUE"));
 			ArrayList<PExpression> list = new ArrayList<PExpression>();
-			list.add(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+			list.add(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
 			list.add(new AStringExpression(new TStringLiteral("Error")));
 			pred.setParameters(list);
-			return new AConvertBoolExpression(pred);
+			returnNode = new AConvertBoolExpression(pred);
+			break;
 		}
 
 		case B_OPCODE_setsum: {
@@ -1319,15 +1356,46 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			sum.setIdentifiers(exprList);
 			AMemberPredicate memberPredicate = new AMemberPredicate();
 			memberPredicate.setLeft(createIdentifierNode(variableName));
-			memberPredicate
-					.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+			memberPredicate.setRight(visitExprOrOpArgNodeExpression(opApplNode
+					.getArgs()[0]));
 			sum.setPredicates(memberPredicate);
 			sum.setExpression(createIdentifierNode(variableName));
-			return sum;
+			returnNode = sum;
+			break;
+		}
+		}
+		if (returnNode != null) {
+			return createPositionedNode(returnNode, opApplNode);
+		} else {
+			throw new RuntimeException("Unexpected operator: "
+					+ opApplNode.getOperator().getName().toString() + "\n"
+					+ opApplNode.stn.getLocation());
 		}
 
-		}
-		throw new RuntimeException(n.getOperator().getName().toString());
+	}
+
+	private <T extends PositionedNode> T createPositionedNode(T positionedNode,
+			SemanticNode semanticNode) {
+		Location location = semanticNode.getTreeNode().getLocation();
+		SourcePosition startPos = new SourcePosition(location.beginLine(),
+				location.beginColumn());
+		SourcePosition endPos = new SourcePosition(location.endLine(),
+				location.endColumn());
+		positionedNode.setStartPos(startPos);
+		positionedNode.setEndPos(endPos);
+		sourcePosition.add(positionedNode);
+		return positionedNode;
+	}
+
+	private void setPosition(PositionedNode positionNode, OpApplNode opApplNode) {
+		Location location = opApplNode.getTreeNode().getLocation();
+		SourcePosition startPos = new SourcePosition(location.beginLine(),
+				location.beginColumn());
+		SourcePosition endPos = new SourcePosition(location.endLine(),
+				location.endColumn());
+		positionNode.setStartPos(startPos);
+		positionNode.setEndPos(endPos);
+		sourcePosition.add(positionNode);
 	}
 
 	private PExpression visitBuiltInKindExpression(OpApplNode n) {
@@ -2155,54 +2223,57 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 	}
 
 	private PPredicate visitBuiltInKindPredicate(OpApplNode n) {
+		PPredicate returnNode = null;
 		switch (getOpCode(n.getOperator().getName())) {
 		case OPCODE_land: // \land
 		{
 			AConjunctPredicate conjunction = new AConjunctPredicate();
 			conjunction.setLeft(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
 			conjunction.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[1]));
-			return conjunction;
+			returnNode = conjunction;
+			break;
 		}
-
 		case OPCODE_cl: // $ConjList
 		{
 			List<PPredicate> list = new ArrayList<PPredicate>();
 			for (int i = 0; i < n.getArgs().length; i++) {
 				list.add(visitExprOrOpArgNodePredicate(n.getArgs()[i]));
 			}
-			return createConjunction(list);
+			returnNode = createConjunction(list);
+			break;
 		}
-
 		case OPCODE_lor: // \/
 		{
 			ADisjunctPredicate disjunction = new ADisjunctPredicate();
 			disjunction.setLeft(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
 			disjunction.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[1]));
-			return disjunction;
+			returnNode = disjunction;
+			break;
 		}
-
 		case OPCODE_dl: // $DisjList
 		{
 			List<PPredicate> list = new ArrayList<PPredicate>();
 			for (int i = 0; i < n.getArgs().length; i++) {
 				list.add(visitExprOrOpArgNodePredicate(n.getArgs()[i]));
 			}
-			return createDisjunction(list);
+			returnNode = createDisjunction(list);
+			break;
 		}
-
 		case OPCODE_lnot: // \lnot
-			return new ANegationPredicate(
+			returnNode = new ANegationPredicate(
 					visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-
+			break;
 		case OPCODE_equiv: // \equiv
-			return new AEquivalencePredicate(
+			returnNode = new AEquivalencePredicate(
 					visitExprOrOpArgNodePredicate(n.getArgs()[0]),
 					visitExprOrOpArgNodePredicate(n.getArgs()[1]));
+			break;
 
 		case OPCODE_implies: // =>
-			return new AImplicationPredicate(
+			returnNode = new AImplicationPredicate(
 					visitExprOrOpArgNodePredicate(n.getArgs()[0]),
 					visitExprOrOpArgNodePredicate(n.getArgs()[1]));
+			break;
 
 		case OPCODE_be: { // \E x \in S : P
 			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
@@ -2215,7 +2286,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			AConjunctPredicate conjunction = new AConjunctPredicate();
 			conjunction.setLeft(visitBoundsOfLocalVariables(n));
 			conjunction.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-			return new AExistsPredicate(list, conjunction);
+			returnNode = new AExistsPredicate(list, conjunction);
+			break;
 		}
 
 		case OPCODE_bf: { // \A x \in S : P
@@ -2229,24 +2301,25 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			AImplicationPredicate implication = new AImplicationPredicate();
 			implication.setLeft(visitBoundsOfLocalVariables(n));
 			implication.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-			return new AForallPredicate(list, implication);
+			returnNode = new AForallPredicate(list, implication);
+			break;
 		}
 
 		case OPCODE_eq: { // =
 			AEqualPredicate equal = new AEqualPredicate();
 			equal.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
 			equal.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-			return equal;
+			returnNode = equal;
+			break;
 		}
-
 		case OPCODE_noteq: // /=
 		{
 			ANotEqualPredicate notEqual = new ANotEqualPredicate();
 			notEqual.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
 			notEqual.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-			return notEqual;
+			returnNode = notEqual;
+			break;
 		}
-
 		case OPCODE_in: // \in
 		{
 			AMemberPredicate memberPredicate = new AMemberPredicate();
@@ -2254,7 +2327,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 					.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
 			memberPredicate
 					.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-			return memberPredicate;
+			returnNode = memberPredicate;
+			break;
 		}
 
 		case OPCODE_notin: // \notin
@@ -2264,7 +2338,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 					.getArgs()[0]));
 			notMemberPredicate.setRight(visitExprOrOpArgNodeExpression(n
 					.getArgs()[1]));
-			return notMemberPredicate;
+			returnNode = notMemberPredicate;
+			break;
 		}
 
 		case OPCODE_subseteq: // \subseteq {1,2} <: {1,2,3}
@@ -2272,7 +2347,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			ASubsetPredicate subset = new ASubsetPredicate();
 			subset.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
 			subset.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-			return subset;
+			returnNode = subset;
+			break;
 		}
 
 		case OPCODE_fa: { // f[1]
@@ -2293,7 +2369,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 				paramList.add(visitExprOrOpArgNodeExpression(dom));
 			}
 			func.setParameters(paramList);
-			return new AEqualPredicate(func, new ABooleanTrueExpression());
+			returnNode = new AEqualPredicate(func, new ABooleanTrueExpression());
+			break;
 		}
 
 		case OPCODE_rs: { // $RcdSelect r.c
@@ -2302,22 +2379,24 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			StringNode stringNode = (StringNode) n.getArgs()[1];
 			rcdSelect.setIdentifier(createIdentifierNode(stringNode.getRep()
 					.toString()));
-			return new AEqualPredicate(rcdSelect, new ABooleanTrueExpression());
+			returnNode = new AEqualPredicate(rcdSelect,
+					new ABooleanTrueExpression());
+			break;
 		}
 
 		case OPCODE_case: {
-			return new AEqualPredicate(createCaseNode(n),
+			returnNode = new AEqualPredicate(createCaseNode(n),
 					new ABooleanTrueExpression());
+			break;
 		}
-
 		case OPCODE_prime: // prime
 		{
 			OpApplNode node = (OpApplNode) n.getArgs()[0];
-			return new AEqualPredicate(
+			returnNode = new AEqualPredicate(
 					createIdentifierNode(getName(node.getOperator()) + "_n"),
 					new ABooleanTrueExpression());
+			break;
 		}
-
 		case OPCODE_unchanged: {
 			OpApplNode node = (OpApplNode) n.getArgs()[0];
 			if (node.getOperator().getKind() == VariableDeclKind) {
@@ -2342,19 +2421,19 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 				equal.setRight(createIdentifierNode(var.getOperator()));
 				list.add(equal);
 			}
-			return createConjunction(list);
+			returnNode = createConjunction(list);
+			break;
 		}
-
 		case OPCODE_uc: { // CHOOSE x : P
-			return new AEqualPredicate(createUnboundedChoose(n),
+			returnNode = new AEqualPredicate(createUnboundedChoose(n),
 					new ABooleanTrueExpression());
+			break;
 		}
-
 		case OPCODE_bc: { // CHOOSE x \in S: P
-			return new AEqualPredicate(createBoundedChoose(n),
+			returnNode = new AEqualPredicate(createBoundedChoose(n),
 					new ABooleanTrueExpression());
+			break;
 		}
-
 		case OPCODE_ite: // IF THEN ELSE
 		{
 			AImplicationPredicate impl1 = new AImplicationPredicate();
@@ -2366,15 +2445,16 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 					visitExprOrOpArgNodePredicate(n.getArgs()[0]));
 			impl2.setLeft(neg);
 			impl2.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[2]));
-			return new AConjunctPredicate(impl1, impl2);
+			returnNode = new AConjunctPredicate(impl1, impl2);
+			break;
 		}
-
 		case 0:
 			return visitBBuitInsPredicate(n);
-
+		default:
+			throw new NotImplementedException(n.getOperator().getName()
+					.toString());
 		}
-
-		throw new RuntimeException(n.getOperator().getName().toString());
+		return createPositionedNode(returnNode, n);
 	}
 
 	public PPredicate visitBoundsOfLocalVariables(OpApplNode n) {
@@ -2487,7 +2567,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 	}
 
 	public PExpression visitExprOrOpArgNodeExpression(ExprOrOpArgNode n) {
-
 		if (n instanceof ExprNode) {
 			return visitExprNodeExpression((ExprNode) n);
 		} else {
@@ -2557,6 +2636,10 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 
 	public Hashtable<Node, TLAType> getTypeTable() {
 		return this.typeTable;
+	}
+
+	public HashSet<PositionedNode> getSourcePositions() {
+		return this.sourcePosition;
 	}
 
 }

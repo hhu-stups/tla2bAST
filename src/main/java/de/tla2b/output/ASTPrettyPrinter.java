@@ -8,6 +8,7 @@ import java.util.List;
 import de.be4.classicalb.core.parser.analysis.ExtendedDFAdapter;
 import de.be4.classicalb.core.parser.node.AAbstractMachineParseUnit;
 import de.be4.classicalb.core.parser.node.AAnySubstitution;
+import de.be4.classicalb.core.parser.node.AAssertionsMachineClause;
 import de.be4.classicalb.core.parser.node.ABecomesSuchSubstitution;
 import de.be4.classicalb.core.parser.node.AConjunctPredicate;
 import de.be4.classicalb.core.parser.node.ADefinitionExpression;
@@ -117,10 +118,11 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 		// AEnumeratedSetSet e;e.g
 		putClause("ADefinitionsMachineClause", "DEFINITIONS", "");
 		putClause("APropertiesMachineClause", "PROPERTIES", "\n");
+		putClause("AAssertionsMachineClause", "ASSERTIONS", "\n");
 		putClause("AInvariantMachineClause", "INVARIANT", "\n");
 		putClause("AInitialisationMachineClause", "INITIALISATION", "\n");
 		putClause("AOperationsMachineClause", "OPERATIONS", "\n");
-
+		
 		// infix operators
 		putInfixOperator("AImplicationPredicate", "=>", 30, left);
 		putInfixOperator("AEquivalencePredicate", "<=>", 30, left);
