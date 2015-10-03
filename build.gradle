@@ -58,12 +58,10 @@ tasks.withType(FindBugs) {
 	// disable findbugs by default
 	// in order to run findbugs type 'gradle tlc4b findbugsMain findbugsTest'
 	task -> enabled = gradle.startParameter.taskNames.contains(task.name)
-
     reports {
         xml.enabled = false
         html.enabled = true
     }
-
 	ignoreFailures = true
 }
 
@@ -78,7 +76,6 @@ task createJar(type: Jar, dependsOn: build){
 	archiveName = 'TLA2B.jar'
 	//from sourceSets.main.allJava
 	from sourceSets.main.output
-	//from {configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 	from {configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 	exclude('**/*.java')
 	manifest {
@@ -104,10 +101,10 @@ signing {
 }
 
 
-task javadocJar(type: Jar) {
-	 classifier = 'javadoc'
-	 from javadoc
-}
+//task javadocJar(type: Jar) {
+//	 classifier = 'javadoc'
+//	 from javadoc
+//}
 
 task sourcesJar(type: Jar) {
 	 classifier = 'sources'
