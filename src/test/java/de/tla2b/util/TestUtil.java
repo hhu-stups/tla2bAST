@@ -13,10 +13,10 @@ import de.be4.classicalb.core.parser.BParser;
 import de.be4.classicalb.core.parser.exceptions.BException;
 import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.Start;
-import de.prob.scripting.Api;
-import de.prob.statespace.StateSpace;
-import de.prob.statespace.Trace;
-import de.prob.statespace.Transition;
+//import de.prob.scripting.Api;
+//import de.prob.statespace.StateSpace;
+//import de.prob.statespace.Trace;
+//import de.prob.statespace.Transition;
 import de.tla2b.exceptions.FrontEndException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.output.ASTPrettyPrinter;
@@ -201,20 +201,20 @@ public class TestUtil {
 	}
 
 	public static void load_TLA_File(String tlaFile) throws Exception {
-		Api api = de.prob.Main.getInjector().getInstance(Api.class);
-		// TODO translate here and then pass the AST to api
-		// Currently B definitions are not recognized by the api load command
-		// Translator t = new Translator(tlaFile);
-		// Start start = t.translate();
-		// ASTPrettyPrinter aP = new ASTPrettyPrinter(start);
-		// start.apply(aP);
-		// System.out.println(aP.getResultString());
-		// StateSpace stateSpace = api.b_load(start);
-		
-		StateSpace stateSpace = api.tla_load(tlaFile);
-		Trace trace = new Trace(stateSpace);
-		Set<Transition> nextTransitions = trace.getNextTransitions();
-		assertTrue(nextTransitions.size() > 0);
+//		Api api = de.prob.Main.getInjector().getInstance(Api.class);
+//		// TODO translate here and then pass the AST to api
+//		// Currently B definitions are not recognized by the api load command
+//		// Translator t = new Translator(tlaFile);
+//		// Start start = t.translate();
+//		// ASTPrettyPrinter aP = new ASTPrettyPrinter(start);
+//		// start.apply(aP);
+//		// System.out.println(aP.getResultString());
+//		// StateSpace stateSpace = api.b_load(start);
+//		
+//		StateSpace stateSpace = api.tla_load(tlaFile);
+//		Trace trace = new Trace(stateSpace);
+//		Set<Transition> nextTransitions = trace.getNextTransitions();
+//		assertTrue(nextTransitions.size() > 0);
 	}
 
 }

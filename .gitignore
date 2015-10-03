@@ -19,3 +19,5 @@ Club_tla.mch
 testing
 Club.prob
 TLA2B.jar
+src/test/resources/test
+src/test/resources/bugs
