@@ -17,7 +17,7 @@ public class TLCValueNode extends NumeralNode implements TranslationGlobals {
 	private TLAType type;
 
 	/**
-	 * @param kind
+	 * @param valObj
 	 * @param stn
 	 * @throws AbortException 
 	 */

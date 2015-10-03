@@ -124,7 +124,7 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals,
 	private Hashtable<OpDefNode, Set<String>> usedNamesTable = new Hashtable<OpDefNode, Set<String>>();
 
 	/**
-	 * @param moduleNode2
+	 * @param moduleNode
 	 * @param specAnalyser
 	 */
 	public SymbolRenamer(ModuleNode moduleNode, SpecAnalyser specAnalyser) {

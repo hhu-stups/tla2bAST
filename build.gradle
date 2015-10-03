@@ -100,11 +100,14 @@ signing {
     sign configurations.archives
 }
 
+javadoc {
+	failOnError = false
+}
 
-//task javadocJar(type: Jar) {
-//	 classifier = 'javadoc'
-//	 from javadoc
-//}
+task javadocJar(type: Jar) {
+	 classifier = 'javadoc'
+	 from javadoc
+}
 
 task sourcesJar(type: Jar) {
 	 classifier = 'sources'

@@ -54,7 +54,7 @@ public class TestUtil {
 
 		System.out.println("-------------------");
 		// compare the generated AST and the AST of the pretty print
-		//assertEquals(result, ppResult);
+		// assertEquals(result, ppResult);
 		// System.out.println(t.getBDefinitions().getDefinitionNames());
 	}
 
@@ -199,20 +199,20 @@ public class TestUtil {
 		final String string = ast2String.toString();
 		return string;
 	}
-	
-	public static void load_TLA_File(String tlaFile) throws Exception{
+
+	public static void load_TLA_File(String tlaFile) throws Exception {
 		Api api = de.prob.Main.getInjector().getInstance(Api.class);
-		//TODO translate here and then pass the AST to api
+		// TODO translate here and then pass the AST to api
 		// Currently B definitions are not recognized by the api load command
-//		Translator t = new Translator(tlaFile);
-//		Start start = t.translate();
-//		ASTPrettyPrinter aP = new ASTPrettyPrinter(start);
-//		start.apply(aP);
-//		System.out.println(aP.getResultString());
+		// Translator t = new Translator(tlaFile);
+		// Start start = t.translate();
+		// ASTPrettyPrinter aP = new ASTPrettyPrinter(start);
+		// start.apply(aP);
+		// System.out.println(aP.getResultString());
+		// StateSpace stateSpace = api.b_load(start);
 		
-		//StateSpace stateSpace = api.b_load(start);
 		StateSpace stateSpace = api.tla_load(tlaFile);
-		Trace trace= new Trace(stateSpace);
+		Trace trace = new Trace(stateSpace);
 		Set<Transition> nextTransitions = trace.getNextTransitions();
 		assertTrue(nextTransitions.size() > 0);
 	}

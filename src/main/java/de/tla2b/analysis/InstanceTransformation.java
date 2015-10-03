@@ -35,11 +35,10 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 
 
 	/**
-	 * @param con
+	 * @param moduleNode
 	 */
-	public InstanceTransformation(ModuleNode n) {
-		defs = n.getOpDefs();
-
+	public InstanceTransformation(ModuleNode moduleNode) {
+		defs = moduleNode.getOpDefs();
 		defsHash = new Hashtable<String, OpDefNode>();
 		for (int i = 0; i < defs.length; i++) {
 			OpDefNode def = defs[i];
@@ -47,10 +46,6 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 		}
 	}
 
-	/**
-	 * @throws AbortException
-	 * 
-	 */
 	public void start() {
 		for (int i = 0; i < defs.length; i++) {
 			OpDefNode def = defs[i];

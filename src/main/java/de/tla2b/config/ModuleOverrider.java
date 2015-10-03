@@ -41,7 +41,7 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 	}
 
 	/**
-	 * @param moduleNode2
+	 * @param moduleNode
 	 * @param conEval
 	 */
 	public ModuleOverrider(ModuleNode moduleNode, ConfigfileEvaluator conEval) {

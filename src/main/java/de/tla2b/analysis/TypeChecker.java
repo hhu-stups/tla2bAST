@@ -64,7 +64,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 	private ConfigfileEvaluator conEval;
 
 	/**
-	 * @param moduleNode2
+	 * @param moduleNode
 	 * @param conEval
 	 * @param specAnalyser
 	 */
