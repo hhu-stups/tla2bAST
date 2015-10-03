@@ -4,6 +4,13 @@
 
 package de.tla2b;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 
 import de.tla2b.exceptions.FrontEndException;
 import de.tla2b.exceptions.NotImplementedException;
@@ -11,7 +18,11 @@ import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.global.TranslationGlobals;
 import de.tla2bAst.Translator;
 
+
+
 public class TLA2B implements TranslationGlobals {
+	public final static String VERSION = "version";
+
 	private String mainFile;
 
 	private static boolean error = false;
@@ -21,27 +32,33 @@ public class TLA2B implements TranslationGlobals {
 	}
 
 	public void handleParameter(String[] args) {
-		int i;
-		for (i = 0; (i < args.length) && (args[i].charAt(0) == '-'); i++) {
-			if (args[i].equals("-version")) {
-				System.out.println("TLA2B version " + VERSION);
+		PosixParser parser = new PosixParser();
+		Options options = getCommandlineOptions();
+		try {
+			CommandLine line = parser.parse(options, args);
+			String[] remainingArgs = line.getArgs();
+			if (remainingArgs.length != 1) {
+				System.err.println("Error: expected a module file.");
 				System.exit(-1);
 			} else {
-				System.err.println("Illegal switch: " + args[i]);
-				System.exit(-1);
+				mainFile = remainingArgs[0];
 			}
-		}
-
-		if (i == args.length) {
-			System.err.println("Error: expected a module file.");
+			if (line.hasOption(VERSION)) {
+				System.out.println("TLA2B version: " + VERSION_NUMBER);
+			}
+		} catch (ParseException e) {
+			System.out.println(e.getMessage());
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp("java -jar TLA2B.jar [file]", options);
 			System.exit(-1);
 		}
-		mainFile = args[i];
+
 	}
 
 	public static void main(String[] args) {
 		// To indicate an error we use the exit code -1
 		TLA2B tla2b = new TLA2B();
+
 		tla2b.handleParameter(args);
 
 		Translator translator = null;
@@ -60,11 +77,25 @@ public class TLA2B implements TranslationGlobals {
 		} catch (TLA2BException e) {
 			System.err.print("**** Translation Error ****\n");
 			System.err.println(e.getMessage());
+			//e.printStackTrace();
 			System.exit(-1);
 		}
 		translator.createMachineFile();
 		translator.createProbFile();
 	}
 
-
+	@SuppressWarnings("static-access")
+	private static Options getCommandlineOptions() {
+		Options options = new Options();
+		options.addOption(VERSION, false, "prints the current version of TLA2B");
+		
+		Option config = OptionBuilder
+				.withArgName("file")
+				.hasArg()
+				.withDescription(
+						"config file")
+						.create("config");
+		options.addOption(config);
+		return options;
+	}
 }

@@ -37,7 +37,7 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor implements
 		}
 
 		visitAssumptions(specAnalyser.getModuleNode().getAssumptions());
-
+		
 		if (specAnalyser.getNext() != null) {
 			visitExprNode(specAnalyser.getNext());
 		}

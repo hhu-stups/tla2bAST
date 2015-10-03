@@ -39,6 +39,33 @@ public class StringTest {
 		TestUtil.typeCheckString(module);
 	}
 	
+	@Test
+	public void testStringAsSequence() throws FrontEndException, TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Sequences \n"
+				+ "ASSUME  \"a\" \\o \"bc\" = \"abc\"  \n"
+				+ "=================================";
+		TestUtil.typeCheckString(module);
+	}
+	
+	@Test
+	public void testStringAsSequence2() throws FrontEndException, TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Sequences \n"
+				+ "ASSUME SubSeq(\"abc\",1,1) = \"a\"  \n"
+				+ "=================================";
+		TestUtil.typeCheckString(module);
+	}
+	
+	@Test
+	public void testStringAsSequence3() throws FrontEndException, TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Sequences \n"
+				+ "ASSUME Len(\"abc\") = 3 \n"
+				+ "=================================";
+		TestUtil.typeCheckString(module);
+	}
+	
 	
 	/**********************************************************************
 	 * STRING
@@ -61,4 +88,7 @@ public class StringTest {
 
 		TestUtil.typeCheckString(module);
 	}
+	
+	
+	
 }

@@ -8,7 +8,6 @@ import de.be4.classicalb.core.parser.analysis.prolog.NodeIdAssignment;
 import de.be4.classicalb.core.parser.analysis.prolog.PositionPrinter;
 import de.be4.classicalb.core.parser.node.Node;
 import de.hhu.stups.sablecc.patch.PositionedNode;
-import de.hhu.stups.sablecc.patch.SourcePositions;
 import de.prob.prolog.output.IPrologTermOutput;
 import de.tla2b.exceptions.NotImplementedException;
 import de.tla2b.types.BoolType;

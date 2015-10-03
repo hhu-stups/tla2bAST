@@ -10,7 +10,7 @@ import java.util.Arrays;
 import tla2sany.semantic.FrontEnd;
 
 public interface TranslationGlobals {
-	final String VERSION = "1.0.7";
+	final String VERSION_NUMBER = "1.0.7";
 
 	final int TLCValueKind = 100;
 

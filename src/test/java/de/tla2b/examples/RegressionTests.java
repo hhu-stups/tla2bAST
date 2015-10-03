@@ -1,6 +1,6 @@
 package de.tla2b.examples;
 
-import static de.tla2b.util.TestUtil.runModule;
+import static de.tla2b.util.TestUtil.load_TLA_File;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -23,16 +23,13 @@ public class RegressionTests extends AbstractParseModuleTest{
 
 	@Test
 	public void testRunTLC() throws Exception {
-		//String[] a = new String[] { moduleFile.getPath() };
-		System.out.println(moduleFile.getPath());
-		runModule(moduleFile.getPath());
+		load_TLA_File(moduleFile.getPath());
 	}
 
 	@Config
 	public static Configuration getConfig() {
 		final ArrayList<String> list = new ArrayList<String>();
 		final ArrayList<String> ignoreList = new ArrayList<String>();
-		
 		list.add("./src/test/resources/regression"); 
 		return getConfiguration2(list, ignoreList);
 	}

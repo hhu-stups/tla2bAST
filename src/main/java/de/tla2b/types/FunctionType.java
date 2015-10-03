@@ -21,6 +21,9 @@ public class FunctionType extends AbstractHasFollowers {
 		this.setRange(new UntypedType());
 	}
 
+	public FunctionType(int string) {
+		super(string);
+	}
 
 	public void update(TLAType oldType, TLAType newType) {
 		if (domain == oldType)
@@ -30,22 +33,26 @@ public class FunctionType extends AbstractHasFollowers {
 	}
 
 	@Override
-	public boolean compare(TLAType o) {
-		if (this.contains(o))
+	public boolean compare(TLAType other) {
+		if (this.contains(other))
 			return false;
-		if (o.getKind() == UNTYPED)
+		if (other.getKind() == UNTYPED)
 			return true;
-		if (o instanceof FunctionType) {
-			FunctionType f = (FunctionType) o;
+		if (other instanceof StringType
+				&& domain.compare(IntType.getInstance())
+				&& range instanceof UntypedType) {
+			return true;
+		}
+		if (other instanceof FunctionType) {
+			FunctionType f = (FunctionType) other;
 			return domain.compare(f.domain) && range.compare(f.range);
 		}
-		if(o instanceof TupleType){
-			return o.compare(this);
+		if (other instanceof TupleType) {
+			return other.compare(this);
 		}
-		if(o instanceof TupleOrFunction){
-			return o.compare(this);
+		if (other instanceof TupleOrFunction) {
+			return other.compare(this);
 		}
-
 		return false;
 	}
 
@@ -66,24 +73,32 @@ public class FunctionType extends AbstractHasFollowers {
 	}
 
 	@Override
-	public FunctionType unify(TLAType o) throws UnificationException {
-		if (!this.compare(o))
+	public TLAType unify(TLAType other) throws UnificationException {
+		if (other == null || !this.compare(other)) {
 			throw new UnificationException();
-		if (o instanceof UntypedType) {
-			((UntypedType) o).setFollowersTo(this);
+		}
+
+		if (other instanceof StringType) {
+			this.setFollowersTo(other);
+			return StringType.getInstance();
+		}
+
+		if (other instanceof UntypedType) {
+			((UntypedType) other).setFollowersTo(this);
 			return this;
 		}
-		if (o instanceof FunctionType) {
-			domain = domain.unify(((FunctionType) o).domain);
-			range = range.unify(((FunctionType) o).range);
+		if (other instanceof FunctionType) {
+			domain = domain.unify(((FunctionType) other).domain);
+			range = range.unify(((FunctionType) other).range);
 			return this;
 		}
-		if (o instanceof TupleType){
-			return (FunctionType) o.unify(this);
+		if (other instanceof TupleType) {
+			return (FunctionType) other.unify(this);
 		}
-		if(o instanceof TupleOrFunction){
-			return (FunctionType) o.unify(this);
+		if (other instanceof TupleOrFunction) {
+			return (FunctionType) other.unify(this);
 		}
+
 		throw new RuntimeException();
 	}
 
@@ -108,13 +123,13 @@ public class FunctionType extends AbstractHasFollowers {
 			((AbstractHasFollowers) range).addFollower(this);
 		}
 	}
-	
+
 	@Override
 	public String toString() {
 		String res = "POW(" + domain + "*";
 		if (range instanceof TupleType) {
 			res += "(" + range + ")";
-		} else{
+		} else {
 			res += range;
 		}
 		res += ")";
@@ -123,7 +138,8 @@ public class FunctionType extends AbstractHasFollowers {
 
 	@Override
 	public PExpression getBNode() {
-		return new APartialFunctionExpression(domain.getBNode(), range.getBNode());
+		return new APartialFunctionExpression(domain.getBNode(),
+				range.getBNode());
 	}
 
 	public void apply(TypeVisitorInterface vistor) {

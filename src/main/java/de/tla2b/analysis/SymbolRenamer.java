@@ -11,7 +11,6 @@ import java.util.Set;
 
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.global.TranslationGlobals;
-
 import tla2sany.semantic.ASTConstants;
 import tla2sany.semantic.AssumeNode;
 import tla2sany.semantic.FormalParamNode;
@@ -238,8 +237,12 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals,
 				if (BBuiltInOPs.contains(def.getName())) {
 					break;
 				}
-
-				usedNamesTable.get(def).addAll(usedNames);
+				Set<String> set = usedNamesTable.get(def);
+				if (set!=null){
+					usedNamesTable.get(def).addAll(usedNames);
+				}
+				
+				
 				for (int i = 0; i < n.getChildren().length; i++) {
 					visitNode(opApplNode.getArgs()[i], usedNames);
 				}

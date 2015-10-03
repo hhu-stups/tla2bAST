@@ -70,7 +70,7 @@ public class TupleOrFunction extends AbstractHasFollowers {
 		func.setRange(new UntypedType());
 		FunctionType res;
 		try {
-			res = func.unify(this);
+			res = (FunctionType) func.unify(this);
 			return res.getBNode();
 		} catch (UnificationException e) {
 			// tuple
@@ -330,7 +330,7 @@ public class TupleOrFunction extends AbstractHasFollowers {
 			FunctionType func = new FunctionType(IntType.getInstance(),
 					new UntypedType());
 			try {
-				func = func.unify(this);
+				func = (FunctionType) func.unify(this);
 				this.setFollowersTo(func);
 				return func;
 			} catch (UnificationException e) {

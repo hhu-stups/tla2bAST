@@ -37,7 +37,6 @@ public class SetType extends AbstractHasFollowers {
 	}
 
 	public SetType unify(TLAType o) throws UnificationException {
-
 		if (!this.compare(o)|| this.contains(o)) {
 			throw new UnificationException();
 		}

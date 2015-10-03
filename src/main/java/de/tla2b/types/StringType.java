@@ -11,27 +11,25 @@ import de.tla2b.output.TypeVisitorInterface;
 
 public class StringType extends TLAType {
 
-	private static StringType instance = new StringType();
-
-	private StringType() {
+	public StringType() {
 		super(STRING);
 	}
-	
-	public static StringType getInstance(){
-		return instance;
-	}
 
-	@Override
-	public String toString() {
-		return "STRING";
+	private static StringType instance = new StringType();
+
+	public static StringType getInstance() {
+		return instance;
 	}
 
 	@Override
 	public boolean compare(TLAType o) {
 		if (o.getKind() == UNTYPED || o.getKind() == STRING)
 			return true;
-		else
+		else if (o instanceof FunctionType) {
+			return o.compare(this);
+		} else
 			return false;
+
 	}
 
 	@Override
@@ -41,21 +39,32 @@ public class StringType extends TLAType {
 
 	@Override
 	public StringType unify(TLAType o) throws UnificationException {
+		if (!this.compare(o)) {
+			throw new UnificationException();
+		}
 		if (o.getKind() == STRING) {
 			return this;
 		} else if (o instanceof UntypedType) {
 			((UntypedType) o).setFollowersTo(this);
 			((UntypedType) o).deleteFollowers();
 			return this;
-		} else
+		} else if (o instanceof FunctionType) {
+			// function
+			if (o instanceof AbstractHasFollowers) {
+				((AbstractHasFollowers) o).setFollowersTo(this);
+				((AbstractHasFollowers) o).deleteFollowers();
+			}
+			return this;
+		} else {
 			throw new UnificationException();
+		}
 	}
 
 	@Override
 	public StringType cloneTLAType() {
 		return this;
 	}
-	
+
 	@Override
 	public boolean contains(TLAType o) {
 		return false;
@@ -69,5 +78,10 @@ public class StringType extends TLAType {
 	public void apply(TypeVisitorInterface visitor) {
 		visitor.caseStringType(this);
 	}
-	
+
+	@Override
+	public String toString() {
+		return "STRING";
+	}
+
 }
