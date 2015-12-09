@@ -1409,6 +1409,18 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			return new AConvertBoolExpression(conjunction);
 		}
 
+		case OPCODE_equiv: // \equiv
+			AEquivalencePredicate equiv = new AEquivalencePredicate(
+					visitExprOrOpArgNodePredicate(n.getArgs()[0]),
+					visitExprOrOpArgNodePredicate(n.getArgs()[1]));
+			return new AConvertBoolExpression(equiv);
+
+		case OPCODE_implies: // =>
+			AImplicationPredicate impl = new AImplicationPredicate(
+					visitExprOrOpArgNodePredicate(n.getArgs()[0]),
+					visitExprOrOpArgNodePredicate(n.getArgs()[1]));
+			new AConvertBoolExpression(impl);
+
 		case OPCODE_cl: // $ConjList
 		{
 			List<PPredicate> list = new ArrayList<PPredicate>();
@@ -1568,7 +1580,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			AEqualPredicate equals = new AEqualPredicate();
 			equals.setLeft(createIdentifierNode(nameOfTempVariable));
 			equals.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			predList.add(equals);
+			//predList.add(equals);
 			AExistsPredicate exist = new AExistsPredicate();
 			exist.setIdentifiers(idList);
 			exist.setPredicate(createConjunction(predList));
@@ -1578,7 +1590,19 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 			tList.add(createIdentifierNode(nameOfTempVariable));
 			compre.setIdentifiers(tList);
 			compre.setPredicates(exist);
-			return compre;
+			
+			//UNION(p1,p2,p3).(P | {e})
+			AQuantifiedUnionExpression union = new AQuantifiedUnionExpression();
+			union.setIdentifiers(idList);
+			union.setPredicates(createConjunction(predList));	
+			ASetExtensionExpression set = new ASetExtensionExpression();
+			List<PExpression> list = new ArrayList<PExpression>();
+			list.add(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+			set.setExpressions(list);
+			union.setExpression(set);
+			
+			
+			return union;
 		}
 
 		case OPCODE_nrfs:
@@ -1999,7 +2023,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 
 		}
 
-		throw new RuntimeException(n.getOperator().getName().toString());
+		throw new NotImplementedException("Missing support for operator: "
+				+ n.getOperator().getName().toString());
 	}
 
 	private List<PExpression> createListOfIdentifier(FormalParamNode[][] params) {

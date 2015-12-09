@@ -182,26 +182,15 @@ public class SetsTest {
 		compare(expected, module);
 	}
 
+
 	@Test
 	public void testConstructor2Simple() throws Exception {
-		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "EXTENDS Naturals \n"
-				+ "ASSUME  {x :  x \\in {1}} = {1} \n"
-				+ "=================================";
-		final String expected = "MACHINE Testing\n"
-				+ "PROPERTIES {t_ | #(x).(x : {1} & t_ = x)} = {1} \n"
-				+ "END";
-		compare(expected, module);
-	}
-	
-	@Test
-	public void testConstructor2Simple2() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
 				+ "ASSUME  {x + x :  x \\in {1}} = {2} \n"
 				+ "=================================";
 		final String expected = "MACHINE Testing\n"
-				+ "PROPERTIES {t_ | #(x).(x : {1} & t_ = x + x)} = {2} \n"
+				+ "PROPERTIES UNION(x).(x : {1}| {x + x}) = {2} \n"
 				+ "END";
 		compare(expected, module);
 	}
@@ -213,7 +202,7 @@ public class SetsTest {
 				+ "ASSUME  {x + y:  x \\in {1}, y \\in {2} } = {3} \n"
 				+ "=================================";
 		final String expected = "MACHINE Testing\n"
-				+ "PROPERTIES {t_ | #(x,y).((x : {1} & y : {2}) & t_ = x + y)} = {3} \n"
+				+ "PROPERTIES UNION(x,y).(x : {1} & y : {2} | {x+y}) = {3} \n"
 				+ "END";
 		compare(expected, module);
 	}
@@ -225,7 +214,7 @@ public class SetsTest {
 				+ "ASSUME  {x + y:  <<x,y>> \\in {<<1,2>>}} = {3} \n"
 				+ "=================================";
 		final String expected = "MACHINE Testing\n"
-				+ "PROPERTIES {t_ | #(x,y).((x,y) : {(1,2)} & t_ = x + y)} = {3} \n"
+				+ "PROPERTIES UNION(x,y).((x|->y) : {(1|->2)} | {x + y}) = {3} \n"
 				+ "END";
 		compare(expected, module);
 	}

@@ -18,8 +18,6 @@ import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.global.TranslationGlobals;
 import de.tla2bAst.Translator;
 
-
-
 public class TLA2B implements TranslationGlobals {
 	public final static String VERSION = "version";
 
@@ -37,14 +35,16 @@ public class TLA2B implements TranslationGlobals {
 		try {
 			CommandLine line = parser.parse(options, args);
 			String[] remainingArgs = line.getArgs();
+			if (line.hasOption(VERSION)) {
+				System.out.println("TLA2B version: " + VERSION_NUMBER);
+			}
 			if (remainingArgs.length != 1) {
-				System.err.println("Error: expected a module file.");
+				System.out.println("Error: expected a module file.");
+				HelpFormatter formatter = new HelpFormatter();
+				formatter.printHelp("java -jar TLA2B.jar [file]", options);
 				System.exit(-1);
 			} else {
 				mainFile = remainingArgs[0];
-			}
-			if (line.hasOption(VERSION)) {
-				System.out.println("TLA2B version: " + VERSION_NUMBER);
 			}
 		} catch (ParseException e) {
 			System.out.println(e.getMessage());

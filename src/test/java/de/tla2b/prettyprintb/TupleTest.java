@@ -10,15 +10,15 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class TupleTest {
-
+	
 	@Test
 	public void testTuple() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "ASSUME <<TRUE,1,TRUE>> /= <<TRUE,2,TRUE>>\n"
+				+ "ASSUME <<TRUE,1,TRUE>> /= <<TRUE,1,TRUE>>\n"
 				+ "=================================";
 
 		final String expected = "MACHINE Testing\n"
-				+ "PROPERTIES (TRUE,1,TRUE) /= (TRUE,2,TRUE) \n" + "END";
+				+ "PROPERTIES (TRUE,1,TRUE) /= (TRUE,1,TRUE) \n" + "END";
 		compare(expected, module);
 	}
 

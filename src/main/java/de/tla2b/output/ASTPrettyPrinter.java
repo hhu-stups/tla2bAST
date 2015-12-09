@@ -6,33 +6,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import de.be4.classicalb.core.parser.analysis.ExtendedDFAdapter;
-import de.be4.classicalb.core.parser.node.AAbstractMachineParseUnit;
-import de.be4.classicalb.core.parser.node.AAnySubstitution;
-import de.be4.classicalb.core.parser.node.ABecomesSuchSubstitution;
-import de.be4.classicalb.core.parser.node.AConjunctPredicate;
-import de.be4.classicalb.core.parser.node.ADefinitionExpression;
-import de.be4.classicalb.core.parser.node.ADefinitionPredicate;
-import de.be4.classicalb.core.parser.node.AExpressionDefinitionDefinition;
-import de.be4.classicalb.core.parser.node.AFlooredDivExpression;
-import de.be4.classicalb.core.parser.node.AGeneralSumExpression;
-import de.be4.classicalb.core.parser.node.AIdentifierExpression;
-import de.be4.classicalb.core.parser.node.AIfThenElseExpression;
-import de.be4.classicalb.core.parser.node.ALambdaExpression;
-import de.be4.classicalb.core.parser.node.AOperation;
-import de.be4.classicalb.core.parser.node.AOperationsMachineClause;
-import de.be4.classicalb.core.parser.node.APredicateDefinitionDefinition;
-import de.be4.classicalb.core.parser.node.ASelectSubstitution;
-import de.be4.classicalb.core.parser.node.Node;
-import de.be4.classicalb.core.parser.node.PExpression;
-import de.be4.classicalb.core.parser.node.PMachineClause;
-import de.be4.classicalb.core.parser.node.POperation;
-import de.be4.classicalb.core.parser.node.PSubstitution;
-import de.be4.classicalb.core.parser.node.Start;
-import de.be4.classicalb.core.parser.node.TIdentifierLiteral;
-import de.be4.classicalb.core.parser.node.Token;
+import de.be4.classicalb.core.parser.node.*;
 
 public class ASTPrettyPrinter extends ExtendedDFAdapter {
-	private final StringBuilder builder = new StringBuilder();
 	private final StringBuilder sb = new StringBuilder();
 	private Renamer renamer;
 	private final Indentation indentation;
@@ -40,13 +16,14 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 	private static final int no = 0;
 	private static final int left = 1;
 	private static final int right = 2;
-	public static final int max = 500;
+	private static final String NEWLINE = "\n";
+	public final static String SPACE = " ";
+	protected static final int MAX_PRECEDENCE = 500;
 
-	private final static Hashtable<String, NodeInfo> infoTable = new Hashtable<String, NodeInfo>();
+	private final static Hashtable<String, PrettyPrintNode> ppNodeTable = new Hashtable<String, PrettyPrintNode>();
 
 	public ASTPrettyPrinter(Start start, Renamer renamer) {
 		this.renamer = renamer;
-
 		this.indentation = new Indentation(start);
 	}
 
@@ -54,179 +31,194 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 		this.indentation = new Indentation(start);
 	}
 
-	private static void putInfixOperator(String nodeName, String symbol,
-			int precedence, int a) {
-		infoTable.put(nodeName, new NodeInfo(null, null, null, null, " "
-				+ symbol + " ", null, precedence, a));
-	}
-
-	private static void putPrefixOperator(String nodeName, String symbol,
-			int precedence, int a) {
-		infoTable.put(nodeName, new NodeInfo(symbol, null, null, null, null,
-				null, precedence, a));
-	}
-
-	private static void putInfixOperatorWithoutSpaces(String nodeName,
-			String symbol, int precedence, int a) {
-		infoTable.put(nodeName, new NodeInfo(null, null, null, null, symbol,
-				null, precedence, a));
-	}
-
-	private static void putPreEnd(String nodeName, String pre, String end) {
-		infoTable.put(nodeName, new NodeInfo(pre, null, null, null, null, end,
-				null, null));
-	}
-
-	private static void putClause(String nodeName, String pre, String end) {
-		infoTable.put(nodeName, new NodeInfo(pre + "\n", null, null, null,
-				null, end, null, null));
-	}
-
-	private static void putSymbol(String nodeName, String symbol) {
-		infoTable.put(nodeName, new NodeInfo(symbol, null, null, null, null,
-				null, null, null));
-	}
-
-	private static void put(String nodeName, String pre, String beginList,
-			String betweenListElements, String endList, String betweenChildren,
-			String end) {
-		infoTable
-				.put(nodeName, new NodeInfo(pre, beginList,
-						betweenListElements, endList, betweenChildren, end,
-						null, null));
-	}
-
-	private static void putDeclarationClause(String nodeName,
-			String clauseName, String betweenListElements) {
-		NodeInfo info = new NodeInfo();
-		info.setPre(clauseName + " ");
-		info.setBetweenListElements(betweenListElements + " ");
-		info.setEnd("\n");
-		infoTable.put(nodeName, info);
-	}
-
 	static {
-
-		putDeclarationClause("ASetsMachineClause", "SETS", ";");
-		putDeclarationClause("AAbstractConstantsMachineClause",
+		putDeclarationClause(ASetsMachineClause.class, "SETS", ";");
+		putDeclarationClause(AAbstractConstantsMachineClause.class,
 				"ABSTRACT_CONSTANTS", ",");
-		putDeclarationClause("AConstantsMachineClause", "CONSTANTS", ",");
-		putDeclarationClause("AVariablesMachineClause", "VARIABLES", ",");
+		putDeclarationClause(AConstantsMachineClause.class, "CONSTANTS", ",");
+		putDeclarationClause(AVariablesMachineClause.class, "VARIABLES", ",");
+		put(AEnumeratedSetSet.class,
+				new PrettyPrintNode().setBetweenChildren(" = {")
+						.setBetweenListElements(", ").setEnd("}"));
 
-		put("AEnumeratedSetSet", null, null, ", ", null, " = {", "}");
-		// AEnumeratedSetSet e;e.g
-		putClause("ADefinitionsMachineClause", "DEFINITIONS", "");
-		putClause("APropertiesMachineClause", "PROPERTIES", "\n");
-		putClause("AAssertionsMachineClause", "ASSERTIONS", "\n");
-		putClause("AInvariantMachineClause", "INVARIANT", "\n");
-		putClause("AInitialisationMachineClause", "INITIALISATION", "\n");
-		putClause("AOperationsMachineClause", "OPERATIONS", "\n");
-		
+		put(ADefinitionsMachineClause.class,
+				new PrettyPrintNode().setBegin("DEFINITIONS\n")
+						.setBetweenListElements(NEWLINE).setEnd(NEWLINE));
+		putClause(APropertiesMachineClause.class, "PROPERTIES", "\n");
+		put(AAssertionsMachineClause.class,
+				new PrettyPrintNode().setBegin("ASSERTIONS\n")
+						.setBetweenListElements(";" + NEWLINE).setEnd(NEWLINE));
+		putClause(AInvariantMachineClause.class, "INVARIANT", "\n");
+		putClause(AInitialisationMachineClause.class, "INITIALISATION", "\n");
+		putClause(AOperationsMachineClause.class, "OPERATIONS", "\n");
+
 		// infix operators
-		putInfixOperator("AImplicationPredicate", "=>", 30, left);
-		putInfixOperator("AEquivalencePredicate", "<=>", 30, left);
+		putInfixOperator(AImplicationPredicate.class, "=>", 30, left);
+		putInfixOperator(AEquivalencePredicate.class, "<=>", 30, left);
+		putInfixOperator(AConjunctPredicate.class, "&", 40, left);
+		putInfixOperator(ADisjunctPredicate.class, "or", 40, left);
+		putInfixOperator(ALessPredicate.class, "<", 50, left);
+		putInfixOperator(AGreaterPredicate.class, ">", 50, left);
+		putInfixOperator(ALessEqualPredicate.class, "<=", 50, left);
+		putInfixOperator(AGreaterEqualPredicate.class, ">=", 50, left);
+		putInfixOperator(AEqualPredicate.class, "=", 50, left);
+		putInfixOperator(ANotEqualPredicate.class, "/=", 50, left);
+		putInfixOperator(AMemberPredicate.class, ":", 60, left);
+		putInfixOperator(ANotMemberPredicate.class, "/:", 60, left);
+		putInfixOperator(ASubsetPredicate.class, "<:", 60, left); // <: subseteq
+		putInfixOperator(APartialFunctionExpression.class, "+->", 125, left);
+		putInfixOperator(ATotalFunctionExpression.class, "-->", 125, left);
+		putInfixOperator(AOverwriteExpression.class, "<+", 160, left);
+		putInfixOperator(AUnionExpression.class, "\\/", 160, left);
+		putInfixOperator(AIntersectionExpression.class, "/\\", 160, left);
+		putInfixOperator(AInsertTailExpression.class, "<-", 160, left);
+		putInfixOperator(AConcatExpression.class, "^", 160, left);
+		putInfixOperator(ARestrictFrontExpression.class, "/|\\", 160, left);
+		putInfixOperator(ARestrictTailExpression.class, "\\|/", 160, left);
+		putInfixOperator(AIntervalExpression.class, "..", 170, left);
+		putInfixOperator(AAddExpression.class, "+", 180, left);
+		putInfixOperator(AMinusOrSetSubtractExpression.class, "-", 180, left);
+		putInfixOperator(ACartesianProductExpression.class, "*", 190, left);
+		putInfixOperator(AMultOrCartExpression.class, "*", 190, left);
+		putInfixOperator(ADivExpression.class, "/", 190, left);
+		putInfixOperator(APowerOfExpression.class, "**", 200, right);
 
-		putInfixOperator("AConjunctPredicate", "&", 40, left);
-		putInfixOperator("ADisjunctPredicate", "or", 40, left);
+		putPrefixOperator(AUnaryMinusExpression.class, "-", 210, no);
 
-		putInfixOperator("ALessPredicate", "<", 50, left);
-		putInfixOperator("AGreaterPredicate", ">", 50, left);
-		putInfixOperator("ALessEqualPredicate", "<=", 50, left);
-		putInfixOperator("AGreaterEqualPredicate", ">=", 50, left);
+		putInfixOperatorWithoutSpaces(ARecordFieldExpression.class, "'", 250,
+				left);
 
-		putInfixOperator("AEqualPredicate", "=", 50, left);
-		putInfixOperator("ANotEqualPredicate", "/=", 50, left);
-
-		putInfixOperator("AMemberPredicate", ":", 60, left);
-		putInfixOperator("ANotMemberPredicate", "/:", 60, left);
-
-		putInfixOperator("ASubsetPredicate", "<:", 60, left); // <: subseteq
-
-		putInfixOperator("APartialFunctionExpression", "+->", 125, left);
-		putInfixOperator("ATotalFunctionExpression", "-->", 125, left);
-
-		putInfixOperator("AOverwriteExpression", "<+", 160, left);
-		putInfixOperator("AUnionExpression", "\\/", 160, left);
-		putInfixOperator("AIntersectionExpression", "/\\", 160, left);
-
-		putInfixOperator("AInsertTailExpression", "<-", 160, left);
-		putInfixOperator("AConcatExpression", "^", 160, left);
-
-		putInfixOperator("ARestrictFrontExpression", "/|\\", 160, left);
-		putInfixOperator("ARestrictTailExpression", "\\|/", 160, left);
-
-		putInfixOperator("AIntervalExpression", "..", 170, left);
-
-		putInfixOperator("AAddExpression", "+", 180, left);
-		putInfixOperator("AMinusOrSetSubtractExpression", "-", 180, left);
-
-		putInfixOperator("ACartesianProductExpression", "*", 190, left);
-		putInfixOperator("AMultOrCartExpression", "*", 190, left);
-		putInfixOperator("ADivExpression", "/", 190, left);
-
-		putInfixOperator("APowerOfExpression", "**", 200, right);
-
-		putPrefixOperator("AUnaryMinusExpression", "-", 210, no);
-
-		putInfixOperatorWithoutSpaces("ARecordFieldExpression", "'", 250, left);
-
-		infoTable.put("AFunctionExpression", new NodeInfo(null, "(", ", ", ")",
-				null, null, 300, no));
+		put(AFunctionExpression.class, new PrettyPrintNode().setBeginList("(")
+				.setBetweenListElements(",").setEndList(")").setPrecedence(300)
+				.setAssociative(no));
 
 		// single symbols
-		putSymbol("AIntegerSetExpression", "INTEGER");
-		putSymbol("AIntSetExpression", "INT");
-		putSymbol("ANaturalSetExpression", "NATURAL");
-		putSymbol("ANatural1SetExpression", "NATURAL1");
-		putSymbol("ANatSetExpression", "NAT");
-		putSymbol("ANat1SetExpression", "NAT1");
-		putSymbol("ABooleanTrueExpression", "TRUE");
-		putSymbol("ABooleanFalseExpression", "FALSE");
-		putSymbol("AEmptySetExpression", "{}");
-		putSymbol("ABoolSetExpression", "BOOL");
-		putSymbol("AStringSetExpression", "STRING");
-		putSymbol("ASkipSubstitution", "skip");
+		putSymbol(AIntegerSetExpression.class, "INTEGER");
+		putSymbol(AIntSetExpression.class, "INT");
+		putSymbol(ANaturalSetExpression.class, "NATURAL");
+		putSymbol(ANatural1SetExpression.class, "NATURAL1");
+		putSymbol(ANatSetExpression.class, "NAT");
+		putSymbol(ANat1SetExpression.class, "NAT1");
+		putSymbol(ABooleanTrueExpression.class, "TRUE");
+		putSymbol(ABooleanFalseExpression.class, "FALSE");
+		putSymbol(AEmptySetExpression.class, "{}");
+		putSymbol(ABoolSetExpression.class, "BOOL");
+		putSymbol(AStringSetExpression.class, "STRING");
+		putSymbol(ASkipSubstitution.class, "skip");
 
-		putPreEnd("APowSubsetExpression", "POW(", ")");
-		putPreEnd("AConvertBoolExpression", "bool(", ")");
-		putPreEnd("ADomainExpression", "dom(", ")");
-		putPreEnd("ANegationPredicate", "not(", ")");
-		putPreEnd("ASizeExpression", "size(", ")");
-		putPreEnd("ASeqExpression", "seq(", ")");
-		putPreEnd("ASeq1Expression", "seq1(", ")");
-		putPreEnd("AGeneralUnionExpression", "union(", ")");
-		putPreEnd("AStringExpression", "\"", "\"");
-		putPreEnd("AFinSubsetExpression", "FIN(", ")");
-		putPreEnd("ACardExpression", "card(", ")");
-		putPreEnd("AFirstExpression", "first(", ")");
-		putPreEnd("ATailExpression", "tail(", ")");
-		putPreEnd("AEmptySequenceExpression", "[", "]");
+		putOperator(APowSubsetExpression.class, "POW");
+		putOperator(AConvertBoolExpression.class, "bool");
+		putOperator(ADomainExpression.class, "dom");
+		putOperator(ANegationPredicate.class, "not");
+		putOperator(ASizeExpression.class, "size");
+		putOperator(ASeqExpression.class, "seq");
+		putOperator(ASeq1Expression.class, "seq1");
+		putOperator(AGeneralUnionExpression.class, "union");
+		putOperator(AFinSubsetExpression.class, "FIN");
+		putOperator(ACardExpression.class, "card");
+		putOperator(AFirstExpression.class, "first");
+		putOperator(ATailExpression.class, "tail");
+		putOperator(AFirstProjectionExpression.class, "prj1");
+		putOperator(ASecondProjectionExpression.class, "prj2");
 
-		putPreEnd("ABlockSubstitution", "BEGIN ", " END");
+		putBeginEnd(AStringExpression.class, "\"", "\"");
+		putBeginEnd(AEmptySequenceExpression.class, "[", "]");
+		putBeginEnd(ABlockSubstitution.class, "BEGIN ", " END");
+		putBeginEnd(ASequenceExtensionExpression.class, "[ ", "]");
+
 		// TODO other substitutions
 
-		put("ASetExtensionExpression", null, "{", ", ", "}", null, null);
-		put("AStructExpression", "struct", "(", ", ", ")", null, null);
-		put("ARecExpression", "rec", "(", ", ", ")", null, null);
-		put("ARecEntry", null, null, null, null, ":", null);
+		put(ASetExtensionExpression.class,
+				new PrettyPrintNode().setBeginList("{")
+						.setBetweenListElements(",").setEndList("}"));
 
-		put("ACoupleExpression", null, "(", ",", ")", null, null);
-		put("ASequenceExtensionExpression", null, "[", ",", "]", null, null);
+		put(AStructExpression.class, new PrettyPrintNode().setBegin("struct")
+				.setBeginList("(").setBetweenListElements(",").setEndList(")"));
+		put(ARecExpression.class, new PrettyPrintNode().setBegin("rec")
+				.setBeginList("(").setBetweenListElements(",").setEndList(")"));
+		put(ARecEntry.class, new PrettyPrintNode().setBetweenChildren(":"));
 
-		put("AForallPredicate", "!", "(", ",", ")", ".(", ")");
-		put("AExistsPredicate", "#", "(", ",", ")", ".(", ")");
+		put(ACoupleExpression.class, new PrettyPrintNode().setBeginList("(")
+				.setBetweenListElements("|->").setEndList(")"));
+		put(ASequenceExtensionExpression.class, new PrettyPrintNode()
+				.setBeginList("[").setBetweenListElements(",").setEndList("]"));
 
-		put("AAssignSubstitution", null, null, ",", null, " := ", null);
+		put(AForallPredicate.class, new PrettyPrintNode().setBegin("!")
+				.setBeginList("(").setBetweenListElements(",").setEndList(")")
+				.setBetweenChildren(".(").setEnd(")"));
+		put(AExistsPredicate.class, new PrettyPrintNode().setBegin("#")
+				.setBeginList("(").setBetweenListElements(",").setEndList(")")
+				.setBetweenChildren(".(").setEnd(")"));
 
-		put("AComprehensionSetExpression", "{", "", ",", "", " | ", "}");
+		put(AAssignSubstitution.class, new PrettyPrintNode()
+				.setBetweenListElements(",").setBetweenChildren(" := "));
 
-		put("AFirstProjectionExpression", "prj1(", null, null, null, ", ", ")");
+		put(AComprehensionSetExpression.class,
+				new PrettyPrintNode().setBegin("{").setBetweenListElements(",")
+						.setBetweenChildren("|").setEnd("}"));
+		
+		// MyMap = Collections.unmodifiableMap(tmpMap);
+	}
 
-		put("ASecondProjectionExpression", "prj2(", null, null, null, ", ", ")");
+	private static void putInfixOperator(Class<?> clazz, String symbol,
+			int precedence, int a) {
+		ppNodeTable.put(clazz.getSimpleName(),
+				new PrettyPrintNode()
+						.setBetweenChildren(SPACE + symbol + SPACE)
+						.setPrecedence(precedence).setAssociative(a));
+	}
+
+	private static void putPrefixOperator(Class<?> clazz, String symbol,
+			int precedence, int a) {
+		ppNodeTable.put(clazz.getSimpleName(), new PrettyPrintNode(symbol,
+				null, null, null, null, null, precedence, a));
+	}
+
+	private static void putInfixOperatorWithoutSpaces(Class<?> clazz,
+			String symbol, int precedence, int a) {
+		ppNodeTable.put(clazz.getSimpleName(), new PrettyPrintNode(null, null,
+				null, null, symbol, null, precedence, a));
+	}
+
+	private static void putBeginEnd(Class<?> clazz, String begin, String end) {
+		ppNodeTable.put(clazz.getSimpleName(),
+				new PrettyPrintNode().setBegin(begin).setBetweenChildren(",")
+						.setEnd(end));
+	}
+
+	private static void putOperator(Class<?> clazz, String pre) {
+		ppNodeTable.put(clazz.getSimpleName(), new PrettyPrintNode(pre + "(",
+				null, null, null, ",", ")", null, null));
+	}
+
+	private static void putSymbol(Class<?> clazz, String symbol) {
+		ppNodeTable.put(clazz.getSimpleName(), new PrettyPrintNode(symbol,
+				null, null, null, null, null, null, null));
+	}
+
+	private static void putClause(Class<?> clazz, String pre, String end) {
+		ppNodeTable.put(clazz.getSimpleName(), new PrettyPrintNode(pre + "\n",
+				null, null, null, null, end, null, null));
+	}
+
+	private static void putDeclarationClause(Class<?> clazz, String clauseName,
+			String betweenListElements) {
+		PrettyPrintNode ppNode = new PrettyPrintNode()
+				.setBegin(clauseName + NEWLINE)
+				.setBetweenListElements(betweenListElements + NEWLINE)
+				.setEnd(NEWLINE);
+		ppNodeTable.put(clazz.getSimpleName(), ppNode);
+
+	}
+
+	private static void put(Class<?> clazz, PrettyPrintNode nodeInfo) {
+		String className = clazz.getSimpleName();
+		ppNodeTable.put(className, nodeInfo);
 	}
 
 	@Override
 	public void caseAIdentifierExpression(final AIdentifierExpression node) {
+		inAIdentifierExpression(node);
 		if (renamer != null) {
 			sb.append(renamer.getNewName(node));
 		} else
@@ -240,41 +232,40 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 				e.apply(this);
 			}
 		}
+		outAIdentifierExpression(node);
 	}
 
 	@Override
 	public String toString() {
-		return builder.toString();
+		return sb.toString();
 	}
 
-	private NodeInfo getInfo(final Node node) {
+	private PrettyPrintNode getPrettyPrintNode(final Node node) {
 		final String nodeName = node.getClass().getSimpleName();
-		if (infoTable.containsKey(nodeName)) {
-			return infoTable.get(nodeName);
+		if (ppNodeTable.containsKey(nodeName)) {
+			return ppNodeTable.get(nodeName);
 		} else {
-			return new NodeInfo();
+			return new PrettyPrintNode();
 		}
 	}
 
 	@Override
 	public void defaultIn(final Node node) {
-		if (makeBrackets(node)) {
+		if (indentation.isIndentedNode(node)) {
+			sb.append(indentation.getIndent(node));
+		}
+		if (needsBrackets(node)) {
 			sb.append("(");
 		}
-		sb.append(getInfo(node).pre);
-		builder.append(node.getClass().getSimpleName());
-		builder.append("(");
+		sb.append(getPrettyPrintNode(node).getBegin());
 	}
 
 	@Override
 	public void defaultCase(final Node node) {
 		super.defaultCase(node);
 		if (node instanceof Token) {
-			builder.append(((Token) node).getText());
-
 			sb.append(((Token) node).getText());
 		} else {
-			builder.append(node.toString());
 			sb.append(node.toString());
 		}
 
@@ -282,25 +273,38 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 
 	@Override
 	public void defaultOut(final Node node) {
-		builder.append(")");
-		sb.append(getInfo(node).end);
-		if (makeBrackets(node)) {
+		sb.append(getPrettyPrintNode(node).getEnd());
+		if (needsBrackets(node)) {
 			sb.append(")");
+		}
+		if (indentation.isNewline(node)) {
+			sb.append(NEWLINE);
 		}
 	}
 
-	private boolean makeBrackets(Node node) {
-		NodeInfo infoNode = getInfo(node);
+	private boolean needsBrackets(Node node) {
+		PrettyPrintNode ppNodeNode = getPrettyPrintNode(node);
 		Node parent = node.parent();
 		if (parent == null) {
 			return false;
 		}
-		NodeInfo infoParent = getInfo(parent);
-		if (infoNode.precedence == max || infoParent.precedence == max)
+		PrettyPrintNode ppNodeParrent = getPrettyPrintNode(parent);
+		if (ppNodeNode.getPrecedence() == MAX_PRECEDENCE
+				|| ppNodeParrent.getPrecedence() == MAX_PRECEDENCE)
 			return false;
 
-		if (infoParent.precedence >= infoNode.precedence) {
+		if (ppNodeParrent.getPrecedence() > ppNodeNode.getPrecedence()) {
 			return true;
+		}
+
+		if (ppNodeParrent.getPrecedence() == ppNodeNode.getPrecedence()) {
+			// in some cases, this produces a different AST
+			if (node.getClass() == parent.getClass()) {
+				return false;
+			} else {
+				return true;
+			}
+
 		}
 
 		return false;
@@ -317,29 +321,29 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 	}
 
 	public void beginList(final Node parent) {
-		builder.append('[');
-		sb.append(getInfo(parent).beginList);
+		sb.append(getPrettyPrintNode(parent).getBeginList());
 	}
 
 	@Override
 	public void betweenListElements(final Node node) {
-		builder.append(',');
-		sb.append(getInfo(node).betweenListElements);
+		sb.append(getPrettyPrintNode(node).getBetweenListElements());
 	}
 
 	@Override
 	public void endList(final Node parent) {
-		builder.append(']');
-		sb.append(getInfo(parent).endList);
+		sb.append(getPrettyPrintNode(parent).getEndList());
 	}
 
 	@Override
 	public void betweenChildren(final Node node) {
-		builder.append(',');
 		if (indentation.printNewLineInTheMiddle(node)) {
-			sb.append("\n");
+			sb.append(NEWLINE);
+			sb.append(indentation.getIndent(node));
+			sb.append(getPrettyPrintNode(node).getBetweenChildren().trim());
+			sb.append(SPACE);
+		} else {
+			sb.append(getPrettyPrintNode(node).getBetweenChildren());
 		}
-		sb.append(getInfo(node).betweenChildren);
 	}
 
 	@Override
@@ -413,6 +417,56 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 			}
 			sb.append("\n");
 		}
+	}
+	
+	@Override
+	public void caseAQuantifiedUnionExpression(
+			final AQuantifiedUnionExpression node) {
+		inAQuantifiedUnionExpression(node);
+		sb.append("UNION(");
+		{
+			final List<PExpression> copy = new ArrayList<PExpression>(
+					node.getIdentifiers());
+			beginList(node);
+			for (final Iterator<PExpression> iterator = copy.iterator(); iterator
+					.hasNext();) {
+				final PExpression e = iterator.next();
+				e.apply(this);
+
+				if (iterator.hasNext()) {
+					betweenListElements(node);
+					sb.append(",");
+				}
+			}
+			endList(node);
+		}
+		sb.append(").(");
+		betweenChildren(node);
+		if (node.getPredicates() != null) {
+			node.getPredicates().apply(this);
+		}
+		betweenChildren(node);
+		sb.append(" | ");
+		if (node.getExpression() != null) {
+			node.getExpression().apply(this);
+		}
+		sb.append(")");
+		outAQuantifiedUnionExpression(node);
+	}
+
+	@Override
+	public void caseALabelPredicate(ALabelPredicate node) {
+		inALabelPredicate(node);
+		sb.append("/*@label ");
+		if (node.getName() != null) {
+			node.getName().apply(this);
+		}
+		sb.append(" */ ");
+
+		if (node.getPredicate() != null) {
+			node.getPredicate().apply(this);
+		}
+		outALabelPredicate(node);
 	}
 
 	@Override
@@ -670,95 +724,98 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 		sb.append(")");
 	}
 
-	public void inAConjunctPredicate(AConjunctPredicate node) {
-		super.inAConjunctPredicate(node);
-	}
-
 }
 
-class NodeInfo {
-	String pre = "";
-	String beginList = "";
-	String betweenListElements = "";
-	String endList = "";
-	String betweenChildren = "";
-	String end = "";
-	Integer precedence = ASTPrettyPrinter.max;
-	Integer associative = 0;
+class PrettyPrintNode {
+	private String begin = "";
+	private String beginList = "";
+	private String betweenListElements = "";
+	private String endList = "";
+	private String betweenChildren = "";
+	private String end = "";
+	private Integer precedence = ASTPrettyPrinter.MAX_PRECEDENCE;
+	private Integer associative = 0;
 
-	public String getPre() {
-		return pre;
+	public String getBegin() {
+		return begin;
 	}
 
-	public void setPre(String pre) {
-		this.pre = pre;
+	public PrettyPrintNode setBegin(String begin) {
+		this.begin = begin;
+		return this;
 	}
 
 	public String getBeginList() {
 		return beginList;
 	}
 
-	public void setBeginList(String beginList) {
+	public PrettyPrintNode setBeginList(String beginList) {
 		this.beginList = beginList;
+		return this;
 	}
 
 	public String getBetweenListElements() {
 		return betweenListElements;
 	}
 
-	public void setBetweenListElements(String betweenListElements) {
+	public PrettyPrintNode setBetweenListElements(String betweenListElements) {
 		this.betweenListElements = betweenListElements;
+		return this;
 	}
 
 	public String getEndList() {
 		return endList;
 	}
 
-	public void setEndList(String endList) {
+	public PrettyPrintNode setEndList(String endList) {
 		this.endList = endList;
+		return this;
 	}
 
 	public String getBetweenChildren() {
 		return betweenChildren;
 	}
 
-	public void setBetweenChildren(String betweenChildren) {
+	public PrettyPrintNode setBetweenChildren(String betweenChildren) {
 		this.betweenChildren = betweenChildren;
+		return this;
 	}
 
 	public String getEnd() {
 		return end;
 	}
 
-	public void setEnd(String end) {
+	public PrettyPrintNode setEnd(String end) {
 		this.end = end;
+		return this;
 	}
 
 	public Integer getPrecedence() {
 		return precedence;
 	}
 
-	public void setPrecedence(Integer precedence) {
+	public PrettyPrintNode setPrecedence(Integer precedence) {
 		this.precedence = precedence;
+		return this;
 	}
 
 	public Integer getAssociative() {
 		return associative;
 	}
 
-	public void setAssociative(Integer associative) {
+	public PrettyPrintNode setAssociative(Integer associative) {
 		this.associative = associative;
+		return this;
 	}
 
-	public NodeInfo() {
-
+	public PrettyPrintNode() {
 	}
 
-	public NodeInfo(String pre, String beginList, String betweenListElements,
-			String endList, String betweenChildren, String end,
-			Integer precedence, Integer associative) {
-		if (pre != null)
-			this.pre = pre;
+	public PrettyPrintNode(String begin, String beginList,
+			String betweenListElements, String endList, String betweenChildren,
+			String end, Integer precedence, Integer associative) {
+		if (begin != null)
+			this.begin = begin;
 		if (beginList != null)
 			this.beginList = beginList;
 		if (betweenListElements != null)
