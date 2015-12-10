@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import de.tla2b.exceptions.FrontEndException;
 import de.tla2b.exceptions.TLA2BException;
+import de.tla2b.exceptions.TypeErrorException;
 import de.tla2b.util.TestTypeChecker;
 import de.tla2b.util.TestUtil;
 
@@ -69,6 +70,7 @@ public class TupleVsSequenceTest {
 		assertEquals("INTEGER*INTEGER", t.getConstantType("k"));
 	}
 	
+	
 	@Test  
 	public void testTupleVsSequence6() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -77,6 +79,14 @@ public class TupleVsSequenceTest {
 				+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
 		assertEquals("INTEGER*INTEGER", t.getConstantType("k"));
+	}
+
+	@Test (expected = TypeErrorException.class)
+	public void testTupleVsSequence7() throws FrontEndException, TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "ASSUME 1 = <<1,TRUE>>[3] \n"
+				+ "=================================";
+		TestUtil.typeCheckString(module);
 	}
 	
 }

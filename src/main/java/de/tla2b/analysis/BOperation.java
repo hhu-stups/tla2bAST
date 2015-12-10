@@ -94,15 +94,15 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 			whereList.add(bASTCreator.visitExprOrOpArgNodePredicate(g));
 		}
 
-		ArrayList<PExpression> left = new ArrayList<PExpression>();
-		ArrayList<PExpression> right = new ArrayList<PExpression>();
+		ArrayList<PExpression> leftSideOfAssigment = new ArrayList<PExpression>();
+		ArrayList<PExpression> rightSideOfAssigment = new ArrayList<PExpression>();
 		for (Entry<SymbolNode, ExprOrOpArgNode> entry : assignments.entrySet()) {
-			left.add(bASTCreator.createIdentifierNode(entry.getKey()));
-			right.add(bASTCreator.visitExprOrOpArgNodeExpression(entry
-					.getValue()));
+			leftSideOfAssigment.add(bASTCreator.createIdentifierNode(entry
+					.getKey()));
+			rightSideOfAssigment.add(bASTCreator
+					.visitExprOrOpArgNodeExpression(entry.getValue()));
 		}
 		AAssignSubstitution assign = new AAssignSubstitution();
-
 		if (anyVariables.size() > 0) { // ANY x_n WHERE P THEN A END
 			AAnySubstitution any = new AAnySubstitution();
 			any = new AAnySubstitution();
@@ -117,8 +117,10 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 				TLAType t = (TLAType) var.getToolObject(TYPE_ID);
 				member.setRight(t.getBNode());
 				whereList.add(member);
-				left.add(bASTCreator.createIdentifierNode(var));
-				right.add(BAstCreator.createIdentifierNode(nextName));
+				leftSideOfAssigment.add(bASTCreator.createIdentifierNode(var));
+				rightSideOfAssigment.add(BAstCreator
+						.createIdentifierNode(nextName));
+
 			}
 			any.setIdentifiers(anyParams);
 			whereList.addAll(createBeforeAfterPredicates(bASTCreator));
@@ -139,9 +141,9 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 			operation.setOperationBody(block);
 		}
 
-		if (left.size() > 0) {
-			assign.setLhsExpression(left);
-			assign.setRhsExpressions(right);
+		if (leftSideOfAssigment.size() > 0) {
+			assign.setLhsExpression(leftSideOfAssigment);
+			assign.setRhsExpressions(rightSideOfAssigment);
 		} else { // skip
 			assign.replaceBy(new ASkipSubstitution());
 		}
@@ -220,6 +222,7 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 		// anyVariables.add((OpDeclNode) symbol);
 		// }
 		anyVariables.removeAll(assignments.keySet());
+		anyVariables.removeAll(unchangedVariablesList);
 	}
 
 	private void separateGuardsAndBeforeAfterPredicates(ExprOrOpArgNode node) {

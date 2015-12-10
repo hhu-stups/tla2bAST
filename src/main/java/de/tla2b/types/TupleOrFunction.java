@@ -127,12 +127,14 @@ public class TupleOrFunction extends AbstractHasFollowers {
 			return true;
 		}
 		if (o instanceof TupleType) {
-			TupleType t = (TupleType) o;
-			for (int i = 0; i < t.getTypes().size(); i++) {
-				if (this.types.containsKey(i + 1)) {
-					if (!t.getTypes().get(i).compare(this.types.get(i + 1))) {
-						return false;
-					}
+			TupleType tupleType = (TupleType) o;
+			for (Integer index : this.types.keySet()) {
+				if (index >= 1
+						&& index <= tupleType.getTypes().size()
+						&& this.types.get(index).compare(
+								tupleType.getTypes().get(index + -1))) {
+				} else {
+					return false;
 				}
 			}
 			return true;
@@ -183,9 +185,9 @@ public class TupleOrFunction extends AbstractHasFollowers {
 
 	@Override
 	public boolean isUntyped() {
-//		if (complete == false) {
-//			return true;
-//		}
+		// if (complete == false) {
+		// return true;
+		// }
 		for (TLAType type : types.values()) {
 			if (type.isUntyped())
 				return true;
@@ -251,56 +253,56 @@ public class TupleOrFunction extends AbstractHasFollowers {
 		if (o instanceof TupleOrFunction) {
 			TupleOrFunction other = (TupleOrFunction) o;
 			for (Integer i : other.types.keySet()) {
-				if(this.types.containsKey(i)){
+				if (this.types.containsKey(i)) {
 					TLAType res = other.types.get(i).unify(this.types.get(i));
-					if(res instanceof AbstractHasFollowers)
+					if (res instanceof AbstractHasFollowers)
 						((AbstractHasFollowers) res).addFollower(this);
 					this.types.put(i, res);
-				}else{
+				} else {
 					TLAType res = other.types.get(i);
-					if(res instanceof AbstractHasFollowers)
+					if (res instanceof AbstractHasFollowers)
 						((AbstractHasFollowers) res).addFollower(this);
 					this.types.put(i, res);
 				}
-				
+
 			}
 			other.setFollowersTo(this);
 			return this;
-			//			if (isTupleOrFunction(this, other)) {
-//				for (Integer i : this.types.keySet()) {
-//					if (other.types.containsKey(i)) {
-//						TLAType res = this.types.get(i).unify(
-//								other.types.get(i));
-//						if (res instanceof AbstractHasFollowers) {
-//							((AbstractHasFollowers) res).addFollower(this);
-//						}
-//						this.types.put(i, res);
-//					}
-//				}
-//				for (Integer i : other.types.keySet()) {
-//					if (!this.types.containsKey(i)) {
-//						TLAType res = other.types.get(i);
-//						if (res instanceof AbstractHasFollowers) {
-//							((AbstractHasFollowers) res).addFollower(this);
-//						}
-//						this.types.put(i, res);
-//					}
-//				}
-//				return this;
-//			} else {
-//				ArrayList<TLAType> list1 = new ArrayList<TLAType>();
-//				for (int i = 1; i <= types.keySet().size(); i++) {
-//					list1.add(types.get(i));
-//				}
-//				TupleType tuple1 = new TupleType(list1);
-//
-//				ArrayList<TLAType> list2 = new ArrayList<TLAType>();
-//				for (int i = 1; i <= other.types.keySet().size(); i++) {
-//					list2.add(other.types.get(i));
-//				}
-//				TupleType tuple2 = new TupleType(list2);
-//				return tuple1.unify(tuple2);
-//			}
+			// if (isTupleOrFunction(this, other)) {
+			// for (Integer i : this.types.keySet()) {
+			// if (other.types.containsKey(i)) {
+			// TLAType res = this.types.get(i).unify(
+			// other.types.get(i));
+			// if (res instanceof AbstractHasFollowers) {
+			// ((AbstractHasFollowers) res).addFollower(this);
+			// }
+			// this.types.put(i, res);
+			// }
+			// }
+			// for (Integer i : other.types.keySet()) {
+			// if (!this.types.containsKey(i)) {
+			// TLAType res = other.types.get(i);
+			// if (res instanceof AbstractHasFollowers) {
+			// ((AbstractHasFollowers) res).addFollower(this);
+			// }
+			// this.types.put(i, res);
+			// }
+			// }
+			// return this;
+			// } else {
+			// ArrayList<TLAType> list1 = new ArrayList<TLAType>();
+			// for (int i = 1; i <= types.keySet().size(); i++) {
+			// list1.add(types.get(i));
+			// }
+			// TupleType tuple1 = new TupleType(list1);
+			//
+			// ArrayList<TLAType> list2 = new ArrayList<TLAType>();
+			// for (int i = 1; i <= other.types.keySet().size(); i++) {
+			// list2.add(other.types.get(i));
+			// }
+			// TupleType tuple2 = new TupleType(list2);
+			// return tuple1.unify(tuple2);
+			// }
 
 		}
 

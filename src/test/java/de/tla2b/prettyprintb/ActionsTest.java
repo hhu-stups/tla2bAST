@@ -2,9 +2,10 @@ package de.tla2b.prettyprintb;
 
 import static de.tla2b.util.TestUtil.compare;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
-public class EventsTest {
+public class ActionsTest {
 
 	
 	@Test
@@ -13,14 +14,14 @@ public class EventsTest {
 				+ "EXTENDS Naturals \n"
 				+ "VARIABLES x, y \n"
 				+ "Init == x = 1 /\\ y = 1 \n"
-				+ "Next == x' = 1 /\\ UNCHANGED y\n"
+				+ "Next == x' = 1 /\\ UNCHANGED y \n"
 				+ "=================================";
 		
 		final String expected = "MACHINE Testing\n"
 				+ "VARIABLES x, y\n"
 				+ "INVARIANT x : INTEGER & y : INTEGER \n"
 				+ "INITIALISATION  x, y:(x = 1 & y = 1) \n"
-				+ "OPERATIONS Next = ANY y_n WHERE y_n : INTEGER & y_n = y THEN x,y := 1,y_n END \n"
+				+ "OPERATIONS Next = BEGIN x := 1 END \n"
 				+ "END";
 		compare(expected, module);
 	}
