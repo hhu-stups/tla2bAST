@@ -222,7 +222,7 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 		// anyVariables.add((OpDeclNode) symbol);
 		// }
 		anyVariables.removeAll(assignments.keySet());
-		anyVariables.removeAll(unchangedVariablesList);
+		//anyVariables.removeAll(unchangedVariablesList);
 	}
 
 	private void separateGuardsAndBeforeAfterPredicates(ExprOrOpArgNode node) {

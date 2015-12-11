@@ -2354,9 +2354,9 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 				equal.setLeft(createIdentifierNode(getName(node.getOperator())
 						+ "_n"));
 				equal.setRight(createIdentifierNode(node.getOperator()));
-				return new AEqualPredicate(new ABooleanTrueExpression(),
-						new ABooleanTrueExpression());
-				//return equal;
+//				return new AEqualPredicate(new ABooleanTrueExpression(),
+//						new ABooleanTrueExpression());
+				return equal;
 			} else if (node.getOperator().getKind() == UserDefinedOpKind) {
 				OpDefNode operator = (OpDefNode) node.getOperator();
 				ExprNode e = operator.getBody();
@@ -2373,9 +2373,9 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals,
 				equal.setRight(createIdentifierNode(var.getOperator()));
 				list.add(equal);
 			}
-			//returnNode = createConjunction(list);
-			returnNode = new AEqualPredicate(new ABooleanTrueExpression(),
-					new ABooleanTrueExpression());
+			returnNode = createConjunction(list);
+//			returnNode = new AEqualPredicate(new ABooleanTrueExpression(),
+//					new ABooleanTrueExpression());
 			break;
 		}
 		case OPCODE_uc: { // CHOOSE x : P

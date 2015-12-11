@@ -21,7 +21,9 @@ public class ActionsTest {
 				+ "VARIABLES x, y\n"
 				+ "INVARIANT x : INTEGER & y : INTEGER \n"
 				+ "INITIALISATION  x, y:(x = 1 & y = 1) \n"
-				+ "OPERATIONS Next = BEGIN x := 1 END \n"
+				+ "OPERATIONS \n"
+				+ " Next = ANY y_n WHERE y_n : INTEGER "
+				+ " & y_n = y THEN x,y := 1,y_n END \n" 
 				+ "END";
 		compare(expected, module);
 	}
