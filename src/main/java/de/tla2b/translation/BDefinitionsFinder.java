@@ -1,9 +1,11 @@
 package de.tla2b.translation;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import tla2sany.semantic.ASTConstants;
 import tla2sany.semantic.AssumeNode;
+import tla2sany.semantic.ExprNode;
 import tla2sany.semantic.ExprOrOpArgNode;
 import tla2sany.semantic.OpApplNode;
 import tla2sany.semantic.OpDefNode;
@@ -27,6 +29,13 @@ public class BDefinitionsFinder extends AbstractASTVisitor implements
 
 		for (BOperation op : specAnalyser.getBOperations()) {
 			visitExprNode(op.getNode());
+			ArrayList<OpApplNode> existQuans = op.getExistQuans();
+			for (OpApplNode opApplNode : existQuans) {
+				ExprNode[] bdedQuantBounds = opApplNode.getBdedQuantBounds();
+				for (ExprNode exprNode : bdedQuantBounds) {
+					visitExprNode(exprNode);
+				}
+			}
 		}
 
 		if (specAnalyser.getInits() != null) {
@@ -43,7 +52,6 @@ public class BDefinitionsFinder extends AbstractASTVisitor implements
 			bDefinitionsSet.add(def);
 		}
 
-		
 		HashSet<OpDefNode> temp = new HashSet<OpDefNode>(bDefinitionsSet);
 		for (OpDefNode opDefNode : temp) {
 			visitExprNode(opDefNode.getBody());
@@ -52,7 +60,7 @@ public class BDefinitionsFinder extends AbstractASTVisitor implements
 
 	public void visitUserDefinedNode(OpApplNode n) {
 		OpDefNode def = (OpDefNode) n.getOperator();
-		if(bDefinitionsSet.add(def)){
+		if (bDefinitionsSet.add(def)) {
 			visitExprNode(def.getBody());
 		}
 		for (ExprOrOpArgNode exprOrOpArgNode : n.getArgs()) {
