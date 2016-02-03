@@ -85,7 +85,11 @@ task createJar(type: Jar, dependsOn: build){
 
 
 task tla2b(dependsOn: createJar) << {
-
+        copy {
+		from('build/libs/')
+		into('.')
+ 		include('TLA2B.jar')
+ 	}
 }
 
 if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
