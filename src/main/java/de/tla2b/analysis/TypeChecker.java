@@ -172,8 +172,8 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 			OpDeclNode var = vars[i];
 			TLAType varType = (TLAType) var.getToolObject(TYPE_ID);
 			if (varType.isUntyped()) {
-				throw new TypeErrorException("Variable '" + var.getName()
-						+ "' has no type!");
+				throw new TypeErrorException("The type of the variable '" + var.getName()
+						+ "' can not be inferred: " + varType);
 			}
 		}
 
