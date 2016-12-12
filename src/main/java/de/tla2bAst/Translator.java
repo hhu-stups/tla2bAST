@@ -16,7 +16,7 @@ import java.util.Hashtable;
 import de.be4.classicalb.core.parser.BParser;
 import de.be4.classicalb.core.parser.Definitions;
 import de.be4.classicalb.core.parser.analysis.prolog.RecursiveMachineLoader;
-import de.be4.classicalb.core.parser.exceptions.BException;
+import de.be4.classicalb.core.parser.exceptions.BCompoundException;
 import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.Start;
 import de.tla2b.analysis.InstanceTransformation;
@@ -72,8 +72,7 @@ public class Translator implements TranslationGlobals {
 	}
 
 	private void findConfigFile() {
-		String configFileName = FileUtils.removeExtention(moduleFile
-				.getAbsolutePath());
+		String configFileName = FileUtils.removeExtention(moduleFile.getAbsolutePath());
 		configFileName = configFileName + ".cfg";
 		configFile = new File(configFileName);
 		if (!configFile.exists()) {
@@ -84,14 +83,12 @@ public class Translator implements TranslationGlobals {
 	private void findModuleFile() {
 		moduleFile = new File(moduleFileName);
 		if (!moduleFile.exists()) {
-			throw new RuntimeException("Can not find module file: '"
-					+ moduleFileName + "'");
+			throw new RuntimeException("Can not find module file: '" + moduleFileName + "'");
 		}
 		try {
 			moduleFile = moduleFile.getCanonicalFile();
 		} catch (IOException e) {
-			throw new RuntimeException("Can not access module file: '"
-					+ moduleFileName + "'");
+			throw new RuntimeException("Can not access module file: '" + moduleFileName + "'");
 		}
 	}
 
@@ -104,10 +101,9 @@ public class Translator implements TranslationGlobals {
 	 * @return
 	 * @throws TLA2BException
 	 */
-	public static String translateModuleString(String moduleName,
-			String moduleString, String configString) throws TLA2BException {
-		Translator translator = new Translator(moduleName, moduleString,
-				configString);
+	public static String translateModuleString(String moduleName, String moduleString, String configString)
+			throws TLA2BException {
+		Translator translator = new Translator(moduleName, moduleString, configString);
 		Start bAST = translator.getBAST();
 		Renamer renamer = new Renamer(bAST);
 		ASTPrettyPrinter aP = new ASTPrettyPrinter(bAST, renamer);
@@ -115,8 +111,7 @@ public class Translator implements TranslationGlobals {
 		return aP.getResultString();
 	}
 
-	public Translator(String moduleName, String moduleString,
-			String configString) throws TLA2BException {
+	public Translator(String moduleName, String moduleString, String configString) throws TLA2BException {
 		createTLATempFile(moduleString, moduleName);
 		createCfgFile(configString, moduleName);
 		parse();
@@ -124,8 +119,7 @@ public class Translator implements TranslationGlobals {
 	}
 
 	// Used for Testing in tla2bAST project
-	public Translator(String moduleString, String configString)
-			throws FrontEndException {
+	public Translator(String moduleString, String configString) throws FrontEndException {
 		String moduleName = "Testing";
 		createTLATempFile(moduleString, moduleName);
 		createCfgFile(configString, moduleName);
@@ -138,8 +132,8 @@ public class Translator implements TranslationGlobals {
 			configFile = new File("temp/" + moduleName + ".cfg");
 			try {
 				configFile.createNewFile();
-				BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
-						new FileOutputStream(configFile), "UTF-8"));
+				BufferedWriter out = new BufferedWriter(
+						new OutputStreamWriter(new FileOutputStream(configFile), "UTF-8"));
 				try {
 					out.write(configString);
 				} finally {
@@ -159,8 +153,7 @@ public class Translator implements TranslationGlobals {
 		try {
 			moduleFile = new File("temp/" + moduleName + ".tla");
 			moduleFile.createNewFile();
-			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
-					new FileOutputStream(moduleFile), "UTF-8"));
+			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(moduleFile), "UTF-8"));
 			try {
 				out.write(moduleString);
 			} finally {
@@ -172,8 +165,7 @@ public class Translator implements TranslationGlobals {
 		}
 	}
 
-	public ModuleNode parseModule()
-			throws de.tla2b.exceptions.FrontEndException {
+	public ModuleNode parseModule() throws de.tla2b.exceptions.FrontEndException {
 		String fileName = moduleFile.getName();
 		ToolIO.setUserDir(moduleFile.getParent());
 
@@ -187,13 +179,12 @@ public class Translator implements TranslationGlobals {
 
 		if (spec.parseErrors.isFailure()) {
 			throw new de.tla2b.exceptions.FrontEndException(
-					allMessagesToString(ToolIO.getAllMessages())
-							+ spec.parseErrors, spec);
+					allMessagesToString(ToolIO.getAllMessages()) + spec.parseErrors, spec);
 		}
 
 		if (spec.semanticErrors.isFailure()) {
 			throw new de.tla2b.exceptions.FrontEndException(
-			// allMessagesToString(ToolIO.getAllMessages())
+					// allMessagesToString(ToolIO.getAllMessages())
 					"" + spec.semanticErrors, spec);
 		}
 
@@ -206,8 +197,7 @@ public class Translator implements TranslationGlobals {
 
 		if (n == null) { // Parse Error
 			// System.out.println("Rootmodule null");
-			throw new de.tla2b.exceptions.FrontEndException(
-					allMessagesToString(ToolIO.getAllMessages()), spec);
+			throw new de.tla2b.exceptions.FrontEndException(allMessagesToString(ToolIO.getAllMessages()), spec);
 		}
 
 		return n;
@@ -226,8 +216,7 @@ public class Translator implements TranslationGlobals {
 
 		modelConfig = null;
 		if (configFile != null) {
-			modelConfig = new ModelConfig(configFile.getAbsolutePath(),
-					new SimpleResolver());
+			modelConfig = new ModelConfig(configFile.getAbsolutePath(), new SimpleResolver());
 			modelConfig.parse();
 		}
 
@@ -239,8 +228,7 @@ public class Translator implements TranslationGlobals {
 
 		SymbolSorter symbolSorter = new SymbolSorter(moduleNode);
 		symbolSorter.sort();
-		PredicateVsExpression predicateVsExpression = new PredicateVsExpression(
-				moduleNode);
+		PredicateVsExpression predicateVsExpression = new PredicateVsExpression(moduleNode);
 
 		ConfigfileEvaluator conEval = null;
 		if (modelConfig != null) {
@@ -259,14 +247,11 @@ public class Translator implements TranslationGlobals {
 		typechecker.start();
 		SymbolRenamer symRenamer = new SymbolRenamer(moduleNode, specAnalyser);
 		symRenamer.start();
-		UsedExternalFunctions usedExternalFunctions = new UsedExternalFunctions(
-				moduleNode, specAnalyser);
-		RecursiveFunctionHandler recursiveFunctionHandler = new RecursiveFunctionHandler(
-				specAnalyser);
+		UsedExternalFunctions usedExternalFunctions = new UsedExternalFunctions(moduleNode, specAnalyser);
+		RecursiveFunctionHandler recursiveFunctionHandler = new RecursiveFunctionHandler(specAnalyser);
 		BMacroHandler bMacroHandler = new BMacroHandler(specAnalyser, conEval);
-		bAstCreator = new BAstCreator(moduleNode, conEval, specAnalyser,
-				usedExternalFunctions, predicateVsExpression, bMacroHandler,
-				recursiveFunctionHandler);
+		bAstCreator = new BAstCreator(moduleNode, conEval, specAnalyser, usedExternalFunctions, predicateVsExpression,
+				bMacroHandler, recursiveFunctionHandler);
 
 		this.BAst = bAstCreator.getStartNode();
 		this.typeTable = bAstCreator.getTypeTable();
@@ -275,30 +260,25 @@ public class Translator implements TranslationGlobals {
 	}
 
 	public void createProbFile() {
-		String fileName = FileUtils.removeExtention(moduleFile
-				.getAbsolutePath());
+		String fileName = FileUtils.removeExtention(moduleFile.getAbsolutePath());
 		fileName = fileName + ".prob";
 		File probFile;
 		probFile = new File(fileName);
 		try {
 			probFile.createNewFile();
 		} catch (IOException e) {
-			System.err.println(String.format("Could not create File %s.",
-					probFile.getName()));
+			System.err.println(String.format("Could not create File %s.", probFile.getName()));
 			System.exit(-1);
 		}
 
 		BParser bParser = new BParser();
-		bParser.getDefinitions().addAll(getBDefinitions());
+
 		try {
-			final RecursiveMachineLoader rml = parseAllMachines(getBAST(),
-					getModuleFile(), bParser);
-			// rml.printAsProlog(new PrintWriter(System.out), false);
-			// rml.printAsProlog(new PrintWriter(probFile), false);
+			bParser.getDefinitions().addDefinitions(getBDefinitions());
+			final RecursiveMachineLoader rml = parseAllMachines(getBAST(), getModuleFile(), bParser);
 
 			String moduleName = FileUtils.removeExtention(moduleFile.getName());
-			PrologPrinter prologPrinter = new PrologPrinter(rml, bParser,
-					moduleFile, moduleName, typeTable);
+			PrologPrinter prologPrinter = new PrologPrinter(rml, bParser, moduleFile, moduleName, typeTable);
 			prologPrinter.setPositions(bAstCreator.getSourcePositions());
 
 			PrintWriter outWriter = new PrintWriter(probFile, "UTF-8");
@@ -306,14 +286,9 @@ public class Translator implements TranslationGlobals {
 			outWriter.close();
 			System.out.println(probFile.getAbsolutePath() + " created.");
 
-			// prologPrinter.printAsProlog(new PrintWriter(System.out), false);
-
-		} catch (BException e) {
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+		} catch (BCompoundException | FileNotFoundException | UnsupportedEncodingException e) {
+			System.err.println(e.getMessage());
+			System.exit(-1);
 		}
 	}
 
@@ -329,12 +304,9 @@ public class Translator implements TranslationGlobals {
 				in = new BufferedReader(new FileReader(machineFile));
 				String firstLine = in.readLine();
 				in.close();
-				if (firstLine != null
-						&& !firstLine.startsWith("/*@ generated by TLA2B ")) {
-					System.err.println("Error: File " + machineFile.getName()
-							+ " already exists"
-							+ " and was not generated by TLA2B.\n"
-							+ "Delete or move this file.");
+				if (firstLine != null && !firstLine.startsWith("/*@ generated by TLA2B ")) {
+					System.err.println("Error: File " + machineFile.getName() + " already exists"
+							+ " and was not generated by TLA2B.\n" + "Delete or move this file.");
 					System.exit(-1);
 				}
 			} catch (IOException e) {
@@ -346,8 +318,7 @@ public class Translator implements TranslationGlobals {
 		try {
 			machineFile.createNewFile();
 		} catch (IOException e) {
-			System.err.println(String.format("Could not create File %s.",
-					machineFile.getName()));
+			System.err.println(String.format("Could not create File %s.", machineFile.getName()));
 			System.exit(-1);
 		}
 
@@ -355,48 +326,39 @@ public class Translator implements TranslationGlobals {
 		ASTPrettyPrinter aP = new ASTPrettyPrinter(BAst, renamer);
 		BAst.apply(aP);
 		StringBuilder result = aP.getResultAsStringbuilder();
-		result.insert(0, "/*@ generated by TLA2B " + VERSION_NUMBER + " " + new Date()
-				+ " */\n");
+		result.insert(0, "/*@ generated by TLA2B " + VERSION_NUMBER + " " + new Date() + " */\n");
 
 		try {
-			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
-					new FileOutputStream(machineFile), "UTF-8"));
+			BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(machineFile), "UTF-8"));
 			try {
 				out.write(result.toString());
 			} finally {
 				out.close();
 			}
-			System.out.println("B-Machine " + machineFile.getAbsolutePath()
-					+ " created.");
+			System.out.println("B-Machine " + machineFile.getAbsolutePath() + " created.");
 		} catch (IOException e) {
-			System.err.println("Error while creating file '"
-					+ machineFile.getAbsolutePath() + "'.");
+			System.err.println("Error while creating file '" + machineFile.getAbsolutePath() + "'.");
 			System.exit(-1);
 		}
 
 	}
 
-	public static RecursiveMachineLoader parseAllMachines(final Start ast,
-			final File f, final BParser bparser) throws BException {
-		final RecursiveMachineLoader rml = new RecursiveMachineLoader(
-				f.getParent(), bparser.getContentProvider());
-		rml.loadAllMachines(f, ast, bparser.getSourcePositions(),
-				bparser.getDefinitions());
+	public static RecursiveMachineLoader parseAllMachines(final Start ast, final File f, final BParser bparser)
+			throws BCompoundException {
+		final RecursiveMachineLoader rml = new RecursiveMachineLoader(f.getParent(), bparser.getContentProvider());
+		rml.loadAllMachines(f, ast, bparser.getSourcePositions(), bparser.getDefinitions());
 		return rml;
 	}
 
-	public Start translateExpression(String tlaExpression)
-			throws TLA2BException {
-		ExpressionTranslator expressionTranslator = new ExpressionTranslator(
-				tlaExpression, this);
+	public Start translateExpression(String tlaExpression) throws TLA2BException {
+		ExpressionTranslator expressionTranslator = new ExpressionTranslator(tlaExpression, this);
 		expressionTranslator.parse();
 		Start start = expressionTranslator.translateIncludingModel();
 		return start;
 	}
 
 	public static Start translateTlaExpression(String tlaExpression) {
-		ExpressionTranslator expressionTranslator = new ExpressionTranslator(
-				tlaExpression);
+		ExpressionTranslator expressionTranslator = new ExpressionTranslator(tlaExpression);
 		expressionTranslator.parse();
 		expressionTranslator.translate();
 		return expressionTranslator.getBExpressionParseUnit();

@@ -2,7 +2,6 @@ package de.tla2b.prettyprintb;
 
 import static de.tla2b.util.TestUtil.compare;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ActionsTest {

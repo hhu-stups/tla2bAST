@@ -1,4 +1,4 @@
-package de.tla2b.prettyprintb;
+package testing;
 
 import java.io.File;
 import java.util.ArrayList;

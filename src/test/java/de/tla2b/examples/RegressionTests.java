@@ -1,7 +1,5 @@
 package de.tla2b.examples;
 
-import static de.tla2b.util.TestUtil.load_TLA_File;
-
 import java.io.File;
 import java.util.ArrayList;
 
@@ -12,9 +10,10 @@ import de.tla2b.util.AbstractParseModuleTest;
 import de.tla2b.util.PolySuite;
 import de.tla2b.util.PolySuite.Config;
 import de.tla2b.util.PolySuite.Configuration;
+import de.tla2b.util.TestUtil;
 
 @RunWith(PolySuite.class)
-public class RegressionTests extends AbstractParseModuleTest{
+public class RegressionTests extends AbstractParseModuleTest {
 	private final File moduleFile;
 
 	public RegressionTests(File machine, Object result) {
@@ -23,14 +22,14 @@ public class RegressionTests extends AbstractParseModuleTest{
 
 	@Test
 	public void testRunTLC() throws Exception {
-		load_TLA_File(moduleFile.getPath());
+		TestUtil.loadTlaFile(moduleFile.getPath());
 	}
 
 	@Config
 	public static Configuration getConfig() {
 		final ArrayList<String> list = new ArrayList<String>();
 		final ArrayList<String> ignoreList = new ArrayList<String>();
-		list.add("./src/test/resources/regression"); 
+		list.add("./src/test/resources/regression");
 		return getConfiguration2(list, ignoreList);
 	}
 }
