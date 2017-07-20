@@ -1,7 +1,7 @@
 package de.tla2b.output;
 
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Set;
 
 import de.be4.classicalb.core.parser.util.Utils;
@@ -13,17 +13,17 @@ import de.be4.classicalb.core.parser.node.TIdentifierLiteral;
 
 public class Renamer extends DepthFirstAdapter {
 
-	private final java.util.Hashtable<Node, String> namesTables;
+	private final HashMap<Node, String> namesTables;
 	private final Set<String> globalNames;
 
 	public Renamer(Start start) {
-		this.namesTables = new Hashtable<Node, String>();
-		this.globalNames = new HashSet<String>();
+		this.namesTables = new HashMap<>();
+		this.globalNames = new HashSet<>();
 
 		start.apply(this);
 	}
 
-	private final static Set<String> KEYWORDS = new HashSet<String>();
+	private final static Set<String> KEYWORDS = new HashSet<>();
 	static {
 		KEYWORDS.add("seq");
 		KEYWORDS.add("left");
@@ -80,29 +80,28 @@ public class Renamer extends DepthFirstAdapter {
 
 	@Override
 	public void caseAIdentifierExpression(AIdentifierExpression node) {
-		String name = Utils.getIdentifierAsString(node.getIdentifier());
+		String name = Utils.getAIdentifierAsString(node);
 		String newName = incName(name, new HashSet<String>());
 		namesTables.put(node, newName);
 	}
 
 	@Override
-	public void caseTIdentifierLiteral(TIdentifierLiteral node){
+	public void caseTIdentifierLiteral(TIdentifierLiteral node) {
 		String name = node.getText();
 		String newName = incName(name, new HashSet<String>());
 		namesTables.put(node, newName);
 	}
-	
+
 	private Boolean existingName(String name) {
-		if (globalNames.contains(name) || KEYWORDS.contains(name)) {
-			return true;
-		} else
-			return false;
+		return globalNames.contains(name) || KEYWORDS.contains(name);
 	}
 
 	private String incName(String name, Set<String> tempSet) {
 		String res = name;
-		for (int i = 1; existingName(res) || tempSet.contains(res); i++) {
+		int i = 1;
+		while (existingName(res) || tempSet.contains(res)) {
 			res = name + "_" + i;
+			i++;
 		}
 		return res;
 	}
