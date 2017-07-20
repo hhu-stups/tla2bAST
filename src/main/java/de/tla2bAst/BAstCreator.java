@@ -34,8 +34,6 @@ import tlc2.value.StringValue;
 import tlc2.value.Value;
 import tlc2.value.ValueConstants;
 import de.be4.classicalb.core.parser.Definitions;
-import de.be4.classicalb.core.parser.exceptions.BException;
-import de.be4.classicalb.core.parser.exceptions.CheckException;
 import de.be4.classicalb.core.parser.node.*;
 import de.hhu.stups.sablecc.patch.PositionedNode;
 import de.hhu.stups.sablecc.patch.SourcePosition;
@@ -204,7 +202,7 @@ public class BAstCreator extends BuiltInOPs
 			printed.get(i).id = i + 1;
 			eSet.setIdentifier(createTIdentifierLiteral("ENUM" + (i + 1)));
 			List<PExpression> list = new ArrayList<PExpression>();
-			for (Iterator< String>iterator = printed.get(i).modelvalues.iterator(); iterator.hasNext();) {
+			for (Iterator<String> iterator = printed.get(i).modelvalues.iterator(); iterator.hasNext();) {
 				list.add(createIdentifierNode(iterator.next()));
 			}
 			eSet.setElements(list);
@@ -262,24 +260,19 @@ public class BAstCreator extends BuiltInOPs
 
 		}
 
-		if (defs.size() > 0) {
+		if (!defs.isEmpty()) {
 			ADefinitionsMachineClause defClause = new ADefinitionsMachineClause();
 			defClause.setDefinitions(defs);
 			machineClauseList.add(defClause);
 
-			try {
-				for (PDefinition def : defs) {
-					if (def instanceof AExpressionDefinitionDefinition) {
-						bDefinitions.addDefinition((AExpressionDefinitionDefinition) def, Definitions.Type.Expression);
-					} else if (def instanceof APredicateDefinitionDefinition) {
-						bDefinitions.addDefinition((APredicateDefinitionDefinition) def, Definitions.Type.Predicate);
-					} else {
-						bDefinitions.addDefinition((ASubstitutionDefinitionDefinition) def,
-								Definitions.Type.Substitution);
-					}
+			for (PDefinition def : defs) {
+				if (def instanceof AExpressionDefinitionDefinition) {
+					bDefinitions.addDefinition((AExpressionDefinitionDefinition) def, Definitions.Type.Expression);
+				} else if (def instanceof APredicateDefinitionDefinition) {
+					bDefinitions.addDefinition((APredicateDefinitionDefinition) def, Definitions.Type.Predicate);
+				} else {
+					bDefinitions.addDefinition((ASubstitutionDefinitionDefinition) def, Definitions.Type.Substitution);
 				}
-			} catch (BException | CheckException e) {
-				throw new AssertionError(e);
 			}
 
 		}

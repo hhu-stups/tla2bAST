@@ -4,7 +4,7 @@ apply plugin: 'maven'
 apply plugin: 'jacoco'
 apply plugin: 'findbugs'
 
-project.version = '1.0.9-SNAPSHOT'
+project.version = '1.0.9'
 project.group = 'de.hhu.stups'
 project.archivesBaseName = "tla2bAST"
 
@@ -28,7 +28,14 @@ configurations.all {
 	resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
    }
 
-def parser_version = '2.7.1-SNAPSHOT'
+def parser_version
+if (project.version.endsWith("-SNAPSHOT")) {
+	parser_version = '2.9.7-SNAPSHOT'
+}
+else {
+	parser_version = '2.9.6'
+}
+
 def tlatools_version = '1.0.2'
 
 dependencies {
@@ -85,12 +92,14 @@ task createJar(type: Jar, dependsOn: build){
 }
 
 
-task tla2b(dependsOn: createJar) << {
-        copy {
-		from('build/libs/')
-		into('.')
- 		include('TLA2B.jar')
- 	}
+task tla2b(dependsOn: createJar) {
+	doLast{
+		copy {
+			from('build/libs/')
+			into('.')
+			include('TLA2B.jar')
+		}
+	}
 }
 
 if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
