@@ -15,16 +15,13 @@ import de.tla2b.analysis.BOperation;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.global.TranslationGlobals;
 
-public class BDefinitionsFinder extends AbstractASTVisitor implements
-		ASTConstants, ToolGlobals, TranslationGlobals {
-	private final HashSet<OpDefNode> bDefinitionsSet = new HashSet<OpDefNode>();
+public class BDefinitionsFinder extends AbstractASTVisitor implements ASTConstants, ToolGlobals, TranslationGlobals {
+	private final HashSet<OpDefNode> bDefinitionsSet = new HashSet<>();
 
 	public BDefinitionsFinder(SpecAnalyser specAnalyser) {
 		if (specAnalyser.getConfigFileEvaluator() != null) {
-			bDefinitionsSet.addAll(specAnalyser.getConfigFileEvaluator()
-					.getConstantOverrideTable().values());
-			bDefinitionsSet.addAll(specAnalyser.getConfigFileEvaluator()
-					.getOperatorOverrideTable().values());
+			bDefinitionsSet.addAll(specAnalyser.getConfigFileEvaluator().getConstantOverrideTable().values());
+			bDefinitionsSet.addAll(specAnalyser.getConfigFileEvaluator().getOperatorOverrideTable().values());
 		}
 
 		for (BOperation op : specAnalyser.getBOperations()) {
@@ -52,9 +49,18 @@ public class BDefinitionsFinder extends AbstractASTVisitor implements
 			bDefinitionsSet.add(def);
 		}
 
-		HashSet<OpDefNode> temp = new HashSet<OpDefNode>(bDefinitionsSet);
+		HashSet<OpDefNode> temp = new HashSet<>(bDefinitionsSet);
 		for (OpDefNode opDefNode : temp) {
 			visitExprNode(opDefNode.getBody());
+		}
+
+		for (OpDefNode opDef : specAnalyser.getModuleNode().getOpDefs()) {
+			String defName = opDef.getName().toString();
+			// GOAL, ANIMATION_FUNCTION, ANIMATION_IMGxx, SET_PREF_xxx,
+			if (defName.equals("GOAL") || defName.startsWith("ANIMATION_FUNCTION")
+					|| defName.startsWith("ANIMATION_IMG") || defName.startsWith("SET_PREF_")) {
+				bDefinitionsSet.add(opDef);
+			}
 		}
 	}
 
