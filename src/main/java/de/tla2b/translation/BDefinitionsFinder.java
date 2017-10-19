@@ -2,6 +2,7 @@ package de.tla2b.translation;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
 
 import tla2sany.semantic.ASTConstants;
 import tla2sany.semantic.AssumeNode;
@@ -49,11 +50,6 @@ public class BDefinitionsFinder extends AbstractASTVisitor implements ASTConstan
 			bDefinitionsSet.add(def);
 		}
 
-		HashSet<OpDefNode> temp = new HashSet<>(bDefinitionsSet);
-		for (OpDefNode opDefNode : temp) {
-			visitExprNode(opDefNode.getBody());
-		}
-
 		for (OpDefNode opDef : specAnalyser.getModuleNode().getOpDefs()) {
 			String defName = opDef.getName().toString();
 			// GOAL, ANIMATION_FUNCTION, ANIMATION_IMGxx, SET_PREF_xxx,
@@ -62,11 +58,19 @@ public class BDefinitionsFinder extends AbstractASTVisitor implements ASTConstan
 				bDefinitionsSet.add(opDef);
 			}
 		}
+
+		HashSet<OpDefNode> temp = new HashSet<>(bDefinitionsSet);
+		for (OpDefNode opDefNode : temp) {
+			visitExprNode(opDefNode.getBody());
+		}
+
 	}
 
+	@Override
 	public void visitUserDefinedNode(OpApplNode n) {
 		OpDefNode def = (OpDefNode) n.getOperator();
 		if (bDefinitionsSet.add(def)) {
+			// visit body only once
 			visitExprNode(def.getBody());
 		}
 		for (ExprOrOpArgNode exprOrOpArgNode : n.getArgs()) {
@@ -74,7 +78,7 @@ public class BDefinitionsFinder extends AbstractASTVisitor implements ASTConstan
 		}
 	}
 
-	public HashSet<OpDefNode> getBDefinitionsSet() {
+	public Set<OpDefNode> getBDefinitionsSet() {
 		return bDefinitionsSet;
 	}
 
