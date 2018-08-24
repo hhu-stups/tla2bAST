@@ -474,7 +474,6 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns,
 			try {
 				found = found.unify(expected);
 			} catch (UnificationException e) {
-				e.printStackTrace();
 				throw new TypeErrorException(String.format(
 						"Expected %s, found %s at definition '%s',%n%s",
 						expected, found, def.getName(), n.getLocation()));
