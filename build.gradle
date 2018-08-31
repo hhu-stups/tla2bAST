@@ -13,15 +13,15 @@ project.targetCompatibility = '1.7'
 
 
 repositories {
-	mavenCentral()
-        maven {
-		name "sonatype snapshots"
-		url "https://oss.sonatype.org/content/repositories/snapshots"
-	}
-	maven {
-		name "sonatype releases"
-		url "https://oss.sonatype.org/content/repositories/releases"
-	}
+  mavenCentral()
+  maven {
+    name "sonatype snapshots"
+    url "https://oss.sonatype.org/content/repositories/snapshots"
+  }
+  maven {
+    name "sonatype releases"
+    url "https://oss.sonatype.org/content/repositories/releases"
+  }
 }
 
 configurations.all {
@@ -40,12 +40,12 @@ def tlatools_version = '1.0.2'
 
 dependencies {
 
-	compile 'commons-cli:commons-cli:1.2'
-	compile (group: 'de.hhu.stups', name: 'tlatools', version: tlatools_version)
-	compile (group: 'de.hhu.stups', name: 'prologlib', version: parser_version)
-	compile (group: 'de.hhu.stups', name: 'parserbase', version: parser_version)
-	compile (group: 'de.hhu.stups', name: 'bparser', version: parser_version)
-	compile (group: 'de.hhu.stups', name: 'ltlparser', version: parser_version)
+  compile (group: 'commons-cli', name: 'commons-cli', version: '1.4')
+  compile (group: 'de.hhu.stups', name: 'tlatools', version: tlatools_version)
+  compile (group: 'de.hhu.stups', name: 'prologlib', version: parser_version)
+  compile (group: 'de.hhu.stups', name: 'parserbase', version: parser_version)
+  compile (group: 'de.hhu.stups', name: 'bparser', version: parser_version)
+  compile (group: 'de.hhu.stups', name: 'ltlparser', version: parser_version)
 
 	testCompile (group: 'junit', name: 'junit', version: '4.12')
 }
