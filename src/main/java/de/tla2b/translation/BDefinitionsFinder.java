@@ -53,8 +53,8 @@ public class BDefinitionsFinder extends AbstractASTVisitor implements ASTConstan
 		for (OpDefNode opDef : specAnalyser.getModuleNode().getOpDefs()) {
 			String defName = opDef.getName().toString();
 			// GOAL, ANIMATION_FUNCTION, ANIMATION_IMGxx, SET_PREF_xxx,
-			if (defName.equals("GOAL") || defName.startsWith("ANIMATION_FUNCTION")
-					|| defName.startsWith("ANIMATION_")|| defName.startsWith("CUSTOM_GRAPH_") || defName.startsWith("SET_PREF_")) {
+			if (defName.equals("GOAL") || defName.startsWith("ANIMATION_") || defName.startsWith("CUSTOM_GRAPH_")
+					|| defName.startsWith("SET_PREF_") || defName.startsWith("HEURISTIC_FUNCTION")) {
 				bDefinitionsSet.add(opDef);
 			}
 		}
