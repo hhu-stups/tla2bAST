@@ -33,4 +33,22 @@ public class DefinitionsTest {
 				+ "END";
 		compare(expected, module);
 	}
+	
+	@Test
+	public void testGoalDefinition() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "VARIABLES x, y \n"
+				+ "Init == x = 1 /\\ y = 1 \n"
+				+ "GOAL == 1=1 \n"
+				+ "=================================";
+		
+		final String expected = "MACHINE Testing\n"
+				+ "DEFINITIONS GOAL == 1 = 1;"
+				+ "VARIABLES x, y\n"
+				+ "INVARIANT x : INTEGER & y : INTEGER \n"
+				+ "INITIALISATION  x, y:(x = 1 & y = 1) \n"
+				+ "END";
+		compare(expected, module);
+	}
 }

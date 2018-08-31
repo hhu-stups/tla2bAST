@@ -33,15 +33,14 @@ import tla2sany.semantic.SymbolNode;
 import tlc2.tool.BuiltInOPs;
 import tlc2.tool.ToolGlobals;
 
-public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
-		ToolGlobals, TranslationGlobals {
+public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobals, TranslationGlobals {
 	private OpDefNode spec;
 	private OpDefNode init;
 	private OpDefNode next;
-	private ArrayList<OpDefNode> invariants = new ArrayList<OpDefNode>();
+	private ArrayList<OpDefNode> invariants = new ArrayList<>();
 
 	private OpDefNode expressionOpdefNode;
-	private Hashtable<String, SymbolNode> namingHashTable = new Hashtable<String, SymbolNode>();
+	private Hashtable<String, SymbolNode> namingHashTable = new Hashtable<>();
 
 	private final ModuleNode moduleNode;
 	private ExprNode nextExpr;
@@ -57,14 +56,14 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 	// set of OpDefNodes which will appear in the resulting B Machine
 	private Set<OpDefNode> usedDefinitions = new HashSet<OpDefNode>();
 	// definitions which are used for the type inference algorithm
-	private Hashtable<OpDefNode, FormalParamNode[]> letParams = new Hashtable<OpDefNode, FormalParamNode[]>();
+	private Hashtable<OpDefNode, FormalParamNode[]> letParams = new Hashtable<>();
 	// additional parameters of an let Operator, these parameters are from the
 	// surrounding operator
-	private ArrayList<String> definitionMacros = new ArrayList<String>();
+	private ArrayList<String> definitionMacros = new ArrayList<>();
 
-	private ArrayList<OpDefNode> recursiveFunctions = new ArrayList<OpDefNode>();
+	private ArrayList<OpDefNode> recursiveFunctions = new ArrayList<>();
 
-	private ArrayList<RecursiveDefinition> recursiveDefinitions = new ArrayList<RecursiveDefinition>();
+	private ArrayList<RecursiveDefinition> recursiveDefinitions = new ArrayList<>();
 
 	private ConfigfileEvaluator configFileEvaluator;
 
@@ -73,8 +72,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		this.bConstants = new ArrayList<OpDeclNode>();
 	}
 
-	public static SpecAnalyser createSpecAnalyser(ModuleNode m,
-			ConfigfileEvaluator conEval) {
+	public static SpecAnalyser createSpecAnalyser(ModuleNode m, ConfigfileEvaluator conEval) {
 		SpecAnalyser specAnalyser = new SpecAnalyser(m);
 		specAnalyser.spec = conEval.getSpecNode();
 		specAnalyser.init = conEval.getInitNode();
@@ -99,8 +97,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		SpecAnalyser specAnalyser = new SpecAnalyser(m);
 		Hashtable<String, OpDefNode> definitions = new Hashtable<String, OpDefNode>();
 		for (int i = 0; i < m.getOpDefs().length; i++) {
-			definitions.put(m.getOpDefs()[i].getName().toString(),
-					m.getOpDefs()[i]);
+			definitions.put(m.getOpDefs()[i].getName().toString(), m.getOpDefs()[i]);
 		}
 		specAnalyser.spec = definitions.get("Spec");
 		specAnalyser.init = definitions.get("Init");
@@ -115,8 +112,8 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		return specAnalyser;
 	}
 
-	public void start() throws SemanticErrorException, FrontEndException,
-			ConfigFileErrorException, NotImplementedException {
+	public void start()
+			throws SemanticErrorException, FrontEndException, ConfigFileErrorException, NotImplementedException {
 
 		if (spec != null) {
 			evalSpec();
@@ -131,8 +128,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 
 				OpDefNode opDefNode = (OpDefNode) opApplNode.getOperator();
 
-				if (opDefNode.getKind() == UserDefinedOpKind
-						&& !BBuiltInOPs.contains(opDefNode.getName())) {
+				if (opDefNode.getKind() == UserDefinedOpKind && !BBuiltInOPs.contains(opDefNode.getName())) {
 					int i = invariants.indexOf(inv);
 					invariants.set(i, opDefNode);
 				}
@@ -160,9 +156,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 			OpDeclNode con = bConstants.get(i);
 			if (con.getArity() > 0) {
 				throw new ConfigFileErrorException(
-						String.format(
-								"Constant '%s' must be overriden in the configuration file.",
-								con.getName()));
+						String.format("Constant '%s' must be overriden in the configuration file.", con.getName()));
 			}
 		}
 		findRecursiveConstructs();
@@ -198,8 +192,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 
 	}
 
-	private void processConfigSpec(ExprNode exprNode)
-			throws SemanticErrorException, FrontEndException {
+	private void processConfigSpec(ExprNode exprNode) throws SemanticErrorException, FrontEndException {
 
 		if (exprNode instanceof OpApplNode) {
 			OpApplNode opApp = (OpApplNode) exprNode;
@@ -217,8 +210,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 					}
 					return;
 				}
-				throw new SemanticErrorException(
-						"Can not handle specification conjunction.");
+				throw new SemanticErrorException("Can not handle specification conjunction.");
 			}
 
 			int opcode = BuiltInOPs.getOpCode(opApp.getOperator().getName());
@@ -232,8 +224,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 			if (opcode == OPCODE_box) {
 				SemanticNode boxArg = args[0];
 				if ((boxArg instanceof OpApplNode)
-						&& BuiltInOPs.getOpCode(((OpApplNode) boxArg)
-								.getOperator().getName()) == OPCODE_sa) {
+						&& BuiltInOPs.getOpCode(((OpApplNode) boxArg).getOperator().getName()) == OPCODE_sa) {
 					ExprNode next = (ExprNode) ((OpApplNode) boxArg).getArgs()[0];
 					this.nextExpr = next;
 					return;
@@ -247,8 +238,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 			// temporal
 
 		} else {
-			throw new SemanticErrorException(
-					"Can not handle specification conjunction.");
+			throw new SemanticErrorException("Can not handle specification conjunction.");
 		}
 
 	}
@@ -257,8 +247,8 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants,
 		Set<OpDefNode> set = new HashSet<OpDefNode>(usedDefinitions);
 		for (OpDefNode def : set) {
 			if (def.getInRecursive()) {
-				throw new NotImplementedException(
-						"Recursive definitions are currently not supported: " + def.getName() + "\n" + def.getLocation() );
+				throw new NotImplementedException("Recursive definitions are currently not supported: " + def.getName()
+						+ "\n" + def.getLocation());
 				// bDefinitionsSet.remove(def);
 				// RecursiveDefinition rd = new RecursiveDefinition(def);
 				// recursiveDefinitions.add(rd);

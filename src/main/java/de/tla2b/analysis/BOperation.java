@@ -376,6 +376,10 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 					// Tuple
 					for (int i = 0; i < k.getArgs().length; i++) {
 						OpApplNode var = (OpApplNode) k.getArgs()[i];
+						//findUnchangedVariablesInOpApplNode(var);
+						if(!(var.getOperator() instanceof OpDeclNode)) {
+							throw new RuntimeException(var.getOperator().getName() + " " + var.getLocation());
+						}
 						unchangedVariablesList.add((OpDeclNode) var
 								.getOperator());
 						String name = var.getOperator().getName().toString();

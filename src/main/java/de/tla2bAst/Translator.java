@@ -346,7 +346,7 @@ public class Translator implements TranslationGlobals {
 	public static RecursiveMachineLoader parseAllMachines(final Start ast, final File f, final BParser bparser)
 			throws BCompoundException {
 		final RecursiveMachineLoader rml = new RecursiveMachineLoader(f.getParent(), bparser.getContentProvider());
-		rml.loadAllMachines(f, ast, bparser.getSourcePositions(), bparser.getDefinitions());
+		rml.loadAllMachines(f, ast, bparser.getDefinitions());
 		return rml;
 	}
 

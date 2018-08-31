@@ -81,8 +81,9 @@ public class StructType extends AbstractHasFollowers {
 	}
 
 	public boolean compare(TLAType o) {
-		if (this.contains(o) || o.contains(this))
+		if (this.contains(o) || o.contains(this)) {
 			return false;
+		}
 		if (o.getKind() == UNTYPED)
 			return true;
 
@@ -119,32 +120,32 @@ public class StructType extends AbstractHasFollowers {
 		}
 
 		if (o instanceof StructType) {
-			StructType s = (StructType) o;
+			StructType otherStruct = (StructType) o;
 			boolean extendStruct = false;
 
-			if (this.incompleteStruct && s.incompleteStruct) {
+			if (this.incompleteStruct && otherStruct.incompleteStruct) {
 				extendStruct = false;
 			} else if (this.incompleteStruct) {
-				if (s.types.keySet().containsAll(this.types.keySet())) {
+				if (otherStruct.types.keySet().containsAll(this.types.keySet())) {
 					extendStruct = false;
 				} else {
 					extendStruct = true;
 				}
-			} else if (s.incompleteStruct) {
-				if (this.types.keySet().containsAll(s.types.keySet())) {
+			} else if (otherStruct.incompleteStruct) {
+				if (this.types.keySet().containsAll(otherStruct.types.keySet())) {
 					extendStruct = false;
 				} else {
 					extendStruct = true;
 				}
 			} else {
-				extendStruct = !s.types.keySet().equals(this.types.keySet());
+				extendStruct = !otherStruct.types.keySet().equals(this.types.keySet());
 			}
-			this.extensible = this.extensible || s.extensible || extendStruct;
+			this.extensible = this.extensible || otherStruct.extensible || extendStruct;
 
-			Iterator<String> keys = s.types.keySet().iterator();
+			Iterator<String> keys = otherStruct.types.keySet().iterator();
 			while (keys.hasNext()) {
 				String fieldName = (String) keys.next();
-				TLAType sType = s.types.get(fieldName);
+				TLAType sType = otherStruct.types.get(fieldName);
 				if (this.types.containsKey(fieldName)) {
 					TLAType res = this.types.get(fieldName).unify(sType);
 					this.types.put(fieldName, res);

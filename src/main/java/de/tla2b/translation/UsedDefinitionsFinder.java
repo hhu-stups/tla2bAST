@@ -13,22 +13,18 @@ import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.global.TranslationGlobals;
 
-public class UsedDefinitionsFinder extends AbstractASTVisitor implements
-		ASTConstants, ToolGlobals, TranslationGlobals {
+public class UsedDefinitionsFinder extends AbstractASTVisitor implements ASTConstants, ToolGlobals, TranslationGlobals {
 
-	private final HashSet<OpDefNode> usedDefinitions = new HashSet<OpDefNode>();
-	
-	
+	private final HashSet<OpDefNode> usedDefinitions = new HashSet<>();
+
 	public UsedDefinitionsFinder(SpecAnalyser specAnalyser) {
 
 		if (specAnalyser.getConfigFileEvaluator() != null) {
-			Collection<OpDefNode> cons = specAnalyser.getConfigFileEvaluator()
-					.getConstantOverrideTable().values();
+			Collection<OpDefNode> cons = specAnalyser.getConfigFileEvaluator().getConstantOverrideTable().values();
 			for (OpDefNode def : cons) {
 				visitExprNode(def.getBody());
 			}
-			Collection<OpDefNode> ops = specAnalyser.getConfigFileEvaluator()
-					.getOperatorOverrideTable().values();
+			Collection<OpDefNode> ops = specAnalyser.getConfigFileEvaluator().getOperatorOverrideTable().values();
 			for (OpDefNode def : cons) {
 				visitExprNode(def.getBody());
 			}
@@ -37,7 +33,7 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor implements
 		}
 
 		visitAssumptions(specAnalyser.getModuleNode().getAssumptions());
-		
+
 		if (specAnalyser.getNext() != null) {
 			visitExprNode(specAnalyser.getNext());
 		}
@@ -59,6 +55,15 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor implements
 				visitExprNode(def.getBody());
 			}
 		}
+
+		for (OpDefNode opDef : specAnalyser.getModuleNode().getOpDefs()) {
+			String defName = opDef.getName().toString();
+			// GOAL, ANIMATION_FUNCTION, ANIMATION_IMGxx, SET_PREF_xxx,
+			if (defName.equals("GOAL") || defName.startsWith("ANIMATION_FUNCTION")
+					|| defName.startsWith("ANIMATION_IMG") || defName.startsWith("SET_PREF_")) {
+				usedDefinitions.add(opDef);
+			}
+		}
 	}
 
 	public HashSet<OpDefNode> getUsedDefinitions() {
@@ -70,15 +75,12 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor implements
 		super.visitUserDefinedNode(n);
 
 		OpDefNode def = (OpDefNode) n.getOperator();
-		ModuleNode moduleNode = def.getSource()
-				.getOriginallyDefinedInModuleNode();
+		ModuleNode moduleNode = def.getSource().getOriginallyDefinedInModuleNode();
 		if (moduleNode.getName().toString().equals("TLA2B")) {
 			return;
 		}
 		if (BBuiltInOPs.contains(def.getName())
-				&& STANDARD_MODULES.contains(def.getSource()
-						.getOriginallyDefinedInModuleNode().getName()
-						.toString())) {
+				&& STANDARD_MODULES.contains(def.getSource().getOriginallyDefinedInModuleNode().getName().toString())) {
 			return;
 		}
 		if (usedDefinitions.add(def)) {

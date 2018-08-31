@@ -2,6 +2,7 @@ package de.tla2b.translation;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
 
 import tla2sany.semantic.ASTConstants;
 import tla2sany.semantic.AssumeNode;
@@ -15,16 +16,13 @@ import de.tla2b.analysis.BOperation;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.global.TranslationGlobals;
 
-public class BDefinitionsFinder extends AbstractASTVisitor implements
-		ASTConstants, ToolGlobals, TranslationGlobals {
-	private final HashSet<OpDefNode> bDefinitionsSet = new HashSet<OpDefNode>();
+public class BDefinitionsFinder extends AbstractASTVisitor implements ASTConstants, ToolGlobals, TranslationGlobals {
+	private final HashSet<OpDefNode> bDefinitionsSet = new HashSet<>();
 
 	public BDefinitionsFinder(SpecAnalyser specAnalyser) {
 		if (specAnalyser.getConfigFileEvaluator() != null) {
-			bDefinitionsSet.addAll(specAnalyser.getConfigFileEvaluator()
-					.getConstantOverrideTable().values());
-			bDefinitionsSet.addAll(specAnalyser.getConfigFileEvaluator()
-					.getOperatorOverrideTable().values());
+			bDefinitionsSet.addAll(specAnalyser.getConfigFileEvaluator().getConstantOverrideTable().values());
+			bDefinitionsSet.addAll(specAnalyser.getConfigFileEvaluator().getOperatorOverrideTable().values());
 		}
 
 		for (BOperation op : specAnalyser.getBOperations()) {
@@ -52,15 +50,28 @@ public class BDefinitionsFinder extends AbstractASTVisitor implements
 			bDefinitionsSet.add(def);
 		}
 
-		HashSet<OpDefNode> temp = new HashSet<OpDefNode>(bDefinitionsSet);
+		for (OpDefNode opDef : specAnalyser.getModuleNode().getOpDefs()) {
+			String defName = opDef.getName().toString();
+			// GOAL, ANIMATION_FUNCTION, ANIMATION_IMGxx, SET_PREF_xxx,
+			if (defName.equals("GOAL") || defName.startsWith("ANIMATION_") || defName.startsWith("CUSTOM_GRAPH_")
+					|| defName.startsWith("SET_PREF_") || defName.startsWith("HEURISTIC_FUNCTION")
+					|| defName.startsWith("SCOPE") || defName.startsWith("scope_")) {
+				bDefinitionsSet.add(opDef);
+			}
+		}
+
+		HashSet<OpDefNode> temp = new HashSet<>(bDefinitionsSet);
 		for (OpDefNode opDefNode : temp) {
 			visitExprNode(opDefNode.getBody());
 		}
+
 	}
 
+	@Override
 	public void visitUserDefinedNode(OpApplNode n) {
 		OpDefNode def = (OpDefNode) n.getOperator();
 		if (bDefinitionsSet.add(def)) {
+			// visit body only once
 			visitExprNode(def.getBody());
 		}
 		for (ExprOrOpArgNode exprOrOpArgNode : n.getArgs()) {
@@ -68,7 +79,7 @@ public class BDefinitionsFinder extends AbstractASTVisitor implements
 		}
 	}
 
-	public HashSet<OpDefNode> getBDefinitionsSet() {
+	public Set<OpDefNode> getBDefinitionsSet() {
 		return bDefinitionsSet;
 	}
 
