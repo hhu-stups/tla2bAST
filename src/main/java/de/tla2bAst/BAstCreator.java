@@ -1675,8 +1675,10 @@ public class BAstCreator extends BuiltInOPs
 		}
 
 		case OPCODE_ite: { // IF THEN ELSE
+		    List<PExpression> Elsifs = new ArrayList<>();
 			AIfThenElseExpression ifthenElse = new AIfThenElseExpression(visitExprOrOpArgNodePredicate(n.getArgs()[0]),
-					visitExprOrOpArgNodeExpression(n.getArgs()[1]), visitExprOrOpArgNodeExpression(n.getArgs()[2]));
+					visitExprOrOpArgNodeExpression(n.getArgs()[1]), Elsifs,
+					visitExprOrOpArgNodeExpression(n.getArgs()[2]));
 			return ifthenElse;
 
 			// ALambdaExpression lambda1 = new ALambdaExpression();
