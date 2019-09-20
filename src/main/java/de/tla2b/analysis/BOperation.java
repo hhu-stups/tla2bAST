@@ -377,13 +377,25 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 					for (int i = 0; i < k.getArgs().length; i++) {
 						OpApplNode var = (OpApplNode) k.getArgs()[i];
 						//findUnchangedVariablesInOpApplNode(var);
-						if(!(var.getOperator() instanceof OpDeclNode)) {
-							throw new RuntimeException(var.getOperator().getName() + " " + var.getLocation());
+						// System.out.println("var.getOperator() = " + var.getOperator().getName() + " at " + var.getOperator() + " of class " + var.getOperator().getClass().getSimpleName());
+						// TO DO: support OpDefNode
+						if(var.getOperator() instanceof OpDefNode) {
+					        OpDefNode def = (OpDefNode) var.getOperator();
+						    if(def.getParams().length > 0) {
+							   throw new RuntimeException("Declaration with parameters not supported for UNCHANGED: " + var.getOperator().getName() + " " + var.getLocation());
+						    }
+						    ExprNode body = def.getBody();
+						    //if(body instanceof OpApplNode)
+							//System.out.println("Body = " + body + " of class " + body.getClass().getSimpleName());
+								   throw new RuntimeException("Declaration not yet supported for UNCHANGED: " + var.getOperator().getName() + " defined at " + body + " used at " + var.getLocation());
+						} else if(!(var.getOperator() instanceof OpDeclNode)) {
+							throw new RuntimeException("cannot convert to list of unchanged variables: " + var.getOperator().getName() + " " + var.getLocation());
+						} else {
+							unchangedVariablesList.add((OpDeclNode) var
+									.getOperator());
+							String name = var.getOperator().getName().toString();
+							unchangedVariables.add(name);
 						}
-						unchangedVariablesList.add((OpDeclNode) var
-								.getOperator());
-						String name = var.getOperator().getName().toString();
-						unchangedVariables.add(name);
 					}
 				}
 			}
