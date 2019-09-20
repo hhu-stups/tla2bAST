@@ -393,7 +393,7 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 						       findUnchangedVariablesInOpApplNode(obody);
 						    }
 						} else if(!(var.getOperator() instanceof OpDeclNode)) {
-							throw new RuntimeException("cannot convert to list of unchanged variables: " + var.getOperator().getName() + " " + var.getLocation());
+							throw new RuntimeException("Cannot convert to list of UNCHANGED variables: " + var.getOperator().getName() + " " + var.getLocation());
 						} else {
 							unchangedVariablesList.add((OpDeclNode) var
 									.getOperator());
@@ -408,10 +408,6 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 		}
 	}
 	
-	
-	private void addUnchangedVariablesInOpApplNodeTuple(OpApplNode k) {
-	
-	}
 
 }
 
