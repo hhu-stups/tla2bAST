@@ -129,7 +129,7 @@ public class ConfigfileEvaluator {
 				&& this.specNode == null) {
 			throw new ConfigFileErrorException(
 					"The module contains variables."
-							+ " Hence there must be eather a SPECIFICATION or INIT declaration.");
+							+ " Hence there must be either a SPECIFICATION or INIT declaration.");
 		}
 
 		evalInvariants();
