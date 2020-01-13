@@ -87,9 +87,6 @@ public class BAstCreator extends BuiltInOPs
 
 	/**
 	 * Creates a B AST node for a TLA expression
-	 * 
-	 * @param moduleNode
-	 * @param specAnalyser
 	 */
 	public BAstCreator(ModuleNode moduleNode, SpecAnalyser specAnalyser) {
 		this.moduleNode = moduleNode;
@@ -996,9 +993,9 @@ public class BAstCreator extends BuiltInOPs
 			returnNode = new ABooleanFalseExpression();
 			break;
 
-		/**********************************************************************
+		/*
 		 * Standard Module Naturals
-		 **********************************************************************/
+		 */
 		case B_OPCODE_nat: // Nat
 			returnNode = new ANaturalSetExpression();
 			break;
@@ -1098,9 +1095,9 @@ public class BAstCreator extends BuiltInOPs
 		case B_OPCODE_string: // STRING
 			returnNode = new AStringSetExpression();
 			break;
-		/**********************************************************************
+		/*
 		 * Standard Module Sequences
-		 **********************************************************************/
+		 */
 
 		case B_OPCODE_seq: // Seq(S) - set of sequences
 			returnNode = new ASeqExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
@@ -1295,9 +1292,9 @@ public class BAstCreator extends BuiltInOPs
 			return new AConvertBoolExpression(notEqual);
 		}
 
-		/**********************************************************************
+		/*
 		 * Set Operators
-		 **********************************************************************/
+		 */
 
 		case OPCODE_se: // SetEnumeration {..}
 		{

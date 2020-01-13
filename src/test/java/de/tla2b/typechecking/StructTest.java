@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.typechecking;
 
 import static org.junit.Assert.assertEquals;
@@ -20,9 +16,9 @@ public class StructTest {
 		ToolIO.setMode(ToolIO.TOOL);
 	}
 
-	/**********************************************************************
+	/*
 	 * Set of Records: [L1 : e1, L2 : e2]
-	 **********************************************************************/
+	 */
 	@Test
 	public void testStruct() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -84,9 +80,9 @@ public class StructTest {
 		TestUtil.typeCheckString(module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Record: [L1 |-> e1, L2 |-> e2]
-	 **********************************************************************/
+	 */
 
 	@Test
 	public void testRecord() throws FrontEndException, TLA2BException {
@@ -128,9 +124,9 @@ public class StructTest {
 		assertEquals("BOOL", t.getConstantType("k2"));
 	}
 
-	/**********************************************************************
+	/*
 	 * Record Select: r.c
-	 **********************************************************************/
+	 */
 
 	@Test
 	public void testRecordSelect() throws FrontEndException, TLA2BException {
@@ -220,9 +216,9 @@ public class StructTest {
 		TestUtil.typeCheckString(module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Record Except
-	 **********************************************************************/
+	 */
 
 	@Test
 	public void testRecordExcept() throws FrontEndException, TLA2BException {
@@ -248,9 +244,9 @@ public class StructTest {
 		assertEquals("struct(a:INTEGER,b:BOOL)", t.getConstantType("k2"));
 	}
 
-	/**********************************************************************
+	/*
 	 * Record Except @
-	 **********************************************************************/
+	 */
 
 	@Test
 	public void testRecordExceptAt() throws FrontEndException, TLA2BException {

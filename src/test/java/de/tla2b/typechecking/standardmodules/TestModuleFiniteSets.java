@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.typechecking.standardmodules;
 
 import static org.junit.Assert.*;
@@ -17,9 +13,9 @@ import de.tla2b.util.TestUtil;
 
 public class TestModuleFiniteSets {
 
-	/**********************************************************************
+	/*
 	 * IsFiniteSet
-	 **********************************************************************/
+	 */
 	@Test
 	public void unifyIsFiniteSet() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -73,9 +69,9 @@ public class TestModuleFiniteSets {
 		TestUtil.typeCheckString(module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Cardinality
-	 **********************************************************************/
+	 */
 	@Test
 	public void unifyCardinality() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"

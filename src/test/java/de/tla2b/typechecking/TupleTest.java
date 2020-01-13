@@ -157,9 +157,9 @@ public class TupleTest {
 		TestUtil.typeCheckString(module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Cartesian Product
-	 **********************************************************************/
+	 */
 	@Test
 	public void testCartesianProduct2() throws FrontEndException,
 			TLA2BException {

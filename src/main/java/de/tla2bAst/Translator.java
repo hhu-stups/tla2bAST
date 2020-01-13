@@ -94,12 +94,6 @@ public class Translator implements TranslationGlobals {
 
 	/**
 	 * External interface
-	 * 
-	 * @param moduleName
-	 * @param moduleString
-	 * @param configString
-	 * @return
-	 * @throws TLA2BException
 	 */
 	public static String translateModuleString(String moduleName, String moduleString, String configString)
 			throws TLA2BException {

@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.config;
 
 import java.util.ArrayList;
@@ -75,11 +71,6 @@ public class ConfigfileEvaluator {
 	// configuration file. All constants with arguments have to be overridden in
 	// the configuration file.
 
-	
-	/**
-	 * @param configAst
-	 * @param moduleNode
-	 */
 	public ConfigfileEvaluator(ModelConfig configAst, ModuleNode moduleNode) {
 		this.configAst = configAst;
 		this.moduleNode = moduleNode;
@@ -116,10 +107,6 @@ public class ConfigfileEvaluator {
 		this.enumeratedTypes = new LinkedHashMap<String, EnumType>();
 	}
 
-	/**
-	 * @throws ConfigFileErrorException
-	 * 
-	 */
 	public void start() throws ConfigFileErrorException {
 		evalNext(); // check if NEXT declaration is a valid definition
 		evalInit(); // check if INIT declaration is a valid definition
@@ -214,9 +201,7 @@ public class ConfigfileEvaluator {
 	}
 
 	/**
-	 * Represents a override statement in the configuration file: k <- def
-	 * 
-	 * @throws ConfigFileErrorException
+	 * Represents a override statement in the configuration file: k &lt;- def
 	 */
 	@SuppressWarnings("unchecked")
 	private void evalConstantOrDefOverrides() throws ConfigFileErrorException {

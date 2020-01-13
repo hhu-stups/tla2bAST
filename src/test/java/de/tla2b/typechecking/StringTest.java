@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.typechecking;
 
 import static org.junit.Assert.assertEquals;
@@ -17,9 +13,9 @@ import de.tla2b.util.TestUtil;
 
 public class StringTest {
 	
-	/**********************************************************************
+	/*
 	 * a String: "abc"
-	 **********************************************************************/
+	 */
 
 	@Test
 	public void testAString() throws FrontEndException, TLA2BException {
@@ -67,9 +63,9 @@ public class StringTest {
 	}
 	
 	
-	/**********************************************************************
+	/*
 	 * STRING
-	 **********************************************************************/
+	 */
 	@Test 
 	public void testString() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"

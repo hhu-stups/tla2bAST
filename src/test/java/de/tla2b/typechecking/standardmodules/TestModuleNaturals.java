@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.typechecking.standardmodules;
 
 import static org.junit.Assert.assertEquals;
@@ -17,9 +13,9 @@ import de.tla2b.util.TestUtil;
 
 public class TestModuleNaturals {
 
-	/**********************************************************************
+	/*
 	 * Relational operators: >, <, <=, >=
-	 **********************************************************************/
+	 */
 	@Test
 	public void testRelationalOperators() throws FrontEndException,
 			TLA2BException {
@@ -44,9 +40,9 @@ public class TestModuleNaturals {
 		TestUtil.typeCheckString(module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Arithmetic operator: +, -, *, /, mod, exp
-	 **********************************************************************/
+	 */
 	@Test
 	public void testArithmeticOperators() throws FrontEndException,
 			TLA2BException {
@@ -72,9 +68,9 @@ public class TestModuleNaturals {
 		TestUtil.typeCheckString(module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Interval operator: x .. y
-	 **********************************************************************/
+	 */
 
 	@Test
 	public void testDotDot() throws FrontEndException, TLA2BException {
@@ -99,9 +95,9 @@ public class TestModuleNaturals {
 		TestUtil.typeCheckString(module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Nat
-	 **********************************************************************/
+	 */
 	@Test
 	public void testNat() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"

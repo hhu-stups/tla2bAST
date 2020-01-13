@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.typechecking;
 
 import static org.junit.Assert.*;
@@ -17,9 +13,9 @@ import de.tla2b.util.TestUtil;
 
 public class LogicOperatorsTest {
 	
-	/**********************************************************************
+	/*
 	 * equality and disequality: =, #,
-	 **********************************************************************/
+	 */
 	@Test
 	public void testEquality() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -48,9 +44,9 @@ public class LogicOperatorsTest {
 	
 	
 	
-	/**********************************************************************
+	/*
 	 * Logic Operators: \neg, \lnot, \land, \cl, \lor, \dl, \equiv, =>
-	 **********************************************************************/
+	 */
 	@Test
 	public void testLogicOperators() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -73,9 +69,9 @@ public class LogicOperatorsTest {
 		TestUtil.typeCheckString(module);
 	}
 	
-	/**********************************************************************
+	/*
 	 * Quantification: \A x \in S : P or \E x \in S : P.  
-	 **********************************************************************/
+	 */
 
 	
 	@Test 

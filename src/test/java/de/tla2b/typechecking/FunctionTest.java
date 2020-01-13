@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.typechecking;
 
 import static org.junit.Assert.assertEquals;
@@ -17,9 +13,9 @@ import de.tla2b.util.TestUtil;
 
 public class FunctionTest {
 
-	/**********************************************************************
+	/*
 	 * Function constructor
-	 **********************************************************************/
+	 */
 
 	@Test
 	public void testSimpleFunctionConstructor() throws FrontEndException,
@@ -165,9 +161,9 @@ public class FunctionTest {
 		TestUtil.typeCheckString(module);
 	}
 
-	/**********************************************************************
+	/*
 	 * recursive Function
-	 **********************************************************************/
+	 */
 	@Test
 	public void testRecursiveFunction() throws FrontEndException,
 			TLA2BException {
@@ -183,9 +179,9 @@ public class FunctionTest {
 		assertEquals("INTEGER", t.getConstantType("k3"));
 	}
 
-	/**********************************************************************
+	/*
 	 * Function call
-	 **********************************************************************/
+	 */
 
 	@Test
 	public void testFunctionCall() throws FrontEndException, TLA2BException {
@@ -244,9 +240,9 @@ public class FunctionTest {
 		TestUtil.typeCheckString(module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Domain
-	 **********************************************************************/
+	 */
 	@Test
 	public void testDomain() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -273,9 +269,9 @@ public class FunctionTest {
 		assertEquals("POW(INTEGER*BOOL)", t.getConstantType("k2"));
 	}
 
-	/**********************************************************************
+	/*
 	 * Set of Function
-	 **********************************************************************/
+	 */
 	@Test
 	public void testSetOfFunction() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -310,9 +306,9 @@ public class FunctionTest {
 		TestUtil.typeCheckString(module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Except
-	 **********************************************************************/
+	 */
 	@Test
 	public void testFunctionExcept() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -412,9 +408,9 @@ public class FunctionTest {
 		assertEquals("POW(INTEGER*INTEGER*INTEGER)", t.getConstantType("k"));
 	}
 
-	/**********************************************************************
+	/*
 	 * Except @
-	 **********************************************************************/
+	 */
 
 	@Test
 	public void testAt2() throws FrontEndException, TLA2BException {

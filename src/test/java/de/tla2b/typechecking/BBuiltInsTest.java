@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.typechecking;
 
 import static org.junit.Assert.*;
@@ -18,9 +14,9 @@ import de.tla2b.util.TestUtil;
 public class BBuiltInsTest {
 
 
-	/**********************************************************************
+	/*
 	 * BOOLEAN
-	 **********************************************************************/
+	 */
 	@Test  
 	public void testBoolean() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -42,9 +38,9 @@ public class BBuiltInsTest {
 	}
 	
 
-	/**********************************************************************
+	/*
 	 * String
-	 **********************************************************************/
+	 */
 	@Test  
 	public void testString() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -64,9 +60,9 @@ public class BBuiltInsTest {
 		TestUtil.typeCheckString(module);
 	}
 	
-	/**********************************************************************
+	/*
 	 * Bool value: TRUE, FALSE
-	 **********************************************************************/
+	 */
 	@Test  
 	public void testBoolValue() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"

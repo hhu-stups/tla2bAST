@@ -185,10 +185,6 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		return n;
 	}
 
-	/**
-	 * @param moduleFileName
-	 * @throws de.tla2b.exceptions.FrontEndException
-	 */
 	private SpecObj parseModuleWithoutSemanticAnalyse(String moduleFileName,
 			String module) {
 		SpecObj spec = new SpecObj(moduleFileName, null);
@@ -211,10 +207,6 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		return spec;
 	}
 
-	/**
-	 * @param spec
-	 * @return
-	 */
 	private void evalVariables(SpecObj spec, String moduleName) {
 		ParseUnit p = (ParseUnit) spec.parseUnitContext.get(moduleName);
 		TreeNode n_module = p.getParseTree();

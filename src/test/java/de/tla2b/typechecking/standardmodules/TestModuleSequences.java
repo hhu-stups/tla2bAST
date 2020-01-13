@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.typechecking.standardmodules;
 
 import static org.junit.Assert.*;
@@ -17,9 +13,9 @@ import de.tla2b.util.TestUtil;
 
 public class TestModuleSequences {
 
-	/**********************************************************************
+	/*
 	 * Seq(S): The set of all sequences of elements in S.
-	 **********************************************************************/
+	 */
 	@Test  
 	public void testSeq() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -64,9 +60,9 @@ public class TestModuleSequences {
 	}
 	
 	
-	/**********************************************************************
+	/*
 	 * Len(S)
-	 **********************************************************************/
+	 */
 	@Test  
 	public void testLen() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -109,9 +105,9 @@ public class TestModuleSequences {
 	}
 	
 	
-	/**********************************************************************
+	/*
 	 * s \o s2 - concatenation of s and s2
-	 **********************************************************************/
+	 */
 	@Test  
 	public void testUnifyConcatenation() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -180,9 +176,9 @@ public class TestModuleSequences {
 	}
 	
 	
-	/**********************************************************************
+	/*
 	 * Append(s, e)
-	 **********************************************************************/
+	 */
 	@Test  
 	public void testUnifyAppend() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -237,9 +233,9 @@ public class TestModuleSequences {
 	}
 	
 
-	/**********************************************************************
+	/*
 	 * Head(s): the first element of the seq
-	 **********************************************************************/
+	 */
 	@Test  
 	public void testUnifyHead() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -274,9 +270,9 @@ public class TestModuleSequences {
 		TestUtil.typeCheckString(module);
 	}
 	
-	/**********************************************************************
+	/*
 	 * Tail(s): the sequence without the first element
-	 **********************************************************************/
+	 */
 	@Test  
 	public void testUnifyTail() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -312,9 +308,9 @@ public class TestModuleSequences {
 		TestUtil.typeCheckString(module);
 	}
 	
-	/**********************************************************************
+	/*
 	 * SubSeq(s,m,n): The sequence <<s[m], s[m+1], ... , s[n]>>
-	 **********************************************************************/
+	 */
 	@Test  
 	public void testUnifySubSeq() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"

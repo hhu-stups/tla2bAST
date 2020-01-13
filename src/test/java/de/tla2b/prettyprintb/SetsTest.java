@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.prettyprintb;
 
 import static de.tla2b.util.TestUtil.compare;
@@ -34,9 +30,9 @@ public class SetsTest {
 		compare(expected, module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Element of: \in, \notin
-	 **********************************************************************/
+	 */
 	@Test
 	public void testMemberOf() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -68,9 +64,9 @@ public class SetsTest {
 		compare(expected, module);
 	}
 
-	/**********************************************************************
+	/*
 	 * set operators like difference, union, intersection: \setdiff, \cup, \cap
-	 **********************************************************************/
+	 */
 	@Test
 	public void testSetDifference() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -104,9 +100,9 @@ public class SetsTest {
 		compare(expected, module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Subseteq: subset or equal
-	 **********************************************************************/
+	 */
 	@Test
 	public void testSubsteq() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -118,9 +114,9 @@ public class SetsTest {
 		compare(expected, module);
 	}
 
-	/**********************************************************************
+	/*
 	 * SUBSET: conforms POW in B
-	 **********************************************************************/
+	 */
 	@Test
 	public void testSubset() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -132,9 +128,9 @@ public class SetsTest {
 		compare(expected, module);
 	}
 
-	/**********************************************************************
+	/*
 	 * UNION
-	 **********************************************************************/
+	 */
 	@Test
 	public void testUnion() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -146,9 +142,9 @@ public class SetsTest {
 		compare(expected, module);
 	}
 	 
-	/**********************************************************************
+	/*
 	* Set Constructor
-	 **********************************************************************/
+	 */
 	@Test
 	public void testConstructor1() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"

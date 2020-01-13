@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.analysis;
 
 import java.util.Hashtable;
@@ -34,9 +30,6 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 	private int substitutionId = 11;
 
 
-	/**
-	 * @param moduleNode
-	 */
 	public InstanceTransformation(ModuleNode moduleNode) {
 		defs = moduleNode.getOpDefs();
 		defsHash = new Hashtable<String, OpDefNode>();
@@ -70,12 +63,6 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 		}
 	}
 
-	/**
-	 * @param exprOrOpArgNode
-	 * @param prefix
-	 * @return
-	 * @throws AbortException
-	 */
 	private ExprOrOpArgNode generateNewExprOrOpArgNode(ExprOrOpArgNode n,
 			String prefix) throws AbortException {
 		if (n instanceof ExprNode) {
@@ -85,12 +72,6 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 		}
 	}
 
-	/**
-	 * @param body
-	 * @param prefix
-	 * @return
-	 * @throws AbortException
-	 */
 	private ExprNode generateNewExprNode(ExprNode n, String prefix)
 			throws AbortException {
 		switch (n.getKind()) {
@@ -158,12 +139,6 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 		throw new RuntimeException();
 	}
 
-	/**
-	 * @param n
-	 * @param prefix
-	 * @return
-	 * @throws AbortException
-	 */
 	private ExprNode generateNewOpApplNode(OpApplNode n, String prefix)
 			throws AbortException {
 		switch (n.getOperator().getKind()) {
@@ -232,12 +207,6 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 		throw new RuntimeException("OpApplkind not implemented jet");
 	}
 
-	/**
-	 * @param n
-	 * @param prefix
-	 * @return
-	 * @throws AbortException
-	 */
 	private ExprNode generateNewBuiltInNode(OpApplNode n, String prefix)
 			throws AbortException {
 		switch (getOpCode(n.getOperator().getName())) {
@@ -324,12 +293,6 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 		}
 	}
 
-	/**
-	 * @param args
-	 * @param prefix
-	 * @return
-	 * @throws AbortException
-	 */
 	private ExprOrOpArgNode[] generateNewArgs(ExprOrOpArgNode[] args,
 			String prefix) throws AbortException {
 		ExprOrOpArgNode[] res = new ExprOrOpArgNode[args.length];
@@ -339,10 +302,6 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 		return res;
 	}
 
-	/**
-	 * @param oldParams
-	 * @return
-	 */
 	private FormalParamNode[] generateNewParams(FormalParamNode[] oldParams) {
 		FormalParamNode[] newParams = new FormalParamNode[oldParams.length];
 		for (int i = 0; i < oldParams.length; i++) {

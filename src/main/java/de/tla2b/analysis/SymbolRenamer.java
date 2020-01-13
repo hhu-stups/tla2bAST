@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.analysis;
 
 
@@ -123,10 +119,6 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals,
 	private Set<String> globalNames = new HashSet<String>();
 	private Hashtable<OpDefNode, Set<String>> usedNamesTable = new Hashtable<OpDefNode, Set<String>>();
 
-	/**
-	 * @param moduleNode
-	 * @param specAnalyser
-	 */
 	public SymbolRenamer(ModuleNode moduleNode, SpecAnalyser specAnalyser) {
 		this.moduleNode = moduleNode;
 		this.usedDefinitions = specAnalyser.getUsedDefinitions();

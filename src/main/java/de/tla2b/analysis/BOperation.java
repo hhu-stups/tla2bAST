@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.analysis;
 
 import java.util.ArrayList;
@@ -321,9 +317,6 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 		findUnchangedVaribalesInSemanticNode(node);
 	}
 
-	/**
-	 * @param node2
-	 */
 	private void findUnchangedVaribalesInSemanticNode(SemanticNode node) {
 		switch (node.getKind()) {
 		case OpApplKind: {
@@ -344,9 +337,6 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 		}
 	}
 
-	/**
-	 * @param node2
-	 */
 	private void findUnchangedVariablesInOpApplNode(OpApplNode n) {
 
 		int kind = n.getOperator().getKind();

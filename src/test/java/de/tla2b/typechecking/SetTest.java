@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.typechecking;
 
 import static org.junit.Assert.*;
@@ -14,15 +10,11 @@ import de.tla2b.exceptions.TypeErrorException;
 import de.tla2b.util.TestTypeChecker;
 import de.tla2b.util.TestUtil;
 
-import tla2sany.semantic.AbortException;
-
 public class SetTest {
 
-	/**********************************************************************
+	/*
 	 * Set Enumeration: {1,2,3}
-	 * 
-	 * @throws AbortException
-	 **********************************************************************/
+	 */
 
 	@Test
 	public void testSetEnumeration() throws FrontEndException, TLA2BException {
@@ -97,9 +89,9 @@ public class SetTest {
 		TestUtil.typeCheckString(module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Element of: \in, \notin
-	 **********************************************************************/
+	 */
 	@Test
 	public void testElementOfSet() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -150,9 +142,9 @@ public class SetTest {
 		TestUtil.typeCheckString(module);
 	}
 
-	/**********************************************************************
+	/*
 	 * set operators like difference, union, intersection
-	 **********************************************************************/
+	 */
 	@Test
 	public void testSetOperators() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -196,9 +188,9 @@ public class SetTest {
 		TestUtil.typeCheckString(module);
 	}
 
-	/**********************************************************************
+	/*
 	 * set constructor: {x \in S : p}.
-	 **********************************************************************/
+	 */
 	@Test
 	public void testSubsetOf() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -310,9 +302,9 @@ public class SetTest {
 		assertEquals("POW(INTEGER*BOOL)", t.getConstantType("S"));
 	}
 	
-	/**********************************************************************
+	/*
 	 * set constructor: {e : x \in S}
-	 **********************************************************************/
+	 */
 	@Test
 	public void testSetOfAll() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -391,9 +383,9 @@ public class SetTest {
 		TestUtil.typeCheckString(module);
 	}
 
-	/**********************************************************************
+	/*
 	 * SUBSET: conforms POW in B
-	 **********************************************************************/
+	 */
 	@Test
 	public void testSubset() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -425,9 +417,9 @@ public class SetTest {
 		TestUtil.typeCheckString(module);
 	}
 
-	/**********************************************************************
+	/*
 	 * UNION
-	 **********************************************************************/
+	 */
 	@Test
 	public void testUnion() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -468,9 +460,9 @@ public class SetTest {
 		TestUtil.typeCheckString(module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Subseteq: subset or equal
-	 **********************************************************************/
+	 */
 	@Test
 	public void testSubseteq() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"

@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.prettyprintb;
 
 import static de.tla2b.util.TestUtil.compare;
@@ -98,9 +94,9 @@ public class FunctionTest {
 		compare(expected, module);
 	}
 
-	/**********************************************************************
+	/*
 	 * recursive Function
-	 **********************************************************************/
+	 */
 
 	@Ignore
 	@Test
@@ -122,9 +118,9 @@ public class FunctionTest {
 		compare(expected, module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Function call
-	 **********************************************************************/
+	 */
 	@Test
 	public void testFunctionCall() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"

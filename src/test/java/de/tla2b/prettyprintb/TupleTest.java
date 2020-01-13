@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.prettyprintb;
 
 import static de.tla2b.util.TestUtil.compare;

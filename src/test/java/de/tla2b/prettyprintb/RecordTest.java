@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.prettyprintb;
 
 import static de.tla2b.util.TestUtil.compare;
@@ -16,9 +12,9 @@ public class RecordTest {
 		ToolIO.setMode(ToolIO.TOOL);
 	}
 
-	/**********************************************************************
+	/*
 	 * Set of Records: [L1 : e1, L2 : e2]
-	 **********************************************************************/
+	 */
 	@Test
 	public void testStruct() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -34,9 +30,9 @@ public class RecordTest {
 	}
 	
 
-	/**********************************************************************
+	/*
 	 * Record: [L1 |-> e1, L2 |-> e2]
-	 **********************************************************************/
+	 */
 	@Test
 	public void testRecord() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -65,9 +61,9 @@ public class RecordTest {
 		compare(expected, module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Record Select: r.c
-	 **********************************************************************/
+	 */
 	@Test
 	public void testRecordSelect() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -94,9 +90,9 @@ public class RecordTest {
 		compare(expected, module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Record Except
-	 **********************************************************************/
+	 */
 	@Test
 	public void testRecordExcept() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -110,9 +106,9 @@ public class RecordTest {
 		compare(expected, module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Record Except @
-	 **********************************************************************/
+	 */
 	@Test
 	public void testRecordExceptAt() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"

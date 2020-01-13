@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.config;
 
 import java.util.Hashtable;
@@ -26,10 +22,6 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 	private Hashtable<OpDefNode, OpDefNode> operatorOverrideTable;
 	private Hashtable<OpDefNode, ValueObj> operatorAssignments;
 
-	/**
-	 * @param constantOverrideTable
-	 * @param operatorOverrideTable
-	 */
 	public ModuleOverrider(ModuleNode moduleNode,
 			Hashtable<OpDeclNode, OpDefNode> constantOverrideTable,
 			Hashtable<OpDefNode, OpDefNode> operatorOverrideTable,
@@ -40,10 +32,6 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 		this.operatorAssignments = operatorAssignments;
 	}
 
-	/**
-	 * @param moduleNode
-	 * @param conEval
-	 */
 	public ModuleOverrider(ModuleNode moduleNode, ConfigfileEvaluator conEval) {
 		this.moduleNode = moduleNode;
 		this.constantOverrideTable = conEval.getConstantOverrideTable();
@@ -109,9 +97,6 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 		}
 	}
 
-	/**
-	 * @param body
-	 */
 	private OpApplNode visitExprNode(ExprNode n) {
 
 		switch (n.getKind()) {
@@ -140,9 +125,6 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 		return null;
 	}
 
-	/**
-	 * @param n
-	 */
 	private OpApplNode visitOpApplNode(OpApplNode n) {
 		SymbolNode s = n.getOperator();
 		switch (s.getKind()) {

@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.prettyprintb;
 
 import org.junit.Test;
@@ -43,9 +39,9 @@ public class LogicOperatorsTest {
 		compare(expected, module);
 	}
 
-	/**********************************************************************
-	 * Logic Operators: \neg, \lnot, \land, \cl, \lor, \dl, \equiv, =>
-	 **********************************************************************/
+	/*
+	 * Logic Operators: \neg, \lnot, \land, \cl, \lor, \dl, \equiv, =&gt;
+	 */
 	@Test
 	public void testAnd() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -71,9 +67,9 @@ public class LogicOperatorsTest {
 		compare(expected, module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Negation: ~, \neg, \lnot
-	 **********************************************************************/
+	 */
 	@Test
 	public void testNegation() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -84,9 +80,9 @@ public class LogicOperatorsTest {
 		compare(expected, module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Implication and Equivalence: =>, \equiv
-	 **********************************************************************/
+	 */
 
 	@Test
 	public void testImplication() throws Exception {
@@ -112,9 +108,9 @@ public class LogicOperatorsTest {
 		compare(expected, module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Quantification: \A x \in S : P or \E x \in S : P
-	 **********************************************************************/
+	 */
 	@Test
 	public void testUniversalQuantifier() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"

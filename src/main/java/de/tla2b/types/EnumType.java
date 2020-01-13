@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.types;
 
 import java.util.ArrayList;
@@ -11,8 +7,6 @@ import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
 import de.tla2b.output.TypeVisitorInterface;
 import de.tla2bAst.BAstCreator;
-
-
 
 public class EnumType extends AbstractHasFollowers {
 	public LinkedHashSet<String> modelvalues;

@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.typechecking;
 
 import static org.junit.Assert.*;
@@ -16,9 +12,9 @@ import de.tla2b.util.TestUtil;
 
 public class DefinitionsTest {
 
-	/**********************************************************************
+	/*
 	 * Definition: foo(a,b) == e
-	 **********************************************************************/
+	 */
 	@Test
 	public void testDefinition() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -72,9 +68,9 @@ public class DefinitionsTest {
 		assertEquals("BOOL", t.getConstantType("k2"));
 	}
 
-	/**********************************************************************
+	/*
 	 * Definition Call
-	 **********************************************************************/
+	 */
 
 	@Test
 	public void testDefinitionCall() throws FrontEndException, TLA2BException {

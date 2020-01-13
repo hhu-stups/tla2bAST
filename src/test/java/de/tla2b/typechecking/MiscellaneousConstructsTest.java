@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.typechecking;
 
 import static org.junit.Assert.assertEquals;
@@ -16,9 +12,9 @@ import de.tla2b.util.TestUtil;
 
 public class MiscellaneousConstructsTest {
 
-	/**********************************************************************
+	/*
 	 * IF THEN ELSE
-	 **********************************************************************/
+	 */
 	@Test
 	public void testIfThenElse() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -33,9 +29,9 @@ public class MiscellaneousConstructsTest {
 	}
 	
 
-	/**********************************************************************
+	/*
 	 * IF THEN ELSE
-	 **********************************************************************/
+	 */
 	@Test
 	public void testCase() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -65,9 +61,9 @@ public class MiscellaneousConstructsTest {
 		assertEquals("INTEGER",t.getConstantType("e3"));
 	}
 	
-	/**********************************************************************
+	/*
 	 * LET d == exp IN e
-	 **********************************************************************/
+	 */
 	@Test
 	public void testLetIn() throws FrontEndException, TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"

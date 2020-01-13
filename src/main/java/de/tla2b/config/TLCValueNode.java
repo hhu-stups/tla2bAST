@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.config;
 
 import de.tla2b.global.TranslationGlobals;
@@ -16,11 +12,6 @@ public class TLCValueNode extends NumeralNode implements TranslationGlobals {
 	private Value value;
 	private TLAType type;
 
-	/**
-	 * @param valObj
-	 * @param stn
-	 * @throws AbortException 
-	 */
 	public TLCValueNode(ValueObj valObj, TreeNode stn) throws AbortException {
 		super("1337", stn);
 		this.value = valObj.getValue();

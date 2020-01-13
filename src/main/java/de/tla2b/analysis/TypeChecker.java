@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.analysis;
 
 import java.util.ArrayList;
@@ -63,11 +59,6 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 
 	private ConfigfileEvaluator conEval;
 
-	/**
-	 * @param moduleNode
-	 * @param conEval
-	 * @param specAnalyser
-	 */
 	public TypeChecker(ModuleNode moduleNode, ConfigfileEvaluator conEval, SpecAnalyser specAnalyser) {
 		this.moduleNode = moduleNode;
 		this.specAnalyser = specAnalyser;
@@ -221,10 +212,6 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 
 	}
 
-	/**
-	 * @param def
-	 * @throws TLA2BException
-	 */
 	public void visitOpDefNode(OpDefNode def) throws TLA2BException {
 		FormalParamNode[] params = def.getParams();
 		for (int i = 0; i < params.length; i++) {
@@ -254,12 +241,6 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 		}
 	}
 
-	/**
-	 * @param exprOrOpArgNode
-	 * @param instance
-	 * @throws TypeErrorException
-	 * @throws NotImplementedException
-	 */
 	private TLAType visitExprOrOpArgNode(ExprOrOpArgNode n, TLAType expected) throws TLA2BException {
 		if (n instanceof ExprNode) {
 			return visitExprNode((ExprNode) n, expected);
@@ -351,12 +332,6 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 		return (TLAType) n.getToolObject(TYPE_ID);
 	}
 
-	/**
-	 * @param n
-	 * @param expected
-	 * @return {@link TLAType}
-	 * @throws TLA2BException
-	 */
 	private TLAType visitOpApplNode(OpApplNode n, TLAType expected) throws TLA2BException {
 
 		switch (n.getOperator().getKind()) {
@@ -497,19 +472,13 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 
 	}
 
-	/**
-	 * @param exprNode
-	 * @param expected
-	 * @return {@link TLAType}
-	 * @throws TLA2BException
-	 */
 	private TLAType evalBuiltInKind(OpApplNode n, TLAType expected) throws TLA2BException {
 
 		switch (getOpCode(n.getOperator().getName())) {
 
-		/**********************************************************************
+		/*
 		 * equality and disequality: =, #, /=
-		 **********************************************************************/
+		 */
 		case OPCODE_eq: // =
 		case OPCODE_noteq: // /=, #
 		{
@@ -524,9 +493,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			return BoolType.getInstance();
 		}
 
-		/**********************************************************************
+		/*
 		 * Logic Operators: \neg, \lnot, \land, \cl, \lor, \dl, \equiv, =>
-		 **********************************************************************/
+		 */
 		case OPCODE_neg: // Negation
 		case OPCODE_lnot: // Negation
 		case OPCODE_cl: // $ConjList
@@ -548,9 +517,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			return BoolType.getInstance();
 		}
 
-		/**********************************************************************
+		/*
 		 * Quantification: \A x \in S : P or \E x \in S : P
-		 **********************************************************************/
+		 */
 		case OPCODE_be: // \E x \in S : P
 		case OPCODE_bf: // \A x \in S : P
 		{
@@ -565,9 +534,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			return BoolType.getInstance();
 		}
 
-		/**********************************************************************
+		/*
 		 * Set Operators
-		 **********************************************************************/
+		 */
 		case OPCODE_se: // SetEnumeration {..}
 		{
 			SetType found = new SetType(new UntypedType());
@@ -626,9 +595,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			return BoolType.getInstance();
 		}
 
-		/**********************************************************************
+		/*
 		 * Set Constructor
-		 **********************************************************************/
+		 */
 		case OPCODE_sso: // $SubsetOf Represents {x \in S : P}
 		{
 
@@ -684,9 +653,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			return setOfSet.getSubType();
 		}
 
-		/**********************************************************************
+		/*
 		 * Prime
-		 **********************************************************************/
+		 */
 		case OPCODE_prime: // prime
 		{
 			try {
@@ -702,9 +671,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			}
 		}
 
-		/***********************************************************************
+		/*
 		 * Tuple: Tuple as Function 1..n to Set (Sequence)
-		 ***********************************************************************/
+		 */
 		case OPCODE_tup: { // $Tuple
 			ArrayList<TLAType> list = new ArrayList<TLAType>();
 			for (int i = 0; i < n.getArgs().length; i++) {
@@ -733,9 +702,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			return found;
 		}
 
-		/***********************************************************************
+		/*
 		 * Function constructors
-		 ***********************************************************************/
+		 */
 		case OPCODE_rfs: // recursive function ( f[x\in Nat] == IF x = 0 THEN 1
 							// ELSE f[n-1]
 		{
@@ -782,9 +751,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			return found;
 		}
 
-		/***********************************************************************
+		/*
 		 * Function call
-		 ***********************************************************************/
+		 */
 		case OPCODE_fa: // $FcnApply f[1]
 		{
 			TLAType domType;
@@ -840,9 +809,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 
 		}
 
-		/***********************************************************************
+		/*
 		 * Domain of Function
-		 ***********************************************************************/
+		 */
 		case OPCODE_domain: {
 
 			FunctionType func = new FunctionType(new UntypedType(), new UntypedType());
@@ -856,9 +825,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			}
 			return res;
 		}
-		/***********************************************************************
+		/*
 		 * Set of Function
-		 ***********************************************************************/
+		 */
 		case OPCODE_sof: // [ A -> B]
 		{
 			SetType A = (SetType) visitExprOrOpArgNode(n.getArgs()[0], new SetType(new UntypedType()));
@@ -874,17 +843,17 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			return found;
 		}
 
-		/**********************************************************************
+		/*
 		 * Except
-		 **********************************************************************/
+		 */
 		case OPCODE_exc: // $Except
 		{
 			return evalExcept(n, expected);
 		}
 
-		/***********************************************************************
+		/*
 		 * Cartesian Product: A \X B
-		 ***********************************************************************/
+		 */
 		case OPCODE_cp: // $CartesianProd A \X B \X C as $CartesianProd(A, B, C)
 		{
 			ArrayList<TLAType> list = new ArrayList<TLAType>();
@@ -903,9 +872,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			return found;
 		}
 
-		/***********************************************************************
+		/*
 		 * Records
-		 ***********************************************************************/
+		 */
 		case OPCODE_sor: // $SetOfRcds [L1 : e1, L2 : e2]
 		{
 			StructType struct = new StructType();
@@ -969,9 +938,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			return r.getType(fieldName);
 		}
 
-		/***********************************************************************
+		/*
 		 * miscellaneous constructs
-		 ***********************************************************************/
+		 */
 		case OPCODE_ite: // IF THEN ELSE
 		{
 			visitExprOrOpArgNode(n.getArgs()[0], BoolType.getInstance());
@@ -985,12 +954,12 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 		}
 
 		case OPCODE_case: {
-			/**
+			/*
 			 * CASE p1 -> e1 [] p2 -> e2 represented as $Case( $Pair(p1,
 			 * e1),$Pair(p2, e2) ) and CASE p1 -> e1 [] p2 -> e2 [] OTHER -> e3
 			 * represented as $Case( $Pair(p1, e1), $Pair(p2, e2), $Pair(null,
 			 * e3))
-			 **/
+			 */
 			TLAType found = expected;
 			for (int i = 0; i < n.getArgs().length; i++) {
 				OpApplNode pair = (OpApplNode) n.getArgs()[i];
@@ -1046,9 +1015,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			return BoolType.getInstance().unify(expected);
 		}
 
-		/***********************************************************************
+		/*
 		 * no TLA+ Built-ins
-		 ***********************************************************************/
+		 */
 		case 0: {
 			return evalBBuiltIns(n, expected);
 		}
@@ -1126,12 +1095,6 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 		return domType;
 	}
 
-	/**
-	 * @param n
-	 * @param expected
-	 * @return
-	 * @throws TLA2BException
-	 */
 	private TLAType evalExcept(OpApplNode n, TLAType expected) throws TLA2BException {
 		TLAType t = visitExprOrOpArgNode(n.getArgs()[0], expected);
 		n.setToolObject(TYPE_ID, t);
@@ -1199,12 +1162,6 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 
 	}
 
-	/**
-	 * @param list
-	 * @param valueType
-	 * @return
-	 * @throws TLA2BException
-	 */
 	private TLAType evalType(LinkedList<ExprOrOpArgNode> list, TLAType valueType) throws TLA2BException {
 		if (list.size() == 0) {
 			return valueType;
@@ -1225,9 +1182,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 		switch (BBuiltInOPs.getOpcode(n.getOperator().getName())) {
 		// B Builtins
 
-		/**********************************************************************
+		/*
 		 * Standard Module Naturals
-		 **********************************************************************/
+		 */
 		case B_OPCODE_gt: // >
 		case B_OPCODE_lt: // <
 		case B_OPCODE_leq: // <=
@@ -1290,9 +1247,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			}
 		}
 
-		/**********************************************************************
+		/*
 		 * Standard Module Integers
-		 **********************************************************************/
+		 */
 		case B_OPCODE_int: // Int
 		{
 			try {
@@ -1317,9 +1274,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			return IntType.getInstance();
 		}
 
-		/**********************************************************************
+		/*
 		 * Standard Module FiniteSets
-		 **********************************************************************/
+		 */
 		case B_OPCODE_finite: // IsFiniteSet
 		{
 			try {
@@ -1344,9 +1301,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			return IntType.getInstance();
 		}
 
-		/**********************************************************************
+		/*
 		 * Standard Module Sequences
-		 **********************************************************************/
+		 */
 		case B_OPCODE_seq: { // Seq(S) - set of sequences, S must be a set
 
 			SetType S = (SetType) visitExprOrOpArgNode(n.getArgs()[0], new SetType(new UntypedType()));
@@ -1441,9 +1398,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 
 		// TODO add BSeq to tla standard modules
 
-		/**********************************************************************
+		/*
 		 * Standard Module TLA2B
-		 **********************************************************************/
+		 */
 
 		case B_OPCODE_min: // MinOfSet(S)
 		case B_OPCODE_max: // MaxOfSet(S)
@@ -1472,9 +1429,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			return found;
 		}
 
-		/**********************************************************************
+		/*
 		 * Standard Module TLA2B
-		 **********************************************************************/
+		 */
 		case B_OPCODE_pow1: // POW1
 		{
 
@@ -1490,9 +1447,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			return found;
 		}
 
-		/**********************************************************************
+		/*
 		 * Standard Module Relations
-		 **********************************************************************/
+		 */
 		case B_OPCODE_rel_inverse: // POW1
 		{
 			SetType set = new SetType(new TupleType(2));
@@ -1511,9 +1468,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			return found;
 		}
 
-		/***********************************************************************
+		/*
 		 * TLA+ Built-Ins, but not in tlc.tool.BuiltInOPs
-		 ***********************************************************************/
+		 */
 		case B_OPCODE_bool: // BOOLEAN
 			try {
 				SetType found = new SetType(BoolType.getInstance());

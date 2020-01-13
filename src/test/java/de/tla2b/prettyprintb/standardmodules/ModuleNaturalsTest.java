@@ -1,7 +1,3 @@
-/**
- * @author Dominik Hansen <Dominik.Hansen at hhu.de>
- **/
-
 package de.tla2b.prettyprintb.standardmodules;
 
 import static de.tla2b.util.TestUtil.compare;
@@ -13,9 +9,9 @@ import org.junit.Test;
 
 public class ModuleNaturalsTest {
 
-	/**********************************************************************
+	/*
 	 *  >, <, <=, >=
-	 **********************************************************************/
+	 */
 	
 	@Test
 	public void testCompareOperators() throws Exception {
@@ -41,9 +37,9 @@ public class ModuleNaturalsTest {
 		compare(expected, module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Arithmetic operator: +, -, *, %, ^ (\div operator is not tested)
-	 **********************************************************************/
+	 */
 	@Test
 	public void testArithmeticOperators() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -56,9 +52,9 @@ public class ModuleNaturalsTest {
 		compare(expected, module);
 	}
 
-	/**********************************************************************
+	/*
 	 * Interval operator: x .. y 
-	 **********************************************************************/
+	 */
 	@Test
 	public void testDotDot() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
