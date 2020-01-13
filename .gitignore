@@ -1,23 +1,11 @@
-local.*
-/bin
-/build
-/gradle
-/gradlew
-/gradlew.bat
-/settings.gradle
-/temp
-/.gradle
-build.xml
+# Gradle
+/.gradle/
+/build/
+
+# Eclipse
 .classpath
-.DS_Store
-.gitignore
 .project
-.settings/org.eclipse.jdt.core.prefs
-src/main/java/.DS_Store
-TODO.txt
-Club_tla.mch
-testing
-Club.prob
+.settings/
+
+# Build output
 TLA2B.jar
-src/test/resources/test
-src/test/resources/bugs
