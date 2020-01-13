@@ -5,8 +5,8 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
-import de.be4.classicalb.core.parser.analysis.ExtendedDFAdapter;
 import de.be4.classicalb.core.parser.node.*;
+import de.tla2b.util.ExtendedDFAdapter;
 
 public class ASTPrettyPrinter extends ExtendedDFAdapter {
 	private final StringBuilder sb = new StringBuilder();
