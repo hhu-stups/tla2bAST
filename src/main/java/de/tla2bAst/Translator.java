@@ -17,6 +17,7 @@ import de.be4.classicalb.core.parser.BParser;
 import de.be4.classicalb.core.parser.Definitions;
 import de.be4.classicalb.core.parser.analysis.prolog.RecursiveMachineLoader;
 import de.be4.classicalb.core.parser.exceptions.BCompoundException;
+import de.be4.classicalb.core.parser.exceptions.PreParseException;
 import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.Start;
 import de.tla2b.analysis.InstanceTransformation;
@@ -280,7 +281,7 @@ public class Translator implements TranslationGlobals {
 			outWriter.close();
 			System.out.println(probFile.getAbsolutePath() + " created.");
 
-		} catch (BCompoundException | FileNotFoundException | UnsupportedEncodingException e) {
+		} catch (BCompoundException | FileNotFoundException | PreParseException | UnsupportedEncodingException e) {
 			System.err.println(e.getMessage());
 			System.exit(-1);
 		}
