@@ -70,7 +70,7 @@ test {
 }
 
 
-task createJar(type: Jar, dependsOn: build){
+task createJar(type: Jar, dependsOn: classes){
 	archiveName = 'TLA2B.jar'
 	//from sourceSets.main.allJava
 	from sourceSets.main.output
