@@ -81,17 +81,6 @@ task createJar(type: Jar, dependsOn: classes){
 	}
 }
 
-
-task tla2b(dependsOn: createJar) {
-	doLast{
-		copy {
-			from('build/libs/')
-			into('.')
-			include('TLA2B.jar')
-		}
-	}
-}
-
 if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
 	apply plugin: 'signing'
 

@@ -6,6 +6,3 @@
 .classpath
 .project
 .settings/
-
-# Build output
-TLA2B.jar
