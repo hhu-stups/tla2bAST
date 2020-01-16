@@ -1,18 +1,17 @@
 package de.tla2b;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
-
 import de.tla2b.exceptions.FrontEndException;
 import de.tla2b.exceptions.NotImplementedException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.global.TranslationGlobals;
 import de.tla2bAst.Translator;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 public class TLA2B implements TranslationGlobals {
 	public final static String VERSION = "version";
@@ -26,7 +25,7 @@ public class TLA2B implements TranslationGlobals {
 	}
 
 	public void handleParameter(String[] args) {
-		PosixParser parser = new PosixParser();
+		DefaultParser parser = new DefaultParser();
 		Options options = getCommandlineOptions();
 		try {
 			CommandLine line = parser.parse(options, args);
@@ -80,17 +79,15 @@ public class TLA2B implements TranslationGlobals {
 		translator.createProbFile();
 	}
 
-	@SuppressWarnings("static-access")
 	private static Options getCommandlineOptions() {
 		Options options = new Options();
 		options.addOption(VERSION, false, "prints the current version of TLA2B");
 		
-		Option config = OptionBuilder
-				.withArgName("file")
-				.hasArg()
-				.withDescription(
-						"config file")
-						.create("config");
+		Option config = Option.builder("config")
+			.argName("file")
+			.hasArg()
+			.desc("config file")
+			.build();
 		options.addOption(config);
 		return options;
 	}
