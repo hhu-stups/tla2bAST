@@ -1,6 +1,6 @@
 language: java
 sudo: true
-script: gradle tla2b check uploadArchives
+script: ./gradlew tla2b check uploadArchives
 
 before_install:
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out secring.gpg
