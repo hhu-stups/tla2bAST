@@ -95,11 +95,31 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		for (int i = 0; i < m.getOpDefs().length; i++) {
 			definitions.put(m.getOpDefs()[i].getName().toString(), m.getOpDefs()[i]);
 		}
-		specAnalyser.spec = definitions.get("Spec");
-		specAnalyser.init = definitions.get("Init");
-		specAnalyser.next = definitions.get("Next");
+		
+		if (definitions.containsKey("Spec")) {
+			specAnalyser.spec = definitions.get("Spec");
+		} else if (definitions.containsKey("SPEC")) {
+			specAnalyser.spec = definitions.get("SPEC");
+		}
+		
+		if (definitions.containsKey("Init")) {
+			specAnalyser.init = definitions.get("Init");
+		} else if (definitions.containsKey("INIT")) {
+			specAnalyser.init = definitions.get("INIT");
+		} else if (definitions.containsKey("Initialisation")) {
+			specAnalyser.init = definitions.get("Initialisation");
+		}
+		
+		if (definitions.containsKey("Next")) {
+			specAnalyser.next = definitions.get("Next");
+		} else if (definitions.containsKey("NEXT")) {
+			specAnalyser.next = definitions.get("NEXT");
+		}
+		
 		if (definitions.containsKey("Inv")) {
 			specAnalyser.invariants.add(definitions.get("Inv"));
+		} else if (definitions.containsKey("INV")) {
+			specAnalyser.invariants.add(definitions.get("INV"));
 		} else if (definitions.containsKey("Invariant")) {
 			specAnalyser.invariants.add(definitions.get("Invariant"));
 		} else if (definitions.containsKey("Invariants")) {
