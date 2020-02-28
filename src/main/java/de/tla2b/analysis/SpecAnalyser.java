@@ -126,6 +126,8 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 			specAnalyser.invariants.add(definitions.get("Invariants"));
 		} else if (definitions.containsKey("TypeInv")) {
 			specAnalyser.invariants.add(definitions.get("TypeInv"));
+		} else if (definitions.containsKey("TypeOK")) {
+			specAnalyser.invariants.add(definitions.get("TypeOK"));
 		}
 		// TODO are constant in the right order
 
