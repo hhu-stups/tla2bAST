@@ -33,10 +33,10 @@ configurations.all {
 
 def parser_version
 if (project.version.endsWith("-SNAPSHOT")) {
-	parser_version = '2.9.18-SNAPSHOT'
+	parser_version = '2.9.24-SNAPSHOT'
 }
 else {
-	parser_version = '2.9.17'
+	parser_version = '2.9.23'
 }
 
 def tlatools_version = '1.0.2'
