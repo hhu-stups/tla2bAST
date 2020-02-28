@@ -348,6 +348,9 @@ public class BAstCreator extends BuiltInOPs
 		for (ExprNode node : specAnalyser.getInits()) {
 			predList.add(visitExprNodePredicate(node));
 		}
+		if (predList.isEmpty()) {
+			throw new NotImplementedException("Could not find a definition of Init.");
+		}
 		becomes.setPredicate(createConjunction(predList));
 		AInitialisationMachineClause initClause = new AInitialisationMachineClause(becomes);
 		machineClauseList.add(initClause);
