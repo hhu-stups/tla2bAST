@@ -98,6 +98,8 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		
 		if (definitions.containsKey("Spec")) {
 			specAnalyser.spec = definitions.get("Spec");
+		} else if (definitions.containsKey("SPECIFICATION")) {
+			specAnalyser.spec = definitions.get("SPECIFICATION");
 		} else if (definitions.containsKey("SPEC")) {
 			specAnalyser.spec = definitions.get("SPEC");
 		}
@@ -118,6 +120,10 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		
 		if (definitions.containsKey("Inv")) {
 			specAnalyser.invariants.add(definitions.get("Inv"));
+		} else if (definitions.containsKey("INVARIANTS")) {
+			specAnalyser.invariants.add(definitions.get("INVARIANTS"));
+		} else if (definitions.containsKey("INVARIANT")) {
+			specAnalyser.invariants.add(definitions.get("INVARIANT"));
 		} else if (definitions.containsKey("INV")) {
 			specAnalyser.invariants.add(definitions.get("INV"));
 		} else if (definitions.containsKey("Invariant")) {
