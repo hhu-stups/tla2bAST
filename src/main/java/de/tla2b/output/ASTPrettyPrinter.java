@@ -685,15 +685,15 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 
 	@Override
 	public void caseAIfThenElseExpression(AIfThenElseExpression node) {
-		sb.append("(%t_.( t_ = 0 & ");
+		sb.append("IF "); // (%t_.( t_ = 0 & ");
 		node.getCondition().apply(this);
-		sb.append(" | ");
+		sb.append(" THEN "); // | ");
 		node.getThen().apply(this);
-		sb.append(")\\/%t_.( t_ = 0 & not(");
-		node.getCondition().apply(this);
-		sb.append(") | ");
+		sb.append(" ELSE "); // )\\/%t_.( t_ = 0 & not(");
+		//node.getCondition().apply(this);
+		//sb.append(") | ");
 		node.getElse().apply(this);
-		sb.append(" ))(0)");
+		sb.append(" END"); // "))(0)");
 	}
 
 	@Override
