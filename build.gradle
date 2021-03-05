@@ -1,4 +1,4 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'eclipse'
 apply plugin: 'maven'
 apply plugin: 'jacoco'
@@ -42,12 +42,12 @@ else {
 def tlatools_version = '1.0.2'
 
 dependencies {
-	compile (group: 'commons-cli', name: 'commons-cli', version: '1.4')
-	compile (group: 'de.hhu.stups', name: 'tlatools', version: tlatools_version)
-	compile (group: 'de.hhu.stups', name: 'prologlib', version: parser_version)
-	compile (group: 'de.hhu.stups', name: 'bparser', version: parser_version)
+	implementation(group: 'commons-cli', name: 'commons-cli', version: '1.4')
+	api(group: 'de.hhu.stups', name: 'tlatools', version: tlatools_version)
+	api(group: 'de.hhu.stups', name: 'prologlib', version: parser_version)
+	api(group: 'de.hhu.stups', name: 'bparser', version: parser_version)
 
-	testCompile (group: 'junit', name: 'junit', version: '4.12')
+	testImplementation(group: 'junit', name: 'junit', version: '4.12')
 }
 
 jacoco {
