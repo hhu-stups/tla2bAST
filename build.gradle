@@ -70,7 +70,7 @@ test {
 
 
 task createJar(type: Jar, dependsOn: classes){
-	archiveName = 'TLA2B.jar'
+	archiveFileName = 'TLA2B.jar'
 	//from sourceSets.main.allJava
 	from sourceSets.main.output
 	from {configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
