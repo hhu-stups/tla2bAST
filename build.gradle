@@ -100,7 +100,7 @@ publishing {
 				}
 
 				scm {
-					connection = 'scm:git:git://github.com/hhu-stups/tla2bAST.git'
+					connection = 'scm:git:https://github.com/hhu-stups/tla2bAST.git'
 					developerConnection = 'scm:git:git@github.com:hhu-stups/tla2bAST.git'
 					url = 'https://github.com/hhu-stups/tla2bAST'
 				}
