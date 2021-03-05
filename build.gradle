@@ -1,11 +1,13 @@
 apply plugin: 'java-library'
 apply plugin: 'eclipse'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'jacoco'
+apply plugin: 'signing'
 
 project.version = '1.1.4-SNAPSHOT'
 project.group = 'de.hhu.stups'
 project.archivesBaseName = "tla2bAST"
+final isSnapshot = project.version.endsWith("-SNAPSHOT")
 
 project.sourceCompatibility = '1.8'
 project.targetCompatibility = '1.8'
@@ -28,7 +30,7 @@ configurations.all {
 }
 
 def parser_version
-if (project.version.endsWith("-SNAPSHOT")) {
+if (isSnapshot) {
 	parser_version = '2.9.28-SNAPSHOT'
 }
 else {
@@ -80,56 +82,55 @@ task createJar(type: Jar, dependsOn: classes){
 	}
 }
 
-if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
-	apply plugin: 'signing'
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			from components.java
 
-	signing {
-		sign configurations.archives
-	}
+			pom {
+				name = 'TLA+ to B-AST'
+				description = "Translator from TLA+ to ProB's AST representation."
+				url = 'https://github.com/hhu-stups/tla2bAST'
 
-	uploadArchives {
-		repositories {
-			mavenDeployer {
-				beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-				repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-					authentication(userName: ossrhUsername, password: ossrhPassword)
+				licenses {
+					license {
+						name = 'Eclipse Public License, Version 1.0'
+						url = 'https://www.eclipse.org/legal/epl-v10.html'
+					}
 				}
 
-				snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-					authentication(userName: ossrhUsername, password: ossrhPassword)
+				scm {
+					connection = 'scm:git:git://github.com/hhu-stups/tla2bAST.git'
+					developerConnection = 'scm:git:git@github.com:hhu-stups/tla2bAST.git'
+					url = 'https://github.com/hhu-stups/tla2bAST'
 				}
 
-				pom.project {
-					name 'TLA+ to B-AST'
-					packaging 'jar'
-					// optionally artifactId can be defined here
-					description "Translator from TLA+ to ProB's AST representation."
-					url 'https://github.com/hhu-stups/tla2bAST'
-
-					licenses {
-						license {
-							name 'Eclipse Public License, Version 1.0'
-							url 'https://www.eclipse.org/legal/epl-v10.html'
-						}
-					}
-
-					scm {
-						connection 'scm:git:git://github.com/hhu-stups/tla2bAST.git'
-						developerConnection 'scm:git:git@github.com:hhu-stups/tla2bAST.git'
-						url 'https://github.com/hhu-stups/tla2bAST'
-					}
-
-
-					developers {
-						developer {
-							id 'bendisposto'
-							name 'Jens Bendisposto'
-							email 'jens@bendisposto.de'
-						}
+				developers {
+					developer {
+						id = 'bendisposto'
+						name = 'Jens Bendisposto'
+						email = 'jens@bendisposto.de'
 					}
 				}
 			}
 		}
 	}
+
+	repositories {
+		maven {
+			final releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+			final snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
+			url isSnapshot ? snapshotsRepoUrl : releasesRepoUrl
+			if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
+				credentials {
+					username project.ossrhUsername
+					password project.ossrhPassword
+				}
+			}
+		}
+	}
+}
+
+signing {
+	sign publishing.publications.mavenJava
 }
