@@ -11,7 +11,7 @@ project.sourceCompatibility = '1.8'
 project.targetCompatibility = '1.8'
 
 wrapper {
-	gradleVersion = "5.6.2"
+	gradleVersion = "6.8.3"
 	distributionType = Wrapper.DistributionType.ALL
 }
 
