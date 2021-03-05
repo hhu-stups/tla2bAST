@@ -1,5 +1,5 @@
 language: java
-script: ./gradlew createJar check uploadArchives
+script: ./gradlew createJar check publish
 
 before_install:
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in secring.gpg.enc -out secring.gpg
