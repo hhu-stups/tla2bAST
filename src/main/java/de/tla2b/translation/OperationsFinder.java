@@ -1,6 +1,7 @@
 package de.tla2b.translation;
 
 import java.util.ArrayList;
+import util.UniqueString;
 
 import tla2sany.semantic.ASTConstants;
 import tla2sany.semantic.ExprNode;
@@ -14,6 +15,7 @@ import de.tla2b.analysis.AbstractASTVisitor;
 import de.tla2b.analysis.BOperation;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.global.BBuiltInOPs;
+import de.tla2b.global.BBuildIns;
 import de.tla2b.global.TranslationGlobals;
 
 public class OperationsFinder extends AbstractASTVisitor implements
@@ -47,11 +49,11 @@ public class OperationsFinder extends AbstractASTVisitor implements
 		}
 		case NumeralKind: {
 			throw new RuntimeException(String.format(
-					"Expected an action.%n%s", n.getLocation().toString()));
+					"Expected an action (instead of a number).%n%s", n.getLocation().toString()));
 		}
 		case StringKind: {
 			throw new RuntimeException(String.format(
-					"Expected an action.%n%s", n.getLocation().toString()));
+					"Expected an action (instead of a string).%n%s", n.getLocation().toString()));
 		}
 		case SubstInKind: {
 			throw new RuntimeException(String.format(
@@ -88,9 +90,10 @@ public class OperationsFinder extends AbstractASTVisitor implements
 
 	@Override
 	public void visitBuiltInNode(OpApplNode n) {
-		int opcode = BuiltInOPs.getOpCode(n.getOperator().getName());
+	    UniqueString opname = n.getOperator().getName();
+		int opcode = BuiltInOPs.getOpCode(opname);
 		switch (opcode) {
-		case OPCODE_dl: // DisjList
+		case OPCODE_dl: // DisjList: split action further
 		{
 			if (n.getArgs().length == 1) {
 				visitExprOrOpArgNode(n.getArgs()[0]);
@@ -108,7 +111,7 @@ public class OperationsFinder extends AbstractASTVisitor implements
 				return;
 			}
 		}
-		case OPCODE_lor: {
+		case OPCODE_lor: { // logical or: split action further
 			String oldName = currentName;
 			ArrayList<OpApplNode> oldExists = new ArrayList<OpApplNode>(exists);
 
@@ -141,11 +144,20 @@ public class OperationsFinder extends AbstractASTVisitor implements
 		case OPCODE_fa: // $FcnApply f[1]
 		case OPCODE_ite: // IF THEN ELSE
 		case OPCODE_case: {
+		   // no further decomposing: create a B operation
 			BOperation op = new BOperation(currentName, n, exists, specAnalyser);
 			bOperations.add(op);
 			return;
 		}
 
+		}
+		//System.out.println("OPCODE of " + opname + " = "+ opcode);
+		
+		if (opname == BBuildIns.OP_false ||  // FALSE: always disabled
+		    opname == BBuildIns.OP_true) {  // TRUE: CHAOS
+			BOperation op = new BOperation(currentName, n, exists, specAnalyser);
+			bOperations.add(op);
+			return;
 		}
 		throw new RuntimeException(String.format(
 				"Expected an action at '%s' :%n%s", n.getOperator().getName()
