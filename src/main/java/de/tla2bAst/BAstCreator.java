@@ -82,6 +82,7 @@ public class BAstCreator extends BuiltInOPs
 	private Start start;
 	private final Hashtable<Node, TLAType> typeTable = new Hashtable<Node, TLAType>();
 	private final HashSet<PositionedNode> sourcePosition = new HashSet<PositionedNode>();
+	private List<String> toplevelUnchangedVariableNames = new ArrayList<>();
 
 	public Start expressionStart;
 
@@ -1675,7 +1676,7 @@ public class BAstCreator extends BuiltInOPs
 		}
 
 		case OPCODE_ite: { // IF THEN ELSE
-		    List<PExpression> Elsifs = new ArrayList<>();
+			List<PExpression> Elsifs = new ArrayList<>();
 			AIfThenElseExpression ifthenElse = new AIfThenElseExpression(visitExprOrOpArgNodePredicate(n.getArgs()[0]),
 					visitExprOrOpArgNodeExpression(n.getArgs()[1]), Elsifs,
 					visitExprOrOpArgNodeExpression(n.getArgs()[2]));
@@ -2189,12 +2190,15 @@ public class BAstCreator extends BuiltInOPs
 			// System.out.println("hier");
 			OpApplNode node = (OpApplNode) n.getArgs()[0];
 			if (node.getOperator().getKind() == VariableDeclKind) {
-				AEqualPredicate equal = new AEqualPredicate();
-				equal.setLeft(createIdentifierNode(getName(node.getOperator()) + "_n"));
-				equal.setRight(createIdentifierNode(node.getOperator()));
-				// return new AEqualPredicate(new ABooleanTrueExpression(),
-				// new ABooleanTrueExpression());
-				return equal;
+				if (!this.toplevelUnchangedVariableNames.contains(getName(node.getOperator()))) {
+					AEqualPredicate equal = new AEqualPredicate();
+					equal.setLeft(createIdentifierNode(getName(node.getOperator()) + "_n"));
+					equal.setRight(createIdentifierNode(node.getOperator()));
+					return equal;
+				} else {
+					return new AEqualPredicate(new ABooleanTrueExpression(), new ABooleanTrueExpression());
+				}
+
 			} else if (node.getOperator().getKind() == UserDefinedOpKind) {
 				OpDefNode operator = (OpDefNode) node.getOperator();
 				ExprNode e = operator.getBody();
@@ -2427,6 +2431,14 @@ public class BAstCreator extends BuiltInOPs
 
 	public HashSet<PositionedNode> getSourcePositions() {
 		return this.sourcePosition;
+	}
+
+	public List<String> getUnchangedVariablesNames() {
+		return toplevelUnchangedVariableNames;
+	}
+
+	public void setUnchangedVariablesNames(List<String> unchangedVariablesNames) {
+		this.toplevelUnchangedVariableNames = unchangedVariablesNames;
 	}
 
 }
