@@ -60,7 +60,9 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor implements ASTCons
 			String defName = opDef.getName().toString();
 			// GOAL, ANIMATION_FUNCTION, ANIMATION_IMGxx, SET_PREF_xxx,
 			if (defName.equals("GOAL") || defName.startsWith("ANIMATION_FUNCTION")
-					|| defName.startsWith("ANIMATION_IMG") || defName.startsWith("SET_PREF_")) {
+					|| defName.startsWith("ANIMATION_IMG")
+					|| defName.startsWith("SET_PREF_")  || defName.startsWith("HEURISTIC_FUNCTION")
+					|| defName.startsWith("SCOPE") || defName.startsWith("scope_")) {
 				usedDefinitions.add(opDef);
 			}
 		}

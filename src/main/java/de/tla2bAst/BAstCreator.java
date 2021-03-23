@@ -2187,8 +2187,8 @@ public class BAstCreator extends BuiltInOPs
 			break;
 		}
 		case OPCODE_unchanged: {
-			// System.out.println("hier");
 			OpApplNode node = (OpApplNode) n.getArgs()[0];
+			// System.out.println(" Translating UNCHANGED : " + node.toString());
 			if (node.getOperator().getKind() == VariableDeclKind) {
 				if (!this.toplevelUnchangedVariableNames.contains(getName(node.getOperator()))) {
 					AEqualPredicate equal = new AEqualPredicate();

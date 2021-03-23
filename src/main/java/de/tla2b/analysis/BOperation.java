@@ -64,7 +64,9 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 				.getModuleNode().getVariableDecls()));
 
 		evalParams();
+		// System.out.println("Construction B Operation for TLA+ action: " + name);
 		findUnchangedVariables();
+		// System.out.println(" UNCHANGED = " + unchangedVariables.toString());
 		separateGuardsAndBeforeAfterPredicates(node);
 		findAssignments();
 	}
@@ -187,19 +189,22 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 
 					if (OPCODE_eq == getOpCode(opApplNode.getOperator()
 							.getName())) {
-						ExprOrOpArgNode arg1 = opApplNode.getArgs()[0];
+						ExprOrOpArgNode arg1 = opApplNode.getArgs()[0]; // we have equality arg1 = RHS
 						try {
 							OpApplNode arg11 = (OpApplNode) arg1;
 							if (getOpCode(arg11.getOperator().getName()) == OPCODE_prime) {
 								OpApplNode v = (OpApplNode) arg11.getArgs()[0];
 								SymbolNode var = v.getOperator();
+								// we have equality var' = RHS
 								if (!primedVariablesFinder
 										.getTwiceUsedVariables().contains(var)) {
-									// var is only used once in all before after
-									// predicates
+									// var' is only used once in all before after predicates
+									// meaning we do not need it as parameter of the ANY
+									// and can add an assignment var := RHS
 									assignments.put(v.getOperator(),
-											opApplNode.getArgs()[1]);
+											opApplNode.getArgs()[1]); // RHS of assignment
 									beforeAfterPredicates.remove(node);
+								    // System.out.println("Detected assignment " + var.getName().toString() + "' = <RHS>");
 								}
 
 							}
@@ -242,8 +247,8 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 					return;
 				}
 				default: {
-					if (opApplNode.level < 2) {
-						guards.add(node);
+					if (opApplNode.level < 2) {  
+						guards.add(node); // should we be checking nonLeibnizParams is empty ?
 						return;
 					} else {
 						beforeAfterPredicates.add(node);
