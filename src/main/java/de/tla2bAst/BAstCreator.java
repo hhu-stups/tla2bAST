@@ -2189,15 +2189,9 @@ public class BAstCreator extends BuiltInOPs
 		case OPCODE_unchanged: {
 			OpApplNode node = (OpApplNode) n.getArgs()[0];
 			// System.out.println(" Translating UNCHANGED : " + node.toString());
+			// System.out.println(" Top-level unchanged for this operation: " + this.toplevelUnchangedVariableNames);
 			if (node.getOperator().getKind() == VariableDeclKind) {
-				if (!this.toplevelUnchangedVariableNames.contains(getName(node.getOperator()))) {
-					AEqualPredicate equal = new AEqualPredicate();
-					equal.setLeft(createIdentifierNode(getName(node.getOperator()) + "_n"));
-					equal.setRight(createIdentifierNode(node.getOperator()));
-					return equal;
-				} else {
-					return new AEqualPredicate(new ABooleanTrueExpression(), new ABooleanTrueExpression());
-				}
+				return CreateUnchangedPrimeEquality(node);
 
 			} else if (node.getOperator().getKind() == UserDefinedOpKind) {
 				OpDefNode operator = (OpDefNode) node.getOperator();
@@ -2209,10 +2203,7 @@ public class BAstCreator extends BuiltInOPs
 			ArrayList<PPredicate> list = new ArrayList<PPredicate>();
 			for (int i = 0; i < node.getArgs().length; i++) {
 				OpApplNode var = (OpApplNode) node.getArgs()[i];
-				AEqualPredicate equal = new AEqualPredicate();
-				equal.setLeft(createIdentifierNode(getName(var.getOperator()) + "_n"));
-				equal.setRight(createIdentifierNode(var.getOperator()));
-				list.add(equal);
+				list.add(CreateUnchangedPrimeEquality(var));
 			}
 			returnNode = createConjunction(list);
 			// returnNode = new AEqualPredicate(new ABooleanTrueExpression(),
@@ -2247,7 +2238,22 @@ public class BAstCreator extends BuiltInOPs
 		}
 		return createPositionedNode(returnNode, n);
 	}
-
+	
+	// create an equality predicate var_n = var if required
+	private AEqualPredicate CreateUnchangedPrimeEquality (OpApplNode var) {
+		if (!this.toplevelUnchangedVariableNames.contains(getName(var.getOperator()))) {
+			AEqualPredicate equal = new AEqualPredicate();
+			equal.setLeft(createIdentifierNode(getName(var.getOperator()) + "_n"));
+			equal.setRight(createIdentifierNode(var.getOperator()));
+			return equal;
+		} else {
+		    // the variable is marked UNCHANGED in a top-level UNCHANGED predicate
+		    // Hence it will not be added to the ANY variables and we do not need it
+			return new AEqualPredicate(new ABooleanTrueExpression(), new ABooleanTrueExpression());
+		}
+	
+	}
+	
 	public PPredicate visitBoundsOfLocalVariables(OpApplNode n) {
 		FormalParamNode[][] params = n.getBdedQuantSymbolLists();
 		ExprNode[] in = n.getBdedQuantBounds();
