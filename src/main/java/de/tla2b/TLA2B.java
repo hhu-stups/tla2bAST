@@ -15,6 +15,7 @@ import org.apache.commons.cli.ParseException;
 
 public class TLA2B implements TranslationGlobals {
 	public final static String VERSION = "version";
+	public final static String VERBOSE = "verbose";
 
 	private String mainFile;
 
@@ -82,6 +83,7 @@ public class TLA2B implements TranslationGlobals {
 	private static Options getCommandlineOptions() {
 		Options options = new Options();
 		options.addOption(VERSION, false, "prints the current version of TLA2B");
+		options.addOption(VERBOSE, false, "makes output more verbose (not used yet)");
 		
 		Option config = Option.builder("config")
 			.argName("file")
