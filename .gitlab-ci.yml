@@ -1,0 +1,39 @@
+image: openjdk:8-jdk-slim
+
+stages:
+  - test
+  - deploy
+
+variables:
+  GRADLE_OPTIONS: --no-daemon --info --stacktrace --warning-mode=all
+
+cache:
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
+before_script:
+  - export GRADLE_USER_HOME=`pwd`/.gradle
+
+tests:
+  stage: test
+  script: ./gradlew ${GRADLE_OPTIONS} check
+
+tests:jdk-11:
+  extends: tests
+  image: openjdk:11-jdk-slim
+
+tests:jdk-17:
+  extends: tests
+  image: openjdk:17-jdk-slim
+
+publish:
+  stage: deploy
+  script:
+    - openssl aes-256-cbc -pass "env:ENCRYPTION_PASSWORD" -d -in secring.gpg.enc -out secring.gpg
+    - openssl aes-256-cbc -pass "env:ENCRYPTION_PASSWORD" -d -in pubring.gpg.enc -out pubring.gpg
+    - openssl aes-256-cbc -pass "env:ENCRYPTION_PASSWORD" -d -in gradle.properties.enc -out gradle.properties
+    - ./gradlew ${GRADLE_OPTIONS} publish
+  only:
+    - master@general/stups/tla2bAST
+    - develop@general/stups/tla2bAST
