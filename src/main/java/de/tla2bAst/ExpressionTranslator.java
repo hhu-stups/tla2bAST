@@ -216,6 +216,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		searchVarInSyntaxTree(expr);
         
         // this code seems to assume that there is no variable clash between outer and nested variables
+        // I guess the parser will then generate "Multiply-defined symbol ..." errors
 		for (int i = 0; i < noVariables.size(); i++) {
 			variables.remove(noVariables.get(i));
 		}

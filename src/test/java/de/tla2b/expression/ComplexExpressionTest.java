@@ -84,5 +84,12 @@ public class ComplexExpressionTest {
 		compareExpr("CHOOSE({x|x:0..100 & x**3 - 20*x**2 + 7*x = 14388})",
 				    "CHOOSE x \\in 0..100: x^3 - 20*x^2 + 7*x = 14388");
 	}
+	@Test
+	public void testConstraintCHOOSENested() throws Exception {
+		compareExpr("CHOOSE({y|y : 0 .. 100 & y = CHOOSE({x|x : 0 .. 100 & x ** 3 - 20 * x ** 2 + 7 * x = 14388})})",
+				    "CHOOSE y \\in 0..100: y = CHOOSE x \\in 0..100: x^3 - 20*x^2 + 7*x = 14388");
+	}
+	// Note that for:  CHOOSE x \in 0..100: x = CHOOSE x \in 0..100: x^3 - 20*x^2 + 7*x = 14388
+	//   we get an error: Multiply-defined symbol 'x': this definition or declaration conflicts 
 
 }
