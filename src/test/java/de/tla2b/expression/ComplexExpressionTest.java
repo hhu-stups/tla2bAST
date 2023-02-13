@@ -74,5 +74,15 @@ public class ComplexExpressionTest {
 				"r = [a |-> [x|->1,y|->TRUE], b |-> 1] "
 						+ "/\\ r2 = [r EXCEPT !.a.x = 2]");
 	}
+	@Test
+	public void testConstraint1() throws Exception {
+		compareExpr("x**3 - 20*x**2 + 7*x = 14388",
+				    "x^3 - 20*x^2 + 7*x = 14388");
+	}
+	@Test
+	public void testConstraintCHOOSE() throws Exception {
+		compareExpr("CHOOSE({x|x:0..100 & x**3 - 20*x**2 + 7*x = 14388})",
+				    "CHOOSE x \\in 0..100: x^3 - 20*x^2 + 7*x = 14388");
+	}
 
 }

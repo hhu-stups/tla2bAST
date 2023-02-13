@@ -214,7 +214,8 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		TreeNode n_operatorDefintion = n_body.heirs()[0];
 		TreeNode expr = n_operatorDefintion.heirs()[2];
 		searchVarInSyntaxTree(expr);
-
+        
+        // this code seems to assume that there is no variable clash between outer and nested variables
 		for (int i = 0; i < noVariables.size(); i++) {
 			variables.remove(noVariables.get(i));
 		}
@@ -273,10 +274,23 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 			noVariables.add(treeNode.heirs()[0].getImage());
 			break;
 		}
-		case N_UnboundQuant: {
+		case N_UnboundQuant: { // TOOD: check: is this an unbounded quantifier with infinite domain or a quantifier that does not hide the quantified variables?
 			TreeNode[] children = treeNode.heirs();
 			for (int i = 1; i < children.length - 2; i = i + 2) {
-				// System.out.println(children[i].getImage());
+			   // System.out.println("N_UnboundQuant: "+children[i].getImage());
+			}
+			searchVarInSyntaxTree(treeNode.heirs()[children.length - 1]);
+			break;
+		}
+		case N_UnboundOrBoundChoose: { // not sure the format is the same as N_QuantBound
+			TreeNode[] children = treeNode.heirs();
+			for (int i = 1; i < children.length - 2; i = i + 2) {
+				String boundedVar = children[i].getImage();
+				// typically children[i+1] is N_MaybeBound
+				if (!noVariables.contains(boundedVar)) {
+					noVariables.add(boundedVar);
+					//System.out.println("CHOOSE quantified variable: " + boundedVar);
+				}
 			}
 			searchVarInSyntaxTree(treeNode.heirs()[children.length - 1]);
 			break;
@@ -287,6 +301,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 				String boundedVar = children[i].getImage();
 				if (!noVariables.contains(boundedVar)) {
 					noVariables.add(boundedVar);
+					// System.out.println("N_QuantBound: locally quantified variable" + boundedVar);
 				}
 			}
 			searchVarInSyntaxTree(treeNode.heirs()[children.length - 1]);
