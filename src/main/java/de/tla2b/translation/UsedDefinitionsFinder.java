@@ -62,6 +62,7 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor implements ASTCons
 			if (defName.equals("GOAL") || defName.startsWith("ANIMATION_FUNCTION")
 					|| defName.startsWith("ANIMATION_IMG")
 					|| defName.startsWith("ASSERT_LTL") || defName.startsWith("ASSERT_CTL")
+					|| defName.startsWith("VISB_SVG_")  // VISB_SVG_OBJECTS, VISB_SVG_UPDATES, VISB_SVG_HOVERS
 					|| defName.equals("VISB_JSON_FILE")
 					|| defName.startsWith("GAME_")  // GAME_OVER, GAME_PLAYER, GAME_MCTS_RUNS
 					|| defName.startsWith("SET_PREF_")  || defName.startsWith("HEURISTIC_FUNCTION")
