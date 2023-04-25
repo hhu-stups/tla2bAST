@@ -47,6 +47,13 @@ java {
 	withJavadocJar()
 }
 
+processResources {
+	inputs.property("project.version", project.version)
+	filesMatching("de/tla2b/build.properties") {
+		expand(version: project.version)
+	}
+}
+
 jacoco {
 	toolVersion = "0.8.9"
 	reportsDirectory = file("$buildDir/customJacocoReportDir")

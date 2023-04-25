@@ -6,7 +6,7 @@ import java.util.Arrays;
 import tla2sany.semantic.FrontEnd;
 
 public interface TranslationGlobals {
-	final String VERSION_NUMBER = "1.1.5-SNAPSHOT";
+	final String VERSION_NUMBER = VersionHelper.VERSION;
 
 	final int TLCValueKind = 100;
 
