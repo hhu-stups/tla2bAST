@@ -1,18 +1,21 @@
 package de.tla2b.util;
 
-import static org.junit.Assert.*;
-
-import util.FileUtil;
 import de.be4.classicalb.core.parser.BParser;
+import de.be4.classicalb.core.parser.analysis.prolog.ASTProlog;
 import de.be4.classicalb.core.parser.exceptions.BCompoundException;
 import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.Start;
+import de.prob.prolog.output.PrologTermStringOutput;
 import de.tla2b.exceptions.FrontEndException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.output.ASTPrettyPrinter;
 import de.tla2b.output.Renamer;
 import de.tla2bAst.Translator;
+
+import util.FileUtil;
 import util.ToolIO;
+
+import static org.junit.Assert.assertEquals;
 
 public class TestUtil {
 
@@ -84,9 +87,9 @@ public class TestUtil {
 	}
 
 	public static String getTreeAsString(Node node) {
-		final Ast2String ast2String = new Ast2String();
-		node.apply(ast2String);
-		return ast2String.toString();
+		final PrologTermStringOutput pout = new PrologTermStringOutput();
+		node.apply(new ASTProlog(pout, null));
+		return pout.toString();
 	}
 
 	public static void renamerTest(String tlaFile) throws Exception {
@@ -129,21 +132,13 @@ public class TestUtil {
 	public static String getAstStringofBMachineString(final String testMachine) throws BCompoundException {
 		final BParser parser = new BParser("testcase");
 		final Start startNode = parser.parse(testMachine, false);
-
-		final Ast2String ast2String = new Ast2String();
-		startNode.apply(ast2String);
-		final String string = ast2String.toString();
-		return string;
+		return getTreeAsString(startNode);
 	}
 
 	public static String getAstStringofBExpressionString(final String expr) throws BCompoundException {
 		final BParser parser = new BParser("testcase");
 		final Start startNode = parser.parse("#FORMULA " + expr, false);
-
-		final Ast2String ast2String = new Ast2String();
-		startNode.apply(ast2String);
-		final String string = ast2String.toString();
-		return string;
+		return getTreeAsString(startNode);
 	}
 
 }
