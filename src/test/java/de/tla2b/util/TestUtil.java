@@ -36,7 +36,7 @@ public class TestUtil {
 		String ppResult = getTreeAsString(ppStart);
 
 		// compare the generated AST and the AST of the pretty print
-		// assertEquals(result, ppResult);
+		assertEquals(result, ppResult);
 	}
 
 	public static void compareExpr(String bExpr, String tlaExpr) throws BCompoundException {
