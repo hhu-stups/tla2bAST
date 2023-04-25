@@ -52,7 +52,6 @@ public class OpArgTest {
 		final String config = "CONSTANTS k <- def";
 		TestTypeChecker t = TestUtil.typeCheckString(module, config);
 		assertEquals("BOOL", t.getConstantType("k2"));
-		System.out.println(t.getDefinitionType("def"));
 		assertEquals("BOOL", t.getDefinitionType("def"));
 		assertEquals("BOOL", t.getDefinitionParamType("def", "a"));
 	}

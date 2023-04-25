@@ -30,7 +30,6 @@ public class ExampleFilesTest extends AbstractParseModuleTest {
 	@Test
 	public void testRunTLC() throws Exception {
 		// String[] a = new String[] { moduleFile.getPath() };
-		System.out.println(moduleFile.getPath());
 		// runModule(moduleFile.getPath());
 		Translator t = new Translator(moduleFile.getPath());
 		Start start = t.translate();
@@ -38,7 +37,6 @@ public class ExampleFilesTest extends AbstractParseModuleTest {
 		
 		ASTPrettyPrinter aP = new ASTPrettyPrinter(start);
 		start.apply(aP);
-		System.out.println(aP.getResultString());
 
 		// parse pretty print result
 		final BParser parser = new BParser("testcase");

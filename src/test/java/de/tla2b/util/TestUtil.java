@@ -25,23 +25,16 @@ public class TestUtil {
 		Translator t = new Translator(tlaFile);
 		Start start = t.translate();
 
-		System.out.println("-------------------");
 		ASTPrettyPrinter aP = new ASTPrettyPrinter(start);
 		start.apply(aP);
-		System.out.println(aP.getResultString());
-
 		final BParser parser = new BParser("testcase");
 		final Start ppStart = parser.parse(aP.getResultString(), false);
 
 		String result = getTreeAsString(start);
-		System.out.println(result);
 		String ppResult = getTreeAsString(ppStart);
-		System.out.println(ppResult);
 
-		System.out.println("-------------------");
 		// compare the generated AST and the AST of the pretty print
 		// assertEquals(result, ppResult);
-		// System.out.println(t.getBDefinitions().getDefinitionNames());
 	}
 
 	public static void compareExpr(String bExpr, String tlaExpr) throws Exception {
@@ -51,7 +44,6 @@ public class TestUtil {
 		Renamer renamer = new Renamer(resultNode);
 		ASTPrettyPrinter aP = new ASTPrettyPrinter(resultNode, renamer);
 		resultNode.apply(aP);
-		System.out.println(aP.getResultString());
 		String bAstString = getAstStringofBExpressionString(bExpr);
 		String result = getAstStringofBExpressionString(aP.getResultString());
 		// String tlaAstString = getTreeAsString(resultNode);
@@ -77,41 +69,17 @@ public class TestUtil {
 		Translator trans = new Translator(tlaModule, null);
 		Start resultNode = trans.translate();
 		String result = getTreeAsString(resultNode);
-		System.out.println(expected);
-		System.out.println(result);
-
-		ASTPrettyPrinter aP = new ASTPrettyPrinter(resultNode);
-		resultNode.apply(aP);
-		System.out.println("-------------------");
-		System.out.println(aP.getResultString());
-		final BParser parser = new BParser("testcase");
-		// Start ast = parser.parse(aP.getResultString(), false);
-		// BParser.printASTasProlog(System.out, new BParser(), new
-		// File("./test.mch"), resultNode, false, true, null);
-
-		// System.out.println("----------PP------------");
-		// System.out.println(aP.getResultString());
-		// System.out.println(getTreeAsString(ast));
 		assertEquals(expected, result);
-
-		// System.out.println(result);
-		// assertEquals(expected, getTreeAsString(ast));
 	}
 
 	public static void compare(String bMachine, String tlaModule, String config) throws Exception {
 		ToolIO.setMode(ToolIO.TOOL);
 		String expected = getAstStringofBMachineString(bMachine);
-		System.out.println(expected);
 
 		Translator trans = new Translator(tlaModule, config);
 		Start resultNode = trans.translate();
 
-		ASTPrettyPrinter aP = new ASTPrettyPrinter(resultNode);
-		resultNode.apply(aP);
-		System.out.println(aP.getResultString());
-
 		String result = getTreeAsString(resultNode);
-		System.out.println(result);
 		assertEquals(expected, result);
 	}
 
@@ -127,8 +95,6 @@ public class TestUtil {
 		Renamer renamer = new Renamer(start);
 		ASTPrettyPrinter aP = new ASTPrettyPrinter(start, renamer);
 		start.apply(aP);
-		System.out.println(aP.getResultString());
-
 		final BParser parser = new BParser("testcase");
 		parser.parse(aP.getResultString(), false);
 	}

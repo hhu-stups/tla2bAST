@@ -74,7 +74,6 @@ public class FunctionTest {
 				+ "ASSUME k = [x \\in {1}, <<y,z>> \\in {<<1,TRUE>>} |-> TRUE]  \n"
 				+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		//System.out.println(t.getConstantType("k").toString());
 		assertEquals("POW(INTEGER*(INTEGER*BOOL)*BOOL)", t.getConstantType("k")
 				.toString());
 	}
