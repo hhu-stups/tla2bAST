@@ -32,11 +32,9 @@ else {
 	parser_version = '2.12.3'
 }
 
-def tlatools_version = '1.0.2'
-
 dependencies {
 	implementation(group: 'commons-cli', name: 'commons-cli', version: '1.4')
-	api(group: 'de.hhu.stups', name: 'tlatools', version: tlatools_version)
+	api(group: 'de.hhu.stups', name: 'tlatools', version: '1.0.2')
 	api(group: 'de.hhu.stups', name: 'prologlib', version: parser_version)
 	api(group: 'de.hhu.stups', name: 'bparser', version: parser_version)
 
