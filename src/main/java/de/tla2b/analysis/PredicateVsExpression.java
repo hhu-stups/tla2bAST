@@ -54,8 +54,7 @@ public class PredicateVsExpression extends BuiltInOPs implements ASTConstants,
 		return DefinitionType.EXPRESSION;
 	}
 
-	private DefinitionType visitOppApplNode(OpApplNode s) {
-		OpApplNode opApplNode = (OpApplNode) s;
+	private DefinitionType visitOppApplNode(OpApplNode opApplNode) {
 		int kind = opApplNode.getOperator().getKind();
 
 		if (kind == BuiltInKind) {
@@ -93,7 +92,7 @@ public class PredicateVsExpression extends BuiltInOPs implements ASTConstants,
 			}
 			}
 		} else if (kind == UserDefinedOpKind) {
-			return visitUserdefinedOp(s);
+			return visitUserdefinedOp(opApplNode);
 		}
 		return DefinitionType.EXPRESSION;
 	}

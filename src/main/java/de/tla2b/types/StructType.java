@@ -73,7 +73,7 @@ public class StructType extends AbstractHasFollowers {
 	public boolean isUntyped() {
 		Iterator<TLAType> ts = types.values().iterator();
 		while (ts.hasNext()) {
-			TLAType bType = (TLAType) ts.next();
+			TLAType bType = ts.next();
 			if (bType.isUntyped())
 				return true;
 		}
@@ -95,7 +95,7 @@ public class StructType extends AbstractHasFollowers {
 
 			Iterator<String> thisKeys = types.keySet().iterator();
 			while (thisKeys.hasNext()) {
-				String fieldName = (String) thisKeys.next();
+				String fieldName = thisKeys.next();
 				if (s.types.containsKey(fieldName)) {
 					if (!this.types.get(fieldName).compare(
 							s.types.get(fieldName))) {
@@ -144,7 +144,7 @@ public class StructType extends AbstractHasFollowers {
 
 			Iterator<String> keys = otherStruct.types.keySet().iterator();
 			while (keys.hasNext()) {
-				String fieldName = (String) keys.next();
+				String fieldName = keys.next();
 				TLAType sType = otherStruct.types.get(fieldName);
 				if (this.types.containsKey(fieldName)) {
 					TLAType res = this.types.get(fieldName).unify(sType);
@@ -184,7 +184,7 @@ public class StructType extends AbstractHasFollowers {
 		ArrayList<String> fields = new ArrayList<String>();
 		Iterator<String> keys = this.types.keySet().iterator();
 		while (keys.hasNext()) {
-			String fieldName = (String) keys.next();
+			String fieldName = keys.next();
 			fields.add(fieldName);
 		}
 		return fields;
@@ -194,7 +194,7 @@ public class StructType extends AbstractHasFollowers {
 	public boolean contains(TLAType o) {
 		Iterator<TLAType> ts = types.values().iterator();
 		while (ts.hasNext()) {
-			TLAType bType = (TLAType) ts.next();
+			TLAType bType = ts.next();
 			if (bType.equals(o) || bType.contains(o))
 				return true;
 		}
@@ -210,7 +210,7 @@ public class StructType extends AbstractHasFollowers {
 			sb.append("...");
 		}
 		while (keys.hasNext()) {
-			String fieldName = (String) keys.next();
+			String fieldName = keys.next();
 			sb.append(fieldName).append(":").append(types.get(fieldName));
 			if (keys.hasNext())
 				sb.append(",");

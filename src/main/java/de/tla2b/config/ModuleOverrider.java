@@ -101,7 +101,7 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 
 		switch (n.getKind()) {
 		case OpApplKind:
-			return (OpApplNode) visitOpApplNode((OpApplNode) n);
+			return visitOpApplNode((OpApplNode) n);
 
 		case StringKind:
 		case AtNodeKind: // @

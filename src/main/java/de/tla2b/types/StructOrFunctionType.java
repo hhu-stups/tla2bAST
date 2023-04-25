@@ -66,7 +66,7 @@ public class StructOrFunctionType extends AbstractHasFollowers {
 			StructType s = (StructType) o;
 			Iterator<String> thisKeys = types.keySet().iterator();
 			while (thisKeys.hasNext()) {
-				String fieldName = (String) thisKeys.next();
+				String fieldName = thisKeys.next();
 				if (s.getFields().contains(fieldName)) {
 					if (!this.types.get(fieldName)
 							.compare(s.getType(fieldName))) {
@@ -82,7 +82,7 @@ public class StructOrFunctionType extends AbstractHasFollowers {
 
 			Iterator<String> thisKeys = types.keySet().iterator();
 			while (thisKeys.hasNext()) {
-				String fieldName = (String) thisKeys.next();
+				String fieldName = thisKeys.next();
 				if (s.types.containsKey(fieldName)) {
 					if (!this.types.get(fieldName).compare(
 							s.types.get(fieldName))) {
@@ -99,7 +99,7 @@ public class StructOrFunctionType extends AbstractHasFollowers {
 	public boolean contains(TLAType o) {
 		Iterator<String> thisKeys = types.keySet().iterator();
 		while (thisKeys.hasNext()) {
-			String fieldName = (String) thisKeys.next();
+			String fieldName = thisKeys.next();
 			TLAType type = this.types.get(fieldName);
 			if (type.equals(o) || type.contains(o))
 				return true;

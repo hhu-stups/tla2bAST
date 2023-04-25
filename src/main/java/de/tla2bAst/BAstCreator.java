@@ -677,7 +677,7 @@ public class BAstCreator extends BuiltInOPs
 			}
 			// PExpression base = visitExprNodeExpression(at.getAtBase());
 			PExpression base = (PExpression) at.getExceptComponentRef().getToolObject(EXCEPT_BASE);
-			return evalAtNode(list, type, (PExpression) base.clone());
+			return evalAtNode(list, type, base.clone());
 		}
 		case LetInKind: {
 			LetInNode letInNode = (LetInNode) exprNode;
@@ -1738,7 +1738,7 @@ public class BAstCreator extends BuiltInOPs
 					}
 
 					pair.setToolObject(EXCEPT_BASE, res.clone());
-					res = evalExceptValue((PExpression) res.clone(), seqList, structType, val);
+					res = evalExceptValue(res.clone(), seqList, structType, val);
 				}
 				return res;
 
@@ -1759,7 +1759,7 @@ public class BAstCreator extends BuiltInOPs
 					}
 
 					pair.setToolObject(EXCEPT_BASE, res.clone());
-					res = evalExceptValue((PExpression) res.clone(), seqList, func, val);
+					res = evalExceptValue(res.clone(), seqList, func, val);
 				}
 				return res;
 			}
@@ -1843,7 +1843,7 @@ public class BAstCreator extends BuiltInOPs
 
 				PExpression value = null;
 				ARecordFieldExpression select = new ARecordFieldExpression();
-				select.setRecord((PExpression) prefix.clone());
+				select.setRecord(prefix.clone());
 				select.setIdentifier(createIdentifierNode(fieldName));
 				if (fieldName.equals(field)) {
 					value = evalExceptValue(select, seqList, structType.getType(fieldName), val);
@@ -1876,7 +1876,7 @@ public class BAstCreator extends BuiltInOPs
 			setList.add(couple);
 			ASetExtensionExpression setExtension = new ASetExtensionExpression(setList);
 			AOverwriteExpression overwrite = new AOverwriteExpression();
-			overwrite.setLeft((PExpression) prefix.clone());
+			overwrite.setLeft(prefix.clone());
 			overwrite.setRight(setExtension);
 			return overwrite;
 		}

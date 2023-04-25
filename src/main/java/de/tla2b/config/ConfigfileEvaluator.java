@@ -309,7 +309,7 @@ public class ConfigfileEvaluator {
 		Hashtable<String, Vect> configCons = configAst.getModConstants();
 		Enumeration<String> moduleNames = configCons.keys();
 		while (moduleNames.hasMoreElements()) {
-			String moduleName = (String) moduleNames.nextElement();
+			String moduleName = moduleNames.nextElement();
 			ModuleNode mNode = searchModule(moduleName);
 			Vect assignments = configCons.get(moduleName);
 			for (int i = 0; i < assignments.size(); i++) {
@@ -437,7 +437,7 @@ public class ConfigfileEvaluator {
 		HashSet<ModuleNode> extendedModules = moduleNode.getExtendedModuleSet();
 		for (Iterator<ModuleNode> iterator = extendedModules.iterator(); iterator
 				.hasNext();) {
-			ModuleNode m = (ModuleNode) iterator.next();
+			ModuleNode m = iterator.next();
 			if (m.getName().toString().equals(moduleName)) {
 				return m;
 			}
@@ -503,8 +503,7 @@ public class ConfigfileEvaluator {
 				for (int i = 0; i < set.size(); i++) {
 					if (set.elems.elementAt(i).getClass().getName()
 							.equals("tlc2.value.ModelValue")) {
-						String mv = ((ModelValue) set.elems.elementAt(i))
-								.toString();
+						String mv = set.elems.elementAt(i).toString();
 						if (!enumeratedSet.contains(mv)) {
 							enumeratedSet.add(mv);
 							e.modelvalues.add(mv);
