@@ -3,19 +3,20 @@ package testing;
 import java.io.File;
 import java.util.ArrayList;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import de.be4.classicalb.core.parser.BParser;
 import de.be4.classicalb.core.parser.node.Start;
-import de.tla2b.output.ASTPrettyPrinter;
+import de.be4.classicalb.core.parser.util.PrettyPrinter;
 import de.tla2b.util.AbstractParseModuleTest;
 import de.tla2b.util.FileUtils;
 import de.tla2b.util.PolySuite;
-import de.tla2b.util.TestUtil;
 import de.tla2b.util.PolySuite.Config;
 import de.tla2b.util.PolySuite.Configuration;
+import de.tla2b.util.TestUtil;
 import de.tla2bAst.Translator;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import static org.junit.Assert.assertEquals;
 
 @RunWith(PolySuite.class)
@@ -35,12 +36,13 @@ public class ExampleFilesTest extends AbstractParseModuleTest {
 		Start start = t.translate();
 		String resultTree = TestUtil.getTreeAsString(start);
 		
-		ASTPrettyPrinter aP = new ASTPrettyPrinter(start);
-		start.apply(aP);
+		PrettyPrinter pp = new PrettyPrinter();
+		// FIXME Is it intentional that we don't use SuffixIdentifierRenaming here?
+		start.apply(pp);
 
 		// parse pretty print result
 		final BParser parser = new BParser("testcase");
-		final Start ppStart = parser.parse(aP.getResultString(), false);
+		final Start ppStart = parser.parse(pp.getPrettyPrint(), false);
 		String ppTree = TestUtil.getTreeAsString(ppStart);
 		
 		// comparing result with pretty print

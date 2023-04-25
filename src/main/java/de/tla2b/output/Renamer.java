@@ -4,13 +4,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import de.be4.classicalb.core.parser.util.Utils;
 import de.be4.classicalb.core.parser.analysis.DepthFirstAdapter;
 import de.be4.classicalb.core.parser.node.AIdentifierExpression;
 import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.Start;
 import de.be4.classicalb.core.parser.node.TIdentifierLiteral;
+import de.be4.classicalb.core.parser.util.SuffixIdentifierRenaming;
+import de.be4.classicalb.core.parser.util.Utils;
 
+/**
+ * @deprecated Use {@link SuffixIdentifierRenaming} from the B parser library instead.
+ */
+@Deprecated
 public class Renamer extends DepthFirstAdapter {
 
 	private final HashMap<Node, String> namesTables;

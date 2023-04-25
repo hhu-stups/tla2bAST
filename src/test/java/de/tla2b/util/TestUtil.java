@@ -5,10 +5,10 @@ import de.be4.classicalb.core.parser.analysis.prolog.ASTProlog;
 import de.be4.classicalb.core.parser.exceptions.BCompoundException;
 import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.Start;
+import de.be4.classicalb.core.parser.util.PrettyPrinter;
+import de.be4.classicalb.core.parser.util.SuffixIdentifierRenaming;
 import de.prob.prolog.output.PrologTermStringOutput;
 import de.tla2b.exceptions.TLA2BException;
-import de.tla2b.output.ASTPrettyPrinter;
-import de.tla2b.output.Renamer;
 import de.tla2bAst.Translator;
 
 import util.FileUtil;
@@ -27,10 +27,12 @@ public class TestUtil {
 		Translator t = new Translator(tlaFile);
 		Start start = t.translate();
 
-		ASTPrettyPrinter aP = new ASTPrettyPrinter(start);
-		start.apply(aP);
+		PrettyPrinter pp = new PrettyPrinter();
+		// FIXME Is it intentional that we don't use SuffixIdentifierRenaming here?
+		start.apply(pp);
+		System.out.println(pp.getPrettyPrint());
 		final BParser parser = new BParser("testcase");
-		final Start ppStart = parser.parse(aP.getResultString(), false);
+		final Start ppStart = parser.parse(pp.getPrettyPrint(), false);
 
 		String result = getTreeAsString(start);
 		String ppResult = getTreeAsString(ppStart);
@@ -43,11 +45,11 @@ public class TestUtil {
 		ToolIO.setMode(ToolIO.TOOL);
 		ToolIO.reset();
 		Start resultNode = Translator.translateTlaExpression(tlaExpr);
-		Renamer renamer = new Renamer(resultNode);
-		ASTPrettyPrinter aP = new ASTPrettyPrinter(resultNode, renamer);
-		resultNode.apply(aP);
+		PrettyPrinter pp = new PrettyPrinter();
+		pp.setRenaming(new SuffixIdentifierRenaming());
+		resultNode.apply(pp);
 		String bAstString = getAstStringofBExpressionString(bExpr);
-		String result = getAstStringofBExpressionString(aP.getResultString());
+		String result = getAstStringofBExpressionString(pp.getPrettyPrint());
 		// String tlaAstString = getTreeAsString(resultNode);
 		assertEquals(bAstString, result);
 	}
@@ -56,11 +58,11 @@ public class TestUtil {
 		Translator trans = new Translator(moduleString, null);
 		trans.translate();
 		Start resultNode = trans.translateExpression(tlaExpr);
-		Renamer renamer = new Renamer(resultNode);
-		ASTPrettyPrinter aP = new ASTPrettyPrinter(resultNode, renamer);
-		resultNode.apply(aP);
+		PrettyPrinter pp = new PrettyPrinter();
+		pp.setRenaming(new SuffixIdentifierRenaming());
+		resultNode.apply(pp);
 		String bAstString = getAstStringofBExpressionString(bExpr);
-		String result = getAstStringofBExpressionString(aP.getResultString());
+		String result = getAstStringofBExpressionString(pp.getPrettyPrint());
 		assertEquals(bAstString, result);
 	}
 
@@ -94,11 +96,11 @@ public class TestUtil {
 	public static void renamerTest(String tlaFile) throws BCompoundException, TLA2BException {
 		Translator t = new Translator(tlaFile);
 		Start start = t.translate();
-		Renamer renamer = new Renamer(start);
-		ASTPrettyPrinter aP = new ASTPrettyPrinter(start, renamer);
-		start.apply(aP);
+		PrettyPrinter pp = new PrettyPrinter();
+		pp.setRenaming(new SuffixIdentifierRenaming());
+		start.apply(pp);
 		final BParser parser = new BParser("testcase");
-		parser.parse(aP.getResultString(), false);
+		parser.parse(pp.getPrettyPrint(), false);
 	}
 
 	public static TestTypeChecker typeCheckString(String moduleString) throws TLA2BException {

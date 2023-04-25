@@ -6,8 +6,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import de.be4.classicalb.core.parser.node.*;
+import de.be4.classicalb.core.parser.util.PrettyPrinter;
 import de.tla2b.util.ExtendedDFAdapter;
 
+/**
+ * @deprecated Use {@link PrettyPrinter} from the B parser library instead.
+ */
+@Deprecated
 public class ASTPrettyPrinter extends ExtendedDFAdapter {
 	private final StringBuilder sb = new StringBuilder();
 	private Renamer renamer;
@@ -726,6 +731,7 @@ public class ASTPrettyPrinter extends ExtendedDFAdapter {
 
 }
 
+@Deprecated
 class PrettyPrintNode {
 	private String begin = "";
 	private String beginList = "";
