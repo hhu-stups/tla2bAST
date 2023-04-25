@@ -6,7 +6,6 @@ import de.be4.classicalb.core.parser.exceptions.BCompoundException;
 import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.Start;
 import de.prob.prolog.output.PrologTermStringOutput;
-import de.tla2b.exceptions.FrontEndException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.output.ASTPrettyPrinter;
 import de.tla2b.output.Renamer;
@@ -19,12 +18,12 @@ import static org.junit.Assert.assertEquals;
 
 public class TestUtil {
 
-	public static void loadTlaFile(String tlaFile) throws Exception {
+	public static void loadTlaFile(String tlaFile) throws TLA2BException {
 		Translator t = new Translator(tlaFile);
 		t.translate();
 	}
 
-	public static void runModule(String tlaFile) throws Exception {
+	public static void runModule(String tlaFile) throws BCompoundException, TLA2BException {
 		Translator t = new Translator(tlaFile);
 		Start start = t.translate();
 
@@ -40,7 +39,7 @@ public class TestUtil {
 		// assertEquals(result, ppResult);
 	}
 
-	public static void compareExpr(String bExpr, String tlaExpr) throws Exception {
+	public static void compareExpr(String bExpr, String tlaExpr) throws BCompoundException {
 		ToolIO.setMode(ToolIO.TOOL);
 		ToolIO.reset();
 		Start resultNode = Translator.translateTlaExpression(tlaExpr);
@@ -53,7 +52,7 @@ public class TestUtil {
 		assertEquals(bAstString, result);
 	}
 
-	public static void compareExprIncludingModel(String bExpr, String tlaExpr, String moduleString) throws Exception {
+	public static void compareExprIncludingModel(String bExpr, String tlaExpr, String moduleString) throws BCompoundException, TLA2BException {
 		Translator trans = new Translator(moduleString, null);
 		trans.translate();
 		Start resultNode = trans.translateExpression(tlaExpr);
@@ -65,7 +64,7 @@ public class TestUtil {
 		assertEquals(bAstString, result);
 	}
 
-	public static void compare(final String bMachine, final String tlaModule) throws Exception {
+	public static void compare(final String bMachine, final String tlaModule) throws BCompoundException, TLA2BException {
 		ToolIO.setMode(ToolIO.TOOL);
 		String expected = getAstStringofBMachineString(bMachine);
 
@@ -75,7 +74,7 @@ public class TestUtil {
 		assertEquals(expected, result);
 	}
 
-	public static void compare(String bMachine, String tlaModule, String config) throws Exception {
+	public static void compare(String bMachine, String tlaModule, String config) throws BCompoundException, TLA2BException {
 		ToolIO.setMode(ToolIO.TOOL);
 		String expected = getAstStringofBMachineString(bMachine);
 
@@ -92,7 +91,7 @@ public class TestUtil {
 		return pout.toString();
 	}
 
-	public static void renamerTest(String tlaFile) throws Exception {
+	public static void renamerTest(String tlaFile) throws BCompoundException, TLA2BException {
 		Translator t = new Translator(tlaFile);
 		Start start = t.translate();
 		Renamer renamer = new Renamer(start);
@@ -102,7 +101,7 @@ public class TestUtil {
 		parser.parse(aP.getResultString(), false);
 	}
 
-	public static TestTypeChecker typeCheckString(String moduleString) throws FrontEndException, TLA2BException {
+	public static TestTypeChecker typeCheckString(String moduleString) throws TLA2BException {
 		ToolIO.setMode(ToolIO.TOOL);
 		ToolIO.reset();
 		TestTypeChecker testTypeChecker = new TestTypeChecker();
@@ -111,8 +110,7 @@ public class TestUtil {
 
 	}
 
-	public static TestTypeChecker typeCheckString(String moduleString, String configString)
-			throws FrontEndException, TLA2BException {
+	public static TestTypeChecker typeCheckString(String moduleString, String configString) throws TLA2BException {
 		ToolIO.setMode(ToolIO.TOOL);
 		ToolIO.reset();
 		TestTypeChecker testTypeChecker = new TestTypeChecker();
@@ -120,7 +118,7 @@ public class TestUtil {
 		return testTypeChecker;
 	}
 
-	public static TestTypeChecker typeCheck(String moduleFileName) throws FrontEndException, TLA2BException {
+	public static TestTypeChecker typeCheck(String moduleFileName) throws TLA2BException {
 		ToolIO.setMode(ToolIO.TOOL);
 		ToolIO.reset();
 		moduleFileName = moduleFileName.replace('/', FileUtil.separatorChar);
