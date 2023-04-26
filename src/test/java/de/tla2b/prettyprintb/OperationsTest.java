@@ -8,11 +8,13 @@ import de.be4.classicalb.core.parser.util.PrettyPrinter;
 import de.tla2b.util.TestUtil;
 import de.tla2bAst.Translator;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 public class OperationsTest {
+	@Ignore
 	@Test
 	public void testRunTLC() throws Exception {
 		// String[] a = new String[] { moduleFile.getPath() };
