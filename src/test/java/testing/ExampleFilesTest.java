@@ -1,29 +1,28 @@
 package testing;
 
 import java.io.File;
+import java.util.List;
 
 import de.be4.classicalb.core.parser.BParser;
 import de.be4.classicalb.core.parser.node.Start;
 import de.be4.classicalb.core.parser.util.PrettyPrinter;
 import de.tla2b.util.AbstractParseModuleTest;
 import de.tla2b.util.FileUtils;
-import de.tla2b.util.PolySuite;
-import de.tla2b.util.PolySuite.Config;
-import de.tla2b.util.PolySuite.Configuration;
 import de.tla2b.util.TestUtil;
 import de.tla2bAst.Translator;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import static org.junit.Assert.assertEquals;
 
-@RunWith(PolySuite.class)
+@RunWith(Parameterized.class)
 public class ExampleFilesTest extends AbstractParseModuleTest {
 
 	private final File moduleFile;
 
-	public ExampleFilesTest(File machine, Object result) {
+	public ExampleFilesTest(File machine) {
 		this.moduleFile = machine;
 	}
 
@@ -62,8 +61,8 @@ public class ExampleFilesTest extends AbstractParseModuleTest {
 		assertEquals(expectedTree, resultTree);
 	}
 
-	@Config
-	public static Configuration getConfig() {
-		return getConfiguration2("./src/test/resources/prettyprint/OperationsTest/");
+	@Parameterized.Parameters(name = "{0}")
+	public static List<File> getConfig() {
+		return getModulesRecursively("./src/test/resources/prettyprint/OperationsTest/");
 	}
 }

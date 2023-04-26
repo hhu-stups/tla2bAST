@@ -1,21 +1,20 @@
 package de.tla2b.examples;
 
 import java.io.File;
+import java.util.List;
 
 import de.tla2b.util.AbstractParseModuleTest;
-import de.tla2b.util.PolySuite;
-import de.tla2b.util.PolySuite.Config;
-import de.tla2b.util.PolySuite.Configuration;
 import de.tla2b.util.TestUtil;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
-@RunWith(PolySuite.class)
+@RunWith(Parameterized.class)
 public class RegressionTests extends AbstractParseModuleTest {
 	private final File moduleFile;
 
-	public RegressionTests(File machine, Object result) {
+	public RegressionTests(File machine) {
 		this.moduleFile = machine;
 	}
 
@@ -24,8 +23,8 @@ public class RegressionTests extends AbstractParseModuleTest {
 		TestUtil.loadTlaFile(moduleFile.getPath());
 	}
 
-	@Config
-	public static Configuration getConfig() {
-		return getConfiguration2("./src/test/resources/regression");
+	@Parameterized.Parameters(name = "{0}")
+	public static List<File> getConfig() {
+		return getModulesRecursively("./src/test/resources/regression");
 	}
 }
