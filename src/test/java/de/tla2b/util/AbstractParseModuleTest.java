@@ -1,7 +1,6 @@
 package de.tla2b.util;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -9,24 +8,11 @@ import de.tla2b.util.PolySuite.Configuration;
 
 
 public abstract class AbstractParseModuleTest {
-	private static final String[] SUFFIX = { ".tla" };
-	
-	private static final class ModuleFilenameFilter implements FilenameFilter {
-	
-
-		public boolean accept(final File dir, final String name) {
-			for (int i = 0; i < SUFFIX.length; i++) {
-				if (name.endsWith(SUFFIX[i])) {
-					return true;
-				}
-			}
-			return false;
-		}
-	}
+	private static final String TLA_SUFFIX = ".tla";
 
 	protected static File[] getModules(String path) {
 		final File dir = new File(path);
-		return dir.listFiles(new ModuleFilenameFilter());
+		return dir.listFiles((d, name) -> name.endsWith(TLA_SUFFIX));
 	}
 
 	protected static File[] getModulesRecursively(String path) {
@@ -44,14 +30,8 @@ public abstract class AbstractParseModuleTest {
 		for (File f : list) {
 			if (f.isDirectory()) {
 				files.addAll(walk(f.getAbsolutePath()));
-				
-			} else {
-				String name =f.getName();
-					for (int i = 0; i < SUFFIX.length; i++) {
-						if (name.endsWith(SUFFIX[i])) {
-							files.add(f);
-						}
-					}
+			} else if (f.getName().endsWith(TLA_SUFFIX)) {
+				files.add(f);
 			}
 		}
 		return files;
