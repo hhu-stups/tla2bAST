@@ -3,15 +3,18 @@ package de.tla2b.translation;
 import java.util.Collection;
 import java.util.HashSet;
 
-import tla2sany.semantic.ASTConstants;
-import tla2sany.semantic.ModuleNode;
-import tla2sany.semantic.OpApplNode;
-import tla2sany.semantic.OpDefNode;
-import tlc2.tool.ToolGlobals;
+import de.be4.classicalb.core.parser.util.Utils;
 import de.tla2b.analysis.AbstractASTVisitor;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.global.TranslationGlobals;
+
+import tla2sany.semantic.ASTConstants;
+import tla2sany.semantic.ModuleNode;
+import tla2sany.semantic.OpApplNode;
+import tla2sany.semantic.OpDefNode;
+
+import tlc2.tool.ToolGlobals;
 
 public class UsedDefinitionsFinder extends AbstractASTVisitor implements ASTConstants, ToolGlobals, TranslationGlobals {
 
@@ -58,15 +61,8 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor implements ASTCons
 
 		for (OpDefNode opDef : specAnalyser.getModuleNode().getOpDefs()) {
 			String defName = opDef.getName().toString();
-			// GOAL, ANIMATION_FUNCTION, ANIMATION_IMGxx, SET_PREF_xxx,
-			if (defName.equals("GOAL") || defName.startsWith("ANIMATION_FUNCTION")
-					|| defName.startsWith("ANIMATION_IMG")
-					|| defName.startsWith("ASSERT_LTL") || defName.startsWith("ASSERT_CTL")
-					|| defName.startsWith("VISB_SVG_")  // VISB_SVG_OBJECTS, VISB_SVG_UPDATES, VISB_SVG_HOVERS
-					|| defName.equals("VISB_JSON_FILE")
-					|| defName.startsWith("GAME_")  // GAME_OVER, GAME_PLAYER, GAME_MCTS_RUNS
-					|| defName.startsWith("SET_PREF_")  || defName.startsWith("HEURISTIC_FUNCTION")
-					|| defName.startsWith("SCOPE") || defName.startsWith("scope_")) {
+			// GOAL, ANIMATION_FUNCTION, ANIMATION_IMGxx, SET_PREF_xxx, etc.
+			if (Utils.isProBSpecialDefinitionName(defName)) {
 				usedDefinitions.add(opDef);
 			}
 		}
