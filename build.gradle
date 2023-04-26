@@ -66,12 +66,6 @@ task jacocoIntegrationTestReport(type: JacocoReport) {
 	executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
 }
 
-test {
-	exclude('testing')
-	//allJvmArgs = [ "-Xss515m" ]
-}
-
-
 task createJar(type: Jar, dependsOn: classes){
 	archiveFileName = 'TLA2B.jar'
 	//from sourceSets.main.allJava
