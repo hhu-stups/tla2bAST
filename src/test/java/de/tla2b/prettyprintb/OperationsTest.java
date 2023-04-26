@@ -1,4 +1,4 @@
-package testing;
+package de.tla2b.prettyprintb;
 
 import java.io.File;
 import java.util.List;
@@ -17,10 +17,10 @@ import org.junit.runners.Parameterized;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
-public class ExampleFilesTest {
+public class OperationsTest {
 	private final File moduleFile;
 
-	public ExampleFilesTest(File machine) {
+	public OperationsTest(File machine) {
 		this.moduleFile = machine;
 	}
 
