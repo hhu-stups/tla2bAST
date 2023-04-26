@@ -37,16 +37,12 @@ public abstract class AbstractParseModuleTest {
 		return files;
 	}
 
-	protected static Configuration getConfiguration2(ArrayList<String> list) {
-		final ArrayList<File> allModules = new ArrayList<File>();
-
+	protected static Configuration getConfiguration2(String path) {
 		final ArrayList<Object> expectedValues = new ArrayList<Object>();
-		for (String path : list) {
-			File[] modules = getModulesRecursively(path);
-			allModules.addAll(Arrays.asList(modules));
-			for (int i = 0; i < modules.length; i++) {
-				expectedValues.add(1);
-			}
+		File[] modules = getModulesRecursively(path);
+		final ArrayList<File> allModules = new ArrayList<File>(Arrays.asList(modules));
+		for (int i = 0; i < modules.length; i++) {
+			expectedValues.add(1);
 		}
 
 		return new Configuration() {

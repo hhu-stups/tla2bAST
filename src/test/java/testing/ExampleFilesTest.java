@@ -1,7 +1,6 @@
 package testing;
 
 import java.io.File;
-import java.util.ArrayList;
 
 import de.be4.classicalb.core.parser.BParser;
 import de.be4.classicalb.core.parser.node.Start;
@@ -65,8 +64,6 @@ public class ExampleFilesTest extends AbstractParseModuleTest {
 
 	@Config
 	public static Configuration getConfig() {
-		final ArrayList<String> list = new ArrayList<String>();
-		list.add("./src/test/resources/prettyprint/OperationsTest/");
-		return getConfiguration2(list);
+		return getConfiguration2("./src/test/resources/prettyprint/OperationsTest/");
 	}
 }
