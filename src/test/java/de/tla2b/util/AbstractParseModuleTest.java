@@ -2,7 +2,6 @@ package de.tla2b.util;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -30,12 +29,11 @@ public abstract class AbstractParseModuleTest {
 		return dir.listFiles(new ModuleFilenameFilter());
 	}
 
-	protected static File[] getModulesRecursively(String path, ArrayList<String> ignoreList) {
-		File[] files = walk(path, ignoreList).toArray(new File[0]);
-		return files;
+	protected static File[] getModulesRecursively(String path) {
+		return walk(path).toArray(new File[0]);
 	}
 
-	private static ArrayList<File> walk(String path, ArrayList<String> ignoreList) {
+	private static ArrayList<File> walk(String path) {
 		File root = new File(path);
 		File[] list = root.listFiles();
 		
@@ -45,20 +43,7 @@ public abstract class AbstractParseModuleTest {
 
 		for (File f : list) {
 			if (f.isDirectory()) {
-				boolean visitDir = true;
-				for (String string : ignoreList) {
-					File ignore = new File(string);
-					try {
-						if(f.getCanonicalPath().equals(ignore.getCanonicalPath())){
-							visitDir = false;
-						}
-					} catch (IOException e) {
-						visitDir = false;
-					}
-				}
-				if(visitDir){
-					files.addAll(walk(f.getAbsolutePath(),ignoreList));
-				}
+				files.addAll(walk(f.getAbsolutePath()));
 				
 			} else {
 				String name =f.getName();
@@ -72,12 +57,12 @@ public abstract class AbstractParseModuleTest {
 		return files;
 	}
 
-	protected static Configuration getConfiguration2(ArrayList<String> list, ArrayList<String> ignoreList) {
+	protected static Configuration getConfiguration2(ArrayList<String> list) {
 		final ArrayList<File> allModules = new ArrayList<File>();
 
 		final ArrayList<Object> expectedValues = new ArrayList<Object>();
 		for (String path : list) {
-			File[] modules = getModulesRecursively(path, ignoreList);
+			File[] modules = getModulesRecursively(path);
 			allModules.addAll(Arrays.asList(modules));
 			for (int i = 0; i < modules.length; i++) {
 				expectedValues.add(1);

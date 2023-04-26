@@ -28,8 +28,7 @@ public class RegressionTests extends AbstractParseModuleTest {
 	@Config
 	public static Configuration getConfig() {
 		final ArrayList<String> list = new ArrayList<String>();
-		final ArrayList<String> ignoreList = new ArrayList<String>();
 		list.add("./src/test/resources/regression");
-		return getConfiguration2(list, ignoreList);
+		return getConfiguration2(list);
 	}
 }

@@ -66,10 +66,7 @@ public class ExampleFilesTest extends AbstractParseModuleTest {
 	@Config
 	public static Configuration getConfig() {
 		final ArrayList<String> list = new ArrayList<String>();
-		final ArrayList<String> ignoreList = new ArrayList<String>();
-
 		list.add("./src/test/resources/prettyprint/OperationsTest/");
-		// ignoreList.add("./src/test/resources/testing/");
-		return getConfiguration2(list, ignoreList);
+		return getConfiguration2(list);
 	}
 }
