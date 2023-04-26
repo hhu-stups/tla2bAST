@@ -1,5 +1,9 @@
 package de.tla2b.util;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import de.be4.classicalb.core.parser.BParser;
 import de.be4.classicalb.core.parser.analysis.prolog.ASTProlog;
 import de.be4.classicalb.core.parser.exceptions.BCompoundException;
@@ -17,6 +21,26 @@ import util.ToolIO;
 import static org.junit.Assert.assertEquals;
 
 public class TestUtil {
+	private static final String TLA_SUFFIX = ".tla";
+
+	public static List<File> getModulesRecursively(String path) {
+		File root = new File(path);
+		File[] list = root.listFiles();
+		
+		List<File> files = new ArrayList<File>();
+		if (list == null) {
+			return files;
+		}
+
+		for (File f : list) {
+			if (f.isDirectory()) {
+				files.addAll(getModulesRecursively(f.getAbsolutePath()));
+			} else if (f.getName().endsWith(TLA_SUFFIX)) {
+				files.add(f);
+			}
+		}
+		return files;
+	}
 
 	public static void loadTlaFile(String tlaFile) throws TLA2BException {
 		Translator t = new Translator(tlaFile);
