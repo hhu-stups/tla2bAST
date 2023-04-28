@@ -4,7 +4,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'jacoco'
 apply plugin: 'signing'
 
-project.version = '1.1.5'
+project.version = '1.2.0-SNAPSHOT'
 project.group = 'de.hhu.stups'
 final isSnapshot = project.version.endsWith("-SNAPSHOT")
 
