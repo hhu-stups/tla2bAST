@@ -22,7 +22,7 @@ configurations.all {
 	resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-def parser_version = '2.12.4-SNAPSHOT'
+def parser_version = '2.12.4'
 
 dependencies {
 	implementation(group: 'commons-cli', name: 'commons-cli', version: '1.4')
