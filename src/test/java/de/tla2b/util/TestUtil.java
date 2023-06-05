@@ -161,7 +161,7 @@ public class TestUtil {
 
 	public static String getAstStringofBExpressionString(final String expr) throws BCompoundException {
 		final BParser parser = new BParser("testcase");
-		final Start startNode = parser.parse("#FORMULA " + expr, false);
+		final Start startNode = parser.parseFormula(expr);
 		return getTreeAsString(startNode);
 	}
 
