@@ -60,17 +60,6 @@ task jacocoIntegrationTestReport(type: JacocoReport) {
 	executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
 }
 
-task createJar(type: Jar, dependsOn: classes){
-	archiveFileName = 'TLA2B.jar'
-	//from sourceSets.main.allJava
-	from sourceSets.main.output
-	from {configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
-	exclude('**/*.java')
-	manifest {
-		attributes "Main-Class" : 'de.tla2b.TLA2B'
-	}
-}
-
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
