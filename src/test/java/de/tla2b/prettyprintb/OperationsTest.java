@@ -29,7 +29,7 @@ public class OperationsTest {
 
 		// parse pretty print result
 		final BParser parser = new BParser("testcase");
-		final Start ppStart = parser.parse(pp.getPrettyPrint(), false);
+		final Start ppStart = parser.parseMachine(pp.getPrettyPrint());
 		String ppTree = TestUtil.getTreeAsString(ppStart);
 		
 		// comparing result with pretty print
@@ -40,8 +40,7 @@ public class OperationsTest {
 		File expectedMachine = new File("src/test/resources/prettyprint/OperationsTest/OperationsTest.mch");
 
 		final BParser expectedParser = new BParser("testcase");
-		final Start expectedStart = expectedParser.parseFile(expectedMachine,
-				false);
+		final Start expectedStart = expectedParser.parseFile(expectedMachine);
 
 		String expectedTree = TestUtil.getTreeAsString(expectedStart);
 

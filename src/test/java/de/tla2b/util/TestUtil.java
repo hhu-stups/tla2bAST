@@ -56,7 +56,7 @@ public class TestUtil {
 		start.apply(pp);
 		System.out.println(pp.getPrettyPrint());
 		final BParser parser = new BParser("testcase");
-		final Start ppStart = parser.parse(pp.getPrettyPrint(), false);
+		final Start ppStart = parser.parseMachine(pp.getPrettyPrint());
 
 		String result = getTreeAsString(start);
 		String ppResult = getTreeAsString(ppStart);
@@ -124,7 +124,7 @@ public class TestUtil {
 		pp.setRenaming(new SuffixIdentifierRenaming());
 		start.apply(pp);
 		final BParser parser = new BParser("testcase");
-		parser.parse(pp.getPrettyPrint(), false);
+		parser.parseMachine(pp.getPrettyPrint());
 	}
 
 	public static TestTypeChecker typeCheckString(String moduleString) throws TLA2BException {
@@ -155,7 +155,7 @@ public class TestUtil {
 
 	public static String getAstStringofBMachineString(final String testMachine) throws BCompoundException {
 		final BParser parser = new BParser("testcase");
-		final Start startNode = parser.parse(testMachine, false);
+		final Start startNode = parser.parseMachine(testMachine);
 		return getTreeAsString(startNode);
 	}
 
