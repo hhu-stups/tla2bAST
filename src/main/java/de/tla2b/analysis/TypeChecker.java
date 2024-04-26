@@ -1193,25 +1193,44 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 		case B_OPCODE_div: // /
 		case B_OPCODE_mod: // % modulo
 		case B_OPCODE_exp: { // x hoch y, x^y
-			try {
-				RealType.getInstance().unify(expected);
-				for (int i = 0; i < n.getArgs().length; i++) {
-					visitExprOrOpArgNode(n.getArgs()[i], RealType.getInstance());
+			TLAType type;
+			// TODO: Simplify
+			if (expected instanceof RealType) {
+				try {
+					RealType.getInstance().unify(expected);
+					type = RealType.getInstance();
+				} catch (UnificationException e) {
+					throw new TypeErrorException(String.format("Expected %s, found REAL at '%s',%n%s", expected,
+							n.getOperator().getName(), n.getLocation()));
 				}
-				return RealType.getInstance();
-			} catch (UnificationException e) {
+			} else if (expected instanceof IntType) {
 				try {
 					IntType.getInstance().unify(expected);
-					for (int i = 0; i < n.getArgs().length; i++) {
-						visitExprOrOpArgNode(n.getArgs()[i], IntType.getInstance());
-					}
-					return IntType.getInstance();
-				} catch (UnificationException e2) {
+					type = IntType.getInstance();
+				} catch (UnificationException ue) {
 					throw new TypeErrorException(String.format("Expected %s, found INTEGER at '%s',%n%s", expected,
 						n.getOperator().getName(), n.getLocation()));
 				}
+			} else if (expected instanceof UntypedType) {
+				IntType.getInstance().unify(expected);
+				type = IntType.getInstance();
+				try {
+					for (int i = 0; i < n.getArgs().length; i++) {
+						visitExprOrOpArgNode(n.getArgs()[i], type);
+					}
+				} catch (TypeErrorException e) {
+					RealType.getInstance().unify(expected);
+					type = RealType.getInstance();
+				}
+			} else {
+				throw new TypeErrorException(String.format("Expected %s, found INTEGER at '%s',%n%s", expected,
+					n.getOperator().getName(), n.getLocation()));
+			}
+			for (int i = 0; i < n.getArgs().length; i++) {
+				visitExprOrOpArgNode(n.getArgs()[i], type);
 			}
 
+			return type;
 		}
 
 		case B_OPCODE_dotdot: // ..
