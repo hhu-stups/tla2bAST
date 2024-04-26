@@ -47,7 +47,8 @@ public class OperationsFinder extends AbstractASTVisitor implements
 			visitOpApplNode((OpApplNode) n);
 			return;
 		}
-		case NumeralKind: {
+		case NumeralKind:
+		case DecimalKind: {
 			throw new RuntimeException(String.format(
 					"Expected an action (instead of a number).%n%s", n.getLocation().toString()));
 		}

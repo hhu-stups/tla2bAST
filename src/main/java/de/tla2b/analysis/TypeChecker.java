@@ -1,13 +1,8 @@
 package de.tla2b.analysis;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import de.tla2b.config.ConfigfileEvaluator;
 import de.tla2b.config.TLCValueNode;
@@ -21,21 +16,7 @@ import de.tla2b.global.BBuildIns;
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.global.TranslationGlobals;
 import de.tla2b.types.*;
-import tla2sany.semantic.ASTConstants;
-import tla2sany.semantic.AssumeNode;
-import tla2sany.semantic.AtNode;
-import tla2sany.semantic.ExprNode;
-import tla2sany.semantic.ExprOrOpArgNode;
-import tla2sany.semantic.FormalParamNode;
-import tla2sany.semantic.LetInNode;
-import tla2sany.semantic.ModuleNode;
-import tla2sany.semantic.NumeralNode;
-import tla2sany.semantic.OpApplNode;
-import tla2sany.semantic.OpDeclNode;
-import tla2sany.semantic.OpDefNode;
-import tla2sany.semantic.SemanticNode;
-import tla2sany.semantic.StringNode;
-import tla2sany.semantic.SymbolNode;
+import tla2sany.semantic.*;
 import tlc2.tool.BuiltInOPs;
 
 public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, TranslationGlobals {
@@ -275,6 +256,14 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 				throw new TypeErrorException(String.format("Expected %s, found INTEGER at '%s',%n%s ", expected,
 						((NumeralNode) exprNode).val(), exprNode.getLocation()));
 			}
+		case DecimalKind: {
+			try {
+				return RealType.getInstance().unify(expected);
+			} catch (UnificationException e) {
+				throw new TypeErrorException(String.format("Expected %s, found REAL at '%s',%n%s ", expected,
+					exprNode, exprNode.getLocation()));
+			}
+		}
 		case StringKind: {
 			try {
 				return StringType.getInstance().unify(expected);
@@ -309,10 +298,6 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 
 		case SubstInKind: {
 			throw new RuntimeException("SubstInKind should never occur after InstanceTransformation");
-		}
-
-		case DecimalKind: {
-			// currently not supported
 		}
 
 		}
@@ -1209,15 +1194,24 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 		case B_OPCODE_mod: // % modulo
 		case B_OPCODE_exp: { // x hoch y, x^y
 			try {
-				IntType.getInstance().unify(expected);
+				RealType.getInstance().unify(expected);
+				for (int i = 0; i < n.getArgs().length; i++) {
+					visitExprOrOpArgNode(n.getArgs()[i], RealType.getInstance());
+				}
+				return RealType.getInstance();
 			} catch (UnificationException e) {
-				throw new TypeErrorException(String.format("Expected %s, found INTEGER at '%s',%n%s", expected,
+				try {
+					IntType.getInstance().unify(expected);
+					for (int i = 0; i < n.getArgs().length; i++) {
+						visitExprOrOpArgNode(n.getArgs()[i], IntType.getInstance());
+					}
+					return IntType.getInstance();
+				} catch (UnificationException e2) {
+					throw new TypeErrorException(String.format("Expected %s, found INTEGER at '%s',%n%s", expected,
 						n.getOperator().getName(), n.getLocation()));
+				}
 			}
-			for (int i = 0; i < n.getArgs().length; i++) {
-				visitExprOrOpArgNode(n.getArgs()[i], IntType.getInstance());
-			}
-			return IntType.getInstance();
+
 		}
 
 		case B_OPCODE_dotdot: // ..
@@ -1259,6 +1253,18 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			} catch (UnificationException e) {
 				throw new TypeErrorException(
 						String.format("Expected %s, found POW(INTEGER) at 'Int',%n%s", expected, n.getLocation()));
+			}
+		}
+
+		case B_OPCODE_real: // Real
+		{
+			try {
+				SetType found = new SetType(RealType.getInstance());
+				found = found.unify(expected);
+				return found;
+			} catch (UnificationException e) {
+				throw new TypeErrorException(
+					String.format("Expected %s, found POW(REAL) at 'Real',%n%s", expected, n.getLocation()));
 			}
 		}
 

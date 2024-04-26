@@ -10,19 +10,7 @@ import de.be4.classicalb.core.parser.node.Node;
 import de.hhu.stups.sablecc.patch.PositionedNode;
 import de.prob.prolog.output.IPrologTermOutput;
 import de.tla2b.exceptions.NotImplementedException;
-import de.tla2b.types.BoolType;
-import de.tla2b.types.EnumType;
-import de.tla2b.types.FunctionType;
-import de.tla2b.types.IntType;
-import de.tla2b.types.ModelValueType;
-import de.tla2b.types.PairType;
-import de.tla2b.types.SetType;
-import de.tla2b.types.StringType;
-import de.tla2b.types.StructOrFunctionType;
-import de.tla2b.types.StructType;
-import de.tla2b.types.TLAType;
-import de.tla2b.types.TupleType;
-import de.tla2b.types.UntypedType;
+import de.tla2b.types.*;
 
 public class TlaTypePrinter implements PositionPrinter, TypeVisitorInterface {
 	private IPrologTermOutput pout;
@@ -112,6 +100,10 @@ public class TlaTypePrinter implements PositionPrinter, TypeVisitorInterface {
 		type.getSecond().apply(this);
 		pout.closeList();
 		pout.closeTerm();
+	}
+
+	public void caseRealType(RealType type) {
+		pout.printAtom("real");
 	}
 
 	public void caseSetType(SetType type) {

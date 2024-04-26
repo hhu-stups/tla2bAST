@@ -26,7 +26,7 @@ public interface TranslationGlobals {
 	final String CHOOSE = " CHOOSE(X) == \"a member of X\"; EXTERNAL_FUNCTION_CHOOSE(T) == (POW(T)-->T)";
 	final String IF_THEN_ELSE = " IF_THEN_ELSE(P, a, b) == (%t_.(t_ = TRUE & P = TRUE | a )\\/%t_.(t_= TRUE & not(P= TRUE) | b ))(TRUE)";
 
-	final ArrayList<String> STANDARD_MODULES = new ArrayList<String>(
-			Arrays.asList(new String[] { "Naturals", "FiniteSets", "Integers",
-					"Sequences", "TLC", "Relations", "TLA2B", "BBuildIns" }));
+	ArrayList<String> STANDARD_MODULES = new ArrayList<>(
+			Arrays.asList("Naturals", "FiniteSets", "Integers", "Reals",
+				"Sequences", "TLC", "Relations", "TLA2B", "BBuildIns"));
 }

@@ -3,23 +3,7 @@ package de.tla2b.analysis;
 import java.util.Hashtable;
 
 import de.tla2b.global.BBuiltInOPs;
-import tla2sany.semantic.ASTConstants;
-import tla2sany.semantic.AbortException;
-import tla2sany.semantic.AtNode;
-import tla2sany.semantic.Context;
-import tla2sany.semantic.ExprNode;
-import tla2sany.semantic.ExprOrOpArgNode;
-import tla2sany.semantic.FormalParamNode;
-import tla2sany.semantic.LetInNode;
-import tla2sany.semantic.ModuleNode;
-import tla2sany.semantic.NumeralNode;
-import tla2sany.semantic.OpApplNode;
-import tla2sany.semantic.OpArgNode;
-import tla2sany.semantic.OpDeclNode;
-import tla2sany.semantic.OpDefNode;
-import tla2sany.semantic.StringNode;
-import tla2sany.semantic.Subst;
-import tla2sany.semantic.SubstInNode;
+import tla2sany.semantic.*;
 import tlc2.tool.BuiltInOPs;
 import util.UniqueString;
 
@@ -82,6 +66,14 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 		case NumeralKind: {
 			NumeralNode num = (NumeralNode) n;
 			return new NumeralNode(num.toString(), n.getTreeNode());
+		}
+
+		case DecimalKind: {
+			String[] image = n.toString().split("\\.");
+			if (image.length != 2) {
+				throw new IllegalStateException("expected '.' in decimal number");
+			}
+			return new DecimalNode(image[0], image[1], n.getTreeNode());
 		}
 
 		case StringKind: {

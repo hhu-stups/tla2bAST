@@ -1,18 +1,7 @@
 package de.tla2b.analysis;
 
 import de.tla2b.global.BBuiltInOPs;
-import tla2sany.semantic.ASTConstants;
-import tla2sany.semantic.AssumeNode;
-import tla2sany.semantic.AtNode;
-import tla2sany.semantic.ExprNode;
-import tla2sany.semantic.ExprOrOpArgNode;
-import tla2sany.semantic.LetInNode;
-import tla2sany.semantic.ModuleNode;
-import tla2sany.semantic.NumeralNode;
-import tla2sany.semantic.OpApplNode;
-import tla2sany.semantic.OpDefNode;
-import tla2sany.semantic.StringNode;
-import tla2sany.semantic.SubstInNode;
+import tla2sany.semantic.*;
 import tlc2.tool.BuiltInOPs;
 
 public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
@@ -61,6 +50,10 @@ public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
 		}
 		case NumeralKind: {
 			visitNumeralNode((NumeralNode) node);
+			return;
+		}
+		case DecimalKind: {
+			visitDecimalNode((DecimalNode) node);
 			return;
 		}
 		case StringKind: {
@@ -184,6 +177,9 @@ public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
 	}
 
 	public void visitNumeralNode(NumeralNode n) {
+	}
+
+	public void visitDecimalNode(DecimalNode n) {
 	}
 
 }

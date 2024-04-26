@@ -29,6 +29,8 @@ public interface BBuildIns {
 			.uniqueStringOf("Nat");
 	public static final UniqueString OP_int = UniqueString
 			.uniqueStringOf("Int");
+	UniqueString OP_real = UniqueString
+		.uniqueStringOf("Real");
 	public static final UniqueString OP_bool = UniqueString
 			.uniqueStringOf("BOOLEAN");
 	public static final UniqueString OP_true = UniqueString
@@ -129,4 +131,6 @@ public interface BBuildIns {
 	public static final int B_OPCODE_rel_inverse = B_OPCODE_pow1 + 1;
 	
 	public static final int B_OPCODE_assert = B_OPCODE_rel_inverse + 1;
+
+	int B_OPCODE_real = B_OPCODE_assert + 1;
 }

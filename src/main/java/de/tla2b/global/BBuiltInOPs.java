@@ -1,12 +1,11 @@
 package de.tla2b.global;
 
-
 import java.util.Hashtable;
 
 import util.UniqueString;
 
 public class BBuiltInOPs implements BBuildIns{
-	private static Hashtable<UniqueString, Integer> B_Opcode_Table;
+	private static final Hashtable<UniqueString, Integer> B_Opcode_Table;
 	static {
 		B_Opcode_Table = new Hashtable<UniqueString, Integer>();
 		B_Opcode_Table.put(OP_dotdot, B_OPCODE_dotdot);
@@ -27,6 +26,7 @@ public class BBuiltInOPs implements BBuildIns{
 		B_Opcode_Table.put(OP_false, B_OPCODE_false);
 		B_Opcode_Table.put(OP_nat, B_OPCODE_nat);
 		B_Opcode_Table.put(OP_int, B_OPCODE_int);
+		B_Opcode_Table.put(OP_real, B_OPCODE_real);
 		B_Opcode_Table.put(OP_string, B_OPCODE_string);
 		
 		B_Opcode_Table.put(OP_finite, B_OPCODE_finite);

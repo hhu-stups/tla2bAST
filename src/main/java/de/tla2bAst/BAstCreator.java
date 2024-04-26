@@ -10,22 +10,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import tla2sany.semantic.ASTConstants;
-import tla2sany.semantic.AssumeNode;
-import tla2sany.semantic.AtNode;
-import tla2sany.semantic.ExprNode;
-import tla2sany.semantic.ExprOrOpArgNode;
-import tla2sany.semantic.FormalParamNode;
-import tla2sany.semantic.LetInNode;
-import tla2sany.semantic.ModuleNode;
-import tla2sany.semantic.NumeralNode;
-import tla2sany.semantic.OpApplNode;
-import tla2sany.semantic.OpDeclNode;
-import tla2sany.semantic.OpDefNode;
-import tla2sany.semantic.SemanticNode;
-import tla2sany.semantic.StringNode;
-import tla2sany.semantic.SymbolNode;
-import tla2sany.semantic.ThmOrAssumpDefNode;
+import tla2sany.semantic.*;
 import tla2sany.st.Location;
 import tlc2.tool.BuiltInOPs;
 import tlc2.value.ModelValue;
@@ -663,6 +648,9 @@ public class BAstCreator extends BuiltInOPs
 			String number = String.valueOf(((NumeralNode) exprNode).val());
 			return createPositionedNode(new AIntegerExpression(new TIntegerLiteral(number)), exprNode);
 		}
+		case DecimalKind: {
+			return createPositionedNode(new ARealExpression(new TRealLiteral(exprNode.toString())), exprNode);
+		}
 		case StringKind: {
 			StringNode s = (StringNode) exprNode;
 			return createPositionedNode(new AStringExpression(new TStringLiteral(s.getRep().toString())), exprNode);
@@ -1077,6 +1065,10 @@ public class BAstCreator extends BuiltInOPs
 
 		case B_OPCODE_int: // Int
 			returnNode = new AIntegerSetExpression();
+			break;
+
+		case B_OPCODE_real: // Real
+			returnNode = new ARealSetExpression();
 			break;
 
 		case B_OPCODE_uminus: // -x

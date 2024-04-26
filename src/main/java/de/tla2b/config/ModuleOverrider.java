@@ -105,7 +105,8 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 
 		case StringKind:
 		case AtNodeKind: // @
-		case NumeralKind: {
+		case NumeralKind:
+		case DecimalKind: {
 			return null;
 		}
 
