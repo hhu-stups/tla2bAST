@@ -21,10 +21,10 @@ import de.be4.classicalb.core.parser.node.Start;
 
 public class Indentation extends DepthFirstAdapter {
 
-	private Hashtable<Node, Integer> indentation = new Hashtable<Node, Integer>();
-	private HashSet<Node> newlineMiddle = new HashSet<Node>();
-	private HashSet<Node> nodesWithNewlineAtTheEnd = new HashSet<Node>();
-	private HashSet<Node> indentedNodes = new HashSet<Node>();
+	private final Hashtable<Node, Integer> indentation = new Hashtable<Node, Integer>();
+	private final HashSet<Node> newlineMiddle = new HashSet<Node>();
+	private final HashSet<Node> nodesWithNewlineAtTheEnd = new HashSet<Node>();
+	private final HashSet<Node> indentedNodes = new HashSet<Node>();
 	public final static String INDENT = "  ";
 	public final static String SPACE = " ";
 

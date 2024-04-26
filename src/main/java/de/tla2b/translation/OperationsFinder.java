@@ -67,7 +67,6 @@ public class OperationsFinder extends AbstractASTVisitor implements
 		case LetInKind: {
 			// we do not visit the local definitions
 			visitExprNode(((LetInNode) n).getBody());
-			return;
 		}
 		}
 	}
@@ -161,8 +160,7 @@ public class OperationsFinder extends AbstractASTVisitor implements
 			return;
 		}
 		throw new RuntimeException(String.format(
-				"Expected an action at '%s' :%n%s", n.getOperator().getName()
-						.toString(), n.getLocation().toString()));
+				"Expected an action at '%s' :%n%s", n.getOperator().getName(), n.getLocation().toString()));
 
 	}
 

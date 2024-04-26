@@ -14,7 +14,7 @@ import de.tla2b.util.TestUtil;
 public class ConstantTypesTest {
 
 	@Test
-	public void test1() throws FrontEndException, TLA2BException {
+	public void test1() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "ASSUME k = 1 /\\ k2 = k\n"
@@ -25,7 +25,7 @@ public class ConstantTypesTest {
 	}
 
 	@Test
-	public void test2() throws FrontEndException, TLA2BException {
+	public void test2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "ASSUME k = k2 /\\ k = 1\n"
@@ -37,7 +37,7 @@ public class ConstantTypesTest {
 	}
 
 	@Test
-	public void test3() throws FrontEndException, TLA2BException {
+	public void test3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3 \n"
 				+ "ASSUME k = k2 /\\ k = k3 /\\ k3 = 1\n"
@@ -49,7 +49,7 @@ public class ConstantTypesTest {
 	}
 
 	@Test
-	public void worstCaseUnification() throws FrontEndException, TLA2BException {
+	public void worstCaseUnification() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS a, b, c, d, e, f, g, h \n"
 				+ "ASSUME a = b \n"
@@ -74,14 +74,14 @@ public class ConstantTypesTest {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void prime() throws FrontEndException, TLA2BException {
+	public void prime() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "Next ==  1' = 1 \n" + "=================================";
 		TestUtil.typeCheckString(module);
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void prime2() throws FrontEndException, TLA2BException {
+	public void prime2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k\n"
 				+ "foo ==  k' = 1 \n"
@@ -90,7 +90,7 @@ public class ConstantTypesTest {
 	}
 
 	@Test
-	public void ifThenElse() throws FrontEndException, TLA2BException {
+	public void ifThenElse() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2\n"
 				+ "ASSUME k = IF 1 = 1 THEN k2 ELSE 1 \n"

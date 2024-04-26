@@ -113,11 +113,11 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals,
 		BBUILTIN_OPERATOR.put("..", "dot2");
 	}
 
-	private ModuleNode moduleNode;
-	private Set<OpDefNode> usedDefinitions;
+	private final ModuleNode moduleNode;
+	private final Set<OpDefNode> usedDefinitions;
 
-	private Set<String> globalNames = new HashSet<String>();
-	private Hashtable<OpDefNode, Set<String>> usedNamesTable = new Hashtable<OpDefNode, Set<String>>();
+	private final Set<String> globalNames = new HashSet<String>();
+	private final Hashtable<OpDefNode, Set<String>> usedNamesTable = new Hashtable<OpDefNode, Set<String>>();
 
 	public SymbolRenamer(ModuleNode moduleNode, SpecAnalyser specAnalyser) {
 		this.moduleNode = moduleNode;
@@ -330,10 +330,7 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals,
 	}
 
 	private Boolean existingName(String name) {
-		if (globalNames.contains(name) || KEYWORDS.contains(name)) {
-			return true;
-		} else
-			return false;
+		return globalNames.contains(name) || KEYWORDS.contains(name);
 	}
 
 	private String incName(String name) {

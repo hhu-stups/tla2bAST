@@ -37,10 +37,7 @@ public class EnumType extends AbstractHasFollowers {
 
 	@Override
 	public boolean compare(TLAType o) {
-		if (o.getKind() == UNTYPED || o.getKind() == MODELVALUE)
-			return true;
-		else
-			return false;
+		return o.getKind() == UNTYPED || o.getKind() == MODELVALUE;
 	}
 
 	@Override

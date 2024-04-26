@@ -6,7 +6,7 @@ import de.tla2b.output.TypeVisitorInterface;
 
 public class ModelValueType extends TLAType {
 
-	private static ModelValueType instance = new ModelValueType();
+	private static final ModelValueType instance = new ModelValueType();
 
 	private ModelValueType() {
 		super(MODELVALUE);
@@ -29,10 +29,7 @@ public class ModelValueType extends TLAType {
 	
 	@Override
 	public boolean compare(TLAType o) {
-		if (o.getKind() == UNTYPED || o.getKind() == MODELVALUE)
-			return true;
-		else
-			return false;
+		return o.getKind() == UNTYPED || o.getKind() == MODELVALUE;
 	}
 	
 	@Override

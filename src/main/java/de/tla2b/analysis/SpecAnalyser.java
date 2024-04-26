@@ -36,7 +36,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 	private ArrayList<OpDefNode> invariants = new ArrayList<>();
 
 	private OpDefNode expressionOpdefNode;
-	private Hashtable<String, SymbolNode> namingHashTable = new Hashtable<>();
+	private final Hashtable<String, SymbolNode> namingHashTable = new Hashtable<>();
 
 	private final ModuleNode moduleNode;
 	private ExprNode nextExpr;
@@ -46,20 +46,20 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 	// configfile
 
 	private ArrayList<BOperation> bOperations = new ArrayList<BOperation>();
-	private ArrayList<ExprNode> inits = new ArrayList<ExprNode>();
+	private final ArrayList<ExprNode> inits = new ArrayList<ExprNode>();
 
 	private Set<OpDefNode> bDefinitionsSet = new HashSet<OpDefNode>();
 	// set of OpDefNodes which will appear in the resulting B Machine
 	private Set<OpDefNode> usedDefinitions = new HashSet<OpDefNode>();
 	// definitions which are used for the type inference algorithm
-	private Hashtable<OpDefNode, FormalParamNode[]> letParams = new Hashtable<>();
+	private final Hashtable<OpDefNode, FormalParamNode[]> letParams = new Hashtable<>();
 	// additional parameters of an let Operator, these parameters are from the
 	// surrounding operator
-	private ArrayList<String> definitionMacros = new ArrayList<>();
+	private final ArrayList<String> definitionMacros = new ArrayList<>();
 
-	private ArrayList<OpDefNode> recursiveFunctions = new ArrayList<>();
+	private final ArrayList<OpDefNode> recursiveFunctions = new ArrayList<>();
 
-	private ArrayList<RecursiveDefinition> recursiveDefinitions = new ArrayList<>();
+	private final ArrayList<RecursiveDefinition> recursiveDefinitions = new ArrayList<>();
 
 	private ConfigfileEvaluator configFileEvaluator;
 

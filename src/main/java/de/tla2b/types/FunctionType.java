@@ -93,10 +93,10 @@ public class FunctionType extends AbstractHasFollowers {
 			return this;
 		}
 		if (other instanceof TupleType) {
-			return (FunctionType) other.unify(this);
+			return other.unify(this);
 		}
 		if (other instanceof TupleOrFunction) {
-			return (FunctionType) other.unify(this);
+			return other.unify(this);
 		}
 
 		throw new RuntimeException();

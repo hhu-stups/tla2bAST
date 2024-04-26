@@ -19,7 +19,7 @@ import de.tla2b.output.TypeVisitorInterface;
 import de.tla2bAst.BAstCreator;
 
 public class StructType extends AbstractHasFollowers {
-	private LinkedHashMap<String, TLAType> types;
+	private final LinkedHashMap<String, TLAType> types;
 	private boolean extensible;
 	private boolean incompleteStruct;
 
@@ -126,17 +126,9 @@ public class StructType extends AbstractHasFollowers {
 			if (this.incompleteStruct && otherStruct.incompleteStruct) {
 				extendStruct = false;
 			} else if (this.incompleteStruct) {
-				if (otherStruct.types.keySet().containsAll(this.types.keySet())) {
-					extendStruct = false;
-				} else {
-					extendStruct = true;
-				}
+				extendStruct = !otherStruct.types.keySet().containsAll(this.types.keySet());
 			} else if (otherStruct.incompleteStruct) {
-				if (this.types.keySet().containsAll(otherStruct.types.keySet())) {
-					extendStruct = false;
-				} else {
-					extendStruct = true;
-				}
+				extendStruct = !this.types.keySet().containsAll(otherStruct.types.keySet());
 			} else {
 				extendStruct = !otherStruct.types.keySet().equals(this.types.keySet());
 			}

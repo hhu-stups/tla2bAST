@@ -1,6 +1,7 @@
 package de.tla2b.translation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
 
@@ -20,8 +21,8 @@ public class RecursiveFunctionHandler extends AbstractASTVisitor {
 	private ArrayList<FormalParamNode> ignoreParamList;
 	private ArrayList<SymbolNode> externParams;
 
-	private HashSet<OpApplNode> recursiveFunctions = new HashSet<OpApplNode>();
-	private Hashtable<SemanticNode, ArrayList<SymbolNode>> additionalParamsTable = new Hashtable<SemanticNode, ArrayList<SymbolNode>>();
+	private final HashSet<OpApplNode> recursiveFunctions = new HashSet<OpApplNode>();
+	private final Hashtable<SemanticNode, ArrayList<SymbolNode>> additionalParamsTable = new Hashtable<SemanticNode, ArrayList<SymbolNode>>();
 
 	public RecursiveFunctionHandler(SpecAnalyser specAnalyser) {
 		for (OpDefNode recFunc : specAnalyser.getRecursiveFunctions()) {
@@ -33,9 +34,7 @@ public class RecursiveFunctionHandler extends AbstractASTVisitor {
 			FormalParamNode self = body.getUnbdedQuantSymbols()[0];
 			paramList.add(self);
 			for (int i = 0; i < params.length; i++) {
-				for (int j = 0; j < params[i].length; j++) {
-					paramList.add(params[i][j]);
-				}
+				Collections.addAll(paramList, params[i]);
 			}
 			externParams = new ArrayList<SymbolNode>();
 			ignoreParamList = new ArrayList<FormalParamNode>();
@@ -81,10 +80,7 @@ public class RecursiveFunctionHandler extends AbstractASTVisitor {
 			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
 			HashSet<FormalParamNode> set = new HashSet<FormalParamNode>();
 			for (int i = 0; i < params.length; i++) {
-				for (int j = 0; j < params[i].length; j++) {
-					FormalParamNode param = params[i][j];
-					set.add(param);
-				}
+				Collections.addAll(set, params[i]);
 			}
 			ignoreParamList.addAll(set);
 			ExprNode[] in = n.getBdedQuantBounds();
@@ -99,7 +95,6 @@ public class RecursiveFunctionHandler extends AbstractASTVisitor {
 		}
 		default: {
 			super.visitBuiltInNode(n);
-			return;
 		}
 
 		}

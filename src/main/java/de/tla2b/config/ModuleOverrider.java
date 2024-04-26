@@ -17,10 +17,10 @@ import tlc2.tool.BuiltInOPs;
 
 public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 
-	private ModuleNode moduleNode;
-	private Hashtable<OpDeclNode, OpDefNode> constantOverrideTable;
-	private Hashtable<OpDefNode, OpDefNode> operatorOverrideTable;
-	private Hashtable<OpDefNode, ValueObj> operatorAssignments;
+	private final ModuleNode moduleNode;
+	private final Hashtable<OpDeclNode, OpDefNode> constantOverrideTable;
+	private final Hashtable<OpDefNode, OpDefNode> operatorOverrideTable;
+	private final Hashtable<OpDefNode, ValueObj> operatorAssignments;
 
 	public ModuleOverrider(ModuleNode moduleNode,
 			Hashtable<OpDeclNode, OpDefNode> constantOverrideTable,

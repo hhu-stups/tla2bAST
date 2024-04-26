@@ -1,13 +1,7 @@
 package de.tla2b.analysis;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import de.be4.classicalb.core.parser.node.AAnySubstitution;
 import de.be4.classicalb.core.parser.node.AAssignSubstitution;
@@ -47,7 +41,7 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 	private final ArrayList<OpDeclNode> unchangedVariablesList;
 	private final ArrayList<ExprOrOpArgNode> guards;
 	private final ArrayList<ExprOrOpArgNode> beforeAfterPredicates;
-	private LinkedHashMap<SymbolNode, ExprOrOpArgNode> assignments = new LinkedHashMap<SymbolNode, ExprOrOpArgNode>();
+	private final LinkedHashMap<SymbolNode, ExprOrOpArgNode> assignments = new LinkedHashMap<SymbolNode, ExprOrOpArgNode>();
 	private List<OpDeclNode> anyVariables;
 	private final SpecAnalyser specAnalyser;
 
@@ -216,9 +210,7 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 			}
 		}
 		anyVariables = new ArrayList<OpDeclNode>();
-		for (OpDeclNode var : specAnalyser.getModuleNode().getVariableDecls()) {
-			anyVariables.add(var);
-		}
+		Collections.addAll(anyVariables, specAnalyser.getModuleNode().getVariableDecls());
 
 		// for (SymbolNode symbol : primedVariablesFinder.getAllVariables()) {
 		// anyVariables.add((OpDeclNode) symbol);
@@ -261,10 +253,8 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 		}
 		if (node.level < 2) {
 			guards.add(node);
-			return;
 		} else {
 			beforeAfterPredicates.add(node);
-			return;
 		}
 		// beforeAfterPredicates.add(node);
 	}
@@ -338,7 +328,6 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 		case SubstInKind: {
 			SubstInNode substInNode = (SubstInNode) node;
 			findUnchangedVaribalesInSemanticNode(substInNode.getBody());
-			return;
 		}
 		}
 	}
@@ -350,7 +339,6 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 				&& !BBuiltInOPs.contains(n.getOperator().getName())) {
 			OpDefNode def = (OpDefNode) n.getOperator();
 			findUnchangedVaribalesInSemanticNode(def.getBody());
-			return;
 		} else if (kind == BuiltInKind) {
 			int opcode = BuiltInOPs.getOpCode(n.getOperator().getName());
 			switch (opcode) {

@@ -1,10 +1,6 @@
 package de.tla2b.translation;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Set;
+import java.util.*;
 
 import tla2sany.semantic.AssumeNode;
 import tla2sany.semantic.ExprNode;
@@ -94,10 +90,7 @@ public class BMacroHandler extends AbstractASTVisitor {
 			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
 			HashSet<FormalParamNode> set = new HashSet<FormalParamNode>();
 			for (int i = 0; i < params.length; i++) {
-				for (int j = 0; j < params[i].length; j++) {
-					FormalParamNode param = params[i][j];
-					set.add(param);
-				}
+				Collections.addAll(set, params[i]);
 			}
 			localVariables.addAll(set);
 			ExprNode[] in = n.getBdedQuantBounds();
@@ -113,7 +106,6 @@ public class BMacroHandler extends AbstractASTVisitor {
 		}
 		default: {
 			super.visitBuiltInNode(n);
-			return;
 		}
 
 		}
@@ -194,10 +186,7 @@ public class BMacroHandler extends AbstractASTVisitor {
 	Set<String> globalNames = new HashSet<String>();
 
 	private Boolean existingName(String name) {
-		if (globalNames.contains(name)) {
-			return true;
-		} else
-			return false;
+		return globalNames.contains(name);
 	}
 
 	private String incName(String name, Set<String> tempSet) {

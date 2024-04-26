@@ -16,7 +16,7 @@ public class DefinitionsTest {
 	 * Definition: foo(a,b) == e
 	 */
 	@Test
-	public void testDefinition() throws FrontEndException, TLA2BException {
+	public void testDefinition() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "foo(a,b) ==  a = 1 /\\ b = TRUE \n"
 				+ "Next ==  foo(1,TRUE)  \n"
@@ -28,7 +28,7 @@ public class DefinitionsTest {
 	}
 
 	@Test
-	public void testDefinition2() throws FrontEndException, TLA2BException {
+	public void testDefinition2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "foo(a,b) ==  a = k /\\ b = k2 \n"
@@ -44,7 +44,7 @@ public class DefinitionsTest {
 	}
 
 	@Test
-	public void testDefinition3() throws FrontEndException, TLA2BException {
+	public void testDefinition3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "foo ==  k \n"
@@ -56,7 +56,7 @@ public class DefinitionsTest {
 	}
 
 	@Test
-	public void testDefinition4() throws FrontEndException, TLA2BException {
+	public void testDefinition4() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "foo(var, value) ==  var = value \n"
@@ -73,7 +73,7 @@ public class DefinitionsTest {
 	 */
 
 	@Test
-	public void testDefinitionCall() throws FrontEndException, TLA2BException {
+	public void testDefinitionCall() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "foo(a) ==  TRUE \n"
 				+ "bar == foo(1) \n"
@@ -85,7 +85,7 @@ public class DefinitionsTest {
 	}
 
 	@Test
-	public void testDefinitionCall2() throws FrontEndException, TLA2BException {
+	public void testDefinitionCall2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "foo(a) ==  a \n"
 				+ "bar == foo(1) \n"
@@ -99,7 +99,7 @@ public class DefinitionsTest {
 	}
 
 	@Test
-	public void testDefinitionCall3() throws FrontEndException, TLA2BException {
+	public void testDefinitionCall3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "foo(a) ==  a \n"
@@ -116,7 +116,7 @@ public class DefinitionsTest {
 	}
 
 	@Test
-	public void testDefinitionCall4() throws FrontEndException, TLA2BException {
+	public void testDefinitionCall4() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "foo(a,b) ==  a \\cup b \n"
@@ -133,7 +133,7 @@ public class DefinitionsTest {
 	}
 
 	@Test
-	public void testDefinitionCall5() throws FrontEndException, TLA2BException {
+	public void testDefinitionCall5() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "foo(a,b) ==  a = b \n"
@@ -146,7 +146,7 @@ public class DefinitionsTest {
 	}
 
 	@Test
-	public void testDefinitionCall6() throws FrontEndException, TLA2BException {
+	public void testDefinitionCall6() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "foo(a,b) ==  a = b \n"
@@ -163,7 +163,7 @@ public class DefinitionsTest {
 	}
 
 	@Test
-	public void testDefinitionCall7() throws FrontEndException, TLA2BException {
+	public void testDefinitionCall7() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3 \n"
 				+ "foo(a,b) ==  a \\cup b \n"
@@ -182,7 +182,7 @@ public class DefinitionsTest {
 	}
 
 	@Test
-	public void testDefinitionCall8() throws FrontEndException, TLA2BException {
+	public void testDefinitionCall8() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "foo(a) ==  k = a \n"
@@ -199,7 +199,7 @@ public class DefinitionsTest {
 	}
 
 	@Test
-	public void testDefinitionCall9() throws FrontEndException, TLA2BException {
+	public void testDefinitionCall9() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "foo(a,b) ==  a = b \n"
@@ -214,7 +214,7 @@ public class DefinitionsTest {
 	}
 
 	@Test
-	public void testDefinitionCall10() throws FrontEndException, TLA2BException {
+	public void testDefinitionCall10() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "foo(a,b) ==  a= 1 /\\ b = TRUE \n"
 				+ "ASSUME foo(1, TRUE) \n"

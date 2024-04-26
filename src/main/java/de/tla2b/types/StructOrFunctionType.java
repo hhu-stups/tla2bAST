@@ -10,7 +10,7 @@ import de.tla2b.exceptions.UnificationException;
 import de.tla2b.output.TypeVisitorInterface;
 
 public class StructOrFunctionType extends AbstractHasFollowers {
-	private LinkedHashMap<String, TLAType> types;
+	private final LinkedHashMap<String, TLAType> types;
 
 	public StructOrFunctionType(String name, TLAType type) {
 		super(STRUCT_OR_FUNCTION);

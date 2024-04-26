@@ -7,7 +7,7 @@ import de.tla2b.exceptions.NotImplementedException;
 
 public class RecursiveDefinition  extends BuiltInOPs{
 
-	private OpDefNode def;
+	private final OpDefNode def;
 	private OpApplNode ifThenElse;
 	
 	public RecursiveDefinition(OpDefNode def) throws NotImplementedException{

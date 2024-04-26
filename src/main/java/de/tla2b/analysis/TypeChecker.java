@@ -2,7 +2,6 @@ package de.tla2b.analysis;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 import de.tla2b.config.ConfigfileEvaluator;
 import de.tla2b.config.TLCValueNode;
@@ -29,12 +28,12 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 	private final Set<OpDefNode> usedDefinitions;
 	private final Set<OpDefNode> bDefinitions;
 
-	private ArrayList<SymbolNode> symbolNodeList = new ArrayList<SymbolNode>();
-	private ArrayList<SemanticNode> tupleNodeList = new ArrayList<SemanticNode>();
+	private final ArrayList<SymbolNode> symbolNodeList = new ArrayList<SymbolNode>();
+	private final ArrayList<SemanticNode> tupleNodeList = new ArrayList<SemanticNode>();
 
-	private ModuleNode moduleNode;
+	private final ModuleNode moduleNode;
 	private ArrayList<OpDeclNode> bConstList;
-	private SpecAnalyser specAnalyser;
+	private final SpecAnalyser specAnalyser;
 
 	private Hashtable<OpDeclNode, ValueObj> constantAssignments;
 
@@ -195,11 +194,10 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 
 	public void visitOpDefNode(OpDefNode def) throws TLA2BException {
 		FormalParamNode[] params = def.getParams();
-		for (int i = 0; i < params.length; i++) {
-			FormalParamNode p = params[i];
+		for (FormalParamNode p : params) {
 			if (p.getArity() > 0) {
 				throw new FrontEndException(String.format("TLA2B do not support 2nd-order operators: '%s'%n %s ",
-						def.getName(), def.getLocation()));
+					def.getName(), def.getLocation()));
 			}
 			UntypedType u = new UntypedType();
 			p.setToolObject(paramId, u);
@@ -437,7 +435,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 				p.setToolObject(TEMP_TYPE_ID, pType);
 			}
 
-			if (found.isUntyped() || untyped || def.getInRecursive() == false) {
+			if (found.isUntyped() || untyped || !def.getInRecursive()) {
 				// evaluate the body of the definition again
 				paramId = TEMP_TYPE_ID;
 				found = visitExprNode(def.getBody(), found);
@@ -660,12 +658,12 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 		 * Tuple: Tuple as Function 1..n to Set (Sequence)
 		 */
 		case OPCODE_tup: { // $Tuple
-			ArrayList<TLAType> list = new ArrayList<TLAType>();
+			ArrayList<TLAType> list = new ArrayList<>();
 			for (int i = 0; i < n.getArgs().length; i++) {
 				list.add(visitExprOrOpArgNode(n.getArgs()[i], new UntypedType()));
 			}
-			TLAType found = null;
-			if (list.size() == 0) {
+			TLAType found;
+			if (list.isEmpty()) {
 				found = new FunctionType(IntType.getInstance(), new UntypedType());
 			} else if (list.size() == 1) {
 				found = new FunctionType(IntType.getInstance(), list.get(0));
@@ -744,7 +742,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			TLAType domType;
 			ExprOrOpArgNode dom = n.getArgs()[1];
 			if (dom instanceof OpApplNode && ((OpApplNode) dom).getOperator().getName().toString().equals("$Tuple")) {
-				ArrayList<TLAType> domList = new ArrayList<TLAType>();
+				ArrayList<TLAType> domList = new ArrayList<>();
 				OpApplNode domOpAppl = (OpApplNode) dom;
 				for (int i = 0; i < domOpAppl.getArgs().length; i++) {
 					TLAType d = visitExprOrOpArgNode(domOpAppl.getArgs()[i], new UntypedType());
@@ -1009,11 +1007,11 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 		}
 
 		throw new NotImplementedException(
-				"Not supported Operator: " + n.getOperator().getName().toString() + "\n" + n.getLocation());
+				"Not supported Operator: " + n.getOperator().getName() + "\n" + n.getLocation());
 	}
 
 	private TLAType evalBoundedVariables(OpApplNode n) throws TLA2BException {
-		ArrayList<TLAType> domList = new ArrayList<TLAType>();
+		ArrayList<TLAType> domList = new ArrayList<>();
 		FormalParamNode[][] params = n.getBdedQuantSymbolLists();
 		ExprNode[] bounds = n.getBdedQuantBounds();
 		for (int i = 0; i < bounds.length; i++) {
@@ -1099,9 +1097,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 
 			OpApplNode seq = (OpApplNode) leftside;
 			LinkedList<ExprOrOpArgNode> list = new LinkedList<ExprOrOpArgNode>();
-			for (int j = 0; j < seq.getArgs().length; j++) {
-				list.add(seq.getArgs()[j]);
-			}
+			Collections.addAll(list, seq.getArgs());
 			ExprOrOpArgNode first = list.poll();
 
 			if (first instanceof StringNode) {
@@ -1343,7 +1339,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			return set_of_seq;
 		}
 
-		case B_OPCODE_len: { // lengh of the sequence
+		case B_OPCODE_len: { // length of the sequence
 			try {
 				IntType.getInstance().unify(expected);
 			} catch (UnificationException e) {

@@ -17,7 +17,7 @@ public class TestModuleIntegers {
 	 * Int
 	 */
 	@Test
-	public void unifyInt() throws FrontEndException, TLA2BException {
+	public void unifyInt() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Integers \n"
 				+ "CONSTANTS k \n"
@@ -27,7 +27,7 @@ public class TestModuleIntegers {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void unifyErrorInt() throws FrontEndException, TLA2BException {
+	public void unifyErrorInt() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Integers \n"
 				+ "ASSUME TRUE \\in Int \n"
@@ -40,7 +40,7 @@ public class TestModuleIntegers {
 	 * unary minus: -x
 	 */
 	@Test
-	public void unifyUnaryMinus() throws FrontEndException, TLA2BException {
+	public void unifyUnaryMinus() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Integers \n"
 				+ "CONSTANTS k, k2 \n"
@@ -52,7 +52,7 @@ public class TestModuleIntegers {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void unifyErrorUnaryMinus() throws FrontEndException, TLA2BException {
+	public void unifyErrorUnaryMinus() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Integers \n"
 				+ "ASSUME TRUE = -1 \n"

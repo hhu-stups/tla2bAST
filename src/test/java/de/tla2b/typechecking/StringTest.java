@@ -18,17 +18,17 @@ public class StringTest {
 	 */
 
 	@Test
-	public void testAString() throws FrontEndException, TLA2BException {
+	public void testAString() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME k = \"abc\" \n"
 				+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		assertEquals("STRING", t.getConstantType("k").toString());
+		assertEquals("STRING", t.getConstantType("k"));
 	}
 	
 	@Test (expected = TypeErrorException.class)
-	public void testAStringException() throws FrontEndException, TLA2BException {
+	public void testAStringException() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "ASSUME 1 = \"abc\" \n"
 				+ "=================================";
@@ -36,7 +36,7 @@ public class StringTest {
 	}
 	
 	@Test
-	public void testStringAsSequence() throws FrontEndException, TLA2BException {
+	public void testStringAsSequence() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "ASSUME  \"a\" \\o \"bc\" = \"abc\"  \n"
@@ -45,7 +45,7 @@ public class StringTest {
 	}
 	
 	@Test
-	public void testStringAsSequence2() throws FrontEndException, TLA2BException {
+	public void testStringAsSequence2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "ASSUME SubSeq(\"abc\",1,1) = \"a\"  \n"
@@ -54,7 +54,7 @@ public class StringTest {
 	}
 	
 	@Test
-	public void testStringAsSequence3() throws FrontEndException, TLA2BException {
+	public void testStringAsSequence3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "ASSUME Len(\"abc\") = 3 \n"
@@ -67,17 +67,17 @@ public class StringTest {
 	 * STRING
 	 */
 	@Test 
-	public void testString() throws FrontEndException, TLA2BException {
+	public void testString() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME k = STRING \n"
 				+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		assertEquals("POW(STRING)", t.getConstantType("k").toString());
+		assertEquals("POW(STRING)", t.getConstantType("k"));
 	}
 	
 	@Test (expected = TypeErrorException.class)
-	public void testStringException() throws FrontEndException, TLA2BException {
+	public void testStringException() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "ASSUME 1 = STRING \n"
 				+ "=================================";

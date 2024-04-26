@@ -10,13 +10,7 @@ import java.util.Map;
 
 import de.tla2b.exceptions.ConfigFileErrorException;
 import de.tla2b.exceptions.UnificationException;
-import de.tla2b.types.BoolType;
-import de.tla2b.types.EnumType;
-import de.tla2b.types.IntType;
-import de.tla2b.types.SetType;
-import de.tla2b.types.StringType;
-import de.tla2b.types.TLAType;
-import de.tla2b.types.UntypedType;
+import de.tla2b.types.*;
 import tla2sany.semantic.InstanceNode;
 import tla2sany.semantic.ModuleNode;
 import tla2sany.semantic.OpDeclNode;
@@ -491,7 +485,7 @@ public class ConfigfileEvaluator {
 		} else if (o.getClass().getName().equals("tlc2.value.SetEnumValue")) {
 			SetEnumValue set = (SetEnumValue) o;
 			SetType t = new SetType(new UntypedType());
-			if (set.size() == 0) {
+			if (set.isEmpty()) {
 				throw new ConfigFileErrorException(
 						"empty set is not permitted!");
 			}
@@ -522,9 +516,8 @@ public class ConfigfileEvaluator {
 										+ o);
 					}
 				}
-				Iterator<String> it = e.modelvalues.iterator();
-				while (it.hasNext()) {
-					enumeratedTypes.put(it.next(), e);
+				for (String s : e.modelvalues) {
+					enumeratedTypes.put(s, e);
 				}
 				elemType = e;
 			} else {
@@ -546,7 +539,7 @@ public class ConfigfileEvaluator {
 			ModelValue mv = (ModelValue) o;
 			if (!enumeratedSet.contains(mv.toString())) {
 				enumeratedSet.add(mv.toString());
-				ArrayList<String> temp = new ArrayList<String>();
+				ArrayList<String> temp = new ArrayList<>();
 				temp.add(mv.toString());
 				EnumType e = new EnumType(temp);
 				enumeratedTypes.put(mv.toString(), e);

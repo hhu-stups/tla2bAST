@@ -14,7 +14,7 @@ import de.tla2b.util.TestUtil;
 public class ExceptTest {
 
 	@Test
-	public void testFunction() throws FrontEndException, TLA2BException {
+	public void testFunction() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "ASSUME k = [k2 EXCEPT ![TRUE] = 0]  \n"
@@ -26,7 +26,7 @@ public class ExceptTest {
 	}
 
 	@Test
-	public void testFunctionRecord() throws FrontEndException, TLA2BException {
+	public void testFunctionRecord() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
 				+ "CONSTANTS k, k2 \n"
@@ -39,7 +39,7 @@ public class ExceptTest {
 	}
 
 	@Test
-	public void testFunctionRecord2() throws FrontEndException, TLA2BException {
+	public void testFunctionRecord2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
 				+ "CONSTANTS k, k2 \n"
@@ -51,19 +51,18 @@ public class ExceptTest {
 	}
 
 	@Test
-	public void testRecord() throws FrontEndException, TLA2BException {
+	public void testRecord() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME k = [k EXCEPT !.a = 2, !.b = TRUE] \n"
 				+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		assertEquals("struct(a:INTEGER,b:BOOL)", t.getConstantType("k")
-				.toString());
+		assertEquals("struct(a:INTEGER,b:BOOL)", t.getConstantType("k"));
 	}
 
 	@Test (expected = TypeErrorException.class)
-	public void testRecordOrFunction() throws FrontEndException, TLA2BException {
+	public void testRecordOrFunction() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
 				+ "CONSTANTS a, b \n"

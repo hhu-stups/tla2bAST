@@ -17,7 +17,7 @@ public class TestModuleFiniteSets {
 	 * IsFiniteSet
 	 */
 	@Test
-	public void unifyIsFiniteSet() throws FrontEndException, TLA2BException {
+	public void unifyIsFiniteSet() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS FiniteSets \n"
 				+ "CONSTANTS k \n"
@@ -28,7 +28,7 @@ public class TestModuleFiniteSets {
 	}
 
 	@Test
-	public void unifyIsFiniteSet2() throws FrontEndException, TLA2BException {
+	public void unifyIsFiniteSet2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS FiniteSets \n"
 				+ "CONSTANTS k, k2 \n"
@@ -41,7 +41,7 @@ public class TestModuleFiniteSets {
 	}
 
 	@Test
-	public void unifyIsFiniteSet3() throws FrontEndException, TLA2BException {
+	public void unifyIsFiniteSet3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS FiniteSets \n"
 				+ "CONSTANTS k \n"
@@ -52,7 +52,7 @@ public class TestModuleFiniteSets {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void unifyErrorIsFiniteSet() throws FrontEndException, TLA2BException {
+	public void unifyErrorIsFiniteSet() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS FiniteSets \n"
 				+ "ASSUME IsFiniteSet(1)\n"
@@ -61,7 +61,7 @@ public class TestModuleFiniteSets {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void unifyErrorIsFiniteSet2() throws FrontEndException, TLA2BException {
+	public void unifyErrorIsFiniteSet2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS FiniteSets \n"
 				+ "ASSUME 1 = IsFiniteSet({1})\n"
@@ -73,7 +73,7 @@ public class TestModuleFiniteSets {
 	 * Cardinality
 	 */
 	@Test
-	public void unifyCardinality() throws FrontEndException, TLA2BException {
+	public void unifyCardinality() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS FiniteSets \n"
 				+ "CONSTANTS k \n"
@@ -84,7 +84,7 @@ public class TestModuleFiniteSets {
 	}
 
 	@Test
-	public void unifyCardinality2() throws FrontEndException, TLA2BException {
+	public void unifyCardinality2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS FiniteSets \n"
 				+ "CONSTANTS k, k2 \n"
@@ -96,7 +96,7 @@ public class TestModuleFiniteSets {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void unifyErrorCardinality() throws FrontEndException, TLA2BException {
+	public void unifyErrorCardinality() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS FiniteSets \n"
 				+ "ASSUME Cardinality(1)\n"
@@ -105,7 +105,7 @@ public class TestModuleFiniteSets {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void unifyErrorCardinality2() throws FrontEndException, TLA2BException {
+	public void unifyErrorCardinality2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS FiniteSets \n"
 				+ "ASSUME TRUE = Cardinality({1})\n"

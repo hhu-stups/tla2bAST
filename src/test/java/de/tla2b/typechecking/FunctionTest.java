@@ -18,8 +18,8 @@ public class FunctionTest {
 	 */
 
 	@Test
-	public void testSimpleFunctionConstructor() throws FrontEndException,
-			TLA2BException {
+	public void testSimpleFunctionConstructor() throws
+		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
 				+ "CONSTANTS k \n"
@@ -30,8 +30,8 @@ public class FunctionTest {
 	}
 
 	@Test
-	public void testFunctionConstructor() throws FrontEndException,
-			TLA2BException {
+	public void testFunctionConstructor() throws
+		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, S \n"
 				+ "ASSUME k = [x \\in S |-> x = k2] /\\ k2 = 1 \n"
@@ -43,57 +43,53 @@ public class FunctionTest {
 	}
 
 	@Test
-	public void testFunctionConstructorTwoVariables() throws FrontEndException,
-			TLA2BException {
+	public void testFunctionConstructorTwoVariables() throws
+		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME k = [x,y \\in {1} |-> TRUE]  \n"
 				+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		assertEquals("POW(INTEGER*INTEGER*BOOL)", t.getConstantType("k")
-				.toString());
+		assertEquals("POW(INTEGER*INTEGER*BOOL)", t.getConstantType("k"));
 	}
 
 	@Test
-	public void testFunctionConstructor2() throws FrontEndException,
-			TLA2BException {
+	public void testFunctionConstructor2() throws
+		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME k = [<<x,y>> \\in {<<1,TRUE>>} |-> TRUE]  \n"
 				+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		assertEquals("POW(INTEGER*BOOL*BOOL)", t.getConstantType("k")
-				.toString());
+		assertEquals("POW(INTEGER*BOOL*BOOL)", t.getConstantType("k"));
 	}
 
 	@Test
-	public void testFunctionConstructor6() throws FrontEndException,
-			TLA2BException {
+	public void testFunctionConstructor6() throws
+		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME k = [x \\in {1}, <<y,z>> \\in {<<1,TRUE>>} |-> TRUE]  \n"
 				+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		assertEquals("POW(INTEGER*(INTEGER*BOOL)*BOOL)", t.getConstantType("k")
-				.toString());
+		assertEquals("POW(INTEGER*(INTEGER*BOOL)*BOOL)", t.getConstantType("k"));
 	}
 
 	@Test
 	public void testFunctionConstructorTwoVariables2()
-			throws FrontEndException, TLA2BException {
+			throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME k = [x \\in {1}, y \\in BOOLEAN |-> TRUE]  \n"
 				+ "=================================";
 
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		assertEquals("POW(INTEGER*BOOL*BOOL)", t.getConstantType("k")
-				.toString());
+		assertEquals("POW(INTEGER*BOOL*BOOL)", t.getConstantType("k"));
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void testFunctionConstructorFail() throws FrontEndException,
-			TLA2BException {
+	public void testFunctionConstructorFail() throws
+		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME k = [<<x,y>> \\in {1}  |-> TRUE]  \n"
@@ -102,8 +98,8 @@ public class FunctionTest {
 	}
 
 	@Test (expected = TypeErrorException.class)
-	public void testFunctionConstructorFail2() throws FrontEndException,
-			TLA2BException {
+	public void testFunctionConstructorFail2() throws
+		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME k = [<<x,y,z>> \\in ({1} \\times {1}) |-> TRUE]  \n"
@@ -112,8 +108,8 @@ public class FunctionTest {
 	}
 
 	@Test
-	public void testFunctionConstructor3() throws FrontEndException,
-			TLA2BException {
+	public void testFunctionConstructor3() throws
+		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, S, S2 \n"
 				+ "ASSUME k = [x,y \\in S, z \\in S2 |-> z] /\\ S = BOOLEAN /\\ S2 = {1}  \n"
@@ -125,8 +121,8 @@ public class FunctionTest {
 	}
 
 	@Test
-	public void testFunctionConstructor4() throws FrontEndException,
-			TLA2BException {
+	public void testFunctionConstructor4() throws
+		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, S, S2 \n"
 				+ "ASSUME [x \\in S |-> k] = [x \\in S2 |-> x=k2] /\\ k2 = 1  \n"
@@ -139,8 +135,8 @@ public class FunctionTest {
 	}
 
 	@Test
-	public void testFunctionConstructor5() throws FrontEndException,
-			TLA2BException {
+	public void testFunctionConstructor5() throws
+		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS S, S2 \n"
 				+ "ASSUME [x \\in S, y \\in S2 |-> 1] = [x,y \\in {1} |-> 1]   \n"
@@ -151,8 +147,8 @@ public class FunctionTest {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void testFunctionConstructorException() throws FrontEndException,
-			TLA2BException {
+	public void testFunctionConstructorException() throws
+		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, S, S2 \n"
 				+ "ASSUME [x \\in S, y \\in S2 |-> 1] = [x \\in {1} |-> 1]   \n"
@@ -164,8 +160,8 @@ public class FunctionTest {
 	 * recursive Function
 	 */
 	@Test
-	public void testRecursiveFunction() throws FrontEndException,
-			TLA2BException {
+	public void testRecursiveFunction() throws
+		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
 				+ "CONSTANTS k, k2, k3 \n"
@@ -183,7 +179,7 @@ public class FunctionTest {
 	 */
 
 	@Test
-	public void testFunctionCall() throws FrontEndException, TLA2BException {
+	public void testFunctionCall() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
 				+ "CONSTANTS k \n"
@@ -193,7 +189,7 @@ public class FunctionTest {
 	}
 
 	@Test
-	public void testFunctionCall2() throws FrontEndException, TLA2BException {
+	public void testFunctionCall2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
 				+ "CONSTANTS k \n"
@@ -204,22 +200,21 @@ public class FunctionTest {
 	}
 
 	@Test
-	public void testFunctionCall3() throws FrontEndException, TLA2BException {
+	public void testFunctionCall3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3, S \n"
 				+ "ASSUME k[k2,TRUE] = k3 \n"
 				+ "ASSUME k = [x \\in {1}, y \\in S |-> 1]\n"
 				+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		assertEquals("POW(INTEGER*BOOL*INTEGER)", t.getConstantType("k")
-				.toString());
+		assertEquals("POW(INTEGER*BOOL*INTEGER)", t.getConstantType("k"));
 		assertEquals("INTEGER", t.getConstantType("k2"));
 		assertEquals("INTEGER", t.getConstantType("k3"));
 		assertEquals("POW(BOOL)", t.getConstantType("S"));
 	}
 
 	@Test
-	public void testFunctionCall4() throws FrontEndException, TLA2BException {
+	public void testFunctionCall4() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME k[(TRUE /\\ TRUE)] = 2 \n"
@@ -229,8 +224,8 @@ public class FunctionTest {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void testFunctionCallException() throws FrontEndException,
-			TLA2BException {
+	public void testFunctionCallException() throws
+		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3, S \n"
 				+ "ASSUME k = [x \\in {1} |-> 1]\n"
@@ -243,28 +238,26 @@ public class FunctionTest {
 	 * Domain
 	 */
 	@Test
-	public void testDomain() throws FrontEndException, TLA2BException {
+	public void testDomain() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "ASSUME k = [x \\in {1}, y \\in BOOLEAN |-> 1]\n"
 				+ "ASSUME k2 = DOMAIN k \n"
 				+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		assertEquals("POW(INTEGER*BOOL*INTEGER)", t.getConstantType("k")
-				.toString());
+		assertEquals("POW(INTEGER*BOOL*INTEGER)", t.getConstantType("k"));
 		assertEquals("POW(INTEGER*BOOL)", t.getConstantType("k2"));
 	}
 
 	@Test
-	public void testDomain2() throws FrontEndException, TLA2BException {
+	public void testDomain2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "ASSUME k = [x \\in {1}, y \\in BOOLEAN |-> 1]\n"
 				+ "ASSUME k2 = DOMAIN k \n"
 				+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		assertEquals("POW(INTEGER*BOOL*INTEGER)", t.getConstantType("k")
-				.toString());
+		assertEquals("POW(INTEGER*BOOL*INTEGER)", t.getConstantType("k"));
 		assertEquals("POW(INTEGER*BOOL)", t.getConstantType("k2"));
 	}
 
@@ -272,7 +265,7 @@ public class FunctionTest {
 	 * Set of Function
 	 */
 	@Test
-	public void testSetOfFunction() throws FrontEndException, TLA2BException {
+	public void testSetOfFunction() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME k = [BOOLEAN -> {1}] \n"
@@ -282,7 +275,7 @@ public class FunctionTest {
 	}
 
 	@Test
-	public void testSetOfFunction2() throws FrontEndException, TLA2BException {
+	public void testSetOfFunction2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS S, S2 \n"
 				+ "ASSUME [x \\in BOOLEAN |-> 1] \\in [S -> S2] \n"
@@ -293,8 +286,8 @@ public class FunctionTest {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void testSetOfFunctionException() throws FrontEndException,
-			TLA2BException {
+	public void testSetOfFunctionException() throws
+		TLA2BException {
 		/*
 		 * A set of tuple is not a function in TLA+
 		 */
@@ -309,7 +302,7 @@ public class FunctionTest {
 	 * Except
 	 */
 	@Test
-	public void testFunctionExcept() throws FrontEndException, TLA2BException {
+	public void testFunctionExcept() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "ASSUME k = [k2 EXCEPT ![TRUE] = 0]  \n"
@@ -322,32 +315,28 @@ public class FunctionTest {
 	}
 
 	@Test
-	public void testFunctionExcept2() throws FrontEndException, TLA2BException {
+	public void testFunctionExcept2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3 \n"
 				+ "ASSUME k = [k2 EXCEPT ![TRUE,1] = k3] /\\ k3 = 1 \n"
 				+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		assertEquals("POW(BOOL*INTEGER*INTEGER)", t.getConstantType("k")
-				.toString());
-		assertEquals("POW(BOOL*INTEGER*INTEGER)", t.getConstantType("k2")
-				.toString());
+		assertEquals("POW(BOOL*INTEGER*INTEGER)", t.getConstantType("k"));
+		assertEquals("POW(BOOL*INTEGER*INTEGER)", t.getConstantType("k2"));
 		assertEquals("INTEGER", t.getConstantType("k3"));
 
 	}
 
 	@Test
-	public void testFunctionExcept3() throws FrontEndException, TLA2BException {
+	public void testFunctionExcept3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3, k4, k5 \n"
 				+ "ASSUME k = [k2 EXCEPT ![k3,k4] = k5]\n"
 				+ "ASSUME k2 = [x \\in {1}, y \\in BOOLEAN |-> 1]"
 				+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		assertEquals("POW(INTEGER*BOOL*INTEGER)", t.getConstantType("k")
-				.toString());
-		assertEquals("POW(INTEGER*BOOL*INTEGER)", t.getConstantType("k2")
-				.toString());
+		assertEquals("POW(INTEGER*BOOL*INTEGER)", t.getConstantType("k"));
+		assertEquals("POW(INTEGER*BOOL*INTEGER)", t.getConstantType("k2"));
 		assertEquals("INTEGER", t.getConstantType("k3"));
 		assertEquals("BOOL", t.getConstantType("k4"));
 		assertEquals("INTEGER", t.getConstantType("k5"));
@@ -355,37 +344,35 @@ public class FunctionTest {
 	}
 
 	@Test
-	public void testFunctionExcept4() throws FrontEndException, TLA2BException {
+	public void testFunctionExcept4() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3, k4, k5 \n"
 				+ "ASSUME k = [k2 EXCEPT ![k3,k4] = k5]\n"
 				+ "ASSUME k = [x \\in {1}, y \\in BOOLEAN |-> 1]"
 				+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		assertEquals("POW(INTEGER*BOOL*INTEGER)", t.getConstantType("k")
-				.toString());
-		assertEquals("POW(INTEGER*BOOL*INTEGER)", t.getConstantType("k2")
-				.toString());
+		assertEquals("POW(INTEGER*BOOL*INTEGER)", t.getConstantType("k"));
+		assertEquals("POW(INTEGER*BOOL*INTEGER)", t.getConstantType("k2"));
 		assertEquals("INTEGER", t.getConstantType("k3"));
 		assertEquals("BOOL", t.getConstantType("k4"));
 		assertEquals("INTEGER", t.getConstantType("k5"));
 	}
 
 	@Test
-	public void testFunctionExcept6() throws FrontEndException, TLA2BException {
+	public void testFunctionExcept6() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3, k4\n"
 				+ "ASSUME k = [k2 EXCEPT ![k3] = k4, ![1] = TRUE ]\n"
 				+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		assertEquals("POW(INTEGER*BOOL)", t.getConstantType("k").toString());
-		assertEquals("POW(INTEGER*BOOL)", t.getConstantType("k2").toString());
+		assertEquals("POW(INTEGER*BOOL)", t.getConstantType("k"));
+		assertEquals("POW(INTEGER*BOOL)", t.getConstantType("k2"));
 		assertEquals("INTEGER", t.getConstantType("k3"));
 		assertEquals("BOOL", t.getConstantType("k4"));
 	}
 
 	@Test
-	public void testFunctionExcept5() throws FrontEndException, TLA2BException {
+	public void testFunctionExcept5() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "ASSUME k = [k2 EXCEPT ![1][1] = 2]\n"
@@ -398,7 +385,7 @@ public class FunctionTest {
 	}
 
 	@Test
-	public void testFunctionExcept7() throws FrontEndException, TLA2BException {
+	public void testFunctionExcept7() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "ASSUME k = [k2 EXCEPT ![<<1,2>>] = 2]\n"
@@ -412,7 +399,7 @@ public class FunctionTest {
 	 */
 
 	@Test
-	public void testAt2() throws FrontEndException, TLA2BException {
+	public void testAt2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2,k3 \n"
 				+ "ASSUME k = [k2 EXCEPT ![1] = TRUE, ![2] = @=k3]  \n"
@@ -423,7 +410,7 @@ public class FunctionTest {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void testAtException() throws FrontEndException, TLA2BException {
+	public void testAtException() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "ASSUME k = [k2 EXCEPT ![1] = TRUE, ![2] = @=1]  \n"

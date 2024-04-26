@@ -17,9 +17,9 @@ public class TestTypeChecker implements TranslationGlobals {
 
 	public ModuleNode moduleNode;
 	public final int toolId = 5;
-	private Hashtable<String, TLAType> constants;
-	private Hashtable<String, TLAType> variables;
-	private Hashtable<String, DefCon> definitions;
+	private final Hashtable<String, TLAType> constants;
+	private final Hashtable<String, TLAType> variables;
+	private final Hashtable<String, DefCon> definitions;
 
 	public TestTypeChecker() {
 		constants = new Hashtable<String, TLAType>();
@@ -28,7 +28,7 @@ public class TestTypeChecker implements TranslationGlobals {
 	}
 
 	public void startTest(String moduleString, String configString)
-			throws FrontEndException, TLA2BException {
+			throws TLA2BException {
 		Translator translator = new Translator(moduleString, configString);
 		translator.translate();
 		moduleNode = translator.getModuleNode();
@@ -36,7 +36,7 @@ public class TestTypeChecker implements TranslationGlobals {
 	}
 	
 	public void start(String moduleFileName)
-			throws FrontEndException, TLA2BException {
+			throws TLA2BException {
 		Translator translator = new Translator(moduleFileName);
 		translator.translate();
 		moduleNode = translator.getModuleNode();
@@ -103,7 +103,7 @@ public class TestTypeChecker implements TranslationGlobals {
 	}
 
 	public class DefCon {
-		private Hashtable<String, TLAType> parameters;
+		private final Hashtable<String, TLAType> parameters;
 		private TLAType type;
 
 		private DefCon(TLAType t) {

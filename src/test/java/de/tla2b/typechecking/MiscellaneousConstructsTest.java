@@ -16,7 +16,7 @@ public class MiscellaneousConstructsTest {
 	 * IF THEN ELSE
 	 */
 	@Test
-	public void testIfThenElse() throws FrontEndException, TLA2BException {
+	public void testIfThenElse() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3, k4 \n"
 				+ "ASSUME k = (IF k2 THEN k3 ELSE k4) /\\ k4 = 1  \n"
@@ -33,7 +33,7 @@ public class MiscellaneousConstructsTest {
 	 * IF THEN ELSE
 	 */
 	@Test
-	public void testCase() throws FrontEndException, TLA2BException {
+	public void testCase() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3, e1, e2 \n"
 				+ "ASSUME k = (CASE k2 -> e1 [] k3 -> e2) /\\ e2 = 1  \n"
@@ -47,7 +47,7 @@ public class MiscellaneousConstructsTest {
 	}
 	
 	@Test
-	public void testCase2() throws FrontEndException, TLA2BException {
+	public void testCase2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3, e1, e2, e3 \n"
 				+ "ASSUME k = (CASE k2 -> e1 [] k3 -> e2 [] OTHER -> e3) /\\ e2 = 1  \n"
@@ -65,7 +65,7 @@ public class MiscellaneousConstructsTest {
 	 * LET d == exp IN e
 	 */
 	@Test
-	public void testLetIn() throws FrontEndException, TLA2BException {
+	public void testLetIn() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3 \n"
 				+ "ASSUME k = (LET d == k2 IN d = k3) /\\ k2 = 1  \n"
@@ -77,7 +77,7 @@ public class MiscellaneousConstructsTest {
 	}
 	
 	@Test
-	public void testLetIn2() throws FrontEndException, TLA2BException {
+	public void testLetIn2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3 \n"
 				+ "ASSUME k = (LET d == k2 d2 == k3 IN d = d2) /\\ k2 = 1  \n"
@@ -89,7 +89,7 @@ public class MiscellaneousConstructsTest {
 	}
 	
 	@Test
-	public void testLetIn3() throws FrontEndException, TLA2BException {
+	public void testLetIn3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3, k4 \n"
 				+ "ASSUME k = (LET d(a,b) == a=k2/\\b=k3 IN d(1,k4)) /\\ k4 = TRUE  \n"
@@ -102,7 +102,7 @@ public class MiscellaneousConstructsTest {
 	}
 	
 	@Test
-	public void testBoundedChoose() throws FrontEndException, TLA2BException {
+	public void testBoundedChoose() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME k = CHOOSE x \\in {1}: TRUE  \n"
@@ -112,7 +112,7 @@ public class MiscellaneousConstructsTest {
 	}
 	
 	@Test
-	public void testUnboundedChoose() throws FrontEndException, TLA2BException {
+	public void testUnboundedChoose() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME k = CHOOSE x : x = 1  \n"
@@ -122,7 +122,7 @@ public class MiscellaneousConstructsTest {
 	}
 	
 	@Test
-	public void testUnboundedChooseTuple() throws FrontEndException, TLA2BException {
+	public void testUnboundedChooseTuple() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME k = CHOOSE <<a,b>> : <<a,b>> = <<1,TRUE>>  \n"
@@ -132,7 +132,7 @@ public class MiscellaneousConstructsTest {
 	}
 	
 	@Test
-	public void testBoundedChooseTuple() throws FrontEndException, TLA2BException {
+	public void testBoundedChooseTuple() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME k = CHOOSE <<a,b>> \\in {<<1,TRUE>>}: TRUE  \n"

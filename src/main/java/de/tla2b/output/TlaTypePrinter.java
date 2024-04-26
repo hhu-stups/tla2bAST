@@ -40,14 +40,13 @@ public class TlaTypePrinter implements PositionPrinter, TypeVisitorInterface {
 
 		final Integer id = nodeIds.lookup(node);
 		if (positions != null && positions.contains(node)) {
-			PositionedNode pNode = (PositionedNode) node;
 			pout.openTerm("pos", true);
 			pout.printNumber(id == null ? -1 : id);
 			pout.printNumber(nodeIds.lookupFileNumber(node));
-			pout.printNumber(pNode.getStartPos().getLine());
-			pout.printNumber(pNode.getStartPos().getPos());
-			pout.printNumber(pNode.getEndPos().getLine());
-			pout.printNumber(pNode.getEndPos().getPos());
+			pout.printNumber(node.getStartPos().getLine());
+			pout.printNumber(node.getStartPos().getPos());
+			pout.printNumber(node.getEndPos().getLine());
+			pout.printNumber(node.getEndPos().getPos());
 			pout.closeTerm();
 		} else {
 			if (id == null) {

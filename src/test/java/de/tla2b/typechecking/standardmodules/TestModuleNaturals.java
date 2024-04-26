@@ -17,8 +17,8 @@ public class TestModuleNaturals {
 	 * Relational operators: >, <, <=, >=
 	 */
 	@Test
-	public void testRelationalOperators() throws FrontEndException,
-			TLA2BException {
+	public void testRelationalOperators() throws
+		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
 				+ "CONSTANTS k, k2, k3 \n"
@@ -31,8 +31,8 @@ public class TestModuleNaturals {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void testRelationalOperatorsException() throws FrontEndException,
-			TLA2BException {
+	public void testRelationalOperatorsException() throws
+		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
 				+ "CONSTANTS k, k2 \n"
@@ -44,8 +44,8 @@ public class TestModuleNaturals {
 	 * Arithmetic operator: +, -, *, /, mod, exp
 	 */
 	@Test
-	public void testArithmeticOperators() throws FrontEndException,
-			TLA2BException {
+	public void testArithmeticOperators() throws
+		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
 				+ "CONSTANTS k, k2, k3 \n"
@@ -58,8 +58,8 @@ public class TestModuleNaturals {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void testArithmeticOperatorsException() throws FrontEndException,
-			TLA2BException {
+	public void testArithmeticOperatorsException() throws
+		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
 				+ "CONSTANTS k, k2 \n"
@@ -73,7 +73,7 @@ public class TestModuleNaturals {
 	 */
 
 	@Test
-	public void testDotDot() throws FrontEndException, TLA2BException {
+	public void testDotDot() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
 				+ "CONSTANTS k, k2, k3 \n"
@@ -86,7 +86,7 @@ public class TestModuleNaturals {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void testDotDotException() throws FrontEndException, TLA2BException {
+	public void testDotDotException() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
 				+ "CONSTANTS  k2, k3 \n"
@@ -99,7 +99,7 @@ public class TestModuleNaturals {
 	 * Nat
 	 */
 	@Test
-	public void testNat() throws FrontEndException, TLA2BException {
+	public void testNat() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
 				+ "CONSTANTS k \n"
@@ -109,7 +109,7 @@ public class TestModuleNaturals {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void unifyErrorNat() throws FrontEndException, TLA2BException {
+	public void unifyErrorNat() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Naturals \n"
 				+ "ASSUME TRUE \\in Nat \n"

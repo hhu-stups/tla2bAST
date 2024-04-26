@@ -70,7 +70,6 @@ public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
 		}
 		case LetInKind: {
 			visitLetInNode((LetInNode) node);
-			return;
 		}
 		}
 	}
@@ -99,10 +98,8 @@ public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
 		case UserDefinedOpKind: {
 			if (BBuiltInOPs.contains(node.getOperator().getName())) {
 				visitBBuiltinsNode(node);
-				return;
 			} else {
 				visitUserDefinedNode(node);
-				return;
 			}
 
 		}
@@ -155,7 +152,6 @@ public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
 
 	public void visitStubstInNode(SubstInNode n) {
 		visitExprNode(n.getBody());
-		return;
 	}
 
 	public void visitUserDefinedNode(OpApplNode n) {

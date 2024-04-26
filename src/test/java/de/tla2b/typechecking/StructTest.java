@@ -20,7 +20,7 @@ public class StructTest {
 	 * Set of Records: [L1 : e1, L2 : e2]
 	 */
 	@Test
-	public void testStruct() throws FrontEndException, TLA2BException {
+	public void testStruct() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME k = [a : {1}, b : BOOLEAN] \n"
@@ -30,7 +30,7 @@ public class StructTest {
 	}
 
 	@Test
-	public void testStruct2() throws FrontEndException, TLA2BException {
+	public void testStruct2() throws TLA2BException {
 
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3 \n"
@@ -43,7 +43,7 @@ public class StructTest {
 	}
 
 	@Test
-	public void testStruct3() throws FrontEndException, TLA2BException {
+	public void testStruct3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "ASSUME [a : {1}, b : BOOLEAN] = [a : k, b : k2] \n"
@@ -54,7 +54,7 @@ public class StructTest {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void testStructException() throws FrontEndException, TLA2BException {
+	public void testStructException() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME 1 = [a : 1, b : TRUE] \n"
@@ -63,7 +63,7 @@ public class StructTest {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void testStructException2() throws FrontEndException, TLA2BException {
+	public void testStructException2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "ASSUME [a : {1}, b : BOOLEAN] = [a : BOOLEAN, b : BOOLEAN] \n"
 				+ "=================================";
@@ -71,7 +71,7 @@ public class StructTest {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void testStructException3() throws FrontEndException, TLA2BException {
+	public void testStructException3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "ASSUME [aa : {1}, b : BOOLEAN] = [a : {1}, b : BOOLEAN] \n"
@@ -85,7 +85,7 @@ public class StructTest {
 	 */
 
 	@Test
-	public void testRecord() throws FrontEndException, TLA2BException {
+	public void testRecord() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME k = [a |-> 1, b |-> TRUE] \n"
@@ -96,7 +96,7 @@ public class StructTest {
 	}
 
 	@Test
-	public void testRecord2() throws FrontEndException, TLA2BException {
+	public void testRecord2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3 \n"
 				+ "ASSUME k = [a |-> k2, b |-> k3] /\\ k2 = 1 /\\ k3 = TRUE \n"
@@ -106,7 +106,7 @@ public class StructTest {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void testRecordException() throws FrontEndException, TLA2BException {
+	public void testRecordException() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "ASSUME 1 = [b |-> 1, a |-> TRUE] \n"
 				+ "=================================";
@@ -114,7 +114,7 @@ public class StructTest {
 	}
 
 	@Test
-	public void testRecord3() throws FrontEndException, TLA2BException {
+	public void testRecord3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "ASSUME [a |-> k, b |-> k2] \\in [a: {1}, b: BOOLEAN]  \n"
@@ -129,7 +129,7 @@ public class StructTest {
 	 */
 
 	@Test
-	public void testRecordSelect() throws FrontEndException, TLA2BException {
+	public void testRecordSelect() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "ASSUME k = [a |-> 1, b |-> TRUE] /\\ k2 = k.a \n"
@@ -140,7 +140,7 @@ public class StructTest {
 	}
 
 	@Test
-	public void testRecordSelect2() throws FrontEndException, TLA2BException {
+	public void testRecordSelect2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "ASSUME k2 = k.a /\\ k = [a |-> 1, b |-> TRUE] \n"
@@ -151,7 +151,7 @@ public class StructTest {
 	}
 
 	@Test
-	public void testRecordSelect3() throws FrontEndException, TLA2BException {
+	public void testRecordSelect3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3 \n"
 				+ "ASSUME k = [a |-> k2, b |-> k3]  /\\ k.a = 1 /\\ k.b = TRUE \n"
@@ -164,7 +164,7 @@ public class StructTest {
 	}
 
 	@Test
-	public void testRecordSelect4() throws FrontEndException, TLA2BException {
+	public void testRecordSelect4() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3 \n"
 				+ "ASSUME k \\in [a : k2, b : k3]  /\\ k.a = 1 /\\ k.b = TRUE \n"
@@ -176,8 +176,8 @@ public class StructTest {
 	}
 
 	@Test
-	public void testRecordSelectException3() throws FrontEndException,
-			TLA2BException {
+	public void testRecordSelectException3() throws
+		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME k = [a |-> 1] /\\ TRUE = k.b \n"
@@ -186,7 +186,7 @@ public class StructTest {
 	}
 
 	@Test
-	public void testRecordSelect5() throws FrontEndException, TLA2BException {
+	public void testRecordSelect5() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME 1 = k.a /\\ TRUE = k.b  /\\ k = [a |-> 1] \n"
@@ -196,8 +196,8 @@ public class StructTest {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void testRecordSelectException() throws FrontEndException,
-			TLA2BException {
+	public void testRecordSelectException() throws
+		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME TRUE = k.a  /\\ k = [a |-> 1] \n"
@@ -206,8 +206,8 @@ public class StructTest {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void testRecordSelectException4() throws FrontEndException,
-			TLA2BException {
+	public void testRecordSelectException4() throws
+		TLA2BException {
 
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
@@ -221,7 +221,7 @@ public class StructTest {
 	 */
 
 	@Test
-	public void testRecordExcept() throws FrontEndException, TLA2BException {
+	public void testRecordExcept() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3, k4 \n"
 				+ "ASSUME k = [a|-> k2, b|-> k3] /\\ k4 = [k EXCEPT !.a = 1, !.b = TRUE]\n"
@@ -234,7 +234,7 @@ public class StructTest {
 	}
 
 	@Test
-	public void testRecordExcept2() throws FrontEndException, TLA2BException {
+	public void testRecordExcept2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "ASSUME k.a = 1/\\ k2 = [k EXCEPT !.a = 1, !.b = TRUE] /\\ k2 = [a|->2, b |-> FALSE]\n"
@@ -249,7 +249,7 @@ public class StructTest {
 	 */
 
 	@Test
-	public void testRecordExceptAt() throws FrontEndException, TLA2BException {
+	public void testRecordExceptAt() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3 \n"
 				+ "ASSUME k = [a|-> TRUE] /\\ k2 = [k EXCEPT !.a = @ = k3]\n"
@@ -261,8 +261,8 @@ public class StructTest {
 	}
 
 	@Test(expected = TypeErrorException.class)
-	public void testRecordExceptAtException() throws FrontEndException,
-			TLA2BException {
+	public void testRecordExceptAtException() throws
+		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2, k3 \n"
 				+ "ASSUME k = [a|-> TRUE] /\\ k2 = [k EXCEPT !.a = @ = 1]\n"
@@ -271,8 +271,8 @@ public class StructTest {
 	}
 	
 	@Test (expected = TypeErrorException.class)
-	public void testRecord5() throws FrontEndException,
-			TLA2BException {
+	public void testRecord5() throws
+		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k, k2 \n"
 				+ "ASSUME k = [k EXCEPT !.a = 1] /\\ k ={k2} \n"

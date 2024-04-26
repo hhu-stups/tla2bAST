@@ -7,8 +7,8 @@ import tlc2.tool.BuiltInOPs;
 
 public class RecursiveFunktion extends BuiltInOPs {
 
-	private OpDefNode def;
-	private OpApplNode rfs;
+	private final OpDefNode def;
+	private final OpApplNode rfs;
 	private OpApplNode ifThenElse;
 
 	public RecursiveFunktion(OpDefNode n, OpApplNode rfs)

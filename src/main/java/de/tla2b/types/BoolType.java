@@ -7,7 +7,7 @@ import de.tla2b.output.TypeVisitorInterface;
 
 public class BoolType extends TLAType {
 
-	private static BoolType instance = new BoolType();
+	private static final BoolType instance = new BoolType();
 
 	private BoolType() {
 		super(BOOL);
@@ -29,10 +29,7 @@ public class BoolType extends TLAType {
 
 	@Override
 	public boolean compare(TLAType o) {
-		if (o.getKind() == UNTYPED || o.getKind() == BOOL)
-			return true;
-		else
-			return false;
+		return o.getKind() == UNTYPED || o.getKind() == BOOL;
 	}
 	
 	@Override

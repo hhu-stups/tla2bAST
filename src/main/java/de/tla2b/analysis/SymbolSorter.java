@@ -9,7 +9,7 @@ import tla2sany.semantic.OpDeclNode;
 import tla2sany.semantic.OpDefNode;
 
 public class SymbolSorter {
-	private ModuleNode moduleNode;
+	private final ModuleNode moduleNode;
 
 	public SymbolSorter(ModuleNode moduleNode) {
 		this.moduleNode = moduleNode;

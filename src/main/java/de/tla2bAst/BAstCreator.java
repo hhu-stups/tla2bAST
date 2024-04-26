@@ -1,14 +1,7 @@
 package de.tla2bAst;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import tla2sany.semantic.*;
 import tla2sany.st.Location;
@@ -59,14 +52,14 @@ public class BAstCreator extends BuiltInOPs
 
 	private List<OpDeclNode> bConstants;
 
-	private ModuleNode moduleNode;
+	private final ModuleNode moduleNode;
 	private UsedExternalFunctions usedExternalFunctions;
 
-	private Definitions bDefinitions = new Definitions();
+	private final Definitions bDefinitions = new Definitions();
 
 	private Start start;
-	private final Hashtable<Node, TLAType> typeTable = new Hashtable<Node, TLAType>();
-	private final HashSet<PositionedNode> sourcePosition = new HashSet<PositionedNode>();
+	private final Hashtable<Node, TLAType> typeTable = new Hashtable<>();
+	private final HashSet<PositionedNode> sourcePosition = new HashSet<>();
 	private List<String> toplevelUnchangedVariableNames = new ArrayList<>();
 
 	public Start expressionStart;
@@ -129,7 +122,7 @@ public class BAstCreator extends BuiltInOPs
 			this.bConstants = Arrays.asList(moduleNode.getConstantDecls());
 		}
 
-		machineClauseList = new ArrayList<PMachineClause>();
+		machineClauseList = new ArrayList<>();
 
 		AAbstractMachineParseUnit aAbstractMachineParseUnit = new AAbstractMachineParseUnit();
 		aAbstractMachineParseUnit.setVariant(new AMachineMachineVariant());
@@ -139,7 +132,7 @@ public class BAstCreator extends BuiltInOPs
 		aAbstractMachineParseUnit.setHeader(machineHeader);
 
 		createSetsClause();
-		createDefintionClause();
+		createDefinitionClause();
 		createAbstractConstantsClause();
 		createConstantsClause();
 		createPropertyClause();
@@ -154,14 +147,14 @@ public class BAstCreator extends BuiltInOPs
 	}
 
 	private void createSetsClause() {
-		if (conEval == null || conEval.getEnumerationSet() == null || conEval.getEnumerationSet().size() == 0)
+		if (conEval == null || conEval.getEnumerationSet() == null || conEval.getEnumerationSet().isEmpty())
 			return;
 		ASetsMachineClause setsClause = new ASetsMachineClause();
 
 		ArrayList<EnumType> printed = new ArrayList<EnumType>();
 		OpDeclNode[] cons = moduleNode.getConstantDecls();
-		for (int i = 0; i < cons.length; i++) {
-			TLAType type = (TLAType) cons[i].getToolObject(TYPE_ID);
+		for (OpDeclNode con : cons) {
+			TLAType type = (TLAType) con.getToolObject(TYPE_ID);
 
 			EnumType e = null;
 			if (type instanceof SetType) {
@@ -179,14 +172,14 @@ public class BAstCreator extends BuiltInOPs
 			}
 		}
 
-		ArrayList<PSet> sets = new ArrayList<PSet>();
+		ArrayList<PSet> sets = new ArrayList<>();
 		for (int i = 0; i < printed.size(); i++) {
 			AEnumeratedSetSet eSet = new AEnumeratedSetSet();
 			printed.get(i).id = i + 1;
 			eSet.setIdentifier(createTIdentifierLiteral("ENUM" + (i + 1)));
-			List<PExpression> list = new ArrayList<PExpression>();
-			for (Iterator<String> iterator = printed.get(i).modelvalues.iterator(); iterator.hasNext();) {
-				list.add(createIdentifierNode(iterator.next()));
+			List<PExpression> list = new ArrayList<>();
+			for (String s : printed.get(i).modelvalues) {
+				list.add(createIdentifierNode(s));
 			}
 			eSet.setElements(list);
 			sets.add(eSet);
@@ -196,8 +189,8 @@ public class BAstCreator extends BuiltInOPs
 
 	}
 
-	private void createDefintionClause() {
-		ArrayList<OpDefNode> bDefs = new ArrayList<OpDefNode>();
+	private void createDefinitionClause() {
+		ArrayList<OpDefNode> bDefs = new ArrayList<>();
 		for (int i = 0; i < moduleNode.getOpDefs().length; i++) {
 			OpDefNode def = moduleNode.getOpDefs()[i];
 			if (specAnalyser.getBDefinitions().contains(def)) {
@@ -213,10 +206,8 @@ public class BAstCreator extends BuiltInOPs
 
 		}
 
-		List<PDefinition> defs = new ArrayList<PDefinition>();
-
 		Set<EXTERNAL_FUNCTIONS> set = usedExternalFunctions.getUsedExternalFunctions();
-		defs.addAll(createDefinitionsForExternalFunctions(set));
+		List<PDefinition> defs = new ArrayList<>(createDefinitionsForExternalFunctions(set));
 
 		for (OpDefNode opDefNode : bDefs) {
 			List<PExpression> list = new ArrayList<PExpression>();
@@ -263,7 +254,7 @@ public class BAstCreator extends BuiltInOPs
 	}
 
 	private ArrayList<PDefinition> createDefinitionsForExternalFunctions(Set<EXTERNAL_FUNCTIONS> set) {
-		ArrayList<PDefinition> list = new ArrayList<PDefinition>();
+		ArrayList<PDefinition> list = new ArrayList<>();
 
 		if (set.contains(UsedExternalFunctions.EXTERNAL_FUNCTIONS.CHOOSE)) {
 			AExpressionDefinitionDefinition def1 = new AExpressionDefinitionDefinition();
@@ -283,7 +274,7 @@ public class BAstCreator extends BuiltInOPs
 		if (set.contains(UsedExternalFunctions.EXTERNAL_FUNCTIONS.ASSERT)) {
 			APredicateDefinitionDefinition def1 = new APredicateDefinitionDefinition();
 			def1.setName(new TDefLiteralPredicate("ASSERT_TRUE"));
-			ArrayList<PExpression> params = new ArrayList<PExpression>();
+			ArrayList<PExpression> params = new ArrayList<>();
 			params.add(createIdentifierNode("P"));
 			params.add(createIdentifierNode("Msg"));
 			def1.setParameters(params);
@@ -293,7 +284,7 @@ public class BAstCreator extends BuiltInOPs
 
 			AExpressionDefinitionDefinition def2 = new AExpressionDefinitionDefinition();
 			def2.setName(new TIdentifierLiteral("EXTERNAL_PREDICATE_ASSERT_TRUE"));
-			def2.setParameters(new ArrayList<PExpression>());
+			def2.setParameters(new ArrayList<>());
 			AMultOrCartExpression cart = new AMultOrCartExpression();
 			cart.setLeft(new ABoolSetExpression());
 			cart.setRight(new AStringSetExpression());
@@ -305,13 +296,12 @@ public class BAstCreator extends BuiltInOPs
 
 	private void createOperationsClause() {
 		ArrayList<BOperation> bOperations = specAnalyser.getBOperations();
-		if (bOperations == null || bOperations.size() == 0) {
+		if (bOperations == null || bOperations.isEmpty()) {
 			return;
 		}
 
-		List<POperation> opList = new ArrayList<POperation>();
-		for (int i = 0; i < bOperations.size(); i++) {
-			BOperation op = bOperations.get(i);
+		List<POperation> opList = new ArrayList<>();
+		for (BOperation op : bOperations) {
 			opList.add(op.getBOperation(this));
 		}
 
@@ -323,14 +313,14 @@ public class BAstCreator extends BuiltInOPs
 		OpDeclNode[] vars = moduleNode.getVariableDecls();
 		if (vars.length == 0)
 			return;
-		List<PExpression> varList = new ArrayList<PExpression>();
-		for (int i = 0; i < vars.length; i++) {
-			varList.add(createIdentifierNode(vars[i]));
+		List<PExpression> varList = new ArrayList<>();
+		for (OpDeclNode var : vars) {
+			varList.add(createIdentifierNode(var));
 		}
 		ABecomesSuchSubstitution becomes = new ABecomesSuchSubstitution();
 		becomes.setIdentifiers(varList);
 
-		List<PPredicate> predList = new ArrayList<PPredicate>();
+		List<PPredicate> predList = new ArrayList<>();
 		for (ExprNode node : specAnalyser.getInits()) {
 			predList.add(visitExprNodePredicate(node));
 		}
@@ -344,8 +334,8 @@ public class BAstCreator extends BuiltInOPs
 
 	private void createVariableClause() {
 		List<OpDeclNode> bVariables = Arrays.asList(moduleNode.getVariableDecls());
-		if (bVariables.size() > 0) {
-			List<PExpression> list = new ArrayList<PExpression>();
+		if (!bVariables.isEmpty()) {
+			List<PExpression> list = new ArrayList<>();
 			for (OpDeclNode opDeclNode : bVariables) {
 
 				AIdentifierExpression id = createPositionedNode(
@@ -360,7 +350,7 @@ public class BAstCreator extends BuiltInOPs
 	}
 
 	private void createAbstractConstantsClause() {
-		List<PExpression> constantsList = new ArrayList<PExpression>();
+		List<PExpression> constantsList = new ArrayList<>();
 
 		for (RecursiveDefinition recDef : specAnalyser.getRecursiveDefinitions()) {
 			AIdentifierExpression id = createPositionedNode(
@@ -378,7 +368,7 @@ public class BAstCreator extends BuiltInOPs
 			typeTable.put(id, type);
 		}
 
-		if (constantsList.size() > 0) {
+		if (!constantsList.isEmpty()) {
 			AAbstractConstantsMachineClause abstractConstantsClause = new AAbstractConstantsMachineClause(
 					constantsList);
 			machineClauseList.add(abstractConstantsClause);
@@ -393,7 +383,7 @@ public class BAstCreator extends BuiltInOPs
 			bConstants = Arrays.asList(moduleNode.getConstantDecls());
 		}
 
-		List<PExpression> constantsList = new ArrayList<PExpression>();
+		List<PExpression> constantsList = new ArrayList<>();
 		for (OpDeclNode opDeclNode : bConstants) {
 			AIdentifierExpression id = createPositionedNode(
 					new AIdentifierExpression(createTIdentifierLiteral(getName(opDeclNode))), opDeclNode);
@@ -401,7 +391,7 @@ public class BAstCreator extends BuiltInOPs
 			TLAType type = (TLAType) opDeclNode.getToolObject(TYPE_ID);
 			typeTable.put(id, type);
 		}
-		if (constantsList.size() > 0) {
+		if (!constantsList.isEmpty()) {
 			AConstantsMachineClause constantsClause = new AConstantsMachineClause(constantsList);
 			machineClauseList.add(constantsClause);
 		}
@@ -416,7 +406,7 @@ public class BAstCreator extends BuiltInOPs
 	}
 
 	private void createPropertyClause() {
-		List<PPredicate> propertiesList = new ArrayList<PPredicate>();
+		List<PPredicate> propertiesList = new ArrayList<>();
 		propertiesList.addAll(evalRecursiveDefinitions());
 		propertiesList.addAll(evalRecursiveFunctions());
 		for (OpDeclNode con : bConstants) {
@@ -456,9 +446,7 @@ public class BAstCreator extends BuiltInOPs
 		}
 
 		if (conEval != null) {
-			Iterator<Entry<OpDeclNode, OpDefNode>> iter = conEval.getConstantOverrideTable().entrySet().iterator();
-			while (iter.hasNext()) {
-				Entry<OpDeclNode, OpDefNode> entry = iter.next();
+			for (Entry<OpDeclNode, OpDefNode> entry : conEval.getConstantOverrideTable().entrySet()) {
 				OpDeclNode con = entry.getKey();
 				OpDefNode generatedDef = entry.getValue();
 				OpDefNode def = null;
@@ -481,7 +469,7 @@ public class BAstCreator extends BuiltInOPs
 		}
 
 		AssumeNode[] assumes = moduleNode.getAssumptions();
-		List<PPredicate> assertionList = new ArrayList<PPredicate>();
+		List<PPredicate> assertionList = new ArrayList<>();
 		for (AssumeNode assumeNode : assumes) {
 			ThmOrAssumpDefNode def = assumeNode.getDef();
 			if (def != null) {
@@ -492,12 +480,12 @@ public class BAstCreator extends BuiltInOPs
 				propertiesList.add(visitAssumeNode(assumeNode));
 			}
 		}
-		if (propertiesList.size() > 0) {
+		if (!propertiesList.isEmpty()) {
 			APropertiesMachineClause propertiesClause = new APropertiesMachineClause();
 			propertiesClause.setPredicates(createConjunction(propertiesList));
 			machineClauseList.add(propertiesClause);
 		}
-		if (assertionList.size() > 0) {
+		if (!assertionList.isEmpty()) {
 			AAssertionsMachineClause assertionClause = new AAssertionsMachineClause();
 			assertionClause.setPredicates(assertionList);
 			machineClauseList.add(assertionClause);
@@ -561,7 +549,7 @@ public class BAstCreator extends BuiltInOPs
 			return new AIntegerExpression(new TIntegerLiteral(tlcValue.toString()));
 		case SETENUMVALUE: {
 			SetEnumValue s = (SetEnumValue) tlcValue;
-			ArrayList<PExpression> list = new ArrayList<PExpression>();
+			ArrayList<PExpression> list = new ArrayList<>();
 			for (int i = 0; i < s.elems.size(); i++) {
 				Value v = s.elems.elementAt(i);
 				list.add(createTLCValue(v));
@@ -584,12 +572,12 @@ public class BAstCreator extends BuiltInOPs
 	private void createInvariantClause() {
 		OpDeclNode[] vars = moduleNode.getVariableDecls();
 
-		List<PPredicate> predList = new ArrayList<PPredicate>();
-		for (int i = 0; i < vars.length; i++) {
-			TLAType varType = (TLAType) vars[i].getToolObject(TYPE_ID);
+		List<PPredicate> predList = new ArrayList<>();
+		for (OpDeclNode var : vars) {
+			TLAType varType = (TLAType) var.getToolObject(TYPE_ID);
 
 			AMemberPredicate member = new AMemberPredicate();
-			member.setLeft(createIdentifierNode(vars[i]));
+			member.setLeft(createIdentifierNode(var));
 			member.setRight(varType.getBNode());
 
 			predList.add(member);
@@ -612,7 +600,7 @@ public class BAstCreator extends BuiltInOPs
 			}
 		}
 
-		if (predList.size() > 0) {
+		if (!predList.isEmpty()) {
 			AInvariantMachineClause invClause = new AInvariantMachineClause(createConjunction(predList));
 			machineClauseList.add(invClause);
 		}
@@ -631,7 +619,8 @@ public class BAstCreator extends BuiltInOPs
 			LetInNode letInNode = (LetInNode) exprNode;
 			return visitExprNodePredicate(letInNode.getBody());
 		}
-		case NumeralKind: {
+		case NumeralKind:
+		case DecimalKind: {
 			throw new RuntimeException();
 		}
 		default:
@@ -659,10 +648,7 @@ public class BAstCreator extends BuiltInOPs
 			AtNode at = (AtNode) exprNode;
 			TLAType type = (TLAType) at.getExceptRef().getToolObject(TYPE_ID);
 			OpApplNode seq = at.getAtModifier();
-			LinkedList<ExprOrOpArgNode> list = new LinkedList<ExprOrOpArgNode>();
-			for (int j = 0; j < seq.getArgs().length; j++) {
-				list.add(seq.getArgs()[j]);
-			}
+			LinkedList<ExprOrOpArgNode> list = new LinkedList<>(Arrays.asList(seq.getArgs()));
 			// PExpression base = visitExprNodeExpression(at.getAtBase());
 			PExpression base = (PExpression) at.getExceptComponentRef().getToolObject(EXCEPT_BASE);
 			return evalAtNode(list, type, base.clone());
@@ -678,7 +664,7 @@ public class BAstCreator extends BuiltInOPs
 	}
 
 	private PExpression evalAtNode(LinkedList<ExprOrOpArgNode> list, TLAType type, PExpression base) {
-		if (list.size() == 0) {
+		if (list.isEmpty()) {
 			return base;
 		}
 		if (type instanceof FunctionType) {
@@ -740,10 +726,10 @@ public class BAstCreator extends BuiltInOPs
 
 			if (recursiveFunctionHandler.isRecursiveFunction(param)) {
 				ArrayList<SymbolNode> list = recursiveFunctionHandler.getAdditionalParams(param);
-				if (list.size() > 0) {
+				if (!list.isEmpty()) {
 					AFunctionExpression call = new AFunctionExpression();
 					call.setIdentifier(createIdentifierNode(param));
-					ArrayList<PExpression> params = new ArrayList<PExpression>();
+					ArrayList<PExpression> params = new ArrayList<>();
 					for (SymbolNode symbolNode : list) {
 						params.add(createIdentifierNode(symbolNode));
 					}
@@ -756,14 +742,14 @@ public class BAstCreator extends BuiltInOPs
 				if (tuple.length == 1) {
 					AFunctionExpression functionCall = new AFunctionExpression();
 					functionCall.setIdentifier(createIdentifierNode(n.getOperator()));
-					List<PExpression> paramList = new ArrayList<PExpression>();
+					List<PExpression> paramList = new ArrayList<>();
 					paramList.add(new AIntegerExpression(new TIntegerLiteral("1")));
 					functionCall.setParameters(paramList);
 					return functionCall;
 				} else {
 
 					StringBuilder sb = new StringBuilder();
-					List<TLAType> typeList = new ArrayList<TLAType>();
+					List<TLAType> typeList = new ArrayList<>();
 					int number = -1;
 					for (int j = 0; j < tuple.length; j++) {
 						FormalParamNode p = tuple[j];
@@ -776,8 +762,7 @@ public class BAstCreator extends BuiltInOPs
 					}
 					TupleType tupleType = new TupleType(typeList);
 					PExpression id = createIdentifierNode(sb.toString());
-					PExpression prj = createProjectionFunction(id, number, tupleType);
-					return prj;
+					return createProjectionFunction(id, number, tupleType);
 				}
 			}
 			return createIdentifierNode(n.getOperator());
@@ -804,7 +789,7 @@ public class BAstCreator extends BuiltInOPs
 			return new AEqualPredicate(createIdentifierNode(def), new ABooleanTrueExpression());
 		}
 		if (Arrays.asList(moduleNode.getOpDefs()).contains(def)) {
-			List<PExpression> params = new ArrayList<PExpression>();
+			List<PExpression> params = new ArrayList<>();
 			for (int i = 0; i < n.getArgs().length; i++) {
 				params.add(visitExprOrOpArgNodeExpression(n.getArgs()[i]));
 			}
@@ -825,8 +810,7 @@ public class BAstCreator extends BuiltInOPs
 				FormalParamNode param = params[i];
 				param.setToolObject(SUBSTITUTE_PARAM, n.getArgs()[i]);
 			}
-			PPredicate result = visitExprNodePredicate(def.getBody());
-			return result;
+			return visitExprNodePredicate(def.getBody());
 		}
 	}
 
@@ -844,10 +828,10 @@ public class BAstCreator extends BuiltInOPs
 
 		if (specAnalyser.getRecursiveFunctions().contains(def)) {
 			ArrayList<SymbolNode> list = recursiveFunctionHandler.getAdditionalParams(def);
-			if (list.size() > 0) {
+			if (!list.isEmpty()) {
 				AFunctionExpression call = new AFunctionExpression();
 				call.setIdentifier(createIdentifierNode(def));
-				ArrayList<PExpression> params = new ArrayList<PExpression>();
+				ArrayList<PExpression> params = new ArrayList<>();
 				for (SymbolNode symbolNode : list) {
 					params.add(createIdentifierNode(symbolNode));
 				}
@@ -859,7 +843,7 @@ public class BAstCreator extends BuiltInOPs
 		}
 
 		if (Arrays.asList(moduleNode.getOpDefs()).contains(def)) {
-			List<PExpression> params = new ArrayList<PExpression>();
+			List<PExpression> params = new ArrayList<>();
 			for (int i = 0; i < n.getArgs().length; i++) {
 				params.add(visitExprOrOpArgNodeExpression(n.getArgs()[i]));
 			}
@@ -875,7 +859,7 @@ public class BAstCreator extends BuiltInOPs
 						name = getName(entry.getKey());
 					}
 				}
-				if (params.size() == 0) {
+				if (params.isEmpty()) {
 					return createIdentifierNode(name);
 				} else {
 					AFunctionExpression funcCall = new AFunctionExpression();
@@ -903,8 +887,7 @@ public class BAstCreator extends BuiltInOPs
 				FormalParamNode param = params[i];
 				param.setToolObject(SUBSTITUTE_PARAM, n.getArgs()[i]);
 			}
-			PExpression result = visitExprNodeExpression(def.getBody());
-			return result;
+			return visitExprNodeExpression(def.getBody());
 		}
 
 	}
@@ -951,7 +934,7 @@ public class BAstCreator extends BuiltInOPs
 		case B_OPCODE_assert: {
 			ADefinitionPredicate pred = new ADefinitionPredicate();
 			pred.setDefLiteral(new TDefLiteralPredicate("ASSERT_TRUE"));
-			ArrayList<PExpression> list = new ArrayList<PExpression>();
+			ArrayList<PExpression> list = new ArrayList<>();
 			list.add(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
 			if (opApplNode.getArgs()[1] instanceof StringNode) {
 				StringNode stringNode = (StringNode) opApplNode.getArgs()[1];
@@ -1467,7 +1450,7 @@ public class BAstCreator extends BuiltInOPs
 
 		case OPCODE_fa: { // f[1]
 			TLAType t = (TLAType) n.getArgs()[0].getToolObject(TYPE_ID);
-			if (t != null && t instanceof TupleType) {
+			if (t instanceof TupleType) {
 				NumeralNode num = (NumeralNode) n.getArgs()[1];
 				int field = num.val();
 				PExpression pair = visitExprOrOpArgNodeExpression(n.getArgs()[0]);
@@ -1725,9 +1708,7 @@ public class BAstCreator extends BuiltInOPs
 					OpApplNode seq = (OpApplNode) first;
 
 					LinkedList<ExprOrOpArgNode> seqList = new LinkedList<ExprOrOpArgNode>();
-					for (int j = 0; j < seq.getArgs().length; j++) {
-						seqList.add(seq.getArgs()[j]);
-					}
+					Collections.addAll(seqList, seq.getArgs());
 
 					pair.setToolObject(EXCEPT_BASE, res.clone());
 					res = evalExceptValue(res.clone(), seqList, structType, val);
@@ -1746,9 +1727,7 @@ public class BAstCreator extends BuiltInOPs
 					OpApplNode seq = (OpApplNode) first;
 
 					LinkedList<ExprOrOpArgNode> seqList = new LinkedList<ExprOrOpArgNode>();
-					for (int j = 0; j < seq.getArgs().length; j++) {
-						seqList.add(seq.getArgs()[j]);
-					}
+					Collections.addAll(seqList, seq.getArgs());
 
 					pair.setToolObject(EXCEPT_BASE, res.clone());
 					res = evalExceptValue(res.clone(), seqList, func, val);
@@ -1801,7 +1780,7 @@ public class BAstCreator extends BuiltInOPs
 
 		}
 
-		throw new NotImplementedException("Missing support for operator: " + n.getOperator().getName().toString());
+		throw new NotImplementedException("Missing support for operator: " + n.getOperator().getName());
 	}
 
 	private List<PExpression> createListOfIdentifier(FormalParamNode[][] params) {

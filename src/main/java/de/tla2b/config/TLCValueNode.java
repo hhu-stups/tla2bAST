@@ -9,8 +9,8 @@ import tlc2.value.Value;
 
 public class TLCValueNode extends NumeralNode implements TranslationGlobals {
 
-	private Value value;
-	private TLAType type;
+	private final Value value;
+	private final TLAType type;
 
 	public TLCValueNode(ValueObj valObj, TreeNode stn) throws AbortException {
 		super("1337", stn);

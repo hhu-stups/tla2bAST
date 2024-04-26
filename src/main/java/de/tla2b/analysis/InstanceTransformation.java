@@ -11,29 +11,27 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 
 	OpDefNode[] defs;
 	Hashtable<String, OpDefNode> defsHash;
-	private int substitutionId = 11;
+	private final int substitutionId = 11;
 
 
 	public InstanceTransformation(ModuleNode moduleNode) {
 		defs = moduleNode.getOpDefs();
-		defsHash = new Hashtable<String, OpDefNode>();
-		for (int i = 0; i < defs.length; i++) {
-			OpDefNode def = defs[i];
+		defsHash = new Hashtable<>();
+		for (OpDefNode def : defs) {
 			defsHash.put(def.getName().toString(), def);
 		}
 	}
 
 	public void start() {
-		for (int i = 0; i < defs.length; i++) {
-			OpDefNode def = defs[i];
+		for (OpDefNode def : defs) {
 			if (def.getSource() != def
-					&& !BBuiltInOPs.contains(def.getSource().getName())) {
+				&& !BBuiltInOPs.contains(def.getSource().getName())) {
 				// instance
 				String defName = def.getName().toString();
 
 				if (def.getBody() instanceof SubstInNode) {
 					String prefix = defName.substring(0,
-							defName.lastIndexOf('!') + 1);
+						defName.lastIndexOf('!') + 1);
 					def.setParams(generateNewParams(def.getParams()));
 					ExprNode body;
 					try {

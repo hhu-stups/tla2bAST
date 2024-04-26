@@ -17,7 +17,7 @@ public class TestModuleSequences {
 	 * Seq(S): The set of all sequences of elements in S.
 	 */
 	@Test  
-	public void testSeq() throws FrontEndException, TLA2BException {
+	public void testSeq() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k \n"
@@ -28,7 +28,7 @@ public class TestModuleSequences {
 	}
 	
 	@Test  
-	public void testSeq2() throws FrontEndException, TLA2BException {
+	public void testSeq2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k \n"
@@ -41,7 +41,7 @@ public class TestModuleSequences {
 	
 	
 	@Test (expected = TypeErrorException.class)
-	public void testSeqException() throws FrontEndException, TLA2BException {
+	public void testSeqException() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "ASSUME 1 = Seq({1}) \n"
@@ -50,7 +50,7 @@ public class TestModuleSequences {
 	}
 
 	@Test (expected = TypeErrorException.class)
-	public void testSeqException2() throws FrontEndException, TLA2BException {
+	public void testSeqException2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k \n"
@@ -64,7 +64,7 @@ public class TestModuleSequences {
 	 * Len(S)
 	 */
 	@Test  
-	public void testLen() throws FrontEndException, TLA2BException {
+	public void testLen() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k \n"
@@ -75,7 +75,7 @@ public class TestModuleSequences {
 	}
 	
 	@Test (expected = TypeErrorException.class)
-	public void testLenException() throws FrontEndException, TLA2BException {
+	public void testLenException() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k \n"
@@ -85,7 +85,7 @@ public class TestModuleSequences {
 	}
 	
 	@Test (expected = TypeErrorException.class)
-	public void testLenException2() throws FrontEndException, TLA2BException {
+	public void testLenException2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k \n"
@@ -95,7 +95,7 @@ public class TestModuleSequences {
 	}
 	
 	@Test (expected = TypeErrorException.class)
-	public void testUnifyErrorLen2() throws FrontEndException, TLA2BException {
+	public void testUnifyErrorLen2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k \n"
@@ -109,7 +109,7 @@ public class TestModuleSequences {
 	 * s \o s2 - concatenation of s and s2
 	 */
 	@Test  
-	public void testUnifyConcatenation() throws FrontEndException, TLA2BException {
+	public void testUnifyConcatenation() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k, k2 \n"
@@ -121,7 +121,7 @@ public class TestModuleSequences {
 	}
 	
 	@Test  
-	public void testUnifyConcatenation2() throws FrontEndException, TLA2BException {
+	public void testUnifyConcatenation2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k, k2 \n"
@@ -133,7 +133,7 @@ public class TestModuleSequences {
 	}
 	
 	@Test  
-	public void testUnifyConcatenation3() throws FrontEndException, TLA2BException {
+	public void testUnifyConcatenation3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k, k2, k3 \n"
@@ -146,7 +146,7 @@ public class TestModuleSequences {
 	}
 	
 	@Test (expected = TypeErrorException.class)
-	public void testUnifyErrorConcatenation() throws FrontEndException, TLA2BException {
+	public void testUnifyErrorConcatenation() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k, k2  \n"
@@ -156,7 +156,7 @@ public class TestModuleSequences {
 	}
 	
 	@Test (expected = TypeErrorException.class)
-	public void testUnifyErrorConcatenation2() throws FrontEndException, TLA2BException {
+	public void testUnifyErrorConcatenation2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k, k2  \n"
@@ -166,7 +166,7 @@ public class TestModuleSequences {
 	}
 	
 	@Test (expected = TypeErrorException.class)
-	public void testUnifyErrorConcatenation3() throws FrontEndException, TLA2BException {
+	public void testUnifyErrorConcatenation3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k, k2  \n"
@@ -180,7 +180,7 @@ public class TestModuleSequences {
 	 * Append(s, e)
 	 */
 	@Test  
-	public void testUnifyAppend() throws FrontEndException, TLA2BException {
+	public void testUnifyAppend() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k, k2, k3 \n"
@@ -194,7 +194,7 @@ public class TestModuleSequences {
 	}
 	
 	@Test  
-	public void testUnifyAppend2() throws FrontEndException, TLA2BException {
+	public void testUnifyAppend2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k, k2, k3 \n"
@@ -208,7 +208,7 @@ public class TestModuleSequences {
 	}
 	
 	@Test  
-	public void testUnifyAppend3() throws FrontEndException, TLA2BException {
+	public void testUnifyAppend3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k, k2 \n"
@@ -222,7 +222,7 @@ public class TestModuleSequences {
 
 	
 	@Test (expected = TypeErrorException.class)
-	public void testUnifyErrorAppend() throws FrontEndException, TLA2BException {
+	public void testUnifyErrorAppend() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k, k2, k3 \n"
@@ -237,7 +237,7 @@ public class TestModuleSequences {
 	 * Head(s): the first element of the seq
 	 */
 	@Test  
-	public void testUnifyHead() throws FrontEndException, TLA2BException {
+	public void testUnifyHead() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k, k2 \n"
@@ -249,7 +249,7 @@ public class TestModuleSequences {
 	}
 	
 	@Test  
-	public void testUnifyHead2() throws FrontEndException, TLA2BException {
+	public void testUnifyHead2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k, k2 \n"
@@ -261,7 +261,7 @@ public class TestModuleSequences {
 	}
 	
 	@Test (expected = TypeErrorException.class) 
-	public void testUnifyErrorHead() throws FrontEndException, TLA2BException {
+	public void testUnifyErrorHead() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k \n"
@@ -274,7 +274,7 @@ public class TestModuleSequences {
 	 * Tail(s): the sequence without the first element
 	 */
 	@Test  
-	public void testUnifyTail() throws FrontEndException, TLA2BException {
+	public void testUnifyTail() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k, k2 \n"
@@ -286,7 +286,7 @@ public class TestModuleSequences {
 	}
 	
 	@Test  
-	public void testUnifyTail2() throws FrontEndException, TLA2BException {
+	public void testUnifyTail2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k, k2 \n"
@@ -299,7 +299,7 @@ public class TestModuleSequences {
 	}
 	
 	@Test (expected = TypeErrorException.class)  
-	public void testUnifyErrorTail() throws FrontEndException, TLA2BException {
+	public void testUnifyErrorTail() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k \n"
@@ -312,7 +312,7 @@ public class TestModuleSequences {
 	 * SubSeq(s,m,n): The sequence <<s[m], s[m+1], ... , s[n]>>
 	 */
 	@Test  
-	public void testUnifySubSeq() throws FrontEndException, TLA2BException {
+	public void testUnifySubSeq() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k, k2, m, n \n"
@@ -326,7 +326,7 @@ public class TestModuleSequences {
 	}
 	
 	@Test  
-	public void testUnifySubSeq2() throws FrontEndException, TLA2BException {
+	public void testUnifySubSeq2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k, k2, m, n \n"
@@ -340,7 +340,7 @@ public class TestModuleSequences {
 	}
 	
 	@Test (expected = TypeErrorException.class)
-	public void testUnifyErrorSubSeq() throws FrontEndException, TLA2BException {
+	public void testUnifyErrorSubSeq() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "EXTENDS Sequences \n"
 				+ "CONSTANTS k, k2, m, n \n"

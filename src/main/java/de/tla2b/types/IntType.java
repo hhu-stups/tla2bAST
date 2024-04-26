@@ -7,7 +7,7 @@ import de.tla2b.output.TypeVisitorInterface;
 
 public class IntType extends TLAType {
 
-	private static IntType instance = new IntType();
+	private static final IntType instance = new IntType();
 
 	private IntType() {
 		super(INTEGER);
@@ -29,10 +29,7 @@ public class IntType extends TLAType {
 
 	@Override
 	public boolean compare(TLAType o) {
-		if (o.getKind() == UNTYPED || o.getKind() == INTEGER)
-			return true;
-		else
-			return false;
+		return o.getKind() == UNTYPED || o.getKind() == INTEGER;
 	}
 
 	@Override

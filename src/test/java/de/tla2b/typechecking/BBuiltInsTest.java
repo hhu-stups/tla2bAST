@@ -18,7 +18,7 @@ public class BBuiltInsTest {
 	 * BOOLEAN
 	 */
 	@Test  
-	public void testBoolean() throws FrontEndException, TLA2BException {
+	public void testBoolean() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME k = BOOLEAN \n"
@@ -28,7 +28,7 @@ public class BBuiltInsTest {
 	}
 	
 	@Test (expected = TypeErrorException.class)  
-	public void testBooleanException() throws FrontEndException, TLA2BException {
+	public void testBooleanException() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME 1 \\in BOOLEAN \n"
@@ -42,7 +42,7 @@ public class BBuiltInsTest {
 	 * String
 	 */
 	@Test  
-	public void testString() throws FrontEndException, TLA2BException {
+	public void testString() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME k = STRING \n"
@@ -52,7 +52,7 @@ public class BBuiltInsTest {
 	}
 	
 	@Test (expected = TypeErrorException.class)
-	public void testUnifyErrorString() throws FrontEndException, TLA2BException {
+	public void testUnifyErrorString() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME 1 = STRING \n"
@@ -64,7 +64,7 @@ public class BBuiltInsTest {
 	 * Bool value: TRUE, FALSE
 	 */
 	@Test  
-	public void testBoolValue() throws FrontEndException, TLA2BException {
+	public void testBoolValue() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "CONSTANTS k \n"
 				+ "ASSUME k = TRUE \n"
@@ -74,7 +74,7 @@ public class BBuiltInsTest {
 	}
 	
 	@Test (expected = TypeErrorException.class)
-	public void testUnifyErrorBoolValue() throws FrontEndException, TLA2BException {
+	public void testUnifyErrorBoolValue() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 				+ "ASSUME 1 = TRUE \n"
 				+ "=================================";

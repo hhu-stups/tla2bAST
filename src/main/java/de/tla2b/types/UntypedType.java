@@ -22,10 +22,7 @@ public class UntypedType extends AbstractHasFollowers {
 	
 	@Override
 	public boolean compare(TLAType o){
-		if(o.contains(this)){
-			return false;
-		}
-		return true;
+		return !o.contains(this);
 	}
 	
 	@Override

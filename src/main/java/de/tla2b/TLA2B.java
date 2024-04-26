@@ -19,7 +19,7 @@ public class TLA2B implements TranslationGlobals {
 
 	private String mainFile;
 
-	private static boolean error = false;
+	private static final boolean error = false;
 
 	public static boolean hasError() {
 		return error;

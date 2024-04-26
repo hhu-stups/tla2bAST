@@ -4,8 +4,8 @@ import java.util.HashSet;
 import tlc2.tool.ToolGlobals;
 
 public class OperatorTypes implements ToolGlobals, BBuildIns {
-	private static HashSet<Integer> TLA_Predicate_Operators;
-	private static HashSet<Integer> BBuiltIn_Predicate_Operators;
+	private static final HashSet<Integer> TLA_Predicate_Operators;
+	private static final HashSet<Integer> BBuiltIn_Predicate_Operators;
 	static {
 		TLA_Predicate_Operators = new HashSet<Integer>();
 		TLA_Predicate_Operators.add(OPCODE_eq);

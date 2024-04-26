@@ -4,7 +4,7 @@ import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
 
 public abstract class TLAType implements IType {
-	private int kind;
+	private final int kind;
 
 	public TLAType(int t) {
 		this.kind = t;
@@ -30,8 +30,8 @@ public abstract class TLAType implements IType {
 	
 	public TLAType unityAll(TLAType[] types) throws UnificationException{
 		TLAType current = this;
-		for (int i = 0; i < types.length; i++) {
-			current = current.unify(types[i]);
+		for (TLAType type : types) {
+			current = current.unify(type);
 		}
 		return current;
 	}

@@ -8,7 +8,7 @@ import de.tla2b.util.TestUtil;
 
 public class InstanceTest {
 
-	private static String path = "src/test/resources/typechecking/modules/";
+	private static final String path = "src/test/resources/typechecking/modules/";
 
 	@Test
 	public void TestNamedInstanceCounter() throws Exception {

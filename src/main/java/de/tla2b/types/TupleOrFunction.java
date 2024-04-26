@@ -77,7 +77,7 @@ public class TupleOrFunction extends AbstractHasFollowers {
 			boolean isTuple = true;
 			ArrayList<TLAType> typeList = new ArrayList<TLAType>();
 			for (int i = 1; i <= types.keySet().size(); i++) {
-				if (types.keySet().contains(i)) {
+				if (types.containsKey(i)) {
 					typeList.add(types.get(i));
 				} else {
 					isTuple = false;
@@ -167,10 +167,7 @@ public class TupleOrFunction extends AbstractHasFollowers {
 		List<TLAType> typeList = new ArrayList<TLAType>();
 		typeList.addAll(t1.types.values());
 		typeList.addAll(t2.types.values());
-		if (comparable(typeList)) {
-			return true;
-		}
-		return false;
+		return comparable(typeList);
 	}
 
 	@Override
@@ -195,11 +192,7 @@ public class TupleOrFunction extends AbstractHasFollowers {
 		FunctionType func = new FunctionType();
 		func.setDomain(IntType.getInstance());
 		func.setRange(new UntypedType());
-		if (func.compare(this)) {
-			return false;
-		} else {
-			return true;
-		}
+		return !func.compare(this);
 	}
 
 	@Override
@@ -317,7 +310,6 @@ public class TupleOrFunction extends AbstractHasFollowers {
 				types.put(entry.getKey(), newType);
 				if (newType instanceof AbstractHasFollowers) {
 					((AbstractHasFollowers) newType).addFollower(this);
-					;
 				}
 			}
 		}

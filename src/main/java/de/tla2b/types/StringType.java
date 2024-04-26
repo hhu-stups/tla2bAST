@@ -11,7 +11,7 @@ public class StringType extends TLAType {
 		super(STRING);
 	}
 
-	private static StringType instance = new StringType();
+	private static final StringType instance = new StringType();
 
 	public static StringType getInstance() {
 		return instance;
