@@ -1,8 +1,12 @@
-apply plugin: 'java-library'
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
-apply plugin: 'jacoco'
-apply plugin: 'signing'
+plugins {
+	id 'java-library'
+	id 'eclipse'
+	id 'maven-publish'
+	id 'jacoco'
+	id 'signing'
+
+	id "com.github.johnrengelman.shadow" version "8.1.1"
+}
 
 project.version = '1.2.2-SNAPSHOT'
 project.group = 'de.hhu.stups'
@@ -22,10 +26,10 @@ configurations.all {
 	resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-def parser_version = '2.12.7'
+def parser_version = '2.13.2'
 
 dependencies {
-	implementation(group: 'commons-cli', name: 'commons-cli', version: '1.5.0')
+	implementation(group: 'commons-cli', name: 'commons-cli', version: '1.7.0')
 	api(group: 'de.hhu.stups', name: 'tlatools', version: '1.0.2')
 	api(group: 'de.hhu.stups', name: 'prologlib', version: parser_version)
 	api(group: 'de.hhu.stups', name: 'bparser', version: parser_version)
@@ -39,6 +43,14 @@ java {
 	
 	withSourcesJar()
 	withJavadocJar()
+}
+
+jar {
+	manifest {
+		attributes(
+			'Main-Class': 'de.tla2b.TLA2B'
+		)
+	}
 }
 
 processResources {
