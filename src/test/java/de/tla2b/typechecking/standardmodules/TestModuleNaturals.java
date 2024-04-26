@@ -27,7 +27,7 @@ public class TestModuleNaturals {
 		TestTypeChecker t = TestUtil.typeCheckString(module);
 		assertEquals("BOOL", t.getConstantType("k"));
 		assertEquals("INTEGER", t.getConstantType("k2"));
-		assertEquals("INTEGER", t.getConstantType("k2"));
+		assertEquals("INTEGER", t.getConstantType("k3"));
 	}
 
 	@Test(expected = TypeErrorException.class)
