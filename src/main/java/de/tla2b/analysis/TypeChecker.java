@@ -1285,14 +1285,39 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 
 		case B_OPCODE_uminus: // -x
 		{
-			try {
-				IntType.getInstance().unify(expected);
-			} catch (UnificationException e) {
-				throw new TypeErrorException(
+			// TODO: simplify
+			TLAType type;
+			if (expected instanceof RealType) {
+				try {
+					RealType.getInstance().unify(expected);
+					type = RealType.getInstance();
+				} catch (UnificationException e) {
+					throw new TypeErrorException(
+						String.format("Expected %s, found REAL at '-',%n%s", expected, n.getLocation()));
+				}
+			} else if (expected instanceof IntType) {
+				try {
+					IntType.getInstance().unify(expected);
+					type = IntType.getInstance();
+				} catch (UnificationException e) {
+					throw new TypeErrorException(
 						String.format("Expected %s, found INTEGER at '-',%n%s", expected, n.getLocation()));
+				}
+			} else if (expected instanceof UntypedType) {
+				IntType.getInstance().unify(expected);
+				type = IntType.getInstance();
+				try {
+					visitExprOrOpArgNode(n.getArgs()[0], type);
+				} catch (TypeErrorException e) {
+					RealType.getInstance().unify(expected);
+					type = RealType.getInstance();
+				}
+			} else {
+				throw new TypeErrorException(
+					String.format("Expected %s, found INTEGER at '-',%n%s", expected, n.getLocation()));
 			}
-			visitExprOrOpArgNode(n.getArgs()[0], IntType.getInstance());
-			return IntType.getInstance();
+			visitExprOrOpArgNode(n.getArgs()[0], type);
+			return type;
 		}
 
 		/*
