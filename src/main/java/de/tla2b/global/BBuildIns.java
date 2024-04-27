@@ -30,7 +30,7 @@ public interface BBuildIns {
 	UniqueString OP_int = UniqueString
 			.uniqueStringOf("Int");
 	UniqueString OP_real = UniqueString
-		.uniqueStringOf("Real");
+			.uniqueStringOf("Real");
 	UniqueString OP_bool = UniqueString
 			.uniqueStringOf("BOOLEAN");
 	UniqueString OP_true = UniqueString

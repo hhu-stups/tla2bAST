@@ -27,11 +27,9 @@ public class SimpleExpressionTest {
 		compareExpr("-1 : INTEGER", "-1 \\in Int");
 	}
 
-	// FIXME: real_set(none) vs identifier(none,'Real')
-	@Ignore
 	@Test
 	public void testModulReals() throws Exception {
-		compareExpr("1 : REAL", "1 \\in Real");
+		compareExpr("1.0 : REAL", "1.0 \\in Real");
 	}
 
 	@Test

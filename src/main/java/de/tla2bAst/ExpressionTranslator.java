@@ -27,8 +27,8 @@ import de.tla2b.exceptions.TLA2BException;
 public class ExpressionTranslator implements SyntaxTreeConstants {
 
 	private final String tlaExpression;
-	private final ArrayList<String> variables = new ArrayList<String>();
-	private final ArrayList<String> noVariables = new ArrayList<String>();
+	private final ArrayList<String> variables = new ArrayList<>();
+	private final ArrayList<String> noVariables = new ArrayList<>();
 	private Start expressionStart;
 	private ModuleNode moduleNode;
 	private String expr;
@@ -51,9 +51,9 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		String dir = System.getProperty("java.io.tmpdir");
 		ToolIO.setUserDir(dir);
 
-		File tempFile = null;
-		String moduleName = null;
-		String module = null;
+		File tempFile;
+		String moduleName;
+		String module;
 		try {
 			tempFile = File.createTempFile("Testing", ".tla");
 
@@ -75,9 +75,9 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		evalVariables(spec, moduleName);
 
 		StringBuilder sb = new StringBuilder();
-		sb.append("----MODULE " + moduleName + " ----\n");
-		sb.append("EXTENDS Naturals, Integers, Sequences, FiniteSets \n");
-		if (variables.size() > 0) {
+		sb.append("----MODULE ").append(moduleName).append(" ----\n");
+		sb.append("EXTENDS Naturals, Integers, Reals, Sequences, FiniteSets \n");
+		if (!variables.isEmpty()) {
 			sb.append("VARIABLES ");
 			for (int i = 0; i < variables.size(); i++) {
 				if (i != 0) {
@@ -193,9 +193,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 			SANY.frontEndInitialize(spec, ToolIO.out);
 			SANY.frontEndParse(spec, ToolIO.out);
 
-		} catch (InitException e1) {
-			System.out.println(e1);
-		} catch (ParseException e1) {
+		} catch (InitException | ParseException e1) {
 			System.out.println(e1);
 		}
 
@@ -217,19 +215,20 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
         
         // this code seems to assume that there is no variable clash between outer and nested variables
         // I guess the parser will then generate "Multiply-defined symbol ..." errors
-		for (int i = 0; i < noVariables.size(); i++) {
-			variables.remove(noVariables.get(i));
+		for (String noVariable : noVariables) {
+			variables.remove(noVariable);
 		}
 
 	}
 
-	private final static Set<String> KEYWORDS = new HashSet<String>();
+	private final static Set<String> KEYWORDS = new HashSet<>();
 	static {
 		KEYWORDS.add("BOOLEAN");
 		KEYWORDS.add("TRUE");
 		KEYWORDS.add("FALSE");
 		KEYWORDS.add("Nat");
 		KEYWORDS.add("Int");
+		KEYWORDS.add("Real");
 		KEYWORDS.add("Cardinality");
 		KEYWORDS.add("IsFiniteSet");
 		KEYWORDS.add("Append");
@@ -327,10 +326,6 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 	}
 
 	public static String allMessagesToString(String[] allMessages) {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < allMessages.length - 1; i++) {
-			sb.append(allMessages[i] + "\n");
-		}
-		return sb.toString();
+		return Translator.allMessagesToString(allMessages);
 	}
 }
