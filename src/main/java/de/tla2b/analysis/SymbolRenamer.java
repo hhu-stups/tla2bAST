@@ -21,7 +21,7 @@ import tlc2.tool.BuiltInOPs;
 public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals,
 		ASTConstants {
 
-	private final static Set<String> KEYWORDS = new HashSet<String>();
+	private final static Set<String> KEYWORDS = new HashSet<>();
 	static {
 		KEYWORDS.add("seq");
 		KEYWORDS.add("left");
@@ -71,12 +71,11 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals,
 		KEYWORDS.add("CONSTRAINTS");
 		KEYWORDS.add("MODEL");
 		KEYWORDS.add("SYSTEM");
-		KEYWORDS.add("MACHINE");
 		KEYWORDS.add("EVENTS");
 		KEYWORDS.add("OPERATIONS");
 	}
 
-	private final static Hashtable<String, String> INFIX_OPERATOR = new Hashtable<String, String>();
+	private final static Hashtable<String, String> INFIX_OPERATOR = new Hashtable<>();
 	static {
 		INFIX_OPERATOR.put("!!", "exclamationmark2");
 		INFIX_OPERATOR.put("??", "questionmark2");
@@ -98,7 +97,7 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals,
 		INFIX_OPERATOR.put("...", "dot3");
 	}
 
-	private final static Hashtable<String, String> BBUILTIN_OPERATOR = new Hashtable<String, String>();
+	private final static Hashtable<String, String> BBUILTIN_OPERATOR = new Hashtable<>();
 	static {
 		BBUILTIN_OPERATOR.put("+", "plus");
 		BBUILTIN_OPERATOR.put("-", "minus");
@@ -117,8 +116,8 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals,
 	private final ModuleNode moduleNode;
 	private final Set<OpDefNode> usedDefinitions;
 
-	private final Set<String> globalNames = new HashSet<String>();
-	private final Hashtable<OpDefNode, Set<String>> usedNamesTable = new Hashtable<OpDefNode, Set<String>>();
+	private final Set<String> globalNames = new HashSet<>();
+	private final Hashtable<OpDefNode, Set<String>> usedNamesTable = new Hashtable<>();
 
 	public SymbolRenamer(ModuleNode moduleNode, SpecAnalyser specAnalyser) {
 		this.moduleNode = moduleNode;

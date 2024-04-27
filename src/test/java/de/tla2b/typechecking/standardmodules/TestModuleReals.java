@@ -55,7 +55,7 @@ public class TestModuleReals {
 			+ "EXTENDS Reals \n"
 			+ "ASSUME -1 = -1.0 \n" + "=================================";
 
-		TestTypeChecker t = TestUtil.typeCheckString(module);
+		TestUtil.typeCheckString(module);
 	}
 
 	@Test(expected = TypeErrorException.class)
@@ -100,7 +100,7 @@ public class TestModuleReals {
 	@Test
 	public void testArithmeticOperators() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-			+ "EXTENDS Naturals \n"
+			+ "EXTENDS Reals \n"
 			+ "ASSUME 2.0 = 1.0 + 1.0 \n"
 			+ "=================================";
 		TestUtil.typeCheckString(module);
@@ -109,7 +109,7 @@ public class TestModuleReals {
 	@Test(expected = TypeErrorException.class)
 	public void testArithmeticOperatorsException1() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-			+ "EXTENDS Naturals \n"
+			+ "EXTENDS Reals \n"
 			+ "ASSUME TRUE = 1.0 + 1.0 \n"
 			+ "=================================";
 		TestUtil.typeCheckString(module);
@@ -118,7 +118,7 @@ public class TestModuleReals {
 	@Test(expected = TypeErrorException.class)
 	public void testArithmeticOperatorsException2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-			+ "EXTENDS Naturals \n"
+			+ "EXTENDS Reals \n"
 			+ "ASSUME 2.0 = 1.0 + 1 \n"
 			+ "=================================";
 		TestUtil.typeCheckString(module);
@@ -127,7 +127,7 @@ public class TestModuleReals {
 	@Test(expected = TypeErrorException.class)
 	public void testArithmeticOperatorsException3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-			+ "EXTENDS Naturals \n"
+			+ "EXTENDS Reals \n"
 			+ "ASSUME 2 = 1.0 + 1.0 \n"
 			+ "=================================";
 		TestUtil.typeCheckString(module);
@@ -147,11 +147,10 @@ public class TestModuleReals {
 	/*
 	 * Interval operator: x .. y
 	 */
-
 	@Test(expected = TypeErrorException.class)
 	public void testDotDotReal() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-			+ "EXTENDS Naturals \n"
+			+ "EXTENDS Reals \n"
 			+ "CONSTANTS k \n"
 			+ "ASSUME k = 1.0 .. 3.0 \n"
 			+ "=================================";
