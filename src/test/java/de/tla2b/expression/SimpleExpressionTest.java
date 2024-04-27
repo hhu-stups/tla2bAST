@@ -33,6 +33,11 @@ public class SimpleExpressionTest {
 	}
 
 	@Test
+	public void testRealDivisionExpression() throws Exception {
+		compareExpr("1.0 / 2.0", "1.0 / 2.0");
+	}
+
+	@Test
 	public void testExist() throws Exception {
 		compareExpr("#a.(a : {1} & 2 > 1)", "\\E a \\in {1}: 2 > 1");
 	}

@@ -13,6 +13,7 @@ public class BBuiltInOPs implements BBuildIns{
 		B_Opcode_Table.put(OP_minus, B_OPCODE_minus);
 		B_Opcode_Table.put(OP_times, B_OPCODE_times);
 		B_Opcode_Table.put(OP_div, B_OPCODE_div);
+		B_Opcode_Table.put(OP_realdiv, B_OPCODE_realdiv);
 		B_Opcode_Table.put(OP_mod, B_OPCODE_mod);
 		B_Opcode_Table.put(OP_exp, B_OPCODE_exp);
 		B_Opcode_Table.put(OP_uminus, B_OPCODE_uminus);

@@ -1229,6 +1229,19 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			return type;
 		}
 
+			case B_OPCODE_realdiv: { // /
+				try {
+					RealType.getInstance().unify(expected);
+				} catch (UnificationException e) {
+					throw new TypeErrorException(String.format("Expected %s, found REAL at '%s',%n%s", expected,
+						n.getOperator().getName(), n.getLocation()));
+				}
+				for (int i = 0; i < n.getArgs().length; i++) {
+					visitExprOrOpArgNode(n.getArgs()[i], RealType.getInstance());
+				}
+				return RealType.getInstance();
+			}
+
 		case B_OPCODE_dotdot: // ..
 		{
 			try {

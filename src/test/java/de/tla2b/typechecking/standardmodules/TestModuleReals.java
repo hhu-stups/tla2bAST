@@ -133,6 +133,17 @@ public class TestModuleReals {
 		TestUtil.typeCheckString(module);
 	}
 
+	@Test
+	public void testRealDivision() throws TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+			+ "EXTENDS Reals \n"
+			+ "CONSTANTS k \n"
+			+ "ASSUME k = 1.0 / 1.0 \n"
+			+ "=================================";
+		TestTypeChecker t = TestUtil.typeCheckString(module);
+		assertEquals("REAL", t.getConstantType("k"));
+	}
+
 	/*
 	 * Interval operator: x .. y
 	 */

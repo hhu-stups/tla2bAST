@@ -12,6 +12,8 @@ public interface BBuildIns {
 			.uniqueStringOf("*");
 	UniqueString OP_div = UniqueString
 			.uniqueStringOf("\\div");
+	UniqueString OP_realdiv = UniqueString
+		.uniqueStringOf("/");
 	UniqueString OP_mod = UniqueString.uniqueStringOf("%");
 	UniqueString OP_exp = UniqueString.uniqueStringOf("^");
 
@@ -133,4 +135,5 @@ public interface BBuildIns {
 	int B_OPCODE_assert = B_OPCODE_rel_inverse + 1;
 
 	int B_OPCODE_real = B_OPCODE_assert + 1;
+	int B_OPCODE_realdiv = B_OPCODE_real + 1;
 }

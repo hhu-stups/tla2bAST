@@ -110,6 +110,7 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals,
 		BBUILTIN_OPERATOR.put("\\geq", "geq");
 		BBUILTIN_OPERATOR.put("%", "modulo");
 		BBUILTIN_OPERATOR.put("\\div", "div");
+		BBUILTIN_OPERATOR.put("/", "realdiv");
 		BBUILTIN_OPERATOR.put("..", "dot2");
 	}
 

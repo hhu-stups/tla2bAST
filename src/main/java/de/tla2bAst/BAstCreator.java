@@ -1020,6 +1020,15 @@ public class BAstCreator extends BuiltInOPs
 				returnNode = aFlooredDivExpression;
 				break;
 
+			case B_OPCODE_realdiv: // /
+				ADivExpression aDivExpression = new ADivExpression(
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
+
+				setPosition(aDivExpression, opApplNode);
+				returnNode = aDivExpression;
+				break;
+
 			case B_OPCODE_dotdot: // ..
 				returnNode = new AIntervalExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
 					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
