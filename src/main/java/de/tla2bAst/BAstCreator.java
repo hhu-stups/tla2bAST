@@ -1,47 +1,29 @@
 package de.tla2bAst;
 
-import java.util.*;
-import java.util.Map.Entry;
-
-import tla2sany.semantic.*;
-import tla2sany.st.Location;
-import tlc2.tool.BuiltInOPs;
-import tlc2.value.ModelValue;
-import tlc2.value.SetEnumValue;
-import tlc2.value.StringValue;
-import tlc2.value.Value;
-import tlc2.value.ValueConstants;
 import de.be4.classicalb.core.parser.Definitions;
 import de.be4.classicalb.core.parser.node.*;
 import de.hhu.stups.sablecc.patch.PositionedNode;
 import de.hhu.stups.sablecc.patch.SourcePosition;
-import de.tla2b.analysis.BOperation;
-import de.tla2b.analysis.PredicateVsExpression;
-import de.tla2b.analysis.RecursiveDefinition;
-import de.tla2b.analysis.SpecAnalyser;
-import de.tla2b.analysis.UsedExternalFunctions;
+import de.tla2b.analysis.*;
 import de.tla2b.analysis.PredicateVsExpression.DefinitionType;
 import de.tla2b.analysis.UsedExternalFunctions.EXTERNAL_FUNCTIONS;
 import de.tla2b.config.ConfigfileEvaluator;
 import de.tla2b.config.ValueObj;
 import de.tla2b.exceptions.NotImplementedException;
-import de.tla2b.global.BBuildIns;
-import de.tla2b.global.BBuiltInOPs;
-import de.tla2b.global.OperatorTypes;
-import de.tla2b.global.Priorities;
-import de.tla2b.global.TranslationGlobals;
+import de.tla2b.global.*;
 import de.tla2b.translation.BMacroHandler;
 import de.tla2b.translation.RecursiveFunctionHandler;
-import de.tla2b.types.EnumType;
-import de.tla2b.types.FunctionType;
-import de.tla2b.types.IType;
-import de.tla2b.types.SetType;
-import de.tla2b.types.StructType;
-import de.tla2b.types.TLAType;
-import de.tla2b.types.TupleType;
+import de.tla2b.types.*;
+import tla2sany.semantic.*;
+import tla2sany.st.Location;
+import tlc2.tool.BuiltInOPs;
+import tlc2.value.*;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 public class BAstCreator extends BuiltInOPs
-		implements TranslationGlobals, ASTConstants, BBuildIns, Priorities, ValueConstants {
+	implements TranslationGlobals, ASTConstants, BBuildIns, Priorities, ValueConstants {
 
 	List<PMachineClause> machineClauseList;
 	ConfigfileEvaluator conEval;
@@ -105,8 +87,8 @@ public class BAstCreator extends BuiltInOPs
 	}
 
 	public BAstCreator(ModuleNode moduleNode, ConfigfileEvaluator conEval, SpecAnalyser specAnalyser,
-			UsedExternalFunctions usedExternalFunctions, PredicateVsExpression predicateVsExpression,
-			BMacroHandler bMacroHandler, RecursiveFunctionHandler recursiveFunctionHandler) {
+	                   UsedExternalFunctions usedExternalFunctions, PredicateVsExpression predicateVsExpression,
+	                   BMacroHandler bMacroHandler, RecursiveFunctionHandler recursiveFunctionHandler) {
 		this.predicateVsExpression = predicateVsExpression;
 		this.bMacroHandler = bMacroHandler;
 		this.recursiveFunctionHandler = recursiveFunctionHandler;
@@ -279,7 +261,7 @@ public class BAstCreator extends BuiltInOPs
 			params.add(createIdentifierNode("Msg"));
 			def1.setParameters(params);
 			def1.setRhs(new AEqualPredicate(new AIntegerExpression(new TIntegerLiteral("1")),
-					new AIntegerExpression(new TIntegerLiteral("1"))));
+				new AIntegerExpression(new TIntegerLiteral("1"))));
 			list.add(def1);
 
 			AExpressionDefinitionDefinition def2 = new AExpressionDefinitionDefinition();
@@ -339,7 +321,7 @@ public class BAstCreator extends BuiltInOPs
 			for (OpDeclNode opDeclNode : bVariables) {
 
 				AIdentifierExpression id = createPositionedNode(
-						new AIdentifierExpression(createTIdentifierLiteral(getName(opDeclNode))), opDeclNode);
+					new AIdentifierExpression(createTIdentifierLiteral(getName(opDeclNode))), opDeclNode);
 				list.add(id);
 				TLAType type = (TLAType) opDeclNode.getToolObject(TYPE_ID);
 				typeTable.put(id, type);
@@ -354,8 +336,8 @@ public class BAstCreator extends BuiltInOPs
 
 		for (RecursiveDefinition recDef : specAnalyser.getRecursiveDefinitions()) {
 			AIdentifierExpression id = createPositionedNode(
-					new AIdentifierExpression(createTIdentifierLiteral(getName(recDef.getOpDefNode()))),
-					recDef.getOpDefNode());
+				new AIdentifierExpression(createTIdentifierLiteral(getName(recDef.getOpDefNode()))),
+				recDef.getOpDefNode());
 			constantsList.add(id);
 			TLAType type = (TLAType) recDef.getOpDefNode().getToolObject(TYPE_ID);
 			typeTable.put(id, type);
@@ -370,7 +352,7 @@ public class BAstCreator extends BuiltInOPs
 
 		if (!constantsList.isEmpty()) {
 			AAbstractConstantsMachineClause abstractConstantsClause = new AAbstractConstantsMachineClause(
-					constantsList);
+				constantsList);
 			machineClauseList.add(abstractConstantsClause);
 		}
 	}
@@ -386,7 +368,7 @@ public class BAstCreator extends BuiltInOPs
 		List<PExpression> constantsList = new ArrayList<>();
 		for (OpDeclNode opDeclNode : bConstants) {
 			AIdentifierExpression id = createPositionedNode(
-					new AIdentifierExpression(createTIdentifierLiteral(getName(opDeclNode))), opDeclNode);
+				new AIdentifierExpression(createTIdentifierLiteral(getName(opDeclNode))), opDeclNode);
 			constantsList.add(id);
 			TLAType type = (TLAType) opDeclNode.getToolObject(TYPE_ID);
 			typeTable.put(id, type);
@@ -474,7 +456,7 @@ public class BAstCreator extends BuiltInOPs
 			ThmOrAssumpDefNode def = assumeNode.getDef();
 			if (def != null) {
 				ALabelPredicate aLabelPredicate = new ALabelPredicate(new TPragmaIdOrString(def.getName().toString()),
-						createPositionedNode(visitAssumeNode(assumeNode), assumeNode));
+					createPositionedNode(visitAssumeNode(assumeNode), assumeNode));
 				assertionList.add(aLabelPredicate);
 			} else {
 				propertiesList.add(visitAssumeNode(assumeNode));
@@ -497,7 +479,7 @@ public class BAstCreator extends BuiltInOPs
 		List<PPredicate> propertiesList = new ArrayList<PPredicate>();
 		for (OpDefNode def : specAnalyser.getRecursiveFunctions()) {
 			AEqualPredicate equals = new AEqualPredicate(createIdentifierNode(def),
-					visitExprNodeExpression(def.getBody()));
+				visitExprNodeExpression(def.getBody()));
 			propertiesList.add(equals);
 		}
 		return propertiesList;
@@ -545,27 +527,27 @@ public class BAstCreator extends BuiltInOPs
 
 	private PExpression createTLCValue(Value tlcValue) {
 		switch (tlcValue.getKind()) {
-		case INTVALUE:
-			return new AIntegerExpression(new TIntegerLiteral(tlcValue.toString()));
-		case SETENUMVALUE: {
-			SetEnumValue s = (SetEnumValue) tlcValue;
-			ArrayList<PExpression> list = new ArrayList<>();
-			for (int i = 0; i < s.elems.size(); i++) {
-				Value v = s.elems.elementAt(i);
-				list.add(createTLCValue(v));
+			case INTVALUE:
+				return new AIntegerExpression(new TIntegerLiteral(tlcValue.toString()));
+			case SETENUMVALUE: {
+				SetEnumValue s = (SetEnumValue) tlcValue;
+				ArrayList<PExpression> list = new ArrayList<>();
+				for (int i = 0; i < s.elems.size(); i++) {
+					Value v = s.elems.elementAt(i);
+					list.add(createTLCValue(v));
+				}
+				return new ASetExtensionExpression(list);
 			}
-			return new ASetExtensionExpression(list);
-		}
-		case MODELVALUE: {
-			ModelValue m = (ModelValue) tlcValue;
-			return createIdentifierNode(m.toString());
-		}
-		case STRINGVALUE: {
-			StringValue stringValue = (StringValue) tlcValue;
-			return new AStringExpression(new TStringLiteral(stringValue.getVal().toString()));
-		}
-		default:
-			throw new NotImplementedException("TLC value in configuration file: " + tlcValue.getClass());
+			case MODELVALUE: {
+				ModelValue m = (ModelValue) tlcValue;
+				return createIdentifierNode(m.toString());
+			}
+			case STRINGVALUE: {
+				StringValue stringValue = (StringValue) tlcValue;
+				return new AStringExpression(new TStringLiteral(stringValue.getVal().toString()));
+			}
+			default:
+				throw new NotImplementedException("TLC value in configuration file: " + tlcValue.getClass());
 		}
 	}
 
@@ -613,52 +595,52 @@ public class BAstCreator extends BuiltInOPs
 
 	public PPredicate visitExprNodePredicate(ExprNode exprNode) {
 		switch (exprNode.getKind()) {
-		case OpApplKind:
-			return visitOpApplNodePredicate((OpApplNode) exprNode);
-		case LetInKind: {
-			LetInNode letInNode = (LetInNode) exprNode;
-			return visitExprNodePredicate(letInNode.getBody());
-		}
-		case NumeralKind:
-		case DecimalKind: {
-			throw new RuntimeException();
-		}
-		default:
-			throw new NotImplementedException(exprNode.getClass().toString());
+			case OpApplKind:
+				return visitOpApplNodePredicate((OpApplNode) exprNode);
+			case LetInKind: {
+				LetInNode letInNode = (LetInNode) exprNode;
+				return visitExprNodePredicate(letInNode.getBody());
+			}
+			case NumeralKind:
+			case DecimalKind: {
+				throw new RuntimeException();
+			}
+			default:
+				throw new NotImplementedException(exprNode.getClass().toString());
 		}
 
 	}
 
 	private PExpression visitExprNodeExpression(ExprNode exprNode) {
 		switch (exprNode.getKind()) {
-		case OpApplKind:
-			return visitOpApplNodeExpression((OpApplNode) exprNode);
-		case NumeralKind: {
-			String number = String.valueOf(((NumeralNode) exprNode).val());
-			return createPositionedNode(new AIntegerExpression(new TIntegerLiteral(number)), exprNode);
-		}
-		case DecimalKind: {
-			return createPositionedNode(new ARealExpression(new TRealLiteral(exprNode.toString())), exprNode);
-		}
-		case StringKind: {
-			StringNode s = (StringNode) exprNode;
-			return createPositionedNode(new AStringExpression(new TStringLiteral(s.getRep().toString())), exprNode);
-		}
-		case AtNodeKind: { // @
-			AtNode at = (AtNode) exprNode;
-			TLAType type = (TLAType) at.getExceptRef().getToolObject(TYPE_ID);
-			OpApplNode seq = at.getAtModifier();
-			LinkedList<ExprOrOpArgNode> list = new LinkedList<>(Arrays.asList(seq.getArgs()));
-			// PExpression base = visitExprNodeExpression(at.getAtBase());
-			PExpression base = (PExpression) at.getExceptComponentRef().getToolObject(EXCEPT_BASE);
-			return evalAtNode(list, type, base.clone());
-		}
-		case LetInKind: {
-			LetInNode letInNode = (LetInNode) exprNode;
-			return visitExprNodeExpression(letInNode.getBody());
-		}
-		default:
-			throw new NotImplementedException(exprNode.getClass().toString());
+			case OpApplKind:
+				return visitOpApplNodeExpression((OpApplNode) exprNode);
+			case NumeralKind: {
+				String number = String.valueOf(((NumeralNode) exprNode).val());
+				return createPositionedNode(new AIntegerExpression(new TIntegerLiteral(number)), exprNode);
+			}
+			case DecimalKind: {
+				return createPositionedNode(new ARealExpression(new TRealLiteral(exprNode.toString())), exprNode);
+			}
+			case StringKind: {
+				StringNode s = (StringNode) exprNode;
+				return createPositionedNode(new AStringExpression(new TStringLiteral(s.getRep().toString())), exprNode);
+			}
+			case AtNodeKind: { // @
+				AtNode at = (AtNode) exprNode;
+				TLAType type = (TLAType) at.getExceptRef().getToolObject(TYPE_ID);
+				OpApplNode seq = at.getAtModifier();
+				LinkedList<ExprOrOpArgNode> list = new LinkedList<>(Arrays.asList(seq.getArgs()));
+				// PExpression base = visitExprNodeExpression(at.getAtBase());
+				PExpression base = (PExpression) at.getExceptComponentRef().getToolObject(EXCEPT_BASE);
+				return evalAtNode(list, type, base.clone());
+			}
+			case LetInKind: {
+				LetInNode letInNode = (LetInNode) exprNode;
+				return visitExprNodeExpression(letInNode.getBody());
+			}
+			default:
+				throw new NotImplementedException(exprNode.getClass().toString());
 		}
 
 	}
@@ -690,99 +672,97 @@ public class BAstCreator extends BuiltInOPs
 
 	private PPredicate visitOpApplNodePredicate(OpApplNode opApplNode) {
 		switch (opApplNode.getOperator().getKind()) {
-		case VariableDeclKind:
-		case ConstantDeclKind:
-		case FormalParamKind: {
-			return createPositionedNode(
+			case VariableDeclKind:
+			case ConstantDeclKind:
+			case FormalParamKind: {
+				return createPositionedNode(
 					new AEqualPredicate(createIdentifierNode(opApplNode.getOperator()), new ABooleanTrueExpression()),
 					opApplNode);
-		}
-		case BuiltInKind:
-			return visitBuiltInKindPredicate(opApplNode);
+			}
+			case BuiltInKind:
+				return visitBuiltInKindPredicate(opApplNode);
 
-		case UserDefinedOpKind: {
-			return visitUserdefinedOpPredicate(opApplNode);
-		}
-		default:
-			throw new NotImplementedException(opApplNode.getClass().toString());
+			case UserDefinedOpKind: {
+				return visitUserdefinedOpPredicate(opApplNode);
+			}
+			default:
+				throw new NotImplementedException(opApplNode.getClass().toString());
 		}
 
 	}
 
 	private PExpression visitOpApplNodeExpression(OpApplNode n) {
 		switch (n.getOperator().getKind()) {
-		case ConstantDeclKind: {
-			return createIdentifierNode(n.getOperator());
-		}
-		case VariableDeclKind: {
-			return createIdentifierNode(n.getOperator());
-		}
-		case FormalParamKind: {
-			FormalParamNode param = (FormalParamNode) n.getOperator();
-			ExprOrOpArgNode e = (ExprOrOpArgNode) param.getToolObject(SUBSTITUTE_PARAM);
-			if (e != null) {
-				return visitExprOrOpArgNodeExpression(e);
+			case ConstantDeclKind:
+			case VariableDeclKind: {
+				return createIdentifierNode(n.getOperator());
 			}
-
-			if (recursiveFunctionHandler.isRecursiveFunction(param)) {
-				ArrayList<SymbolNode> list = recursiveFunctionHandler.getAdditionalParams(param);
-				if (!list.isEmpty()) {
-					AFunctionExpression call = new AFunctionExpression();
-					call.setIdentifier(createIdentifierNode(param));
-					ArrayList<PExpression> params = new ArrayList<>();
-					for (SymbolNode symbolNode : list) {
-						params.add(createIdentifierNode(symbolNode));
-					}
-					call.setParameters(params);
-					return call;
+			case FormalParamKind: {
+				FormalParamNode param = (FormalParamNode) n.getOperator();
+				ExprOrOpArgNode e = (ExprOrOpArgNode) param.getToolObject(SUBSTITUTE_PARAM);
+				if (e != null) {
+					return visitExprOrOpArgNodeExpression(e);
 				}
-			}
-			FormalParamNode[] tuple = (FormalParamNode[]) param.getToolObject(TUPLE);
-			if (tuple != null) {
-				if (tuple.length == 1) {
-					AFunctionExpression functionCall = new AFunctionExpression();
-					functionCall.setIdentifier(createIdentifierNode(n.getOperator()));
-					List<PExpression> paramList = new ArrayList<>();
-					paramList.add(new AIntegerExpression(new TIntegerLiteral("1")));
-					functionCall.setParameters(paramList);
-					return functionCall;
-				} else {
 
-					StringBuilder sb = new StringBuilder();
-					List<TLAType> typeList = new ArrayList<>();
-					int number = -1;
-					for (int j = 0; j < tuple.length; j++) {
-						FormalParamNode p = tuple[j];
-						sb.append(p.getName().toString());
-						TLAType type = (TLAType) p.getToolObject(TYPE_ID);
-						typeList.add(type);
-						if (p == param) {
-							number = j + 1;
+				if (recursiveFunctionHandler.isRecursiveFunction(param)) {
+					ArrayList<SymbolNode> list = recursiveFunctionHandler.getAdditionalParams(param);
+					if (!list.isEmpty()) {
+						AFunctionExpression call = new AFunctionExpression();
+						call.setIdentifier(createIdentifierNode(param));
+						ArrayList<PExpression> params = new ArrayList<>();
+						for (SymbolNode symbolNode : list) {
+							params.add(createIdentifierNode(symbolNode));
 						}
+						call.setParameters(params);
+						return call;
 					}
-					TupleType tupleType = new TupleType(typeList);
-					PExpression id = createIdentifierNode(sb.toString());
-					return createProjectionFunction(id, number, tupleType);
 				}
-			}
-			return createIdentifierNode(n.getOperator());
-		}
-		case BuiltInKind:
-			return visitBuiltInKindExpression(n);
+				FormalParamNode[] tuple = (FormalParamNode[]) param.getToolObject(TUPLE);
+				if (tuple != null) {
+					if (tuple.length == 1) {
+						AFunctionExpression functionCall = new AFunctionExpression();
+						functionCall.setIdentifier(createIdentifierNode(n.getOperator()));
+						List<PExpression> paramList = new ArrayList<>();
+						paramList.add(new AIntegerExpression(new TIntegerLiteral("1")));
+						functionCall.setParameters(paramList);
+						return functionCall;
+					} else {
 
-		case UserDefinedOpKind: {
-			return visitUserdefinedOpExpression(n);
-		}
-		default:
-			throw new NotImplementedException(n.getOperator().getName().toString());
+						StringBuilder sb = new StringBuilder();
+						List<TLAType> typeList = new ArrayList<>();
+						int number = -1;
+						for (int j = 0; j < tuple.length; j++) {
+							FormalParamNode p = tuple[j];
+							sb.append(p.getName().toString());
+							TLAType type = (TLAType) p.getToolObject(TYPE_ID);
+							typeList.add(type);
+							if (p == param) {
+								number = j + 1;
+							}
+						}
+						TupleType tupleType = new TupleType(typeList);
+						PExpression id = createIdentifierNode(sb.toString());
+						return createProjectionFunction(id, number, tupleType);
+					}
+				}
+				return createIdentifierNode(n.getOperator());
+			}
+			case BuiltInKind:
+				return visitBuiltInKindExpression(n);
+
+			case UserDefinedOpKind: {
+				return visitUserdefinedOpExpression(n);
+			}
+			default:
+				throw new NotImplementedException(n.getOperator().getName().toString());
 		}
 	}
 
 	private PPredicate visitUserdefinedOpPredicate(OpApplNode n) {
 		OpDefNode def = (OpDefNode) n.getOperator();
 		if (BBuiltInOPs.contains(def.getName()) // Operator is a B built-in
-												// operator
-				&& STANDARD_MODULES.contains(def.getSource().getOriginallyDefinedInModuleNode().getName().toString())) {
+			// operator
+			&& STANDARD_MODULES.contains(def.getSource().getOriginallyDefinedInModuleNode().getName().toString())) {
 			return visitBBuitInsPredicate(n);
 		}
 		if (specAnalyser.getRecursiveFunctions().contains(def)) {
@@ -822,7 +802,7 @@ public class BAstCreator extends BuiltInOPs
 		OpDefNode def = (OpDefNode) n.getOperator();
 		// Operator is a B built-in operator
 		if (BBuiltInOPs.contains(def.getName())
-				&& STANDARD_MODULES.contains(def.getSource().getOriginallyDefinedInModuleNode().getName().toString())) {
+			&& STANDARD_MODULES.contains(def.getSource().getOriginallyDefinedInModuleNode().getName().toString())) {
 			return visitBBuitInsExpression(n);
 		}
 
@@ -895,278 +875,277 @@ public class BAstCreator extends BuiltInOPs
 	private PPredicate visitBBuitInsPredicate(OpApplNode opApplNode) {
 		PPredicate returnNode = null;
 		switch (BBuiltInOPs.getOpcode(opApplNode.getOperator().getName())) {
-		case B_OPCODE_lt: // <
-			returnNode = new ALessPredicate(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+			case B_OPCODE_lt: // <
+				returnNode = new ALessPredicate(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
 					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
-			break;
+				break;
 
-		case B_OPCODE_gt: // >
-			returnNode = new AGreaterPredicate(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+			case B_OPCODE_gt: // >
+				returnNode = new AGreaterPredicate(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
 					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
-			break;
+				break;
 
-		case B_OPCODE_leq: // <=
-			returnNode = new ALessEqualPredicate(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+			case B_OPCODE_leq: // <=
+				returnNode = new ALessEqualPredicate(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
 					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
-			break;
+				break;
 
-		case B_OPCODE_geq: // >=
-			returnNode = new AGreaterEqualPredicate(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+			case B_OPCODE_geq: // >=
+				returnNode = new AGreaterEqualPredicate(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
 					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
-			break;
+				break;
 
-		case B_OPCODE_finite: // IsFiniteSet({1,2,3})
-		{
-			AMemberPredicate member = new AMemberPredicate();
-			member.setLeft(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
-			member.setRight(new AFinSubsetExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0])));
-			returnNode = member;
-			break;
-		}
-		case B_OPCODE_true: // TRUE
-			returnNode = new AEqualPredicate(new ABooleanTrueExpression(), new ABooleanTrueExpression());
-			break;
-
-		case B_OPCODE_false: // FALSE
-			returnNode = new AEqualPredicate(new ABooleanFalseExpression(), new ABooleanTrueExpression());
-			break;
-
-		case B_OPCODE_assert: {
-			ADefinitionPredicate pred = new ADefinitionPredicate();
-			pred.setDefLiteral(new TDefLiteralPredicate("ASSERT_TRUE"));
-			ArrayList<PExpression> list = new ArrayList<>();
-			list.add(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
-			if (opApplNode.getArgs()[1] instanceof StringNode) {
-				StringNode stringNode = (StringNode) opApplNode.getArgs()[1];
-				list.add(new AStringExpression(new TStringLiteral(stringNode.getRep().toString())));
-			} else {
-				list.add(new AStringExpression(new TStringLiteral("Error")));
+			case B_OPCODE_finite: // IsFiniteSet({1,2,3})
+			{
+				AMemberPredicate member = new AMemberPredicate();
+				member.setLeft(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
+				member.setRight(new AFinSubsetExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0])));
+				returnNode = member;
+				break;
 			}
-			pred.setParameters(list);
-			returnNode = pred;
-			break;
-		}
+			case B_OPCODE_true: // TRUE
+				returnNode = new AEqualPredicate(new ABooleanTrueExpression(), new ABooleanTrueExpression());
+				break;
+
+			case B_OPCODE_false: // FALSE
+				returnNode = new AEqualPredicate(new ABooleanFalseExpression(), new ABooleanTrueExpression());
+				break;
+
+			case B_OPCODE_assert: {
+				ADefinitionPredicate pred = new ADefinitionPredicate();
+				pred.setDefLiteral(new TDefLiteralPredicate("ASSERT_TRUE"));
+				ArrayList<PExpression> list = new ArrayList<>();
+				list.add(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
+				if (opApplNode.getArgs()[1] instanceof StringNode) {
+					StringNode stringNode = (StringNode) opApplNode.getArgs()[1];
+					list.add(new AStringExpression(new TStringLiteral(stringNode.getRep().toString())));
+				} else {
+					list.add(new AStringExpression(new TStringLiteral("Error")));
+				}
+				pred.setParameters(list);
+				returnNode = pred;
+				break;
+			}
 		}
 		if (returnNode != null) {
 			return createPositionedNode(returnNode, opApplNode);
 		} else {
 			throw new RuntimeException("Unexpected operator: " + opApplNode.getOperator().getName().toString() + "\n"
-					+ opApplNode.stn.getLocation());
+				+ opApplNode.stn.getLocation());
 		}
 	}
 
 	private PExpression visitBBuitInsExpression(OpApplNode opApplNode) {
 		PExpression returnNode = null;
 		switch (BBuiltInOPs.getOpcode(opApplNode.getOperator().getName())) {
-		case B_OPCODE_bool: // BOOLEAN
-			returnNode = new ABoolSetExpression();
-			break;
-		case B_OPCODE_true: // TRUE
-			returnNode = new ABooleanTrueExpression();
-			break;
-		case B_OPCODE_false: // FALSE
-			returnNode = new ABooleanFalseExpression();
-			break;
+			case B_OPCODE_bool: // BOOLEAN
+				returnNode = new ABoolSetExpression();
+				break;
+			case B_OPCODE_true: // TRUE
+				returnNode = new ABooleanTrueExpression();
+				break;
+			case B_OPCODE_false: // FALSE
+				returnNode = new ABooleanFalseExpression();
+				break;
 
-		/*
-		 * Standard Module Naturals
-		 */
-		case B_OPCODE_nat: // Nat
-			returnNode = new ANaturalSetExpression();
-			break;
+			/*
+			 * Standard Module Naturals
+			 */
+			case B_OPCODE_nat: // Nat
+				returnNode = new ANaturalSetExpression();
+				break;
 
-		case B_OPCODE_plus: // +
-			returnNode = new AAddExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+			case B_OPCODE_plus: // +
+				returnNode = new AAddExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
 					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
-			break;
+				break;
 
-		case B_OPCODE_minus: // -
-			returnNode = new AMinusOrSetSubtractExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+			case B_OPCODE_minus: // -
+				returnNode = new AMinusOrSetSubtractExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
 					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
-			break;
+				break;
 
-		case B_OPCODE_times: // *
-			returnNode = new AMultOrCartExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+			case B_OPCODE_times: // *
+				returnNode = new AMultOrCartExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
 					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
-			break;
+				break;
 
-		case B_OPCODE_exp: // x^y
-			returnNode = new APowerOfExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+			case B_OPCODE_exp: // x^y
+				returnNode = new APowerOfExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
 					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
-			break;
+				break;
 
-		case B_OPCODE_lt: // <
-			returnNode = new AConvertBoolExpression(
+			case B_OPCODE_lt: // <
+				returnNode = new AConvertBoolExpression(
 					new ALessPredicate(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
-							visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1])));
-			break;
+						visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1])));
+				break;
 
-		case B_OPCODE_gt: // >
-			returnNode = new AConvertBoolExpression(
+			case B_OPCODE_gt: // >
+				returnNode = new AConvertBoolExpression(
 					new AGreaterPredicate(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
-							visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1])));
-			break;
-		case B_OPCODE_leq: // <=
-			returnNode = new AConvertBoolExpression(
+						visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1])));
+				break;
+			case B_OPCODE_leq: // <=
+				returnNode = new AConvertBoolExpression(
 					new ALessEqualPredicate(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
-							visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1])));
-			break;
+						visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1])));
+				break;
 
-		case B_OPCODE_geq: // >=
-			returnNode = new AConvertBoolExpression(
+			case B_OPCODE_geq: // >=
+				returnNode = new AConvertBoolExpression(
 					new AGreaterEqualPredicate(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
-							visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1])));
-			break;
+						visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1])));
+				break;
 
-		case B_OPCODE_mod: // modulo a % b = a - b* (a/b)
-		{
-			PExpression a = visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]);
-			PExpression b = visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]);
-			PExpression a2 = visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]);
-			PExpression b2 = visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]);
+			case B_OPCODE_mod: // modulo a % b = a - b* (a/b)
+			{
+				PExpression a = visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]);
+				PExpression b = visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]);
+				PExpression a2 = visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]);
+				PExpression b2 = visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]);
 
-			AFlooredDivExpression div = new AFlooredDivExpression(a, b);
-			AMultOrCartExpression mult = new AMultOrCartExpression(b2, div);
-			AMinusOrSetSubtractExpression minus = new AMinusOrSetSubtractExpression(a2, mult);
-			returnNode = minus;
-			break;
-		}
+				AFlooredDivExpression div = new AFlooredDivExpression(a, b);
+				AMultOrCartExpression mult = new AMultOrCartExpression(b2, div);
+				returnNode = new AMinusOrSetSubtractExpression(a2, mult);
+				break;
+			}
 
-		case B_OPCODE_div: // \div
-			AFlooredDivExpression aFlooredDivExpression = new AFlooredDivExpression(
+			case B_OPCODE_div: // \div
+				AFlooredDivExpression aFlooredDivExpression = new AFlooredDivExpression(
 					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
 					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
 
-			setPosition(aFlooredDivExpression, opApplNode);
-			returnNode = aFlooredDivExpression;
-			break;
+				setPosition(aFlooredDivExpression, opApplNode);
+				returnNode = aFlooredDivExpression;
+				break;
 
-		case B_OPCODE_dotdot: // ..
-			returnNode = new AIntervalExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+			case B_OPCODE_dotdot: // ..
+				returnNode = new AIntervalExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
 					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
-			break;
+				break;
 
-		case B_OPCODE_int: // Int
-			returnNode = new AIntegerSetExpression();
-			break;
+			case B_OPCODE_int: // Int
+				returnNode = new AIntegerSetExpression();
+				break;
 
-		case B_OPCODE_real: // Real
-			returnNode = new ARealSetExpression();
-			break;
+			case B_OPCODE_real: // Real
+				returnNode = new ARealSetExpression();
+				break;
 
-		case B_OPCODE_uminus: // -x
-			returnNode = new AUnaryMinusExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
-			break;
+			case B_OPCODE_uminus: // -x
+				returnNode = new AUnaryMinusExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
+				break;
 
-		case B_OPCODE_card: // Cardinality
-			returnNode = new ACardExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
-			break;
+			case B_OPCODE_card: // Cardinality
+				returnNode = new ACardExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
+				break;
 
-		case B_OPCODE_finite: // IsFiniteSet({1,2,3})
-		{
-			AMemberPredicate member = new AMemberPredicate();
-			member.setLeft(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
-			member.setRight(new AFinSubsetExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0])));
-			returnNode = new AConvertBoolExpression(member);
-			break;
-		}
+			case B_OPCODE_finite: // IsFiniteSet({1,2,3})
+			{
+				AMemberPredicate member = new AMemberPredicate();
+				member.setLeft(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
+				member.setRight(new AFinSubsetExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0])));
+				returnNode = new AConvertBoolExpression(member);
+				break;
+			}
 
-		case B_OPCODE_string: // STRING
-			returnNode = new AStringSetExpression();
-			break;
-		/*
-		 * Standard Module Sequences
-		 */
+			case B_OPCODE_string: // STRING
+				returnNode = new AStringSetExpression();
+				break;
+			/*
+			 * Standard Module Sequences
+			 */
 
-		case B_OPCODE_seq: // Seq(S) - set of sequences
-			returnNode = new ASeqExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
-			break;
+			case B_OPCODE_seq: // Seq(S) - set of sequences
+				returnNode = new ASeqExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
+				break;
 
-		case B_OPCODE_len: // length of the sequence
-			returnNode = new ASizeExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
-			break;
+			case B_OPCODE_len: // length of the sequence
+				returnNode = new ASizeExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
+				break;
 
-		case B_OPCODE_conc: // s \o s2 - concatenation of s and s2
-			returnNode = new AConcatExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+			case B_OPCODE_conc: // s \o s2 - concatenation of s and s2
+				returnNode = new AConcatExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
 					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
-			break;
+				break;
 
-		case B_OPCODE_append: // Append(s,x)
-			returnNode = new AInsertTailExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
+			case B_OPCODE_append: // Append(s,x)
+				returnNode = new AInsertTailExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]),
 					visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
-			break;
+				break;
 
-		case B_OPCODE_head: // Head(s)
-			returnNode = new AFirstExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
-			break;
+			case B_OPCODE_head: // Head(s)
+				returnNode = new AFirstExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
+				break;
 
-		case B_OPCODE_tail: // Tail(s)
-			returnNode = new ATailExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
-			break;
+			case B_OPCODE_tail: // Tail(s)
+				returnNode = new ATailExpression(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
+				break;
 
-		case B_OPCODE_subseq: { // SubSeq(s,a,b)
-			// %p.(p : 1..(b-a+1)| s(p+a-1))
-			ALambdaExpression lambda = new ALambdaExpression();
-			lambda.setIdentifiers(createIdentifierList("t_"));
-			AMemberPredicate member = new AMemberPredicate();
-			member.setLeft(createIdentifierNode("t_"));
-			AIntervalExpression interval = new AIntervalExpression();
-			interval.setLeftBorder(new AIntegerExpression(new TIntegerLiteral("1")));
-			AMinusOrSetSubtractExpression minus = new AMinusOrSetSubtractExpression();
-			minus.setLeft(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[2]));
-			minus.setRight(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
-			AAddExpression add = new AAddExpression();
-			add.setLeft(minus);
-			add.setRight(new AIntegerExpression(new TIntegerLiteral("1")));
-			interval.setRightBorder(add);
-			member.setRight(interval);
-			lambda.setPredicate(member);
-			AAddExpression add2 = new AAddExpression();
-			add2.setLeft(createIdentifierNode("t_"));
-			add2.setRight(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
-			AMinusOrSetSubtractExpression minus2 = new AMinusOrSetSubtractExpression();
-			minus2.setLeft(add2);
-			minus2.setRight(new AIntegerExpression(new TIntegerLiteral("1")));
-			ArrayList<PExpression> params = new ArrayList<PExpression>();
-			params.add(minus2);
-			AFunctionExpression func = new AFunctionExpression();
-			func.setIdentifier(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
-			func.setParameters(params);
-			lambda.setExpression(func);
-			returnNode = lambda;
-			break;
-		}
+			case B_OPCODE_subseq: { // SubSeq(s,a,b)
+				// %p.(p : 1..(b-a+1)| s(p+a-1))
+				ALambdaExpression lambda = new ALambdaExpression();
+				lambda.setIdentifiers(createIdentifierList("t_"));
+				AMemberPredicate member = new AMemberPredicate();
+				member.setLeft(createIdentifierNode("t_"));
+				AIntervalExpression interval = new AIntervalExpression();
+				interval.setLeftBorder(new AIntegerExpression(new TIntegerLiteral("1")));
+				AMinusOrSetSubtractExpression minus = new AMinusOrSetSubtractExpression();
+				minus.setLeft(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[2]));
+				minus.setRight(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
+				AAddExpression add = new AAddExpression();
+				add.setLeft(minus);
+				add.setRight(new AIntegerExpression(new TIntegerLiteral("1")));
+				interval.setRightBorder(add);
+				member.setRight(interval);
+				lambda.setPredicate(member);
+				AAddExpression add2 = new AAddExpression();
+				add2.setLeft(createIdentifierNode("t_"));
+				add2.setRight(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
+				AMinusOrSetSubtractExpression minus2 = new AMinusOrSetSubtractExpression();
+				minus2.setLeft(add2);
+				minus2.setRight(new AIntegerExpression(new TIntegerLiteral("1")));
+				ArrayList<PExpression> params = new ArrayList<PExpression>();
+				params.add(minus2);
+				AFunctionExpression func = new AFunctionExpression();
+				func.setIdentifier(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
+				func.setParameters(params);
+				lambda.setExpression(func);
+				returnNode = lambda;
+				break;
+			}
 
-		case B_OPCODE_assert: {
-			ADefinitionPredicate pred = new ADefinitionPredicate();
-			pred.setDefLiteral(new TDefLiteralPredicate("ASSERT_TRUE"));
-			ArrayList<PExpression> list = new ArrayList<PExpression>();
-			list.add(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
-			list.add(new AStringExpression(new TStringLiteral("Error")));
-			pred.setParameters(list);
-			returnNode = new AConvertBoolExpression(pred);
-			break;
-		}
+			case B_OPCODE_assert: {
+				ADefinitionPredicate pred = new ADefinitionPredicate();
+				pred.setDefLiteral(new TDefLiteralPredicate("ASSERT_TRUE"));
+				ArrayList<PExpression> list = new ArrayList<PExpression>();
+				list.add(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
+				list.add(new AStringExpression(new TStringLiteral("Error")));
+				pred.setParameters(list);
+				returnNode = new AConvertBoolExpression(pred);
+				break;
+			}
 
-		case B_OPCODE_setsum: {
-			AGeneralSumExpression sum = new AGeneralSumExpression();
-			String variableName = "t_"; // TODO unused identifier name
-			List<PExpression> exprList = createPexpressionList(createIdentifierNode(variableName));
-			sum.setIdentifiers(exprList);
-			AMemberPredicate memberPredicate = new AMemberPredicate();
-			memberPredicate.setLeft(createIdentifierNode(variableName));
-			memberPredicate.setRight(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
-			sum.setPredicates(memberPredicate);
-			sum.setExpression(createIdentifierNode(variableName));
-			returnNode = sum;
-			break;
-		}
+			case B_OPCODE_setsum: {
+				AGeneralSumExpression sum = new AGeneralSumExpression();
+				String variableName = "t_"; // TODO unused identifier name
+				List<PExpression> exprList = createPexpressionList(createIdentifierNode(variableName));
+				sum.setIdentifiers(exprList);
+				AMemberPredicate memberPredicate = new AMemberPredicate();
+				memberPredicate.setLeft(createIdentifierNode(variableName));
+				memberPredicate.setRight(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
+				sum.setPredicates(memberPredicate);
+				sum.setExpression(createIdentifierNode(variableName));
+				returnNode = sum;
+				break;
+			}
 		}
 		if (returnNode != null) {
 			return createPositionedNode(returnNode, opApplNode);
 		} else {
 			throw new RuntimeException("Unexpected operator: " + opApplNode.getOperator().getName().toString() + "\n"
-					+ opApplNode.stn.getLocation());
+				+ opApplNode.stn.getLocation());
 		}
 
 	}
@@ -1193,590 +1172,590 @@ public class BAstCreator extends BuiltInOPs
 	private PExpression visitBuiltInKindExpression(OpApplNode n) {
 		switch (getOpCode(n.getOperator().getName())) {
 
-		case OPCODE_land: // \land
-		{
-			AConjunctPredicate conjunction = new AConjunctPredicate();
-			conjunction.setLeft(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-			conjunction.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[1]));
-			return new AConvertBoolExpression(conjunction);
-		}
-
-		case OPCODE_equiv: // \equiv
-			AEquivalencePredicate equiv = new AEquivalencePredicate(visitExprOrOpArgNodePredicate(n.getArgs()[0]),
-					visitExprOrOpArgNodePredicate(n.getArgs()[1]));
-			return new AConvertBoolExpression(equiv);
-
-		case OPCODE_implies: // =>
-			AImplicationPredicate impl = new AImplicationPredicate(visitExprOrOpArgNodePredicate(n.getArgs()[0]),
-					visitExprOrOpArgNodePredicate(n.getArgs()[1]));
-			new AConvertBoolExpression(impl);
-
-		case OPCODE_cl: // $ConjList
-		{
-			List<PPredicate> list = new ArrayList<PPredicate>();
-			for (int i = 0; i < n.getArgs().length; i++) {
-				list.add(visitExprOrOpArgNodePredicate(n.getArgs()[i]));
+			case OPCODE_land: // \land
+			{
+				AConjunctPredicate conjunction = new AConjunctPredicate();
+				conjunction.setLeft(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
+				conjunction.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[1]));
+				return new AConvertBoolExpression(conjunction);
 			}
-			return new AConvertBoolExpression(createConjunction(list));
-		}
 
-		case OPCODE_dl: // $DisjList
-		{
-			List<PPredicate> list = new ArrayList<PPredicate>();
-			for (int i = 0; i < n.getArgs().length; i++) {
-				list.add(visitExprOrOpArgNodePredicate(n.getArgs()[i]));
+			case OPCODE_equiv: // \equiv
+				AEquivalencePredicate equiv = new AEquivalencePredicate(visitExprOrOpArgNodePredicate(n.getArgs()[0]),
+					visitExprOrOpArgNodePredicate(n.getArgs()[1]));
+				return new AConvertBoolExpression(equiv);
+
+			case OPCODE_implies: // =>
+				AImplicationPredicate impl = new AImplicationPredicate(visitExprOrOpArgNodePredicate(n.getArgs()[0]),
+					visitExprOrOpArgNodePredicate(n.getArgs()[1]));
+				new AConvertBoolExpression(impl);
+
+			case OPCODE_cl: // $ConjList
+			{
+				List<PPredicate> list = new ArrayList<PPredicate>();
+				for (int i = 0; i < n.getArgs().length; i++) {
+					list.add(visitExprOrOpArgNodePredicate(n.getArgs()[i]));
+				}
+				return new AConvertBoolExpression(createConjunction(list));
 			}
-			return new AConvertBoolExpression(createDisjunction(list));
-		}
 
-		case OPCODE_lor: // \/
-		{
-			ADisjunctPredicate disjunction = new ADisjunctPredicate();
-			disjunction.setLeft(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-			disjunction.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[1]));
-			return new AConvertBoolExpression(disjunction);
-		}
+			case OPCODE_dl: // $DisjList
+			{
+				List<PPredicate> list = new ArrayList<PPredicate>();
+				for (int i = 0; i < n.getArgs().length; i++) {
+					list.add(visitExprOrOpArgNodePredicate(n.getArgs()[i]));
+				}
+				return new AConvertBoolExpression(createDisjunction(list));
+			}
 
-		case OPCODE_lnot: // \lnot
-			return new AConvertBoolExpression(new ANegationPredicate(visitExprOrOpArgNodePredicate(n.getArgs()[0])));
+			case OPCODE_lor: // \/
+			{
+				ADisjunctPredicate disjunction = new ADisjunctPredicate();
+				disjunction.setLeft(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
+				disjunction.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[1]));
+				return new AConvertBoolExpression(disjunction);
+			}
 
-		case OPCODE_in: // \in
-		{
-			AMemberPredicate memberPredicate = new AMemberPredicate();
-			memberPredicate.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			memberPredicate.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-			return new AConvertBoolExpression(memberPredicate);
-		}
+			case OPCODE_lnot: // \lnot
+				return new AConvertBoolExpression(new ANegationPredicate(visitExprOrOpArgNodePredicate(n.getArgs()[0])));
 
-		case OPCODE_notin: // \notin
-		{
-			ANotMemberPredicate notMemberPredicate = new ANotMemberPredicate();
-			notMemberPredicate.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			notMemberPredicate.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-			return new AConvertBoolExpression(notMemberPredicate);
-		}
+			case OPCODE_in: // \in
+			{
+				AMemberPredicate memberPredicate = new AMemberPredicate();
+				memberPredicate.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				memberPredicate.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+				return new AConvertBoolExpression(memberPredicate);
+			}
 
-		case OPCODE_eq: { // =
-			AEqualPredicate equal = new AEqualPredicate();
-			equal.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			equal.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-			return new AConvertBoolExpression(equal);
-		}
+			case OPCODE_notin: // \notin
+			{
+				ANotMemberPredicate notMemberPredicate = new ANotMemberPredicate();
+				notMemberPredicate.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				notMemberPredicate.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+				return new AConvertBoolExpression(notMemberPredicate);
+			}
 
-		case OPCODE_noteq: // /=
-		{
-			ANotEqualPredicate notEqual = new ANotEqualPredicate();
-			notEqual.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			notEqual.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-			return new AConvertBoolExpression(notEqual);
-		}
+			case OPCODE_eq: { // =
+				AEqualPredicate equal = new AEqualPredicate();
+				equal.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				equal.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+				return new AConvertBoolExpression(equal);
+			}
 
-		/*
-		 * Set Operators
-		 */
+			case OPCODE_noteq: // /=
+			{
+				ANotEqualPredicate notEqual = new ANotEqualPredicate();
+				notEqual.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				notEqual.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+				return new AConvertBoolExpression(notEqual);
+			}
 
-		case OPCODE_se: // SetEnumeration {..}
-		{
-			if (n.getArgs().length == 0) {
-				return new AEmptySetExpression();
-			} else {
+			/*
+			 * Set Operators
+			 */
+
+			case OPCODE_se: // SetEnumeration {..}
+			{
+				if (n.getArgs().length == 0) {
+					return new AEmptySetExpression();
+				} else {
+					List<PExpression> list = new ArrayList<PExpression>();
+
+					for (int i = 0; i < n.getArgs().length; i++) {
+						list.add(visitExprOrOpArgNodeExpression(n.getArgs()[i]));
+					}
+					return new ASetExtensionExpression(list);
+				}
+			}
+
+			case 0: {
+				return visitBBuitInsExpression(n);
+			}
+
+			case OPCODE_setdiff: // set difference
+			{
+				AMinusOrSetSubtractExpression minus = new AMinusOrSetSubtractExpression();
+				minus.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				minus.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+				return minus;
+			}
+
+			case OPCODE_cup: // set union
+			{
+				AUnionExpression union = new AUnionExpression();
+				union.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				union.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+				return union;
+			}
+
+			case OPCODE_cap: // set intersection
+			{
+				AIntersectionExpression inter = new AIntersectionExpression();
+				inter.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				inter.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+				return inter;
+			}
+
+			case OPCODE_subset: // SUBSET
+			{
+				APowSubsetExpression pow = new APowSubsetExpression();
+				pow.setExpression(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				return pow;
+			}
+
+			case OPCODE_union: // Union - Union{{1},{2}}
+			{
+				AGeneralUnionExpression union = new AGeneralUnionExpression();
+				union.setExpression(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				return union;
+			}
+
+			case OPCODE_subseteq: // \subseteq {1,2} <: {1,2,3}
+			{
+				ASubsetPredicate subset = new ASubsetPredicate();
+				subset.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				subset.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+				return new AConvertBoolExpression(subset);
+			}
+
+			case OPCODE_sso: { // $SubsetOf Represents {x \in S : P}
+				FormalParamNode[][] params = n.getBdedQuantSymbolLists();
 				List<PExpression> list = new ArrayList<PExpression>();
+				for (int i = 0; i < params[0].length; i++) {
+					FormalParamNode p = params[0][i];
+					list.add(createIdentifierNode(p));
+				}
+				AComprehensionSetExpression compre = new AComprehensionSetExpression();
+				compre.setIdentifiers(list);
+				PPredicate typing = visitBoundsOfFunctionsVariables(n);
+				AConjunctPredicate conj = new AConjunctPredicate(typing, visitExprOrOpArgNodePredicate(n.getArgs()[0]));
+				compre.setPredicates(conj);
+				return compre;
+			}
 
+			case OPCODE_soa: { // $SetOfAll Represents {e : p1 \in S, p2,p3 \in S2}
+				FormalParamNode[][] params = n.getBdedQuantSymbolLists();
+				List<PExpression> idList = createListOfIdentifier(params);
+				List<PPredicate> predList = new ArrayList<PPredicate>();
+
+				predList.add(visitBoundsOfLocalVariables(n));
+				final String nameOfTempVariable = "t_";
+				AEqualPredicate equals = new AEqualPredicate();
+				equals.setLeft(createIdentifierNode(nameOfTempVariable));
+				equals.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				// predList.add(equals);
+				AExistsPredicate exist = new AExistsPredicate();
+				exist.setIdentifiers(idList);
+				exist.setPredicate(createConjunction(predList));
+
+				AComprehensionSetExpression compre = new AComprehensionSetExpression();
+				List<PExpression> tList = new ArrayList<PExpression>();
+				tList.add(createIdentifierNode(nameOfTempVariable));
+				compre.setIdentifiers(tList);
+				compre.setPredicates(exist);
+
+				// UNION(p1,p2,p3).(P | {e})
+				AQuantifiedUnionExpression union = new AQuantifiedUnionExpression();
+				union.setIdentifiers(idList);
+				union.setPredicates(createConjunction(predList));
+				ASetExtensionExpression set = new ASetExtensionExpression();
+				List<PExpression> list = new ArrayList<PExpression>();
+				list.add(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				set.setExpressions(list);
+				union.setExpression(set);
+
+				return union;
+			}
+
+			case OPCODE_nrfs:
+			case OPCODE_fc: // Represents [x \in S |-> e].
+			case OPCODE_rfs: {
+				FormalParamNode[][] params = n.getBdedQuantSymbolLists();
+				List<PExpression> idList = new ArrayList<PExpression>();
+				for (int i = 0; i < params.length; i++) {
+					for (int j = 0; j < params[i].length; j++) {
+						FormalParamNode p = params[i][j];
+						idList.add(createIdentifierNode(p));
+					}
+				}
+				boolean[] isTuple = n.isBdedQuantATuple();
+				ALambdaExpression lambda = new ALambdaExpression();
+				List<PExpression> idList2 = new ArrayList<PExpression>();
+				for (int i = 0; i < params.length; i++) {
+					if (isTuple[i] && i > 0) {
+						StringBuilder sb = new StringBuilder();
+						for (int j = 0; j < params[i].length; j++) {
+							FormalParamNode p = params[i][j];
+							sb.append(p.getName().toString());
+
+						}
+						idList2.add(createIdentifierNode(sb.toString()));
+					} else {
+						for (int j = 0; j < params[i].length; j++) {
+							FormalParamNode p = params[i][j];
+							idList2.add(createIdentifierNode(p.getName().toString()));
+						}
+					}
+				}
+
+				lambda.setIdentifiers(idList2);
+				lambda.setPredicate(visitBoundsOfFunctionsVariables(n));
+				lambda.setExpression(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+
+				if (recursiveFunctionHandler.isRecursiveFunction(n)) {
+
+					ArrayList<SymbolNode> externParams = recursiveFunctionHandler.getAdditionalParams(n);
+					if (externParams.size() > 0) {
+						ALambdaExpression lambda2 = new ALambdaExpression();
+						ArrayList<PExpression> shiftedParams = new ArrayList<PExpression>();
+						List<PPredicate> predList2 = new ArrayList<PPredicate>();
+						for (SymbolNode p : externParams) {
+							shiftedParams.add(createIdentifierNode(p));
+
+							AMemberPredicate member = new AMemberPredicate();
+							member.setLeft(createIdentifierNode(p));
+							TLAType t = (TLAType) p.getToolObject(TYPE_ID);
+							member.setRight(t.getBNode());
+							predList2.add(member);
+						}
+						lambda2.setIdentifiers(shiftedParams);
+						lambda2.setPredicate(createConjunction(predList2));
+						lambda2.setExpression(lambda);
+						return lambda2;
+					}
+				}
+				return lambda;
+			}
+
+			case OPCODE_fa: { // f[1]
+				TLAType t = (TLAType) n.getArgs()[0].getToolObject(TYPE_ID);
+				if (t instanceof TupleType) {
+					NumeralNode num = (NumeralNode) n.getArgs()[1];
+					int field = num.val();
+					PExpression pair = visitExprOrOpArgNodeExpression(n.getArgs()[0]);
+					return createProjectionFunction(pair, field, t);
+				} else {
+					AFunctionExpression func = new AFunctionExpression();
+					func.setIdentifier(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+					List<PExpression> paramList = new ArrayList<PExpression>();
+
+					ExprOrOpArgNode dom = n.getArgs()[1];
+					if (dom instanceof OpApplNode
+						&& ((OpApplNode) dom).getOperator().getName().toString().equals("$Tuple")) {
+						OpApplNode domOpAppl = (OpApplNode) dom;
+						if (domOpAppl.getArgs().length == 1) {
+							List<PExpression> list = new ArrayList<PExpression>();
+							list.add(visitExprOrOpArgNodeExpression(domOpAppl.getArgs()[0]));
+							ASequenceExtensionExpression seq = new ASequenceExtensionExpression(list);
+							paramList.add(seq);
+						} else {
+							for (int i = 0; i < domOpAppl.getArgs().length; i++) {
+								paramList.add(visitExprOrOpArgNodeExpression(domOpAppl.getArgs()[i]));
+							}
+						}
+
+					} else {
+						paramList.add(visitExprOrOpArgNodeExpression(dom));
+					}
+					func.setParameters(paramList);
+					return func;
+				}
+
+			}
+
+			case OPCODE_domain:
+				return new ADomainExpression(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+
+			case OPCODE_sof: // [ A -> B]
+				return new ATotalFunctionExpression(visitExprOrOpArgNodeExpression(n.getArgs()[0]),
+					visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+
+			case OPCODE_tup: { // $Tuple
+				List<PExpression> list = new ArrayList<PExpression>();
 				for (int i = 0; i < n.getArgs().length; i++) {
 					list.add(visitExprOrOpArgNodeExpression(n.getArgs()[i]));
 				}
-				return new ASetExtensionExpression(list);
-			}
-		}
-
-		case 0: {
-			return visitBBuitInsExpression(n);
-		}
-
-		case OPCODE_setdiff: // set difference
-		{
-			AMinusOrSetSubtractExpression minus = new AMinusOrSetSubtractExpression();
-			minus.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			minus.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-			return minus;
-		}
-
-		case OPCODE_cup: // set union
-		{
-			AUnionExpression union = new AUnionExpression();
-			union.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			union.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-			return union;
-		}
-
-		case OPCODE_cap: // set intersection
-		{
-			AIntersectionExpression inter = new AIntersectionExpression();
-			inter.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			inter.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-			return inter;
-		}
-
-		case OPCODE_subset: // SUBSET
-		{
-			APowSubsetExpression pow = new APowSubsetExpression();
-			pow.setExpression(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			return pow;
-		}
-
-		case OPCODE_union: // Union - Union{{1},{2}}
-		{
-			AGeneralUnionExpression union = new AGeneralUnionExpression();
-			union.setExpression(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			return union;
-		}
-
-		case OPCODE_subseteq: // \subseteq {1,2} <: {1,2,3}
-		{
-			ASubsetPredicate subset = new ASubsetPredicate();
-			subset.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			subset.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-			return new AConvertBoolExpression(subset);
-		}
-
-		case OPCODE_sso: { // $SubsetOf Represents {x \in S : P}
-			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-			List<PExpression> list = new ArrayList<PExpression>();
-			for (int i = 0; i < params[0].length; i++) {
-				FormalParamNode p = params[0][i];
-				list.add(createIdentifierNode(p));
-			}
-			AComprehensionSetExpression compre = new AComprehensionSetExpression();
-			compre.setIdentifiers(list);
-			PPredicate typing = visitBoundsOfFunctionsVariables(n);
-			AConjunctPredicate conj = new AConjunctPredicate(typing, visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-			compre.setPredicates(conj);
-			return compre;
-		}
-
-		case OPCODE_soa: { // $SetOfAll Represents {e : p1 \in S, p2,p3 \in S2}
-			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-			List<PExpression> idList = createListOfIdentifier(params);
-			List<PPredicate> predList = new ArrayList<PPredicate>();
-
-			predList.add(visitBoundsOfLocalVariables(n));
-			final String nameOfTempVariable = "t_";
-			AEqualPredicate equals = new AEqualPredicate();
-			equals.setLeft(createIdentifierNode(nameOfTempVariable));
-			equals.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			// predList.add(equals);
-			AExistsPredicate exist = new AExistsPredicate();
-			exist.setIdentifiers(idList);
-			exist.setPredicate(createConjunction(predList));
-
-			AComprehensionSetExpression compre = new AComprehensionSetExpression();
-			List<PExpression> tList = new ArrayList<PExpression>();
-			tList.add(createIdentifierNode(nameOfTempVariable));
-			compre.setIdentifiers(tList);
-			compre.setPredicates(exist);
-
-			// UNION(p1,p2,p3).(P | {e})
-			AQuantifiedUnionExpression union = new AQuantifiedUnionExpression();
-			union.setIdentifiers(idList);
-			union.setPredicates(createConjunction(predList));
-			ASetExtensionExpression set = new ASetExtensionExpression();
-			List<PExpression> list = new ArrayList<PExpression>();
-			list.add(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			set.setExpressions(list);
-			union.setExpression(set);
-
-			return union;
-		}
-
-		case OPCODE_nrfs:
-		case OPCODE_fc: // Represents [x \in S |-> e].
-		case OPCODE_rfs: {
-			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-			List<PExpression> idList = new ArrayList<PExpression>();
-			for (int i = 0; i < params.length; i++) {
-				for (int j = 0; j < params[i].length; j++) {
-					FormalParamNode p = params[i][j];
-					idList.add(createIdentifierNode(p));
-				}
-			}
-			boolean[] isTuple = n.isBdedQuantATuple();
-			ALambdaExpression lambda = new ALambdaExpression();
-			List<PExpression> idList2 = new ArrayList<PExpression>();
-			for (int i = 0; i < params.length; i++) {
-				if (isTuple[i] && i > 0) {
-					StringBuilder sb = new StringBuilder();
-					for (int j = 0; j < params[i].length; j++) {
-						FormalParamNode p = params[i][j];
-						sb.append(p.getName().toString());
-
-					}
-					idList2.add(createIdentifierNode(sb.toString()));
+				TLAType t = (TLAType) n.getToolObject(TYPE_ID);
+				if (t instanceof TupleType) {
+					return new ACoupleExpression(list);
 				} else {
-					for (int j = 0; j < params[i].length; j++) {
-						FormalParamNode p = params[i][j];
-						idList2.add(createIdentifierNode(p.getName().toString()));
-					}
-				}
-			}
-
-			lambda.setIdentifiers(idList2);
-			lambda.setPredicate(visitBoundsOfFunctionsVariables(n));
-			lambda.setExpression(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-
-			if (recursiveFunctionHandler.isRecursiveFunction(n)) {
-
-				ArrayList<SymbolNode> externParams = recursiveFunctionHandler.getAdditionalParams(n);
-				if (externParams.size() > 0) {
-					ALambdaExpression lambda2 = new ALambdaExpression();
-					ArrayList<PExpression> shiftedParams = new ArrayList<PExpression>();
-					List<PPredicate> predList2 = new ArrayList<PPredicate>();
-					for (SymbolNode p : externParams) {
-						shiftedParams.add(createIdentifierNode(p));
-
-						AMemberPredicate member = new AMemberPredicate();
-						member.setLeft(createIdentifierNode(p));
-						TLAType t = (TLAType) p.getToolObject(TYPE_ID);
-						member.setRight(t.getBNode());
-						predList2.add(member);
-					}
-					lambda2.setIdentifiers(shiftedParams);
-					lambda2.setPredicate(createConjunction(predList2));
-					lambda2.setExpression(lambda);
-					return lambda2;
-				}
-			}
-			return lambda;
-		}
-
-		case OPCODE_fa: { // f[1]
-			TLAType t = (TLAType) n.getArgs()[0].getToolObject(TYPE_ID);
-			if (t instanceof TupleType) {
-				NumeralNode num = (NumeralNode) n.getArgs()[1];
-				int field = num.val();
-				PExpression pair = visitExprOrOpArgNodeExpression(n.getArgs()[0]);
-				return createProjectionFunction(pair, field, t);
-			} else {
-				AFunctionExpression func = new AFunctionExpression();
-				func.setIdentifier(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-				List<PExpression> paramList = new ArrayList<PExpression>();
-
-				ExprOrOpArgNode dom = n.getArgs()[1];
-				if (dom instanceof OpApplNode
-						&& ((OpApplNode) dom).getOperator().getName().toString().equals("$Tuple")) {
-					OpApplNode domOpAppl = (OpApplNode) dom;
-					if (domOpAppl.getArgs().length == 1) {
-						List<PExpression> list = new ArrayList<PExpression>();
-						list.add(visitExprOrOpArgNodeExpression(domOpAppl.getArgs()[0]));
-						ASequenceExtensionExpression seq = new ASequenceExtensionExpression(list);
-						paramList.add(seq);
+					if (list.isEmpty()) {
+						return new AEmptySequenceExpression();
 					} else {
-						for (int i = 0; i < domOpAppl.getArgs().length; i++) {
-							paramList.add(visitExprOrOpArgNodeExpression(domOpAppl.getArgs()[i]));
+						return new ASequenceExtensionExpression(list);
+					}
+				}
+			}
+
+			case OPCODE_cp: // $CartesianProd A \X B \X C
+			{
+				PExpression first = visitExprOrOpArgNodeExpression(n.getArgs()[0]);
+				for (int i = 1; i < n.getArgs().length; i++) {
+					PExpression second = visitExprOrOpArgNodeExpression(n.getArgs()[i]);
+					first = new AMultOrCartExpression(first, second);
+				}
+				return first;
+			}
+
+			case OPCODE_sor: { // $SetOfRcds [L1 : e1, L2 : e2]
+				SetType pow = (SetType) n.getToolObject(TYPE_ID);
+				StructType struct = (StructType) pow.getSubType();
+				ExprOrOpArgNode[] args = n.getArgs();
+				Hashtable<String, PExpression> pairTable = new Hashtable<>();
+				for (ExprOrOpArgNode arg : args) {
+					OpApplNode pair = (OpApplNode) arg;
+					StringNode stringNode = (StringNode) pair.getArgs()[0];
+					pairTable.put(stringNode.getRep().toString(), visitExprOrOpArgNodeExpression(pair.getArgs()[1]));
+
+				}
+				List<PRecEntry> recList = new ArrayList<>();
+				if (struct.isExtensible()) {
+					for (int i = 0; i < struct.getFields().size(); i++) {
+						String fieldName = struct.getFields().get(i); // name
+						AIdentifierExpression field = createIdentifierNode(fieldName);
+						ARecEntry rec = new ARecEntry();
+						rec.setIdentifier(field);
+						AMultOrCartExpression cart = new AMultOrCartExpression();
+						cart.setLeft(new ABoolSetExpression());
+						if (pairTable.containsKey(fieldName)) {
+							cart.setRight(pairTable.get(fieldName));
+						} else {
+							cart.setRight(struct.getType(fieldName).getBNode());
 						}
+						rec.setValue(new APowSubsetExpression(cart));
+						recList.add(rec);
 					}
+				} else {
+					for (int i = 0; i < struct.getFields().size(); i++) {
+						String fieldName = struct.getFields().get(i);
+						AIdentifierExpression field = createIdentifierNode(fieldName);
+						ARecEntry rec = new ARecEntry();
+						rec.setIdentifier(field);
+						if (pairTable.containsKey(fieldName)) {
+							rec.setValue(pairTable.get(fieldName));
+						} else {
+							rec.setValue(struct.getType(fieldName).getBNode());
+						}
+						recList.add(rec);
+					}
+
+				}
+				return new AStructExpression(recList);
+			}
+
+			case OPCODE_rc: { // [h_1 |-> 1, h_2 |-> 2]
+				StructType struct = (StructType) n.getToolObject(TYPE_ID);
+				if (struct.isExtensible()) {
+					Hashtable<String, PExpression> pairTable = new Hashtable<>();
+					ExprOrOpArgNode[] args = n.getArgs();
+					for (ExprOrOpArgNode arg : args) {
+						OpApplNode pair = (OpApplNode) arg;
+						StringNode stringNode = (StringNode) pair.getArgs()[0];
+						pairTable.put(stringNode.getRep().toString(), visitExprOrOpArgNodeExpression(pair.getArgs()[1]));
+					}
+					List<PRecEntry> recList = new ArrayList<>();
+					for (int i = 0; i < struct.getFields().size(); i++) {
+						String fieldName = struct.getFields().get(i);
+						AIdentifierExpression field = createIdentifierNode(fieldName);
+						ARecEntry rec = new ARecEntry();
+						rec.setIdentifier(field);
+						if (pairTable.containsKey(fieldName)) {
+
+							ACoupleExpression couple = new ACoupleExpression();
+							List<PExpression> coupleList = new ArrayList<>();
+							coupleList.add(new ABooleanTrueExpression());
+							coupleList.add(pairTable.get(fieldName));
+							couple.setList(coupleList);
+							ASetExtensionExpression set = new ASetExtensionExpression(createPexpressionList(couple));
+							rec.setValue(set);
+						} else {
+							AEmptySetExpression emptySet = new AEmptySetExpression();
+							rec.setValue(emptySet);
+						}
+						recList.add(rec);
+					}
+					return new ARecExpression(recList);
 
 				} else {
-					paramList.add(visitExprOrOpArgNodeExpression(dom));
+					Hashtable<String, PExpression> pairTable = new Hashtable<>();
+					ExprOrOpArgNode[] args = n.getArgs();
+					for (ExprOrOpArgNode arg : args) {
+						OpApplNode pair = (OpApplNode) arg;
+						StringNode stringNode = (StringNode) pair.getArgs()[0];
+						pairTable.put(stringNode.getRep().toString(), visitExprOrOpArgNodeExpression(pair.getArgs()[1]));
+					}
+					List<PRecEntry> recList = new ArrayList<>();
+					for (int i = 0; i < struct.getFields().size(); i++) {
+						String fieldName = struct.getFields().get(i);
+						AIdentifierExpression field = createIdentifierNode(fieldName);
+						ARecEntry rec = new ARecEntry();
+						rec.setIdentifier(field);
+						if (pairTable.containsKey(fieldName)) {
+							rec.setValue(pairTable.get(fieldName));
+						} else {
+							// this struct is extensible
+							throw new NotImplementedException("Missing case handling extensible structs.");
+						}
+						recList.add(rec);
+					}
+					return new ARecExpression(recList);
 				}
-				func.setParameters(paramList);
-				return func;
+
 			}
 
-		}
-
-		case OPCODE_domain:
-			return new ADomainExpression(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-
-		case OPCODE_sof: // [ A -> B]
-			return new ATotalFunctionExpression(visitExprOrOpArgNodeExpression(n.getArgs()[0]),
-					visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-
-		case OPCODE_tup: { // $Tuple
-			List<PExpression> list = new ArrayList<PExpression>();
-			for (int i = 0; i < n.getArgs().length; i++) {
-				list.add(visitExprOrOpArgNodeExpression(n.getArgs()[i]));
-			}
-			TLAType t = (TLAType) n.getToolObject(TYPE_ID);
-			if (t instanceof TupleType) {
-				return new ACoupleExpression(list);
-			} else {
-				if (list.size() == 0) {
-					return new AEmptySequenceExpression();
+			case OPCODE_rs: { // $RcdSelect r.c
+				StructType struct = (StructType) n.getArgs()[0].getToolObject(TYPE_ID);
+				if (struct.isExtensible()) {
+					ARecordFieldExpression rcdSelect = new ARecordFieldExpression();
+					rcdSelect.setRecord(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+					StringNode stringNode = (StringNode) n.getArgs()[1];
+					rcdSelect.setIdentifier(createIdentifierNode(stringNode.getRep().toString()));
+					AFunctionExpression funcCall = new AFunctionExpression();
+					funcCall.setIdentifier(rcdSelect);
+					funcCall.setParameters(createPexpressionList(new ABooleanTrueExpression()));
+					return funcCall;
 				} else {
-					return new ASequenceExtensionExpression(list);
+					ARecordFieldExpression rcdSelect = new ARecordFieldExpression();
+					rcdSelect.setRecord(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+					StringNode stringNode = (StringNode) n.getArgs()[1];
+					rcdSelect.setIdentifier(createIdentifierNode(stringNode.getRep().toString()));
+					return rcdSelect;
 				}
 			}
-		}
 
-		case OPCODE_cp: // $CartesianProd A \X B \X C
-		{
-			PExpression first = visitExprOrOpArgNodeExpression(n.getArgs()[0]);
-			for (int i = 1; i < n.getArgs().length; i++) {
-				PExpression second = visitExprOrOpArgNodeExpression(n.getArgs()[i]);
-				first = new AMultOrCartExpression(first, second);
-			}
-			return first;
-		}
-
-		case OPCODE_sor: { // $SetOfRcds [L1 : e1, L2 : e2]
-			SetType pow = (SetType) n.getToolObject(TYPE_ID);
-			StructType struct = (StructType) pow.getSubType();
-			ExprOrOpArgNode[] args = n.getArgs();
-			Hashtable<String, PExpression> pairTable = new Hashtable<String, PExpression>();
-			for (int i = 0; i < args.length; i++) {
-				OpApplNode pair = (OpApplNode) args[i];
-				StringNode stringNode = (StringNode) pair.getArgs()[0];
-				pairTable.put(stringNode.getRep().toString(), visitExprOrOpArgNodeExpression(pair.getArgs()[1]));
-
-			}
-			List<PRecEntry> recList = new ArrayList<PRecEntry>();
-			if (struct.isExtensible()) {
-				for (int i = 0; i < struct.getFields().size(); i++) {
-					String fieldName = struct.getFields().get(i); // name
-					AIdentifierExpression field = createIdentifierNode(fieldName);
-					ARecEntry rec = new ARecEntry();
-					rec.setIdentifier(field);
-					AMultOrCartExpression cart = new AMultOrCartExpression();
-					cart.setLeft(new ABoolSetExpression());
-					if (pairTable.containsKey(fieldName)) {
-						cart.setRight(pairTable.get(fieldName));
-					} else {
-						cart.setRight(struct.getType(fieldName).getBNode());
-					}
-					rec.setValue(new APowSubsetExpression(cart));
-					recList.add(rec);
-				}
-			} else {
-				for (int i = 0; i < struct.getFields().size(); i++) {
-					String fieldName = struct.getFields().get(i);
-					AIdentifierExpression field = createIdentifierNode(fieldName);
-					ARecEntry rec = new ARecEntry();
-					rec.setIdentifier(field);
-					if (pairTable.containsKey(fieldName)) {
-						rec.setValue(pairTable.get(fieldName));
-					} else {
-						rec.setValue(struct.getType(fieldName).getBNode());
-					}
-					recList.add(rec);
-				}
-
-			}
-			return new AStructExpression(recList);
-		}
-
-		case OPCODE_rc: { // [h_1 |-> 1, h_2 |-> 2]
-			StructType struct = (StructType) n.getToolObject(TYPE_ID);
-			if (struct.isExtensible()) {
-				Hashtable<String, PExpression> pairTable = new Hashtable<String, PExpression>();
-				ExprOrOpArgNode[] args = n.getArgs();
-				for (int i = 0; i < args.length; i++) {
-					OpApplNode pair = (OpApplNode) args[i];
-					StringNode stringNode = (StringNode) pair.getArgs()[0];
-					pairTable.put(stringNode.getRep().toString(), visitExprOrOpArgNodeExpression(pair.getArgs()[1]));
-				}
-				List<PRecEntry> recList = new ArrayList<PRecEntry>();
-				for (int i = 0; i < struct.getFields().size(); i++) {
-					String fieldName = struct.getFields().get(i);
-					AIdentifierExpression field = createIdentifierNode(fieldName);
-					ARecEntry rec = new ARecEntry();
-					rec.setIdentifier(field);
-					if (pairTable.containsKey(fieldName)) {
-
-						ACoupleExpression couple = new ACoupleExpression();
-						List<PExpression> coupleList = new ArrayList<PExpression>();
-						coupleList.add(new ABooleanTrueExpression());
-						coupleList.add(pairTable.get(fieldName));
-						couple.setList(coupleList);
-						ASetExtensionExpression set = new ASetExtensionExpression(createPexpressionList(couple));
-						rec.setValue(set);
-					} else {
-						AEmptySetExpression emptySet = new AEmptySetExpression();
-						rec.setValue(emptySet);
-					}
-					recList.add(rec);
-				}
-				return new ARecExpression(recList);
-
-			} else {
-				Hashtable<String, PExpression> pairTable = new Hashtable<String, PExpression>();
-				ExprOrOpArgNode[] args = n.getArgs();
-				for (int i = 0; i < args.length; i++) {
-					OpApplNode pair = (OpApplNode) args[i];
-					StringNode stringNode = (StringNode) pair.getArgs()[0];
-					pairTable.put(stringNode.getRep().toString(), visitExprOrOpArgNodeExpression(pair.getArgs()[1]));
-				}
-				List<PRecEntry> recList = new ArrayList<PRecEntry>();
-				for (int i = 0; i < struct.getFields().size(); i++) {
-					String fieldName = struct.getFields().get(i);
-					AIdentifierExpression field = createIdentifierNode(fieldName);
-					ARecEntry rec = new ARecEntry();
-					rec.setIdentifier(field);
-					if (pairTable.containsKey(fieldName)) {
-						rec.setValue(pairTable.get(fieldName));
-					} else {
-						// this struct is extensible
-						throw new NotImplementedException("Missing case handling extensible structs.");
-					}
-					recList.add(rec);
-				}
-				return new ARecExpression(recList);
+			case OPCODE_prime: // prime
+			{
+				OpApplNode node = (OpApplNode) n.getArgs()[0];
+				return createIdentifierNode(node.getOperator().getName().toString() + "_n");
 			}
 
-		}
-
-		case OPCODE_rs: { // $RcdSelect r.c
-			StructType struct = (StructType) n.getArgs()[0].getToolObject(TYPE_ID);
-			if (struct.isExtensible()) {
-				ARecordFieldExpression rcdSelect = new ARecordFieldExpression();
-				rcdSelect.setRecord(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-				StringNode stringNode = (StringNode) n.getArgs()[1];
-				rcdSelect.setIdentifier(createIdentifierNode(stringNode.getRep().toString()));
-				AFunctionExpression funcCall = new AFunctionExpression();
-				funcCall.setIdentifier(rcdSelect);
-				funcCall.setParameters(createPexpressionList(new ABooleanTrueExpression()));
-				return funcCall;
-			} else {
-				ARecordFieldExpression rcdSelect = new ARecordFieldExpression();
-				rcdSelect.setRecord(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-				StringNode stringNode = (StringNode) n.getArgs()[1];
-				rcdSelect.setIdentifier(createIdentifierNode(stringNode.getRep().toString()));
-				return rcdSelect;
-			}
-		}
-
-		case OPCODE_prime: // prime
-		{
-			OpApplNode node = (OpApplNode) n.getArgs()[0];
-			return createIdentifierNode(node.getOperator().getName().toString() + "_n");
-		}
-
-		case OPCODE_ite: { // IF THEN ELSE
-			List<PExpression> Elsifs = new ArrayList<>();
-			AIfThenElseExpression ifthenElse = new AIfThenElseExpression(visitExprOrOpArgNodePredicate(n.getArgs()[0]),
+			case OPCODE_ite: { // IF THEN ELSE
+				List<PExpression> Elsifs = new ArrayList<>();
+				AIfThenElseExpression ifthenElse = new AIfThenElseExpression(visitExprOrOpArgNodePredicate(n.getArgs()[0]),
 					visitExprOrOpArgNodeExpression(n.getArgs()[1]), Elsifs,
 					visitExprOrOpArgNodeExpression(n.getArgs()[2]));
-			return ifthenElse;
+				return ifthenElse;
 
-			// ALambdaExpression lambda1 = new ALambdaExpression();
-			// lambda1.setIdentifiers(createIdentifierList("t_"));
-			// AEqualPredicate eq1 = new AEqualPredicate(
-			// createIdentifierNode("t_"), new AIntegerExpression(
-			// new TIntegerLiteral("0")));
-			// AConjunctPredicate c1 = new AConjunctPredicate();
-			// c1.setLeft(eq1);
-			// c1.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-			// lambda1.setPredicate(c1);
-			// lambda1.setExpression(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-			//
-			// ALambdaExpression lambda2 = new ALambdaExpression();
-			// lambda2.setIdentifiers(createIdentifierList("t_"));
-			// AEqualPredicate eq2 = new AEqualPredicate(
-			// createIdentifierNode("t_"), new AIntegerExpression(
-			// new TIntegerLiteral("0")));
-			// AConjunctPredicate c2 = new AConjunctPredicate();
-			// c2.setLeft(eq2);
-			// ANegationPredicate not = new ANegationPredicate(
-			// visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-			// c2.setRight(not);
-			// lambda2.setPredicate(c2);
-			// lambda2.setExpression(visitExprOrOpArgNodeExpression(n.getArgs()[2]));
-			//
-			// AUnionExpression union = new AUnionExpression(lambda1, lambda2);
-			// AFunctionExpression funCall = new AFunctionExpression();
-			// funCall.setIdentifier(union);
-			// List<PExpression> list = new ArrayList<PExpression>();
-			// list.add(new AIntegerExpression(new TIntegerLiteral("0")));
-			// funCall.setParameters(list);
-			// return funCall;
-		}
-
-		case OPCODE_case: {
-			return createCaseNode(n);
-		}
-
-		case OPCODE_exc: // $Except
-		{
-			TLAType type = (TLAType) n.getToolObject(TYPE_ID);
-
-			if (type.getKind() == IType.STRUCT) {
-				StructType structType = (StructType) type;
-				PExpression res = visitExprOrOpArgNodeExpression(n.getArgs()[0]);
-				for (int i = 1; i < n.getArgs().length; i++) {
-					OpApplNode pair = (OpApplNode) n.getArgs()[i];
-					ExprOrOpArgNode first = pair.getArgs()[0];
-					ExprOrOpArgNode val = pair.getArgs()[1];
-					OpApplNode seq = (OpApplNode) first;
-
-					LinkedList<ExprOrOpArgNode> seqList = new LinkedList<ExprOrOpArgNode>();
-					Collections.addAll(seqList, seq.getArgs());
-
-					pair.setToolObject(EXCEPT_BASE, res.clone());
-					res = evalExceptValue(res.clone(), seqList, structType, val);
-				}
-				return res;
-
-			} else {
-				FunctionType func = (FunctionType) type;
-
-				PExpression res = visitExprOrOpArgNodeExpression(n.getArgs()[0]);
-				for (int i = 1; i < n.getArgs().length; i++) {
-					OpApplNode pair = (OpApplNode) n.getArgs()[i];
-
-					ExprOrOpArgNode first = pair.getArgs()[0];
-					ExprOrOpArgNode val = pair.getArgs()[1];
-					OpApplNode seq = (OpApplNode) first;
-
-					LinkedList<ExprOrOpArgNode> seqList = new LinkedList<ExprOrOpArgNode>();
-					Collections.addAll(seqList, seq.getArgs());
-
-					pair.setToolObject(EXCEPT_BASE, res.clone());
-					res = evalExceptValue(res.clone(), seqList, func, val);
-				}
-				return res;
+				// ALambdaExpression lambda1 = new ALambdaExpression();
+				// lambda1.setIdentifiers(createIdentifierList("t_"));
+				// AEqualPredicate eq1 = new AEqualPredicate(
+				// createIdentifierNode("t_"), new AIntegerExpression(
+				// new TIntegerLiteral("0")));
+				// AConjunctPredicate c1 = new AConjunctPredicate();
+				// c1.setLeft(eq1);
+				// c1.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
+				// lambda1.setPredicate(c1);
+				// lambda1.setExpression(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+				//
+				// ALambdaExpression lambda2 = new ALambdaExpression();
+				// lambda2.setIdentifiers(createIdentifierList("t_"));
+				// AEqualPredicate eq2 = new AEqualPredicate(
+				// createIdentifierNode("t_"), new AIntegerExpression(
+				// new TIntegerLiteral("0")));
+				// AConjunctPredicate c2 = new AConjunctPredicate();
+				// c2.setLeft(eq2);
+				// ANegationPredicate not = new ANegationPredicate(
+				// visitExprOrOpArgNodePredicate(n.getArgs()[0]));
+				// c2.setRight(not);
+				// lambda2.setPredicate(c2);
+				// lambda2.setExpression(visitExprOrOpArgNodeExpression(n.getArgs()[2]));
+				//
+				// AUnionExpression union = new AUnionExpression(lambda1, lambda2);
+				// AFunctionExpression funCall = new AFunctionExpression();
+				// funCall.setIdentifier(union);
+				// List<PExpression> list = new ArrayList<PExpression>();
+				// list.add(new AIntegerExpression(new TIntegerLiteral("0")));
+				// funCall.setParameters(list);
+				// return funCall;
 			}
-		}
 
-		case OPCODE_seq: // !
-		{
-			return visitExprOrOpArgNodeExpression(n.getArgs()[0]);
-		}
+			case OPCODE_case: {
+				return createCaseNode(n);
+			}
 
-		case OPCODE_uc: { // CHOOSE x : P
-			return createUnboundedChoose(n);
-		}
+			case OPCODE_exc: // $Except
+			{
+				TLAType type = (TLAType) n.getToolObject(TYPE_ID);
 
-		case OPCODE_bc: { // CHOOSE x \in S: P
-			return createBoundedChoose(n);
-		}
+				if (type.getKind() == IType.STRUCT) {
+					StructType structType = (StructType) type;
+					PExpression res = visitExprOrOpArgNodeExpression(n.getArgs()[0]);
+					for (int i = 1; i < n.getArgs().length; i++) {
+						OpApplNode pair = (OpApplNode) n.getArgs()[i];
+						ExprOrOpArgNode first = pair.getArgs()[0];
+						ExprOrOpArgNode val = pair.getArgs()[1];
+						OpApplNode seq = (OpApplNode) first;
 
-		case OPCODE_bf: { // \A x \in S : P
-			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-			ArrayList<PExpression> list = new ArrayList<PExpression>();
-			for (int i = 0; i < params.length; i++) {
-				for (int j = 0; j < params[i].length; j++) {
-					list.add(createIdentifierNode(params[i][j]));
+						LinkedList<ExprOrOpArgNode> seqList = new LinkedList<>();
+						Collections.addAll(seqList, seq.getArgs());
+
+						pair.setToolObject(EXCEPT_BASE, res.clone());
+						res = evalExceptValue(res.clone(), seqList, structType, val);
+					}
+					return res;
+
+				} else {
+					FunctionType func = (FunctionType) type;
+
+					PExpression res = visitExprOrOpArgNodeExpression(n.getArgs()[0]);
+					for (int i = 1; i < n.getArgs().length; i++) {
+						OpApplNode pair = (OpApplNode) n.getArgs()[i];
+
+						ExprOrOpArgNode first = pair.getArgs()[0];
+						ExprOrOpArgNode val = pair.getArgs()[1];
+						OpApplNode seq = (OpApplNode) first;
+
+						LinkedList<ExprOrOpArgNode> seqList = new LinkedList<>();
+						Collections.addAll(seqList, seq.getArgs());
+
+						pair.setToolObject(EXCEPT_BASE, res.clone());
+						res = evalExceptValue(res.clone(), seqList, func, val);
+					}
+					return res;
 				}
 			}
-			AImplicationPredicate implication = new AImplicationPredicate();
-			implication.setLeft(visitBoundsOfLocalVariables(n));
-			implication.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-			return new AConvertBoolExpression(new AForallPredicate(list, implication));
-		}
 
-		case OPCODE_be: { // \E x \in S : P
-			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-			ArrayList<PExpression> list = new ArrayList<PExpression>();
-			for (int i = 0; i < params.length; i++) {
-				for (int j = 0; j < params[i].length; j++) {
-					list.add(createIdentifierNode(params[i][j]));
-				}
+			case OPCODE_seq: // !
+			{
+				return visitExprOrOpArgNodeExpression(n.getArgs()[0]);
 			}
-			AConjunctPredicate conjunction = new AConjunctPredicate();
-			conjunction.setLeft(visitBoundsOfLocalVariables(n));
-			conjunction.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-			AExistsPredicate exists = new AExistsPredicate(list, conjunction);
-			return new AConvertBoolExpression(exists);
-		}
+
+			case OPCODE_uc: { // CHOOSE x : P
+				return createUnboundedChoose(n);
+			}
+
+			case OPCODE_bc: { // CHOOSE x \in S: P
+				return createBoundedChoose(n);
+			}
+
+			case OPCODE_bf: { // \A x \in S : P
+				FormalParamNode[][] params = n.getBdedQuantSymbolLists();
+				ArrayList<PExpression> list = new ArrayList<>();
+				for (FormalParamNode[] param : params) {
+					for (FormalParamNode formalParamNode : param) {
+						list.add(createIdentifierNode(formalParamNode));
+					}
+				}
+				AImplicationPredicate implication = new AImplicationPredicate();
+				implication.setLeft(visitBoundsOfLocalVariables(n));
+				implication.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
+				return new AConvertBoolExpression(new AForallPredicate(list, implication));
+			}
+
+			case OPCODE_be: { // \E x \in S : P
+				FormalParamNode[][] params = n.getBdedQuantSymbolLists();
+				ArrayList<PExpression> list = new ArrayList<>();
+				for (FormalParamNode[] param : params) {
+					for (FormalParamNode formalParamNode : param) {
+						list.add(createIdentifierNode(formalParamNode));
+					}
+				}
+				AConjunctPredicate conjunction = new AConjunctPredicate();
+				conjunction.setLeft(visitBoundsOfLocalVariables(n));
+				conjunction.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
+				AExistsPredicate exists = new AExistsPredicate(list, conjunction);
+				return new AConvertBoolExpression(exists);
+			}
 
 		}
 
@@ -1784,10 +1763,9 @@ public class BAstCreator extends BuiltInOPs
 	}
 
 	private List<PExpression> createListOfIdentifier(FormalParamNode[][] params) {
-		List<PExpression> list = new ArrayList<PExpression>();
-		for (int i = 0; i < params.length; i++) {
-			for (int j = 0; j < params[i].length; j++) {
-				FormalParamNode param = params[i][j];
+		List<PExpression> list = new ArrayList<>();
+		for (FormalParamNode[] formalParamNodes : params) {
+			for (FormalParamNode param : formalParamNodes) {
 				list.add(createIdentifierNode(param));
 			}
 		}
@@ -1795,7 +1773,7 @@ public class BAstCreator extends BuiltInOPs
 	}
 
 	private PExpression evalExceptValue(PExpression prefix, LinkedList<ExprOrOpArgNode> seqList, TLAType tlaType,
-			ExprOrOpArgNode val) {
+	                                    ExprOrOpArgNode val) {
 
 		ExprOrOpArgNode head = seqList.poll();
 		if (head == null) {
@@ -1806,13 +1784,13 @@ public class BAstCreator extends BuiltInOPs
 			StructType structType = (StructType) tlaType;
 			String field = ((StringNode) head).getRep().toString();
 
-			List<PRecEntry> list = new ArrayList<PRecEntry>();
+			List<PRecEntry> list = new ArrayList<>();
 			for (int i = 0; i < structType.getFields().size(); i++) {
 				ARecEntry entry = new ARecEntry();
 				String fieldName = structType.getFields().get(i);
 				entry.setIdentifier(createIdentifierNode(fieldName));
 
-				PExpression value = null;
+				PExpression value;
 				ARecordFieldExpression select = new ARecordFieldExpression();
 				select.setRecord(prefix.clone());
 				select.setIdentifier(createIdentifierNode(fieldName));
@@ -1826,24 +1804,23 @@ public class BAstCreator extends BuiltInOPs
 
 			}
 
-			ARecExpression rec = new ARecExpression(list);
-			return rec;
+			return new ARecExpression(list);
 
 		} else {
 			FunctionType func = (FunctionType) tlaType;
 
 			ACoupleExpression couple = new ACoupleExpression();
-			List<PExpression> coupleList = new ArrayList<PExpression>();
+			List<PExpression> coupleList = new ArrayList<>();
 			coupleList.add(visitExprOrOpArgNodeExpression(head));
 
 			AFunctionExpression funcCall = new AFunctionExpression();
 			funcCall.setIdentifier(prefix);
-			List<PExpression> argList = new ArrayList<PExpression>();
+			List<PExpression> argList = new ArrayList<>();
 			argList.add(visitExprOrOpArgNodeExpression(head));
 			funcCall.setParameters(argList);
 			coupleList.add(evalExceptValue(funcCall, seqList, func.getRange(), val));
 			couple.setList(coupleList);
-			List<PExpression> setList = new ArrayList<PExpression>();
+			List<PExpression> setList = new ArrayList<>();
 			setList.add(couple);
 			ASetExtensionExpression setExtension = new ASetExtensionExpression(setList);
 			AOverwriteExpression overwrite = new AOverwriteExpression();
@@ -1868,7 +1845,7 @@ public class BAstCreator extends BuiltInOPs
 		} else {
 			index = field;
 			ASecondProjectionExpression second = new ASecondProjectionExpression();
-			ArrayList<TLAType> typeList = new ArrayList<TLAType>();
+			ArrayList<TLAType> typeList = new ArrayList<>();
 			for (int i = 0; i < field - 1; i++) {
 				typeList.add(tuple.getTypes().get(i));
 			}
@@ -1880,7 +1857,7 @@ public class BAstCreator extends BuiltInOPs
 		for (int i = index; i < size; i++) {
 			AFunctionExpression newfunc = new AFunctionExpression();
 			AFirstProjectionExpression first = new AFirstProjectionExpression();
-			ArrayList<TLAType> typeList = new ArrayList<TLAType>();
+			ArrayList<TLAType> typeList = new ArrayList<>();
 			for (int j = 0; j < i; j++) {
 				typeList.add(tuple.getTypes().get(j));
 			}
@@ -1888,12 +1865,12 @@ public class BAstCreator extends BuiltInOPs
 			first.setExp2(tuple.getTypes().get(i).getBNode());
 			newfunc.setIdentifier(first);
 
-			ArrayList<PExpression> list = new ArrayList<PExpression>();
+			ArrayList<PExpression> list = new ArrayList<>();
 			list.add(newfunc);
 			func.setParameters(list);
 			func = newfunc;
 		}
-		ArrayList<PExpression> list = new ArrayList<PExpression>();
+		ArrayList<PExpression> list = new ArrayList<>();
 		list.add(pair);
 		func.setParameters(list);
 		return returnFunc;
@@ -1903,7 +1880,7 @@ public class BAstCreator extends BuiltInOPs
 		if (typeList.size() == 1) {
 			return typeList.get(0).getBNode();
 		}
-		List<PExpression> list = new ArrayList<PExpression>();
+		List<PExpression> list = new ArrayList<>();
 		for (TLAType t : typeList) {
 			list.add(t.getBNode());
 		}
@@ -1926,13 +1903,13 @@ public class BAstCreator extends BuiltInOPs
 		ADefinitionExpression defCall = new ADefinitionExpression();
 		defCall.setDefLiteral(new TIdentifierLiteral("CHOOSE"));
 		AComprehensionSetExpression comprehension = new AComprehensionSetExpression();
-		List<PExpression> paramList = new ArrayList<PExpression>();
+		List<PExpression> paramList = new ArrayList<>();
 		for (FormalParamNode param : n.getUnbdedQuantSymbols()) {
 			paramList.add(createIdentifierNode(param));
 		}
 		comprehension.setIdentifiers(paramList);
 		comprehension.setPredicates(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-		List<PExpression> list = new ArrayList<PExpression>();
+		List<PExpression> list = new ArrayList<>();
 		list.add(comprehension);
 		defCall.setParameters(list);
 		return defCall;
@@ -1942,7 +1919,7 @@ public class BAstCreator extends BuiltInOPs
 		ADefinitionExpression defCall = new ADefinitionExpression();
 		defCall.setDefLiteral(new TIdentifierLiteral("CHOOSE"));
 		AComprehensionSetExpression comprehension = new AComprehensionSetExpression();
-		List<PExpression> paramList = new ArrayList<PExpression>();
+		List<PExpression> paramList = new ArrayList<>();
 		for (FormalParamNode param : n.getBdedQuantSymbolLists()[0]) {
 			paramList.add(createIdentifierNode(param));
 		}
@@ -1952,15 +1929,15 @@ public class BAstCreator extends BuiltInOPs
 		conj.setLeft(typingPredicate);
 		conj.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
 		comprehension.setPredicates(conj);
-		List<PExpression> list = new ArrayList<PExpression>();
+		List<PExpression> list = new ArrayList<>();
 		list.add(comprehension);
 		defCall.setParameters(list);
 		return defCall;
 	}
 
 	private PExpression createCaseNode(OpApplNode n) {
-		List<PPredicate> conditions = new ArrayList<PPredicate>();
-		List<PPredicate> disjunctionList = new ArrayList<PPredicate>();
+		List<PPredicate> conditions = new ArrayList<>();
+		List<PPredicate> disjunctionList = new ArrayList<>();
 		for (int i = 0; i < n.getArgs().length; i++) {
 			OpApplNode pair = (OpApplNode) n.getArgs()[i];
 
@@ -1984,253 +1961,252 @@ public class BAstCreator extends BuiltInOPs
 		comprehension.setPredicates(createDisjunction(disjunctionList));
 		ADefinitionExpression defCall = new ADefinitionExpression();
 		defCall.setDefLiteral(new TIdentifierLiteral("CHOOSE"));
-		List<PExpression> params = new ArrayList<PExpression>();
+		List<PExpression> params = new ArrayList<>();
 		params.add(comprehension);
 		defCall.setParameters(params);
 		return defCall;
 	}
 
 	private List<PExpression> createIdentifierList(String name) {
-		ArrayList<PExpression> list = new ArrayList<PExpression>();
+		ArrayList<PExpression> list = new ArrayList<>();
 		list.add(createIdentifierNode(name));
 		return list;
 	}
 
 	private PPredicate visitBuiltInKindPredicate(OpApplNode n) {
-		PPredicate returnNode = null;
+		PPredicate returnNode;
 		switch (getOpCode(n.getOperator().getName())) {
-		case OPCODE_land: // \land
-		{
-			AConjunctPredicate conjunction = new AConjunctPredicate();
-			conjunction.setLeft(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-			conjunction.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[1]));
-			returnNode = conjunction;
-			break;
-		}
-		case OPCODE_cl: // $ConjList
-		{
-			List<PPredicate> list = new ArrayList<PPredicate>();
-			for (int i = 0; i < n.getArgs().length; i++) {
-				list.add(visitExprOrOpArgNodePredicate(n.getArgs()[i]));
+			case OPCODE_land: // \land
+			{
+				AConjunctPredicate conjunction = new AConjunctPredicate();
+				conjunction.setLeft(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
+				conjunction.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[1]));
+				returnNode = conjunction;
+				break;
 			}
-			returnNode = createConjunction(list);
-			break;
-		}
-		case OPCODE_lor: // \/
-		{
-			ADisjunctPredicate disjunction = new ADisjunctPredicate();
-			disjunction.setLeft(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-			disjunction.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[1]));
-			returnNode = disjunction;
-			break;
-		}
-		case OPCODE_dl: // $DisjList
-		{
-			List<PPredicate> list = new ArrayList<PPredicate>();
-			for (int i = 0; i < n.getArgs().length; i++) {
-				list.add(visitExprOrOpArgNodePredicate(n.getArgs()[i]));
+			case OPCODE_cl: // $ConjList
+			{
+				List<PPredicate> list = new ArrayList<>();
+				for (int i = 0; i < n.getArgs().length; i++) {
+					list.add(visitExprOrOpArgNodePredicate(n.getArgs()[i]));
+				}
+				returnNode = createConjunction(list);
+				break;
 			}
-			returnNode = createDisjunction(list);
-			break;
-		}
-		case OPCODE_lnot: // \lnot
-			returnNode = new ANegationPredicate(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-			break;
-		case OPCODE_equiv: // \equiv
-			returnNode = new AEquivalencePredicate(visitExprOrOpArgNodePredicate(n.getArgs()[0]),
+			case OPCODE_lor: // \/
+			{
+				ADisjunctPredicate disjunction = new ADisjunctPredicate();
+				disjunction.setLeft(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
+				disjunction.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[1]));
+				returnNode = disjunction;
+				break;
+			}
+			case OPCODE_dl: // $DisjList
+			{
+				List<PPredicate> list = new ArrayList<>();
+				for (int i = 0; i < n.getArgs().length; i++) {
+					list.add(visitExprOrOpArgNodePredicate(n.getArgs()[i]));
+				}
+				returnNode = createDisjunction(list);
+				break;
+			}
+			case OPCODE_lnot: // \lnot
+				returnNode = new ANegationPredicate(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
+				break;
+			case OPCODE_equiv: // \equiv
+				returnNode = new AEquivalencePredicate(visitExprOrOpArgNodePredicate(n.getArgs()[0]),
 					visitExprOrOpArgNodePredicate(n.getArgs()[1]));
-			break;
+				break;
 
-		case OPCODE_implies: // =>
-			returnNode = new AImplicationPredicate(visitExprOrOpArgNodePredicate(n.getArgs()[0]),
+			case OPCODE_implies: // =>
+				returnNode = new AImplicationPredicate(visitExprOrOpArgNodePredicate(n.getArgs()[0]),
 					visitExprOrOpArgNodePredicate(n.getArgs()[1]));
-			break;
+				break;
 
-		case OPCODE_be: { // \E x \in S : P
-			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-			ArrayList<PExpression> list = new ArrayList<PExpression>();
-			for (int i = 0; i < params.length; i++) {
-				for (int j = 0; j < params[i].length; j++) {
-					list.add(createIdentifierNode(params[i][j]));
+			case OPCODE_be: { // \E x \in S : P
+				FormalParamNode[][] params = n.getBdedQuantSymbolLists();
+				ArrayList<PExpression> list = new ArrayList<>();
+				for (FormalParamNode[] param : params) {
+					for (FormalParamNode formalParamNode : param) {
+						list.add(createIdentifierNode(formalParamNode));
+					}
 				}
+				AConjunctPredicate conjunction = new AConjunctPredicate();
+				conjunction.setLeft(visitBoundsOfLocalVariables(n));
+				conjunction.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
+				returnNode = new AExistsPredicate(list, conjunction);
+				break;
 			}
-			AConjunctPredicate conjunction = new AConjunctPredicate();
-			conjunction.setLeft(visitBoundsOfLocalVariables(n));
-			conjunction.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-			returnNode = new AExistsPredicate(list, conjunction);
-			break;
-		}
 
-		case OPCODE_bf: { // \A x \in S : P
-			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-			ArrayList<PExpression> list = new ArrayList<PExpression>();
-			for (int i = 0; i < params.length; i++) {
-				for (int j = 0; j < params[i].length; j++) {
-					list.add(createIdentifierNode(params[i][j]));
+			case OPCODE_bf: { // \A x \in S : P
+				FormalParamNode[][] params = n.getBdedQuantSymbolLists();
+				ArrayList<PExpression> list = new ArrayList<>();
+				for (FormalParamNode[] param : params) {
+					for (FormalParamNode formalParamNode : param) {
+						list.add(createIdentifierNode(formalParamNode));
+					}
 				}
+				AImplicationPredicate implication = new AImplicationPredicate();
+				implication.setLeft(visitBoundsOfLocalVariables(n));
+				implication.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
+				returnNode = new AForallPredicate(list, implication);
+				break;
 			}
-			AImplicationPredicate implication = new AImplicationPredicate();
-			implication.setLeft(visitBoundsOfLocalVariables(n));
-			implication.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-			returnNode = new AForallPredicate(list, implication);
-			break;
-		}
 
-		case OPCODE_eq: { // =
-			AEqualPredicate equal = new AEqualPredicate();
-			equal.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			equal.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-			returnNode = equal;
-			break;
-		}
-		case OPCODE_noteq: // /=
-		{
-			ANotEqualPredicate notEqual = new ANotEqualPredicate();
-			notEqual.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			notEqual.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-			returnNode = notEqual;
-			break;
-		}
-		case OPCODE_in: // \in
-		{
-			AMemberPredicate memberPredicate = new AMemberPredicate();
-			memberPredicate.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			memberPredicate.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-			returnNode = memberPredicate;
-			break;
-		}
+			case OPCODE_eq: { // =
+				AEqualPredicate equal = new AEqualPredicate();
+				equal.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				equal.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+				returnNode = equal;
+				break;
+			}
+			case OPCODE_noteq: // /=
+			{
+				ANotEqualPredicate notEqual = new ANotEqualPredicate();
+				notEqual.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				notEqual.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+				returnNode = notEqual;
+				break;
+			}
+			case OPCODE_in: // \in
+			{
+				AMemberPredicate memberPredicate = new AMemberPredicate();
+				memberPredicate.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				memberPredicate.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+				returnNode = memberPredicate;
+				break;
+			}
 
-		case OPCODE_notin: // \notin
-		{
-			ANotMemberPredicate notMemberPredicate = new ANotMemberPredicate();
-			notMemberPredicate.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			notMemberPredicate.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-			returnNode = notMemberPredicate;
-			break;
-		}
+			case OPCODE_notin: // \notin
+			{
+				ANotMemberPredicate notMemberPredicate = new ANotMemberPredicate();
+				notMemberPredicate.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				notMemberPredicate.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+				returnNode = notMemberPredicate;
+				break;
+			}
 
-		case OPCODE_subseteq: // \subseteq {1,2} <: {1,2,3}
-		{
-			ASubsetPredicate subset = new ASubsetPredicate();
-			subset.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			subset.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
-			returnNode = subset;
-			break;
-		}
+			case OPCODE_subseteq: // \subseteq {1,2} <: {1,2,3}
+			{
+				ASubsetPredicate subset = new ASubsetPredicate();
+				subset.setLeft(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				subset.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+				returnNode = subset;
+				break;
+			}
 
-		case OPCODE_fa: { // f[1]
-			AFunctionExpression func = new AFunctionExpression();
-			func.setIdentifier(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			List<PExpression> paramList = new ArrayList<PExpression>();
+			case OPCODE_fa: { // f[1]
+				AFunctionExpression func = new AFunctionExpression();
+				func.setIdentifier(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				List<PExpression> paramList = new ArrayList<>();
 
-			ExprOrOpArgNode dom = n.getArgs()[1];
-			if (dom instanceof OpApplNode && ((OpApplNode) dom).getOperator().getName().toString().equals("$Tuple")) {
-				OpApplNode domOpAppl = (OpApplNode) dom;
-				for (int i = 0; i < domOpAppl.getArgs().length; i++) {
-					paramList.add(visitExprOrOpArgNodeExpression(domOpAppl.getArgs()[i]));
+				ExprOrOpArgNode dom = n.getArgs()[1];
+				if (dom instanceof OpApplNode && ((OpApplNode) dom).getOperator().getName().toString().equals("$Tuple")) {
+					OpApplNode domOpAppl = (OpApplNode) dom;
+					for (int i = 0; i < domOpAppl.getArgs().length; i++) {
+						paramList.add(visitExprOrOpArgNodeExpression(domOpAppl.getArgs()[i]));
+					}
+				} else {
+					paramList.add(visitExprOrOpArgNodeExpression(dom));
 				}
-			} else {
-				paramList.add(visitExprOrOpArgNodeExpression(dom));
+				func.setParameters(paramList);
+				returnNode = new AEqualPredicate(func, new ABooleanTrueExpression());
+				break;
 			}
-			func.setParameters(paramList);
-			returnNode = new AEqualPredicate(func, new ABooleanTrueExpression());
-			break;
-		}
 
-		case OPCODE_rs: { // $RcdSelect r.c
-			ARecordFieldExpression rcdSelect = new ARecordFieldExpression();
-			rcdSelect.setRecord(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-			StringNode stringNode = (StringNode) n.getArgs()[1];
-			rcdSelect.setIdentifier(createIdentifierNode(stringNode.getRep().toString()));
-			returnNode = new AEqualPredicate(rcdSelect, new ABooleanTrueExpression());
-			break;
-		}
+			case OPCODE_rs: { // $RcdSelect r.c
+				ARecordFieldExpression rcdSelect = new ARecordFieldExpression();
+				rcdSelect.setRecord(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+				StringNode stringNode = (StringNode) n.getArgs()[1];
+				rcdSelect.setIdentifier(createIdentifierNode(stringNode.getRep().toString()));
+				returnNode = new AEqualPredicate(rcdSelect, new ABooleanTrueExpression());
+				break;
+			}
 
-		case OPCODE_case: {
-			returnNode = new AEqualPredicate(createCaseNode(n), new ABooleanTrueExpression());
-			break;
-		}
-		case OPCODE_prime: // prime
-		{
-			OpApplNode node = (OpApplNode) n.getArgs()[0];
-			returnNode = new AEqualPredicate(createIdentifierNode(getName(node.getOperator()) + "_n"),
+			case OPCODE_case: {
+				returnNode = new AEqualPredicate(createCaseNode(n), new ABooleanTrueExpression());
+				break;
+			}
+			case OPCODE_prime: // prime
+			{
+				OpApplNode node = (OpApplNode) n.getArgs()[0];
+				returnNode = new AEqualPredicate(createIdentifierNode(getName(node.getOperator()) + "_n"),
 					new ABooleanTrueExpression());
-			break;
-		}
-		case OPCODE_unchanged: {
-			OpApplNode node = (OpApplNode) n.getArgs()[0];
-			// System.out.println(" Translating UNCHANGED : " + node.toString());
-			// System.out.println(" Top-level unchanged for this operation: " + this.toplevelUnchangedVariableNames);
-			if (node.getOperator().getKind() == VariableDeclKind) {
-				return CreateUnchangedPrimeEquality(node);
-
-			} else if (node.getOperator().getKind() == UserDefinedOpKind) {
-				OpDefNode operator = (OpDefNode) node.getOperator();
-				ExprNode e = operator.getBody();
-				OpApplNode opApplNode = (OpApplNode) e;
-				node = opApplNode;
+				break;
 			}
+			case OPCODE_unchanged: {
+				OpApplNode node = (OpApplNode) n.getArgs()[0];
+				// System.out.println(" Translating UNCHANGED : " + node.toString());
+				// System.out.println(" Top-level unchanged for this operation: " + this.toplevelUnchangedVariableNames);
+				if (node.getOperator().getKind() == VariableDeclKind) {
+					return CreateUnchangedPrimeEquality(node);
 
-			ArrayList<PPredicate> list = new ArrayList<PPredicate>();
-			for (int i = 0; i < node.getArgs().length; i++) {
-				OpApplNode var = (OpApplNode) node.getArgs()[i];
-				list.add(CreateUnchangedPrimeEquality(var));
+				} else if (node.getOperator().getKind() == UserDefinedOpKind) {
+					OpDefNode operator = (OpDefNode) node.getOperator();
+					ExprNode e = operator.getBody();
+					node = (OpApplNode) e;
+				}
+
+				ArrayList<PPredicate> list = new ArrayList<>();
+				for (int i = 0; i < node.getArgs().length; i++) {
+					OpApplNode var = (OpApplNode) node.getArgs()[i];
+					list.add(CreateUnchangedPrimeEquality(var));
+				}
+				returnNode = createConjunction(list);
+				// returnNode = new AEqualPredicate(new ABooleanTrueExpression(),
+				// new ABooleanTrueExpression());
+				break;
 			}
-			returnNode = createConjunction(list);
-			// returnNode = new AEqualPredicate(new ABooleanTrueExpression(),
-			// new ABooleanTrueExpression());
-			break;
-		}
-		case OPCODE_uc: { // CHOOSE x : P
-			returnNode = new AEqualPredicate(createUnboundedChoose(n), new ABooleanTrueExpression());
-			break;
-		}
-		case OPCODE_bc: { // CHOOSE x \in S: P
-			returnNode = new AEqualPredicate(createBoundedChoose(n), new ABooleanTrueExpression());
-			break;
-		}
-		case OPCODE_ite: // IF THEN ELSE
-		{
-			AImplicationPredicate impl1 = new AImplicationPredicate();
-			impl1.setLeft(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-			impl1.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[1]));
+			case OPCODE_uc: { // CHOOSE x : P
+				returnNode = new AEqualPredicate(createUnboundedChoose(n), new ABooleanTrueExpression());
+				break;
+			}
+			case OPCODE_bc: { // CHOOSE x \in S: P
+				returnNode = new AEqualPredicate(createBoundedChoose(n), new ABooleanTrueExpression());
+				break;
+			}
+			case OPCODE_ite: // IF THEN ELSE
+			{
+				AImplicationPredicate impl1 = new AImplicationPredicate();
+				impl1.setLeft(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
+				impl1.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[1]));
 
-			AImplicationPredicate impl2 = new AImplicationPredicate();
-			ANegationPredicate neg = new ANegationPredicate(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-			impl2.setLeft(neg);
-			impl2.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[2]));
-			returnNode = new AConjunctPredicate(impl1, impl2);
-			break;
-		}
-		case 0:
-			return visitBBuitInsPredicate(n);
-		default:
-			throw new NotImplementedException(n.getOperator().getName().toString());
+				AImplicationPredicate impl2 = new AImplicationPredicate();
+				ANegationPredicate neg = new ANegationPredicate(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
+				impl2.setLeft(neg);
+				impl2.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[2]));
+				returnNode = new AConjunctPredicate(impl1, impl2);
+				break;
+			}
+			case 0:
+				return visitBBuitInsPredicate(n);
+			default:
+				throw new NotImplementedException(n.getOperator().getName().toString());
 		}
 		return createPositionedNode(returnNode, n);
 	}
-	
+
 	// create an equality predicate var_n = var if required
-	private AEqualPredicate CreateUnchangedPrimeEquality (OpApplNode var) {
+	private AEqualPredicate CreateUnchangedPrimeEquality(OpApplNode var) {
 		if (!this.toplevelUnchangedVariableNames.contains(getName(var.getOperator()))) {
 			AEqualPredicate equal = new AEqualPredicate();
 			equal.setLeft(createIdentifierNode(getName(var.getOperator()) + "_n"));
 			equal.setRight(createIdentifierNode(var.getOperator()));
 			return equal;
 		} else {
-		    // the variable is marked UNCHANGED in a top-level UNCHANGED predicate
-		    // Hence it will not be added to the ANY variables and we do not need it
+			// the variable is marked UNCHANGED in a top-level UNCHANGED predicate
+			// Hence it will not be added to the ANY variables and we do not need it
 			return new AEqualPredicate(new ABooleanTrueExpression(), new ABooleanTrueExpression());
 		}
-	
+
 	}
-	
+
 	public PPredicate visitBoundsOfLocalVariables(OpApplNode n) {
 		FormalParamNode[][] params = n.getBdedQuantSymbolLists();
 		ExprNode[] in = n.getBdedQuantBounds();
 		boolean[] isTuple = n.isBdedQuantATuple();
 
-		List<PPredicate> predList = new ArrayList<PPredicate>();
+		List<PPredicate> predList = new ArrayList<>();
 		for (int i = 0; i < params.length; i++) {
 			if (isTuple[i]) {
 				if (params[i].length == 1) {
@@ -2238,7 +2214,7 @@ public class BAstCreator extends BuiltInOPs
 					FormalParamNode param = params[i][0];
 					AMemberPredicate member = new AMemberPredicate();
 					ASequenceExtensionExpression seq = new ASequenceExtensionExpression();
-					List<PExpression> list = new ArrayList<PExpression>();
+					List<PExpression> list = new ArrayList<>();
 					list.add(createIdentifierNode(param));
 					seq.setExpression(list);
 					member.setLeft(seq);
@@ -2246,7 +2222,7 @@ public class BAstCreator extends BuiltInOPs
 					predList.add(member);
 
 				} else {
-					ArrayList<PExpression> list = new ArrayList<PExpression>();
+					ArrayList<PExpression> list = new ArrayList<>();
 					for (int j = 0; j < params[i].length; j++) {
 						FormalParamNode param = params[i][j];
 						list.add(createIdentifierNode(param));
@@ -2273,11 +2249,11 @@ public class BAstCreator extends BuiltInOPs
 		ExprNode[] in = n.getBdedQuantBounds();
 		boolean[] isTuple = n.isBdedQuantATuple();
 
-		List<PPredicate> predList = new ArrayList<PPredicate>();
+		List<PPredicate> predList = new ArrayList<>();
 		for (int i = 0; i < params.length; i++) {
 			if (isTuple[i]) {
 				if (params[i].length == 1) { // one-tuple is handled as a
-												// sequence
+					// sequence
 					FormalParamNode param = params[i][0];
 					param.setToolObject(TUPLE, params[i]);
 
@@ -2287,7 +2263,7 @@ public class BAstCreator extends BuiltInOPs
 					predList.add(member);
 
 				} else if (i == 0) {
-					ArrayList<PExpression> list = new ArrayList<PExpression>();
+					ArrayList<PExpression> list = new ArrayList<>();
 					for (int j = 0; j < params[i].length; j++) {
 						FormalParamNode param = params[i][j];
 						list.add(createIdentifierNode(param));
@@ -2297,12 +2273,12 @@ public class BAstCreator extends BuiltInOPs
 					member.setRight(visitExprNodeExpression(in[i]));
 					predList.add(member);
 				} else {
-					ArrayList<PExpression> list = new ArrayList<PExpression>();
+					ArrayList<PExpression> list = new ArrayList<>();
 					StringBuilder sb = new StringBuilder();
 					for (int j = 0; j < params[i].length; j++) {
 						FormalParamNode param = params[i][j];
 						if (i > 0) { // do not use prj1 & prj2 if it is the
-										// first tuple
+							// first tuple
 							param.setToolObject(TUPLE, params[i]);
 						}
 						sb.append(param.getName().toString());
@@ -2381,14 +2357,14 @@ public class BAstCreator extends BuiltInOPs
 	}
 
 	public static List<TIdentifierLiteral> createTIdentifierLiteral(String name) {
-		List<TIdentifierLiteral> list = new ArrayList<TIdentifierLiteral>();
+		List<TIdentifierLiteral> list = new ArrayList<>();
 		TIdentifierLiteral tid = new TIdentifierLiteral(name);
 		list.add(tid);
 		return list;
 	}
 
 	public static List<PExpression> createPexpressionList(PExpression expr) {
-		ArrayList<PExpression> list = new ArrayList<PExpression>();
+		ArrayList<PExpression> list = new ArrayList<>();
 		list.add(expr);
 		return list;
 	}
