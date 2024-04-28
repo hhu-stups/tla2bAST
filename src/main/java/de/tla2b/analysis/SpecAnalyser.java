@@ -45,12 +45,12 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 	// used to check if a b constant has arguments and is not overriden in the
 	// configfile
 
-	private ArrayList<BOperation> bOperations = new ArrayList<BOperation>();
-	private final ArrayList<ExprNode> inits = new ArrayList<ExprNode>();
+	private ArrayList<BOperation> bOperations = new ArrayList<>();
+	private final ArrayList<ExprNode> inits = new ArrayList<>();
 
-	private Set<OpDefNode> bDefinitionsSet = new HashSet<OpDefNode>();
+	private Set<OpDefNode> bDefinitionsSet = new HashSet<>();
 	// set of OpDefNodes which will appear in the resulting B Machine
-	private Set<OpDefNode> usedDefinitions = new HashSet<OpDefNode>();
+	private Set<OpDefNode> usedDefinitions = new HashSet<>();
 	// definitions which are used for the type inference algorithm
 	private final Hashtable<OpDefNode, FormalParamNode[]> letParams = new Hashtable<>();
 	// additional parameters of an let Operator, these parameters are from the
@@ -65,7 +65,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 
 	private SpecAnalyser(ModuleNode m) {
 		this.moduleNode = m;
-		this.bConstants = new ArrayList<OpDeclNode>();
+		this.bConstants = new ArrayList<>();
 	}
 
 	public static SpecAnalyser createSpecAnalyser(ModuleNode m, ConfigfileEvaluator conEval) {
@@ -91,7 +91,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 
 	public static SpecAnalyser createSpecAnalyser(ModuleNode m) {
 		SpecAnalyser specAnalyser = new SpecAnalyser(m);
-		Hashtable<String, OpDefNode> definitions = new Hashtable<String, OpDefNode>();
+		Hashtable<String, OpDefNode> definitions = new Hashtable<>();
 		for (int i = 0; i < m.getOpDefs().length; i++) {
 			definitions.put(m.getOpDefs()[i].getName().toString(), m.getOpDefs()[i]);
 		}
@@ -165,7 +165,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 			evalNext();
 		}
 
-		for (OpDefNode inv : new ArrayList<OpDefNode>(invariants)) {
+		for (OpDefNode inv : new ArrayList<>(invariants)) {
 			try {
 				OpApplNode opApplNode = (OpApplNode) inv.getBody();
 
@@ -199,11 +199,10 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		}
 
 		// check if there is B constant with arguments.
-		for (int i = 0; i < bConstants.size(); i++) {
-			OpDeclNode con = bConstants.get(i);
+		for (OpDeclNode con : bConstants) {
 			if (con.getArity() > 0) {
 				throw new ConfigFileErrorException(
-						String.format("Constant '%s' must be overriden in the configuration file.", con.getName()));
+					String.format("Constant '%s' must be overriden in the configuration file.", con.getName()));
 			}
 		}
 		findRecursiveConstructs();
@@ -229,14 +228,14 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		}
 	}
 
-	private void evalNext() throws FrontEndException {
+	private void evalNext() {
 		if (next != null) {
             System.out.println("Using TLA+ Next definition to determine B OPERATIONS");
 			this.nextExpr = next.getBody();
 		}
 	}
 
-	public void evalSpec() throws SemanticErrorException, FrontEndException {
+	public void evalSpec() throws SemanticErrorException {
 		if (spec != null) {
             System.out.println("Using TLA+ Spec to determine B INITIALISATION and OPERATIONS");
 			processConfigSpec(spec.getBody());
@@ -244,7 +243,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 
 	}
 
-	private void processConfigSpec(ExprNode exprNode) throws SemanticErrorException, FrontEndException {
+	private void processConfigSpec(ExprNode exprNode) throws SemanticErrorException {
 		if (exprNode instanceof OpApplNode) {
 			OpApplNode opApp = (OpApplNode) exprNode;
 			ExprOrOpArgNode[] args = opApp.getArgs();
@@ -266,8 +265,8 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 
 			int opcode = BuiltInOPs.getOpCode(opApp.getOperator().getName());
 			if (opcode == OPCODE_cl || opcode == OPCODE_land) {
-				for (int i = 0; i < args.length; i++) {
-					this.processConfigSpec((ExprNode) args[i]);
+				for (ExprOrOpArgNode arg : args) {
+					this.processConfigSpec((ExprNode) arg);
 				}
 				return;
 			}
@@ -276,8 +275,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 				SemanticNode boxArg = args[0];
 				if ((boxArg instanceof OpApplNode)
 						&& BuiltInOPs.getOpCode(((OpApplNode) boxArg).getOperator().getName()) == OPCODE_sa) {
-					ExprNode next = (ExprNode) ((OpApplNode) boxArg).getArgs()[0];
-					this.nextExpr = next;
+					this.nextExpr = (ExprNode) ((OpApplNode) boxArg).getArgs()[0];
 					return;
 				}
 			}
@@ -295,7 +293,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 	}
 
 	private void findRecursiveConstructs() throws NotImplementedException {
-		Set<OpDefNode> set = new HashSet<OpDefNode>(usedDefinitions);
+		Set<OpDefNode> set = new HashSet<>(usedDefinitions);
 		for (OpDefNode def : set) {
 			if (def.getInRecursive()) {
 				throw new NotImplementedException("Recursive definitions are currently not supported: " + def.getName()
@@ -305,11 +303,9 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 				// recursiveDefinitions.add(rd);
 			} else if (def.getBody() instanceof OpApplNode) {
 				OpApplNode o = (OpApplNode) def.getBody();
-				switch (getOpCode(o.getOperator().getName())) {
-				case OPCODE_rfs: { // recursive Function
+				if (getOpCode(o.getOperator().getName()) == OPCODE_rfs) {// recursive Function
 					bDefinitionsSet.remove(def);
 					recursiveFunctions.add(def);
-				}
 				}
 			}
 		}
@@ -332,7 +328,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 	}
 
 	public Hashtable<OpDefNode, FormalParamNode[]> getLetParams() {
-		return new Hashtable<OpDefNode, FormalParamNode[]>(letParams);
+		return new Hashtable<>(letParams);
 	}
 
 	public ArrayList<String> getDefinitionMacros() {

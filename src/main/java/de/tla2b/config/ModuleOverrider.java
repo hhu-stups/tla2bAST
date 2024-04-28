@@ -42,14 +42,13 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 
 	public void start() {
 		OpDefNode[] defs = moduleNode.getOpDefs();
-		for (int i = 0; i < defs.length; i++) {
-			OpDefNode def = defs[i];
+		for (OpDefNode def : defs) {
 			if (operatorAssignments.containsKey(def)) {
 				ExprNode oldExpr = def.getBody();
 				TLCValueNode valueNode;
 				try {
 					valueNode = new TLCValueNode(operatorAssignments.get(def),
-							oldExpr.getTreeNode());
+						oldExpr.getTreeNode());
 				} catch (AbortException e) {
 					throw new RuntimeException();
 				}
@@ -59,7 +58,7 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 				TLCValueNode valueNode;
 				try {
 					valueNode = new TLCValueNode(operatorAssignments.get(def
-							.getSource()), oldExpr.getTreeNode());
+						.getSource()), oldExpr.getTreeNode());
 				} catch (AbortException e) {
 					throw new RuntimeException();
 				}
@@ -68,10 +67,10 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 
 		}
 
-		for (int i = 0; i < defs.length; i++) {
-			OpApplNode res = visitExprNode(defs[i].getBody());
+		for (OpDefNode def : defs) {
+			OpApplNode res = visitExprNode(def.getBody());
 			if (res != null) {
-				defs[i].setBody(res);
+				def.setBody(res);
 			}
 		}
 

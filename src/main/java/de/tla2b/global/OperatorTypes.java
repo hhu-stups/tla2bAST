@@ -7,7 +7,7 @@ public class OperatorTypes implements ToolGlobals, BBuildIns {
 	private static final HashSet<Integer> TLA_Predicate_Operators;
 	private static final HashSet<Integer> BBuiltIn_Predicate_Operators;
 	static {
-		TLA_Predicate_Operators = new HashSet<Integer>();
+		TLA_Predicate_Operators = new HashSet<>();
 		TLA_Predicate_Operators.add(OPCODE_eq);
 		TLA_Predicate_Operators.add(OPCODE_land);
 		TLA_Predicate_Operators.add(OPCODE_lor);
@@ -24,7 +24,7 @@ public class OperatorTypes implements ToolGlobals, BBuildIns {
 		TLA_Predicate_Operators.add(OPCODE_bf);
 		TLA_Predicate_Operators.add(OPCODE_noteq);
 
-		BBuiltIn_Predicate_Operators = new HashSet<Integer>();
+		BBuiltIn_Predicate_Operators = new HashSet<>();
 		BBuiltIn_Predicate_Operators.add(B_OPCODE_lt);
 		BBuiltIn_Predicate_Operators.add(B_OPCODE_gt);
 		BBuiltIn_Predicate_Operators.add(B_OPCODE_leq);

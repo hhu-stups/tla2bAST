@@ -35,7 +35,7 @@ public class FileUtils {
 		BufferedReader in = new BufferedReader(new FileReader(fileName));
 		String str;
 		while ((str = in.readLine()) != null) {
-			res.append(str + "\n");
+			res.append(str).append("\n");
 		}
 		in.close();
 		return res.toString();

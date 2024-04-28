@@ -49,9 +49,7 @@ public class BDefinitionsFinder extends AbstractASTVisitor implements ASTConstan
 			visitAssumeNode(assume);
 		}
 
-		for (OpDefNode def : specAnalyser.getInvariants()) {
-			bDefinitionsSet.add(def);
-		}
+		bDefinitionsSet.addAll(specAnalyser.getInvariants());
 
 		for (OpDefNode opDef : specAnalyser.getModuleNode().getOpDefs()) {
 			String defName = opDef.getName().toString();

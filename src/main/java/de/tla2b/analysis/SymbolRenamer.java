@@ -126,7 +126,7 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals,
 
 	public SymbolRenamer(ModuleNode moduleNode) {
 		this.moduleNode = moduleNode;
-		usedDefinitions = new HashSet<OpDefNode>();
+		usedDefinitions = new HashSet<>();
 		OpDefNode[] defs = moduleNode.getOpDefs();
 		usedDefinitions.add(defs[defs.length - 1]);
 	}
@@ -153,12 +153,12 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals,
 			String newName = getOperatorName(def);
 			globalNames.add(newName);
 			def.setToolObject(NEW_NAME, newName);
-			usedNamesTable.put(def, new HashSet<String>());
+			usedNamesTable.put(def, new HashSet<>());
 		}
 
 		for (int i = 0; i < moduleNode.getAssumptions().length; i++) {
 			AssumeNode assumeNode = moduleNode.getAssumptions()[i];
-			visitNode(assumeNode.getAssume(), new HashSet<String>());
+			visitNode(assumeNode.getAssume(), new HashSet<>());
 		}
 
 		for (int i = moduleNode.getOpDefs().length - 1; i >= 0; i--) {
@@ -188,12 +188,11 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals,
 
 			// Initialize all local definitions (get a new name, get an empty
 			// list)
-			for (int i = 0; i < defs.length; i++) {
-				OpDefNode def = defs[i];
+			for (OpDefNode def : defs) {
 				String newName = getOperatorName(def);
 				globalNames.add(newName);
 				def.setToolObject(NEW_NAME, newName);
-				usedNamesTable.put(def, new HashSet<String>(usedNames));
+				usedNamesTable.put(def, new HashSet<>(usedNames));
 			}
 
 			// first visit the IN expression
@@ -269,10 +268,10 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals,
 		case OPCODE_be: // \E x \in S : P
 		{
 			FormalParamNode[][] params = opApplNode.getBdedQuantSymbolLists();
-			Set<String> newUsedNames = new HashSet<String>(usedNames);
-			for (int i = 0; i < params.length; i++) {
-				for (int j = 0; j < params[i].length; j++) {
-					FormalParamNode param = params[i][j];
+			Set<String> newUsedNames = new HashSet<>(usedNames);
+			for (FormalParamNode[] formalParamNodes : params) {
+				for (int j = 0; j < formalParamNodes.length; j++) {
+					FormalParamNode param = formalParamNodes[j];
 					String paramName = param.getName().toString();
 					String newName = incName(paramName, usedNames);
 					param.setToolObject(NEW_NAME, newName);

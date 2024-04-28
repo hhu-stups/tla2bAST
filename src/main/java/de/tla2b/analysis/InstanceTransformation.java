@@ -9,8 +9,8 @@ import util.UniqueString;
 
 public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 
-	OpDefNode[] defs;
-	Hashtable<String, OpDefNode> defsHash;
+	final OpDefNode[] defs;
+	final Hashtable<String, OpDefNode> defsHash;
 	private final int substitutionId = 11;
 
 
@@ -83,9 +83,9 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 			SubstInNode substInNode = (SubstInNode) n;
 
 			Subst[] subs = substInNode.getSubsts();
-			for (int i = 0; i < subs.length; i++) {
-				OpDeclNode op = subs[i].getOp();
-				ExprOrOpArgNode expr = subs[i].getExpr();
+			for (Subst sub : subs) {
+				OpDeclNode op = sub.getOp();
+				ExprOrOpArgNode expr = sub.getExpr();
 				op.setToolObject(substitutionId, expr);
 			}
 			return generateNewExprNode(substInNode.getBody(), prefix);

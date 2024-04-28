@@ -27,7 +27,7 @@ public class TestUtil {
 		File root = new File(path);
 		File[] list = root.listFiles();
 		
-		List<File> files = new ArrayList<File>();
+		List<File> files = new ArrayList<>();
 		if (list == null) {
 			return files;
 		}

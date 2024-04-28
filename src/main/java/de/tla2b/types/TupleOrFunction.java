@@ -11,7 +11,7 @@ import de.tla2b.exceptions.UnificationException;
 import de.tla2b.output.TypeVisitorInterface;
 
 public class TupleOrFunction extends AbstractHasFollowers {
-	private final LinkedHashMap<Integer, TLAType> types = new LinkedHashMap<Integer, TLAType>();
+	private final LinkedHashMap<Integer, TLAType> types = new LinkedHashMap<>();
 
 	public TupleOrFunction(Integer index, TLAType type) {
 		super(TUPLE_OR_FUNCTION);
@@ -75,7 +75,7 @@ public class TupleOrFunction extends AbstractHasFollowers {
 		} catch (UnificationException e) {
 			// tuple
 			boolean isTuple = true;
-			ArrayList<TLAType> typeList = new ArrayList<TLAType>();
+			ArrayList<TLAType> typeList = new ArrayList<>();
 			for (int i = 1; i <= types.keySet().size(); i++) {
 				if (types.containsKey(i)) {
 					typeList.add(types.get(i));
@@ -132,7 +132,7 @@ public class TupleOrFunction extends AbstractHasFollowers {
 				if (index >= 1
 						&& index <= tupleType.getTypes().size()
 						&& this.types.get(index).compare(
-								tupleType.getTypes().get(index + -1))) {
+								tupleType.getTypes().get(index - 1))) {
 				} else {
 					return false;
 				}
@@ -164,7 +164,7 @@ public class TupleOrFunction extends AbstractHasFollowers {
 
 	private static boolean isTupleOrFunction(TupleOrFunction t1,
 			TupleOrFunction t2) {
-		List<TLAType> typeList = new ArrayList<TLAType>();
+		List<TLAType> typeList = new ArrayList<>();
 		typeList.addAll(t1.types.values());
 		typeList.addAll(t2.types.values());
 		return comparable(typeList);
@@ -199,7 +199,7 @@ public class TupleOrFunction extends AbstractHasFollowers {
 	public TLAType cloneTLAType() {
 		TupleOrFunction res = new TupleOrFunction();
 		for (Entry<Integer, TLAType> entry : this.types.entrySet()) {
-			res.types.put(Integer.valueOf(entry.getKey().intValue()), entry
+			res.types.put(entry.getKey().intValue(), entry
 					.getValue().cloneTLAType());
 		}
 		return res;
@@ -227,7 +227,7 @@ public class TupleOrFunction extends AbstractHasFollowers {
 		if (o instanceof TupleType) {
 			TupleType tupleType = (TupleType) o;
 
-			List<TLAType> typeList = new ArrayList<TLAType>();
+			List<TLAType> typeList = new ArrayList<>();
 			for (int i = 0; i < tupleType.getTypes().size(); i++) {
 				if (this.types.containsKey(i + 1)) {
 					TLAType res = tupleType.getTypes().get(i)
@@ -303,8 +303,8 @@ public class TupleOrFunction extends AbstractHasFollowers {
 	}
 
 	public void setNewType(AbstractHasFollowers oldType, TLAType newType) {
-		LinkedHashMap<Integer, TLAType> temp = new LinkedHashMap<Integer, TLAType>(
-				types);
+		LinkedHashMap<Integer, TLAType> temp = new LinkedHashMap<>(
+			types);
 		for (Entry<Integer, TLAType> entry : temp.entrySet()) {
 			if (entry.getValue().equals(oldType)) {
 				types.put(entry.getKey(), newType);
@@ -318,7 +318,7 @@ public class TupleOrFunction extends AbstractHasFollowers {
 	}
 
 	public TLAType getFinalType() {
-		List<TLAType> list = new ArrayList<TLAType>(this.types.values());
+		List<TLAType> list = new ArrayList<>(this.types.values());
 
 		if (comparable(list)) {
 			FunctionType func = new FunctionType(IntType.getInstance(),
@@ -339,7 +339,7 @@ public class TupleOrFunction extends AbstractHasFollowers {
 	}
 
 	private TLAType update() {
-		List<TLAType> list = new ArrayList<TLAType>(this.types.values());
+		List<TLAType> list = new ArrayList<>(this.types.values());
 		// if (allTyped(list) && comparable(list)) {
 		// FunctionType func = new FunctionType(IntType.getInstance(),
 		// new UntypedType());

@@ -20,13 +20,13 @@ import de.prob.prolog.output.PrologTermOutput;
 import de.tla2b.types.TLAType;
 
 public class PrologPrinter {
-	RecursiveMachineLoader rml;
-	BParser bParser;
-	String moduleName;
+	final RecursiveMachineLoader rml;
+	final BParser bParser;
+	final String moduleName;
 
 	//private final Map<String, SourcePositions> positions = new HashMap<String, SourcePositions>();
 	private HashSet<PositionedNode> positions;
-	private final List<File> files = new ArrayList<File>();
+	private final List<File> files = new ArrayList<>();
 	private final Hashtable<Node, TLAType> typeTable;
 
 	public PrologPrinter(RecursiveMachineLoader rml, BParser bParser,

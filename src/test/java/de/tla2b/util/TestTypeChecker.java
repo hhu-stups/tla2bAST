@@ -2,7 +2,6 @@ package de.tla2b.util;
 
 import java.util.Hashtable;
 
-import de.tla2b.exceptions.FrontEndException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.global.TranslationGlobals;
 import de.tla2b.types.TLAType;
@@ -22,9 +21,9 @@ public class TestTypeChecker implements TranslationGlobals {
 	private final Hashtable<String, DefCon> definitions;
 
 	public TestTypeChecker() {
-		constants = new Hashtable<String, TLAType>();
-		variables = new Hashtable<String, TLAType>();
-		definitions = new Hashtable<String, DefCon>();
+		constants = new Hashtable<>();
+		variables = new Hashtable<>();
+		definitions = new Hashtable<>();
 	}
 
 	public void startTest(String moduleString, String configString)
@@ -102,12 +101,12 @@ public class TestTypeChecker implements TranslationGlobals {
 		return definitions.get(defName).getParams().get(paramName).toString();
 	}
 
-	public class DefCon {
+	public static class DefCon {
 		private final Hashtable<String, TLAType> parameters;
 		private TLAType type;
 
 		private DefCon(TLAType t) {
-			parameters = new Hashtable<String, TLAType>();
+			parameters = new Hashtable<>();
 			type = t;
 		}
 

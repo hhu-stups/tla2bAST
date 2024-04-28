@@ -33,9 +33,8 @@ public class SymbolSorter {
 	}
 
 	public static  Hashtable<String, OpDefNode> getDefsHashTable(OpDefNode[] opDefNodes){
-		 Hashtable<String, OpDefNode> definitions = new Hashtable<String, OpDefNode>();
-		for (int i = 0; i < opDefNodes.length; i++) {
-			OpDefNode def = opDefNodes[i];
+		Hashtable<String, OpDefNode> definitions = new Hashtable<>();
+		for (OpDefNode def : opDefNodes) {
 			// Definition in this module
 //			if (StandardModules.contains(def.getOriginallyDefinedInModuleNode()
 //					.getName().toString())
@@ -53,27 +52,15 @@ public class SymbolSorter {
 
 class OpDeclNodeComparator implements Comparator<OpDeclNode> {
 	public int compare(OpDeclNode a, OpDeclNode b) {
-		if (a.getUid() < b.getUid())
-			return -1;
-		if (a.getUid() > b.getUid())
-			return 1;
-		return 0;
+		return Integer.compare(a.getUid(), b.getUid());
 	}
 }
 
 class OpDefNodeComparator implements Comparator<OpDefNode> {
 	public int compare(OpDefNode a, OpDefNode b) {
 		if (a.getLocation().equals(b.getLocation())) {
-			if (a.getSource().getUid() < b.getSource().getUid())
-				return -1;
-			if (a.getSource().getUid() > b.getSource().getUid())
-				return 1;
-			return 0;
+			return Integer.compare(a.getSource().getUid(), b.getSource().getUid());
 		}
-		if (a.getUid() < b.getUid())
-			return -1;
-		if (a.getUid() > b.getUid())
-			return 1;
-		return 0;
+		return Integer.compare(a.getUid(), b.getUid());
 	}
 }

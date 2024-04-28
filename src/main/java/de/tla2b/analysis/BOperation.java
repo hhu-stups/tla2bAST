@@ -41,7 +41,7 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 	private final ArrayList<OpDeclNode> unchangedVariablesList;
 	private final ArrayList<ExprOrOpArgNode> guards;
 	private final ArrayList<ExprOrOpArgNode> beforeAfterPredicates;
-	private final LinkedHashMap<SymbolNode, ExprOrOpArgNode> assignments = new LinkedHashMap<SymbolNode, ExprOrOpArgNode>();
+	private final LinkedHashMap<SymbolNode, ExprOrOpArgNode> assignments = new LinkedHashMap<>();
 	private List<OpDeclNode> anyVariables;
 	private final SpecAnalyser specAnalyser;
 
@@ -51,11 +51,11 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 		this.node = n;
 		this.existQuans = existQuans;
 		this.specAnalyser = specAnalyser;
-		this.unchangedVariablesList = new ArrayList<OpDeclNode>();
-		this.guards = new ArrayList<ExprOrOpArgNode>();
-		this.beforeAfterPredicates = new ArrayList<ExprOrOpArgNode>();
-		anyVariables = new ArrayList<OpDeclNode>(Arrays.asList(specAnalyser
-				.getModuleNode().getVariableDecls()));
+		this.unchangedVariablesList = new ArrayList<>();
+		this.guards = new ArrayList<>();
+		this.beforeAfterPredicates = new ArrayList<>();
+		anyVariables = new ArrayList<>(Arrays.asList(specAnalyser
+			.getModuleNode().getVariableDecls()));
 
 		evalParams();
 		// System.out.println("Construction B Operation for TLA+ action: " + name);
@@ -68,8 +68,8 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 	public AOperation getBOperation(BAstCreator bASTCreator) {
 		bASTCreator.setUnchangedVariablesNames(unchangedVariables);
 		AOperation operation = new AOperation();
-		List<PExpression> paramList = new ArrayList<PExpression>();
-		ArrayList<PPredicate> whereList = new ArrayList<PPredicate>();
+		List<PExpression> paramList = new ArrayList<>();
+		ArrayList<PPredicate> whereList = new ArrayList<>();
 		for (int j = 0; j < this.getFormalParams().size(); j++) {
 			paramList.add(bASTCreator.createIdentifierNode(this
 					.getFormalParams().get(j)));
@@ -81,14 +81,14 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 
 		operation.setOpName(BAstCreator.createTIdentifierLiteral(name));
 		operation.setParameters(paramList);
-		operation.setReturnValues(new ArrayList<PExpression>());
+		operation.setReturnValues(new ArrayList<>());
 
 		for (ExprOrOpArgNode g : guards) {
 			whereList.add(bASTCreator.visitExprOrOpArgNodePredicate(g));
 		}
 
-		ArrayList<PExpression> leftSideOfAssigment = new ArrayList<PExpression>();
-		ArrayList<PExpression> rightSideOfAssigment = new ArrayList<PExpression>();
+		ArrayList<PExpression> leftSideOfAssigment = new ArrayList<>();
+		ArrayList<PExpression> rightSideOfAssigment = new ArrayList<>();
 		for (Entry<SymbolNode, ExprOrOpArgNode> entry : assignments.entrySet()) {
 			leftSideOfAssigment.add(bASTCreator.createIdentifierNode(entry
 					.getKey()));
@@ -96,10 +96,10 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 					.visitExprOrOpArgNodeExpression(entry.getValue()));
 		}
 		AAssignSubstitution assign = new AAssignSubstitution();
-		if (anyVariables.size() > 0) { // ANY x_n WHERE P THEN A END
+		if (!anyVariables.isEmpty()) { // ANY x_n WHERE P THEN A END
 			AAnySubstitution any = new AAnySubstitution();
 			any = new AAnySubstitution();
-			List<PExpression> anyParams = new ArrayList<PExpression>();
+			List<PExpression> anyParams = new ArrayList<>();
 			for (OpDeclNode var : anyVariables) {
 				String varName = var.getName().toString();
 				String nextName = varName + "_n";
@@ -120,7 +120,7 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 			any.setWhere(bASTCreator.createConjunction(whereList));
 			any.setThen(assign);
 			operation.setOperationBody(any);
-		} else if (whereList.size() > 0) { // SELECT P THEN A END
+		} else if (!whereList.isEmpty()) { // SELECT P THEN A END
 			ASelectSubstitution select = new ASelectSubstitution();
 			whereList.addAll(createBeforeAfterPredicates(bASTCreator));
 			for (ExprOrOpArgNode e : beforeAfterPredicates) {
@@ -134,7 +134,7 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 			operation.setOperationBody(block);
 		}
 
-		if (leftSideOfAssigment.size() > 0) {
+		if (!leftSideOfAssigment.isEmpty()) {
 			assign.setLhsExpression(leftSideOfAssigment);
 			assign.setRhsExpressions(rightSideOfAssigment);
 		} else { // skip
@@ -146,7 +146,7 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 
 	private ArrayList<PPredicate> createBeforeAfterPredicates(
 			BAstCreator bAstCreator) {
-		ArrayList<PPredicate> predicates = new ArrayList<PPredicate>();
+		ArrayList<PPredicate> predicates = new ArrayList<>();
 		for (ExprOrOpArgNode e : beforeAfterPredicates) {
 			PPredicate body = null;
 			if (e instanceof OpApplNode) {
@@ -175,8 +175,8 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 	private void findAssignments() {
 		PrimedVariablesFinder primedVariablesFinder = new PrimedVariablesFinder(
 				beforeAfterPredicates);
-		for (ExprOrOpArgNode node : new ArrayList<ExprOrOpArgNode>(
-				beforeAfterPredicates)) {
+		for (ExprOrOpArgNode node : new ArrayList<>(
+			beforeAfterPredicates)) {
 			if (node instanceof OpApplNode) {
 				OpApplNode opApplNode = (OpApplNode) node;
 				if (opApplNode.getOperator().getKind() == BuiltInKind) {
@@ -209,7 +209,7 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 				}
 			}
 		}
-		anyVariables = new ArrayList<OpDeclNode>();
+		anyVariables = new ArrayList<>();
 		Collections.addAll(anyVariables, specAnalyser.getModuleNode().getVariableDecls());
 
 		// for (SymbolNode symbol : primedVariablesFinder.getAllVariables()) {
@@ -241,11 +241,10 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 				default: {
 					if (opApplNode.level < 2) {  
 						guards.add(node); // should we be checking nonLeibnizParams is empty ?
-						return;
 					} else {
 						beforeAfterPredicates.add(node);
-						return;
 					}
+					return;
 				}
 
 				}
@@ -260,15 +259,14 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 	}
 
 	private void evalParams() {
-		opParams = new ArrayList<String>();
-		formalParams = new ArrayList<FormalParamNode>();
-		for (int i = 0; i < existQuans.size(); i++) {
-			OpApplNode n = existQuans.get(i);
+		opParams = new ArrayList<>();
+		formalParams = new ArrayList<>();
+		for (OpApplNode n : existQuans) {
 			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-			for (int k = 0; k < params.length; k++) {
-				for (int j = 0; j < params[k].length; j++) {
-					formalParams.add(params[k][j]);
-					opParams.add(params[k][j].getName().toString());
+			for (FormalParamNode[] param : params) {
+				for (int j = 0; j < param.length; j++) {
+					formalParams.add(param[j]);
+					opParams.add(param[j].getName().toString());
 				}
 			}
 		}
@@ -293,7 +291,7 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 	}
 
 	public ArrayList<OpApplNode> getExistQuans() {
-		return new ArrayList<OpApplNode>(existQuans);
+		return new ArrayList<>(existQuans);
 	}
 
 	public ArrayList<String> getOpParams() {
@@ -309,7 +307,7 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 	}
 
 	private void findUnchangedVariables() {
-		unchangedVariables = new ArrayList<String>();
+		unchangedVariables = new ArrayList<>();
 		findUnchangedVaribalesInSemanticNode(node);
 	}
 
@@ -402,9 +400,9 @@ class PrimedVariablesFinder extends AbstractASTVisitor {
 	private Set<SymbolNode> currentSet;
 
 	public PrimedVariablesFinder(ArrayList<ExprOrOpArgNode> list) {
-		this.all = new HashSet<SymbolNode>();
-		this.twiceUsedVariables = new HashSet<SymbolNode>();
-		this.table = new Hashtable<SemanticNode, Set<SymbolNode>>();
+		this.all = new HashSet<>();
+		this.twiceUsedVariables = new HashSet<>();
+		this.table = new Hashtable<>();
 
 		for (ExprOrOpArgNode exprOrOpArgNode : list) {
 			findPrimedVariables(exprOrOpArgNode);
@@ -412,16 +410,13 @@ class PrimedVariablesFinder extends AbstractASTVisitor {
 	}
 
 	public void findPrimedVariables(ExprOrOpArgNode n) {
-		currentSet = new HashSet<SymbolNode>();
+		currentSet = new HashSet<>();
 		this.visitExprOrOpArgNode(n);
 		table.put(n, currentSet);
 	}
 
 	public void visitBuiltInNode(OpApplNode n) {
-		switch (getOpCode(n.getOperator().getName())) {
-
-		case OPCODE_prime: // prime
-		{
+		if (getOpCode(n.getOperator().getName()) == OPCODE_prime) { // prime
 			if (n.getArgs()[0] instanceof OpApplNode) {
 				OpApplNode varNode = (OpApplNode) n.getArgs()[0];
 				SymbolNode var = varNode.getOperator();
@@ -435,12 +430,7 @@ class PrimedVariablesFinder extends AbstractASTVisitor {
 				}
 			}
 		}
-
-		default: {
-			super.visitBuiltInNode(n);
-		}
-
-		}
+		super.visitBuiltInNode(n);
 	}
 
 	public Set<SymbolNode> getTwiceUsedVariables() {

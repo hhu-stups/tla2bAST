@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -40,7 +39,7 @@ public class ConfigfileEvaluator {
 	private OpDefNode specNode; // SPECIFICATION node, may be null
 	private OpDefNode nextNode; // NEXT node, may be null
 	private OpDefNode initNode; // INIT node, may be null
-	private final ArrayList<OpDefNode> invariantNodeList = new ArrayList<OpDefNode>();
+	private final ArrayList<OpDefNode> invariantNodeList = new ArrayList<>();
 	private ArrayList<String> enumeratedSet;
 	private LinkedHashMap<String, EnumType> enumeratedTypes;
 	public Hashtable<OpDeclNode, ValueObj> constantAssignments;
@@ -51,7 +50,7 @@ public class ConfigfileEvaluator {
 
 	private ArrayList<OpDefNode> operatorModelvalues;
 
-	private final ArrayList<OpDeclNode> bConstantList = new ArrayList<OpDeclNode>();
+	private final ArrayList<OpDeclNode> bConstantList = new ArrayList<>();
 	// List of constants in the resulting B machine. This list does not contain
 	// a TLA+ constant if the constant is substituted by a modelvalue with the
 	// same name (the constant name is moved to an enumerated set) or if the
@@ -69,17 +68,17 @@ public class ConfigfileEvaluator {
 		this.configAst = configAst;
 		this.moduleNode = moduleNode;
 
-		definitions = new Hashtable<String, OpDefNode>();
+		definitions = new Hashtable<>();
 		OpDefNode[] defs = moduleNode.getOpDefs();
-		for (int i = 0; i < defs.length; i++) {
-			definitions.put(defs[i].getName().toString(), defs[i]);
+		for (OpDefNode def : defs) {
+			definitions.put(def.getName().toString(), def);
 		}
 
-		constants = new Hashtable<String, OpDeclNode>();
+		constants = new Hashtable<>();
 		OpDeclNode[] cons = moduleNode.getConstantDecls();
-		for (int i = 0; i < cons.length; i++) {
-			constants.put(cons[i].getName().toString(), cons[i]);
-			bConstantList.add(cons[i]);
+		for (OpDeclNode con : cons) {
+			constants.put(con.getName().toString(), con);
+			bConstantList.add(con);
 		}
 
 		initialize();
@@ -90,15 +89,15 @@ public class ConfigfileEvaluator {
 	}
 
 	private void initialize() {
-		this.constantOverrideTable = new Hashtable<OpDeclNode, OpDefNode>();
-		this.operatorOverrideTable = new Hashtable<OpDefNode, OpDefNode>();
+		this.constantOverrideTable = new Hashtable<>();
+		this.operatorOverrideTable = new Hashtable<>();
 
-		this.constantAssignments = new Hashtable<OpDeclNode, ValueObj>();
-		this.operatorAssignments = new Hashtable<OpDefNode, ValueObj>();
-		this.operatorModelvalues = new ArrayList<OpDefNode>();
+		this.constantAssignments = new Hashtable<>();
+		this.operatorAssignments = new Hashtable<>();
+		this.operatorModelvalues = new ArrayList<>();
 
-		this.enumeratedSet = new ArrayList<String>();
-		this.enumeratedTypes = new LinkedHashMap<String, EnumType>();
+		this.enumeratedSet = new ArrayList<>();
+		this.enumeratedTypes = new LinkedHashMap<>();
 	}
 
 	public void start() throws ConfigFileErrorException {
@@ -129,7 +128,7 @@ public class ConfigfileEvaluator {
 
 	private void evalNext() throws ConfigFileErrorException {
 		String next = configAst.getNext();
-		if (!next.equals("")) {
+		if (!next.isEmpty()) {
 			if (definitions.containsKey(next)) {
 				this.nextNode = definitions.get(next);
 			} else {
@@ -145,7 +144,7 @@ public class ConfigfileEvaluator {
 
 	private void evalInit() throws ConfigFileErrorException {
 		String init = configAst.getInit();
-		if (!init.equals("")) {
+		if (!init.isEmpty()) {
 			if (definitions.containsKey(init)) {
 				this.initNode = definitions.get(init);
 			} else {
@@ -162,7 +161,7 @@ public class ConfigfileEvaluator {
 
 	private void evalSpec() throws ConfigFileErrorException {
 		String spec = configAst.getSpec();
-		if (!spec.equals("")) {
+		if (!spec.isEmpty()) {
 			if (definitions.containsKey(spec)) {
 				this.specNode = definitions.get(spec);
 			} else {
@@ -199,18 +198,16 @@ public class ConfigfileEvaluator {
 	 */
 	@SuppressWarnings("unchecked")
 	private void evalConstantOrDefOverrides() throws ConfigFileErrorException {
-		Iterator<Map.Entry<String, String>> it = configAst.getOverrides()
-				.entrySet().iterator();
-		while (it.hasNext()) {
-			Map.Entry<String, String> entry = it.next();
+		for (Map.Entry<String, String> entry : (Iterable<Map.Entry<String, String>>) configAst.getOverrides()
+			.entrySet()) {
 			String left = entry.getKey();
 			String right = entry.getValue();
 
 			OpDefNode rightDefNode = definitions.get(right);
 			if (rightDefNode == null) {
 				throw new ConfigFileErrorException("Invalid substitution for "
-						+ left + ".\n Module does not contain definition "
-						+ right + ".");
+					+ left + ".\n Module does not contain definition "
+					+ right + ".");
 			}
 
 			if (constants.containsKey(left)) {
@@ -218,12 +215,12 @@ public class ConfigfileEvaluator {
 				OpDeclNode conNode = constants.get(left);
 				if (conNode.getArity() != rightDefNode.getArity()) {
 					throw new ConfigFileErrorException(
-							String.format(
-									"Invalid substitution for %s.%n Constant %s has %s arguments while %s has %s arguments.",
-									left, left, conNode.getArity(), right,
-									rightDefNode.getArity()));
+						String.format(
+							"Invalid substitution for %s.%n Constant %s has %s arguments while %s has %s arguments.",
+							left, left, conNode.getArity(), right,
+							rightDefNode.getArity()));
 				}
-				if(conNode.getArity()>0){
+				if (conNode.getArity() > 0) {
 					bConstantList.remove(conNode);
 				}
 				constantOverrideTable.put(conNode, rightDefNode);
@@ -232,10 +229,10 @@ public class ConfigfileEvaluator {
 				OpDefNode defNode = definitions.get(left);
 				if (defNode.getArity() != rightDefNode.getArity()) {
 					throw new ConfigFileErrorException(
-							String.format(
-									"Invalid substitution for %s.%n Operator %s has %s arguments while %s has %s arguments.",
-									left, left, defNode.getArity(), right,
-									rightDefNode.getArity()));
+						String.format(
+							"Invalid substitution for %s.%n Operator %s has %s arguments while %s has %s arguments.",
+							left, left, defNode.getArity(), right,
+							rightDefNode.getArity()));
 				}
 
 				operatorOverrideTable.put(defNode, rightDefNode);
@@ -244,7 +241,7 @@ public class ConfigfileEvaluator {
 				// TLA+
 				// module
 				throw new ConfigFileErrorException(
-						"Module does not contain the symbol: " + left);
+					"Module does not contain the symbol: " + left);
 			}
 		}
 	}
@@ -359,36 +356,32 @@ public class ConfigfileEvaluator {
 			ModuleNode mNode = searchModule(moduleName);
 			Hashtable<String, String> o = configCons.get(moduleName);
 
-			Iterator<Map.Entry<String, String>> it = o.entrySet().iterator();
-			while (it.hasNext()) {
-				Map.Entry<String, String> entry = it.next();
+			for (Map.Entry<String, String> entry : o.entrySet()) {
 				String left = entry.getKey();
 				String right = entry.getValue();
 
 				OpDefNode rightDefNode = definitions.get(right);
 				if (rightDefNode == null) {
 					throw new ConfigFileErrorException(
-							"Invalid substitution for " + left
-									+ ".\n Module does not contain definition "
-									+ right + ".");
+						"Invalid substitution for " + left
+							+ ".\n Module does not contain definition "
+							+ right + ".");
 				}
 				OpDefOrDeclNode opDefOrDeclNode = searchDefinitionOrConstant(
-						mNode, left);
+					mNode, left);
 
 				if (opDefOrDeclNode instanceof OpDefNode) {
 					// an operator is overridden by another operator
 					OpDefNode defNode = (OpDefNode) opDefOrDeclNode;
 					if (defNode.getArity() != rightDefNode.getArity()) {
 						throw new ConfigFileErrorException(
-								String.format(
-										"Invalid substitution for %s.%n Operator %s has %s arguments while %s has %s arguments.",
-										left, left, defNode.getArity(), right,
-										rightDefNode.getArity()));
+							String.format(
+								"Invalid substitution for %s.%n Operator %s has %s arguments while %s has %s arguments.",
+								left, left, defNode.getArity(), right,
+								rightDefNode.getArity()));
 					}
 					operatorOverrideTable.put(defNode, rightDefNode);
-				}
-
-				else {
+				} else {
 					InstanceNode[] instanceNodes = moduleNode.getInstances();
 					for (int i = 0; i < instanceNodes.length; i++) {
 						// if (instanceNodes[i].getModule().getName().toString()
@@ -408,10 +401,10 @@ public class ConfigfileEvaluator {
 					OpDeclNode conNode = (OpDeclNode) opDefOrDeclNode;
 					if (conNode.getArity() != rightDefNode.getArity()) {
 						throw new ConfigFileErrorException(
-								String.format(
-										"Invalid substitution for %s.%n Constant %s has %s arguments while %s has %s arguments.",
-										left, left, conNode.getArity(), right,
-										rightDefNode.getArity()));
+							String.format(
+								"Invalid substitution for %s.%n Constant %s has %s arguments while %s has %s arguments.",
+								left, left, conNode.getArity(), right,
+								rightDefNode.getArity()));
 					}
 					bConstantList.remove(conNode);
 					constantOverrideTable.put(conNode, rightDefNode);
@@ -429,9 +422,7 @@ public class ConfigfileEvaluator {
 		 */
 		@SuppressWarnings("unchecked")
 		HashSet<ModuleNode> extendedModules = moduleNode.getExtendedModuleSet();
-		for (Iterator<ModuleNode> iterator = extendedModules.iterator(); iterator
-				.hasNext();) {
-			ModuleNode m = iterator.next();
+		for (ModuleNode m : extendedModules) {
 			if (m.getName().toString().equals(moduleName)) {
 				return m;
 			}
@@ -493,7 +484,7 @@ public class ConfigfileEvaluator {
 
 			if (set.elems.elementAt(0).getClass().getName()
 					.equals("tlc2.value.ModelValue")) {
-				EnumType e = new EnumType(new ArrayList<String>());
+				EnumType e = new EnumType(new ArrayList<>());
 				for (int i = 0; i < set.size(); i++) {
 					if (set.elems.elementAt(i).getClass().getName()
 							.equals("tlc2.value.ModelValue")) {

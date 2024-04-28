@@ -7,7 +7,7 @@ import util.UniqueString;
 public class BBuiltInOPs implements BBuildIns{
 	private static final Hashtable<UniqueString, Integer> B_Opcode_Table;
 	static {
-		B_Opcode_Table = new Hashtable<UniqueString, Integer>();
+		B_Opcode_Table = new Hashtable<>();
 		B_Opcode_Table.put(OP_dotdot, B_OPCODE_dotdot);
 		B_Opcode_Table.put(OP_plus, B_OPCODE_plus);
 		B_Opcode_Table.put(OP_minus, B_OPCODE_minus);

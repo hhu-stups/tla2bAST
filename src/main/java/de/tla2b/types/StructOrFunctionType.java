@@ -14,21 +14,19 @@ public class StructOrFunctionType extends AbstractHasFollowers {
 
 	public StructOrFunctionType(String name, TLAType type) {
 		super(STRUCT_OR_FUNCTION);
-		types = new LinkedHashMap<String, TLAType>();
+		types = new LinkedHashMap<>();
 		types.put(name, type);
 	}
 
 	public StructOrFunctionType() {
 		super(STRUCT_OR_FUNCTION);
-		types = new LinkedHashMap<String, TLAType>();
+		types = new LinkedHashMap<>();
 	}
 
 	public void setNewType(TLAType old, TLAType New) {
 		Set<Entry<String, TLAType>> set = types.entrySet();
-		Iterator<Entry<String, TLAType>> iterator = set.iterator();
 
-		while (iterator.hasNext()) {
-			Entry<String, TLAType> entry = iterator.next();
+		for (Entry<String, TLAType> entry : set) {
 			if (entry.getValue() == old) {
 				String key = entry.getKey();
 				if (New instanceof AbstractHasFollowers) {
@@ -64,12 +62,10 @@ public class StructOrFunctionType extends AbstractHasFollowers {
 			return true;
 		if (o instanceof StructType) {
 			StructType s = (StructType) o;
-			Iterator<String> thisKeys = types.keySet().iterator();
-			while (thisKeys.hasNext()) {
-				String fieldName = thisKeys.next();
+			for (String fieldName : types.keySet()) {
 				if (s.getFields().contains(fieldName)) {
 					if (!this.types.get(fieldName)
-							.compare(s.getType(fieldName))) {
+						.compare(s.getType(fieldName))) {
 						return false;
 					}
 				}
@@ -80,12 +76,10 @@ public class StructOrFunctionType extends AbstractHasFollowers {
 		if (o instanceof StructOrFunctionType) {
 			StructOrFunctionType s = (StructOrFunctionType) o;
 
-			Iterator<String> thisKeys = types.keySet().iterator();
-			while (thisKeys.hasNext()) {
-				String fieldName = thisKeys.next();
+			for (String fieldName : types.keySet()) {
 				if (s.types.containsKey(fieldName)) {
 					if (!this.types.get(fieldName).compare(
-							s.types.get(fieldName))) {
+						s.types.get(fieldName))) {
 						return false;
 					}
 				}
@@ -97,9 +91,7 @@ public class StructOrFunctionType extends AbstractHasFollowers {
 
 	@Override
 	public boolean contains(TLAType o) {
-		Iterator<String> thisKeys = types.keySet().iterator();
-		while (thisKeys.hasNext()) {
-			String fieldName = thisKeys.next();
+		for (String fieldName : types.keySet()) {
 			TLAType type = this.types.get(fieldName);
 			if (type.equals(o) || type.contains(o))
 				return true;

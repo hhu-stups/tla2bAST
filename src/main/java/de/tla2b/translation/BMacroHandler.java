@@ -16,11 +16,11 @@ import de.tla2b.config.ConfigfileEvaluator;
 
 public class BMacroHandler extends AbstractASTVisitor {
 
-	private final Hashtable<FormalParamNode, String> renamingTable = new Hashtable<FormalParamNode, String>();
+	private final Hashtable<FormalParamNode, String> renamingTable = new Hashtable<>();
 
 	public BMacroHandler(SpecAnalyser specAnalyser, ConfigfileEvaluator conEval) {
 		ModuleNode moduleNode = specAnalyser.getModuleNode();
-		ArrayList<OpDefNode> bDefs = new ArrayList<OpDefNode>();
+		ArrayList<OpDefNode> bDefs = new ArrayList<>();
 		for (int i = 0; i < moduleNode.getOpDefs().length; i++) {
 			OpDefNode def = moduleNode.getOpDefs()[i];
 			if (specAnalyser.getUsedDefinitions().contains(def)) {
@@ -45,16 +45,16 @@ public class BMacroHandler extends AbstractASTVisitor {
 
 	private HashSet<FormalParamNode> definitionParameters;
 	private HashSet<FormalParamNode> localVariables;
-	private final Hashtable<FormalParamNode, Set<FormalParamNode>> parameterContext = new Hashtable<FormalParamNode, Set<FormalParamNode>>();
+	private final Hashtable<FormalParamNode, Set<FormalParamNode>> parameterContext = new Hashtable<>();
 
 	@Override
 	public void visitDefinition(OpDefNode def) {
-		definitionParameters = new HashSet<FormalParamNode>();
+		definitionParameters = new HashSet<>();
 		definitionParameters.addAll(Arrays.asList(def.getParams()));
 		for (FormalParamNode param : definitionParameters) {
-			parameterContext.put(param, new HashSet<FormalParamNode>());
+			parameterContext.put(param, new HashSet<>());
 		}
-		localVariables = new HashSet<FormalParamNode>();
+		localVariables = new HashSet<>();
 
 		visitExprNode(def.getBody());
 
@@ -64,8 +64,8 @@ public class BMacroHandler extends AbstractASTVisitor {
 
 	@Override
 	public void visitAssumeNode(AssumeNode assumeNode) {
-		definitionParameters = new HashSet<FormalParamNode>();
-		localVariables = new HashSet<FormalParamNode>();
+		definitionParameters = new HashSet<>();
+		localVariables = new HashSet<>();
 
 		visitExprNode(assumeNode.getAssume());
 
@@ -88,9 +88,9 @@ public class BMacroHandler extends AbstractASTVisitor {
 		{
 
 			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-			HashSet<FormalParamNode> set = new HashSet<FormalParamNode>();
-			for (int i = 0; i < params.length; i++) {
-				Collections.addAll(set, params[i]);
+			HashSet<FormalParamNode> set = new HashSet<>();
+			for (FormalParamNode[] param : params) {
+				Collections.addAll(set, param);
 			}
 			localVariables.addAll(set);
 			ExprNode[] in = n.getBdedQuantBounds();
@@ -113,7 +113,7 @@ public class BMacroHandler extends AbstractASTVisitor {
 	}
 
 	private Set<String> getStringSet(Set<FormalParamNode> set) {
-		HashSet<String> stringSet = new HashSet<String>();
+		HashSet<String> stringSet = new HashSet<>();
 		for (FormalParamNode formalParamNode : set) {
 			stringSet.add(formalParamNode.getName().toString());
 		}
@@ -124,7 +124,7 @@ public class BMacroHandler extends AbstractASTVisitor {
 
 	private void addToIllegalParams(Set<FormalParamNode> set) {
 		if (illegalParams == null) {
-			illegalParams = new HashSet<FormalParamNode>(set);
+			illegalParams = new HashSet<>(set);
 		} else {
 			illegalParams.addAll(set);
 		}
@@ -133,7 +133,7 @@ public class BMacroHandler extends AbstractASTVisitor {
 	private Set<FormalParamNode> getContextOfParam(FormalParamNode param) {
 		Set<FormalParamNode> set = parameterContext.get(param);
 		if (set == null) {
-			set = new HashSet<FormalParamNode>();
+			set = new HashSet<>();
 		}
 		return set;
 	}
@@ -183,7 +183,7 @@ public class BMacroHandler extends AbstractASTVisitor {
 		}
 	}
 
-	Set<String> globalNames = new HashSet<String>();
+	final Set<String> globalNames = new HashSet<>();
 
 	private Boolean existingName(String name) {
 		return globalNames.contains(name);

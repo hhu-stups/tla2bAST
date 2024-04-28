@@ -27,7 +27,7 @@ public class BAstCreator extends BuiltInOPs
 
 	List<PMachineClause> machineClauseList;
 	ConfigfileEvaluator conEval;
-	SpecAnalyser specAnalyser;
+	final SpecAnalyser specAnalyser;
 	private final PredicateVsExpression predicateVsExpression;
 	private final BMacroHandler bMacroHandler;
 	private final RecursiveFunctionHandler recursiveFunctionHandler;
@@ -133,7 +133,7 @@ public class BAstCreator extends BuiltInOPs
 			return;
 		ASetsMachineClause setsClause = new ASetsMachineClause();
 
-		ArrayList<EnumType> printed = new ArrayList<EnumType>();
+		ArrayList<EnumType> printed = new ArrayList<>();
 		OpDeclNode[] cons = moduleNode.getConstantDecls();
 		for (OpDeclNode con : cons) {
 			TLAType type = (TLAType) con.getToolObject(TYPE_ID);
@@ -192,7 +192,7 @@ public class BAstCreator extends BuiltInOPs
 		List<PDefinition> defs = new ArrayList<>(createDefinitionsForExternalFunctions(set));
 
 		for (OpDefNode opDefNode : bDefs) {
-			List<PExpression> list = new ArrayList<PExpression>();
+			List<PExpression> list = new ArrayList<>();
 			for (int i = 0; i < opDefNode.getParams().length; i++) {
 				FormalParamNode p = opDefNode.getParams()[i];
 				list.add(createIdentifierNode(p));
@@ -406,18 +406,16 @@ public class BAstCreator extends BuiltInOPs
 						}
 					}
 				}
+				AEqualPredicate equal = new AEqualPredicate();
 				if (isEnum) {
-					AEqualPredicate equal = new AEqualPredicate();
 					equal.setLeft(createIdentifierNode(con));
 					equal.setRight(createIdentifierNode(((SetType) t).getSubType().toString()));
-					propertiesList.add(equal);
 				} else {
-					AEqualPredicate equal = new AEqualPredicate();
 					equal.setLeft(createIdentifierNode(con));
 					Value tlcValue = v.getValue();
 					equal.setRight(createTLCValue(tlcValue));
-					propertiesList.add(equal);
 				}
+				propertiesList.add(equal);
 			} else {
 				AMemberPredicate member = new AMemberPredicate();
 				member.setLeft(createIdentifierNode(con));
@@ -476,7 +474,7 @@ public class BAstCreator extends BuiltInOPs
 	}
 
 	private List<PPredicate> evalRecursiveFunctions() {
-		List<PPredicate> propertiesList = new ArrayList<PPredicate>();
+		List<PPredicate> propertiesList = new ArrayList<>();
 		for (OpDefNode def : specAnalyser.getRecursiveFunctions()) {
 			AEqualPredicate equals = new AEqualPredicate(createIdentifierNode(def),
 				visitExprNodeExpression(def.getBody()));
@@ -486,15 +484,15 @@ public class BAstCreator extends BuiltInOPs
 	}
 
 	private List<PPredicate> evalRecursiveDefinitions() {
-		List<PPredicate> propertiesList = new ArrayList<PPredicate>();
+		List<PPredicate> propertiesList = new ArrayList<>();
 
 		for (RecursiveDefinition recDef : specAnalyser.getRecursiveDefinitions()) {
 			OpDefNode def = recDef.getOpDefNode();
 			// TLAType t = (TLAType) def.getToolObject(TYPE_ID);
 			// OpApplNode ifThenElse = recDef.getIfThenElse();
 			FormalParamNode[] params = def.getParams();
-			ArrayList<PExpression> paramList1 = new ArrayList<PExpression>();
-			ArrayList<PPredicate> typeList = new ArrayList<PPredicate>();
+			ArrayList<PExpression> paramList1 = new ArrayList<>();
+			ArrayList<PPredicate> typeList = new ArrayList<>();
 			// ArrayList<PExpression> paramList2 = new ArrayList<PExpression>();
 			for (FormalParamNode p : params) {
 				paramList1.add(createIdentifierNode(p));
@@ -652,7 +650,7 @@ public class BAstCreator extends BuiltInOPs
 		if (type instanceof FunctionType) {
 			FunctionType funcType = (FunctionType) type;
 			PExpression param = visitExprOrOpArgNodeExpression(list.poll());
-			List<PExpression> params = new ArrayList<PExpression>();
+			List<PExpression> params = new ArrayList<>();
 			params.add(param);
 			AFunctionExpression funCall = new AFunctionExpression();
 			funCall.setIdentifier(base);
@@ -1115,7 +1113,7 @@ public class BAstCreator extends BuiltInOPs
 				AMinusOrSetSubtractExpression minus2 = new AMinusOrSetSubtractExpression();
 				minus2.setLeft(add2);
 				minus2.setRight(new AIntegerExpression(new TIntegerLiteral("1")));
-				ArrayList<PExpression> params = new ArrayList<PExpression>();
+				ArrayList<PExpression> params = new ArrayList<>();
 				params.add(minus2);
 				AFunctionExpression func = new AFunctionExpression();
 				func.setIdentifier(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
@@ -1128,7 +1126,7 @@ public class BAstCreator extends BuiltInOPs
 			case B_OPCODE_assert: {
 				ADefinitionPredicate pred = new ADefinitionPredicate();
 				pred.setDefLiteral(new TDefLiteralPredicate("ASSERT_TRUE"));
-				ArrayList<PExpression> list = new ArrayList<PExpression>();
+				ArrayList<PExpression> list = new ArrayList<>();
 				list.add(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
 				list.add(new AStringExpression(new TStringLiteral("Error")));
 				pred.setParameters(list);
@@ -1201,7 +1199,7 @@ public class BAstCreator extends BuiltInOPs
 
 			case OPCODE_cl: // $ConjList
 			{
-				List<PPredicate> list = new ArrayList<PPredicate>();
+				List<PPredicate> list = new ArrayList<>();
 				for (int i = 0; i < n.getArgs().length; i++) {
 					list.add(visitExprOrOpArgNodePredicate(n.getArgs()[i]));
 				}
@@ -1210,7 +1208,7 @@ public class BAstCreator extends BuiltInOPs
 
 			case OPCODE_dl: // $DisjList
 			{
-				List<PPredicate> list = new ArrayList<PPredicate>();
+				List<PPredicate> list = new ArrayList<>();
 				for (int i = 0; i < n.getArgs().length; i++) {
 					list.add(visitExprOrOpArgNodePredicate(n.getArgs()[i]));
 				}
@@ -1268,7 +1266,7 @@ public class BAstCreator extends BuiltInOPs
 				if (n.getArgs().length == 0) {
 					return new AEmptySetExpression();
 				} else {
-					List<PExpression> list = new ArrayList<PExpression>();
+					List<PExpression> list = new ArrayList<>();
 
 					for (int i = 0; i < n.getArgs().length; i++) {
 						list.add(visitExprOrOpArgNodeExpression(n.getArgs()[i]));
@@ -1329,7 +1327,7 @@ public class BAstCreator extends BuiltInOPs
 
 			case OPCODE_sso: { // $SubsetOf Represents {x \in S : P}
 				FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-				List<PExpression> list = new ArrayList<PExpression>();
+				List<PExpression> list = new ArrayList<>();
 				for (int i = 0; i < params[0].length; i++) {
 					FormalParamNode p = params[0][i];
 					list.add(createIdentifierNode(p));
@@ -1345,7 +1343,7 @@ public class BAstCreator extends BuiltInOPs
 			case OPCODE_soa: { // $SetOfAll Represents {e : p1 \in S, p2,p3 \in S2}
 				FormalParamNode[][] params = n.getBdedQuantSymbolLists();
 				List<PExpression> idList = createListOfIdentifier(params);
-				List<PPredicate> predList = new ArrayList<PPredicate>();
+				List<PPredicate> predList = new ArrayList<>();
 
 				predList.add(visitBoundsOfLocalVariables(n));
 				final String nameOfTempVariable = "t_";
@@ -1358,7 +1356,7 @@ public class BAstCreator extends BuiltInOPs
 				exist.setPredicate(createConjunction(predList));
 
 				AComprehensionSetExpression compre = new AComprehensionSetExpression();
-				List<PExpression> tList = new ArrayList<PExpression>();
+				List<PExpression> tList = new ArrayList<>();
 				tList.add(createIdentifierNode(nameOfTempVariable));
 				compre.setIdentifiers(tList);
 				compre.setPredicates(exist);
@@ -1368,7 +1366,7 @@ public class BAstCreator extends BuiltInOPs
 				union.setIdentifiers(idList);
 				union.setPredicates(createConjunction(predList));
 				ASetExtensionExpression set = new ASetExtensionExpression();
-				List<PExpression> list = new ArrayList<PExpression>();
+				List<PExpression> list = new ArrayList<>();
 				list.add(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
 				set.setExpressions(list);
 				union.setExpression(set);
@@ -1380,16 +1378,15 @@ public class BAstCreator extends BuiltInOPs
 			case OPCODE_fc: // Represents [x \in S |-> e].
 			case OPCODE_rfs: {
 				FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-				List<PExpression> idList = new ArrayList<PExpression>();
-				for (int i = 0; i < params.length; i++) {
-					for (int j = 0; j < params[i].length; j++) {
-						FormalParamNode p = params[i][j];
+				List<PExpression> idList = new ArrayList<>();
+				for (FormalParamNode[] param : params) {
+					for (FormalParamNode p : param) {
 						idList.add(createIdentifierNode(p));
 					}
 				}
 				boolean[] isTuple = n.isBdedQuantATuple();
 				ALambdaExpression lambda = new ALambdaExpression();
-				List<PExpression> idList2 = new ArrayList<PExpression>();
+				List<PExpression> idList2 = new ArrayList<>();
 				for (int i = 0; i < params.length; i++) {
 					if (isTuple[i] && i > 0) {
 						StringBuilder sb = new StringBuilder();
@@ -1414,10 +1411,10 @@ public class BAstCreator extends BuiltInOPs
 				if (recursiveFunctionHandler.isRecursiveFunction(n)) {
 
 					ArrayList<SymbolNode> externParams = recursiveFunctionHandler.getAdditionalParams(n);
-					if (externParams.size() > 0) {
+					if (!externParams.isEmpty()) {
 						ALambdaExpression lambda2 = new ALambdaExpression();
-						ArrayList<PExpression> shiftedParams = new ArrayList<PExpression>();
-						List<PPredicate> predList2 = new ArrayList<PPredicate>();
+						ArrayList<PExpression> shiftedParams = new ArrayList<>();
+						List<PPredicate> predList2 = new ArrayList<>();
 						for (SymbolNode p : externParams) {
 							shiftedParams.add(createIdentifierNode(p));
 
@@ -1446,14 +1443,14 @@ public class BAstCreator extends BuiltInOPs
 				} else {
 					AFunctionExpression func = new AFunctionExpression();
 					func.setIdentifier(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-					List<PExpression> paramList = new ArrayList<PExpression>();
+					List<PExpression> paramList = new ArrayList<>();
 
 					ExprOrOpArgNode dom = n.getArgs()[1];
 					if (dom instanceof OpApplNode
 						&& ((OpApplNode) dom).getOperator().getName().toString().equals("$Tuple")) {
 						OpApplNode domOpAppl = (OpApplNode) dom;
 						if (domOpAppl.getArgs().length == 1) {
-							List<PExpression> list = new ArrayList<PExpression>();
+							List<PExpression> list = new ArrayList<>();
 							list.add(visitExprOrOpArgNodeExpression(domOpAppl.getArgs()[0]));
 							ASequenceExtensionExpression seq = new ASequenceExtensionExpression(list);
 							paramList.add(seq);
@@ -1480,7 +1477,7 @@ public class BAstCreator extends BuiltInOPs
 					visitExprOrOpArgNodeExpression(n.getArgs()[1]));
 
 			case OPCODE_tup: { // $Tuple
-				List<PExpression> list = new ArrayList<PExpression>();
+				List<PExpression> list = new ArrayList<>();
 				for (int i = 0; i < n.getArgs().length; i++) {
 					list.add(visitExprOrOpArgNodeExpression(n.getArgs()[i]));
 				}

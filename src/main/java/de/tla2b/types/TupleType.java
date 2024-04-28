@@ -18,7 +18,7 @@ public class TupleType extends AbstractHasFollowers {
 
 	public TupleType(int size) {
 		super(TUPLE);
-		ArrayList<TLAType> list = new ArrayList<TLAType>();
+		ArrayList<TLAType> list = new ArrayList<>();
 		for (int i = 0; i < size; i++) {
 			list.add(new UntypedType());
 		}
@@ -26,12 +26,12 @@ public class TupleType extends AbstractHasFollowers {
 	}
 
 	public ArrayList<TLAType> getTypes() {
-		return new ArrayList<TLAType>(types);
+		return new ArrayList<>(types);
 	}
 
 	public void setTypes(List<TLAType> types) {
 		this.types = types;
-		types = new ArrayList<TLAType>(types);
+		types = new ArrayList<>(types);
 		for (TLAType tlaType : types) {
 			if (tlaType instanceof AbstractHasFollowers) {
 				((AbstractHasFollowers) tlaType).addFollower(this);
@@ -95,7 +95,7 @@ public class TupleType extends AbstractHasFollowers {
 
 	@Override
 	public TLAType cloneTLAType() {
-		ArrayList<TLAType> list = new ArrayList<TLAType>();
+		ArrayList<TLAType> list = new ArrayList<>();
 		for (TLAType tlaType : types) {
 			list.add(tlaType.cloneTLAType());
 		}
@@ -146,7 +146,7 @@ public class TupleType extends AbstractHasFollowers {
 
 	@Override
 	public PExpression getBNode() {
-		List<PExpression> list = new ArrayList<PExpression>();
+		List<PExpression> list = new ArrayList<>();
 		for (TLAType t : types) {
 			list.add(t.getBNode());
 		}

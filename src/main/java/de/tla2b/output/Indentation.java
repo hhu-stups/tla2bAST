@@ -21,10 +21,10 @@ import de.be4.classicalb.core.parser.node.Start;
 
 public class Indentation extends DepthFirstAdapter {
 
-	private final Hashtable<Node, Integer> indentation = new Hashtable<Node, Integer>();
-	private final HashSet<Node> newlineMiddle = new HashSet<Node>();
-	private final HashSet<Node> nodesWithNewlineAtTheEnd = new HashSet<Node>();
-	private final HashSet<Node> indentedNodes = new HashSet<Node>();
+	private final Hashtable<Node, Integer> indentation = new Hashtable<>();
+	private final HashSet<Node> newlineMiddle = new HashSet<>();
+	private final HashSet<Node> nodesWithNewlineAtTheEnd = new HashSet<>();
+	private final HashSet<Node> indentedNodes = new HashSet<>();
 	public final static String INDENT = "  ";
 	public final static String SPACE = " ";
 
@@ -51,7 +51,7 @@ public class Indentation extends DepthFirstAdapter {
 
 	@Override
 	public void caseASetsMachineClause(ASetsMachineClause node) {
-		List<PSet> copy = new ArrayList<PSet>(node.getSetDefinitions());
+		List<PSet> copy = new ArrayList<>(node.getSetDefinitions());
 		for (PSet e : copy) {
 			setIndentation(e, getIndentNumber(node) + 1);
 			addIndentedNode(e);
@@ -61,8 +61,8 @@ public class Indentation extends DepthFirstAdapter {
 
 	@Override
 	public void caseAConstantsMachineClause(AConstantsMachineClause node) {
-		List<PExpression> copy = new ArrayList<PExpression>(
-				node.getIdentifiers());
+		List<PExpression> copy = new ArrayList<>(
+			node.getIdentifiers());
 		for (PExpression e : copy) {
 			setIndentation(e, getIndentNumber(node) + 1);
 			addIndentedNode(e);

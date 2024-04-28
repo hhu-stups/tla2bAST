@@ -25,7 +25,7 @@ public class StructType extends AbstractHasFollowers {
 
 	public StructType() {
 		super(STRUCT);
-		types = new LinkedHashMap<String, TLAType>();
+		types = new LinkedHashMap<>();
 		extensible = false;
 		incompleteStruct = false;
 	}
@@ -54,10 +54,8 @@ public class StructType extends AbstractHasFollowers {
 
 	public void setNewType(TLAType old, TLAType New) {
 		Set<Entry<String, TLAType>> set = types.entrySet();
-		Iterator<Entry<String, TLAType>> iterator = set.iterator();
 
-		while (iterator.hasNext()) {
-			Entry<String, TLAType> entry = iterator.next();
+		for (Entry<String, TLAType> entry : set) {
 			if (entry.getValue() == old) {
 				String key = entry.getKey();
 				if (New instanceof AbstractHasFollowers) {
@@ -71,9 +69,7 @@ public class StructType extends AbstractHasFollowers {
 
 	@Override
 	public boolean isUntyped() {
-		Iterator<TLAType> ts = types.values().iterator();
-		while (ts.hasNext()) {
-			TLAType bType = ts.next();
+		for (TLAType bType : types.values()) {
 			if (bType.isUntyped())
 				return true;
 		}
@@ -93,12 +89,10 @@ public class StructType extends AbstractHasFollowers {
 		if (o instanceof StructType) {
 			StructType s = (StructType) o;
 
-			Iterator<String> thisKeys = types.keySet().iterator();
-			while (thisKeys.hasNext()) {
-				String fieldName = thisKeys.next();
+			for (String fieldName : types.keySet()) {
 				if (s.types.containsKey(fieldName)) {
 					if (!this.types.get(fieldName).compare(
-							s.types.get(fieldName))) {
+						s.types.get(fieldName))) {
 						return false;
 					}
 				}
@@ -134,9 +128,7 @@ public class StructType extends AbstractHasFollowers {
 			}
 			this.extensible = this.extensible || otherStruct.extensible || extendStruct;
 
-			Iterator<String> keys = otherStruct.types.keySet().iterator();
-			while (keys.hasNext()) {
-				String fieldName = keys.next();
+			for (String fieldName : otherStruct.types.keySet()) {
 				TLAType sType = otherStruct.types.get(fieldName);
 				if (this.types.containsKey(fieldName)) {
 					TLAType res = this.types.get(fieldName).unify(sType);
@@ -160,10 +152,8 @@ public class StructType extends AbstractHasFollowers {
 		StructType clone = new StructType();
 
 		Set<Entry<String, TLAType>> set = this.types.entrySet();
-		Iterator<Entry<String, TLAType>> iterator = set.iterator();
 
-		while (iterator.hasNext()) {
-			Entry<String, TLAType> entry = iterator.next();
+		for (Entry<String, TLAType> entry : set) {
 			String field = entry.getKey();
 			TLAType type = entry.getValue().cloneTLAType();
 			clone.add(field, type);
@@ -173,20 +163,13 @@ public class StructType extends AbstractHasFollowers {
 	}
 
 	public ArrayList<String> getFields() {
-		ArrayList<String> fields = new ArrayList<String>();
-		Iterator<String> keys = this.types.keySet().iterator();
-		while (keys.hasNext()) {
-			String fieldName = keys.next();
-			fields.add(fieldName);
-		}
+		ArrayList<String> fields = new ArrayList<>(this.types.keySet());
 		return fields;
 	}
 
 	@Override
 	public boolean contains(TLAType o) {
-		Iterator<TLAType> ts = types.values().iterator();
-		while (ts.hasNext()) {
-			TLAType bType = ts.next();
+		for (TLAType bType : types.values()) {
 			if (bType.equals(o) || bType.contains(o))
 				return true;
 		}
@@ -213,7 +196,7 @@ public class StructType extends AbstractHasFollowers {
 
 	@Override
 	public PExpression getBNode() {
-		List<PRecEntry> recList = new ArrayList<PRecEntry>();
+		List<PRecEntry> recList = new ArrayList<>();
 		for (Entry<String, TLAType> entry : types.entrySet()) {
 			ARecEntry rec = new ARecEntry();
 			rec.setIdentifier(BAstCreator.createIdentifierNode(entry.getKey()));

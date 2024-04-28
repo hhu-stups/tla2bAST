@@ -1,17 +1,12 @@
 package de.tla2b.analysis;
 
-import java.util.HashMap;
-
 import de.tla2b.global.BBuildIns;
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.global.TranslationGlobals;
-import tla2sany.semantic.ASTConstants;
-import tla2sany.semantic.LetInNode;
-import tla2sany.semantic.ModuleNode;
-import tla2sany.semantic.OpApplNode;
-import tla2sany.semantic.OpDefNode;
-import tla2sany.semantic.SemanticNode;
+import tla2sany.semantic.*;
 import tlc2.tool.BuiltInOPs;
+
+import java.util.HashMap;
 
 public class PredicateVsExpression extends BuiltInOPs implements ASTConstants,
 		BBuildIns, TranslationGlobals {
@@ -27,12 +22,11 @@ public class PredicateVsExpression extends BuiltInOPs implements ASTConstants,
 	}
 
 	public PredicateVsExpression(ModuleNode moduleNode) {
-		this.definitionsTypeMap = new HashMap<OpDefNode, PredicateVsExpression.DefinitionType>();
+		this.definitionsTypeMap = new HashMap<>();
 		OpDefNode[] defs = moduleNode.getOpDefs();
 
-		for (int i = 0; i < defs.length; i++) {
-			OpDefNode def = defs[i];
-			DefinitionType type = visitSemanticNode(defs[i].getBody());
+		for (OpDefNode def : defs) {
+			DefinitionType type = visitSemanticNode(def.getBody());
 			definitionsTypeMap.put(def, type);
 		}
 

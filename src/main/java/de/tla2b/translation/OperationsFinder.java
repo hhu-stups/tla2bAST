@@ -31,11 +31,11 @@ public class OperationsFinder extends AbstractASTVisitor implements
 
 	public OperationsFinder(SpecAnalyser specAnalyser) {
 		this.specAnalyser = specAnalyser;
-		this.bOperations = new ArrayList<BOperation>();
+		this.bOperations = new ArrayList<>();
 		if (specAnalyser.getNext() != null) {
 
 			currentName = "Next";
-			exists = new ArrayList<OpApplNode>();
+			exists = new ArrayList<>();
 			visitExprNode(specAnalyser.getNext());
 		}
 	}
@@ -97,26 +97,25 @@ public class OperationsFinder extends AbstractASTVisitor implements
 		{
 			if (n.getArgs().length == 1) {
 				visitExprOrOpArgNode(n.getArgs()[0]);
-				return;
 			} else {
 				String oldName = currentName;
-				ArrayList<OpApplNode> oldExists = new ArrayList<OpApplNode>(
-						exists);
+				ArrayList<OpApplNode> oldExists = new ArrayList<>(
+					exists);
 
 				for (int i = 0; i < n.getArgs().length; i++) {
-					exists = new ArrayList<OpApplNode>(oldExists);
+					exists = new ArrayList<>(oldExists);
 					currentName = oldName + i;
 					visitExprOrOpArgNode(n.getArgs()[i]);
 				}
-				return;
 			}
+			return;
 		}
 		case OPCODE_lor: { // logical or: split action further
 			String oldName = currentName;
-			ArrayList<OpApplNode> oldExists = new ArrayList<OpApplNode>(exists);
+			ArrayList<OpApplNode> oldExists = new ArrayList<>(exists);
 
 			for (int i = 0; i < n.getArgs().length; i++) {
-				exists = new ArrayList<OpApplNode>(oldExists);
+				exists = new ArrayList<>(oldExists);
 				currentName = oldName+ i;
 				visitExprOrOpArgNode(n.getArgs()[i]);
 			}

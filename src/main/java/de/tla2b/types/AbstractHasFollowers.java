@@ -1,6 +1,8 @@
 package de.tla2b.types;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import tla2sany.semantic.SemanticNode;
 
 public abstract class AbstractHasFollowers extends TLAType {
@@ -9,7 +11,7 @@ public abstract class AbstractHasFollowers extends TLAType {
 
 	public AbstractHasFollowers(int t) {
 		super(t);
-		followers = new ArrayList<Object>();
+		followers = new ArrayList<>();
 	}
 
 	public ArrayList<Object> getFollowers() {
@@ -19,8 +21,8 @@ public abstract class AbstractHasFollowers extends TLAType {
 	public void addFollower(Object o) {
 		// only (partial) untyped types need follower
 		if (this.followers != null) {
-			for (int i = 0; i < followers.size(); i++) {
-				if (followers.get(i) == o)
+			for (Object follower : followers) {
+				if (follower == o)
 					return;
 			}
 			followers.add(o);
@@ -47,9 +49,8 @@ public abstract class AbstractHasFollowers extends TLAType {
 	protected void setFollowersTo(TLAType newType) {
 		if (this.followers == null)
 			return;
-		for (int i = 0; i < this.followers.size(); i++) {
-
-			Object follower = this.followers.get(i);
+		// avoid concurrent modification:
+		new ArrayList<>(followers).forEach(follower -> {
 			if (follower instanceof SemanticNode) {
 				((SemanticNode) follower).setToolObject(5, newType);
 				if (newType instanceof AbstractHasFollowers) {
@@ -80,12 +81,12 @@ public abstract class AbstractHasFollowers extends TLAType {
 				((TupleOrFunction) follower).setNewType(this, newType);
 			} else {
 				throw new RuntimeException("Unknown follower type: "
-						+ follower.getClass());
+					+ follower.getClass());
 			}
-		}
+		});
 	}
 
 	public boolean hasFollower() {
-		return followers.size() != 0;
+		return !followers.isEmpty();
 	}
 }

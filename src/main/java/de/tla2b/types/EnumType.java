@@ -9,13 +9,13 @@ import de.tla2b.output.TypeVisitorInterface;
 import de.tla2bAst.BAstCreator;
 
 public class EnumType extends AbstractHasFollowers {
-	public LinkedHashSet<String> modelvalues;
+	public final LinkedHashSet<String> modelvalues;
 	public int id;
 	private boolean noVal = false;
 
 	public EnumType(ArrayList<String> enums) {
 		super(MODELVALUE);
-		modelvalues = new LinkedHashSet<String>(enums);
+		modelvalues = new LinkedHashSet<>(enums);
 	}
 
 	public void setNoVal() {

@@ -25,7 +25,7 @@ public class UsedExternalFunctions extends AbstractASTVisitor implements BBuildI
 
 	public UsedExternalFunctions(ModuleNode moduleNode,
 			SpecAnalyser specAnalyser) {
-		usedExternalFunctions = new HashSet<UsedExternalFunctions.EXTERNAL_FUNCTIONS>();
+		usedExternalFunctions = new HashSet<>();
 
 		visitAssumptions(moduleNode.getAssumptions());
 
@@ -62,11 +62,8 @@ public class UsedExternalFunctions extends AbstractASTVisitor implements BBuildI
 	
 	@Override
 	public void visitBBuiltinsNode(OpApplNode n) {
-		switch (BBuiltInOPs.getOpcode(n.getOperator().getName())) {
-		
-		case B_OPCODE_assert: {
+		if (BBuiltInOPs.getOpcode(n.getOperator().getName()) == B_OPCODE_assert) {
 			usedExternalFunctions.add(EXTERNAL_FUNCTIONS.ASSERT);
-		}
 		}
 		
 		

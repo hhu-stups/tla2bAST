@@ -28,8 +28,8 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 	private final Set<OpDefNode> usedDefinitions;
 	private final Set<OpDefNode> bDefinitions;
 
-	private final ArrayList<SymbolNode> symbolNodeList = new ArrayList<SymbolNode>();
-	private final ArrayList<SemanticNode> tupleNodeList = new ArrayList<SemanticNode>();
+	private final ArrayList<SymbolNode> symbolNodeList = new ArrayList<>();
+	private final ArrayList<SemanticNode> tupleNodeList = new ArrayList<>();
 
 	private final ModuleNode moduleNode;
 	private ArrayList<OpDeclNode> bConstList;
@@ -58,7 +58,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 	public TypeChecker(ModuleNode moduleNode, SpecAnalyser specAnalyser) {
 		this.moduleNode = moduleNode;
 		this.specAnalyser = specAnalyser;
-		Set<OpDefNode> usedDefinitions = new HashSet<OpDefNode>();
+		Set<OpDefNode> usedDefinitions = new HashSet<>();
 		OpDefNode[] defs = moduleNode.getOpDefs();
 		// used the last definition of the module
 		usedDefinitions.add(defs[defs.length - 1]);
@@ -69,8 +69,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 
 	public void start() throws TLA2BException {
 		OpDeclNode[] cons = moduleNode.getConstantDecls();
-		for (int i = 0; i < cons.length; i++) {
-			OpDeclNode con = cons[i];
+		for (OpDeclNode con : cons) {
 			if (constantAssignments != null && constantAssignments.containsKey(con)) {
 
 				TLAType t = constantAssignments.get(con).getType();
@@ -86,8 +85,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 		}
 
 		OpDeclNode[] vars = moduleNode.getVariableDecls();
-		for (int i = 0; i < vars.length; i++) {
-			OpDeclNode var = vars[i];
+		for (OpDeclNode var : vars) {
 			UntypedType u = new UntypedType();
 			var.setToolObject(TYPE_ID, u);
 			u.addFollower(var);
@@ -96,9 +94,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 		evalDefinitions(moduleNode.getOpDefs());
 
 		if (conEval != null) {
-			Iterator<Entry<OpDeclNode, OpDefNode>> iter = conEval.getConstantOverrideTable().entrySet().iterator();
-			while (iter.hasNext()) {
-				Entry<OpDeclNode, OpDefNode> entry = iter.next();
+			for (Entry<OpDeclNode, OpDefNode> entry : conEval.getConstantOverrideTable().entrySet()) {
 				OpDeclNode con = entry.getKey();
 				if (!bConstList.contains(con)) {
 					continue;
@@ -112,7 +108,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 					con.setToolObject(TYPE_ID, result);
 				} catch (UnificationException e) {
 					throw new TypeErrorException(
-							String.format("Expected %s, found %s at constant '%s'.", defType, conType, con.getName()));
+						String.format("Expected %s, found %s at constant '%s'.", defType, conType, con.getName()));
 				}
 			}
 		}
@@ -120,8 +116,8 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 		evalAssumptions(moduleNode.getAssumptions());
 
 		if (inits != null) {
-			for (int i = 0; i < inits.size(); i++) {
-				visitExprNode(inits.get(i), BoolType.getInstance());
+			for (ExprNode init : inits) {
+				visitExprNode(init, BoolType.getInstance());
 			}
 		}
 
@@ -136,25 +132,23 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 	private void checkIfAllIdentifiersHaveAType() throws TypeErrorException {
 		// check if a variable has no type
 		OpDeclNode[] vars = moduleNode.getVariableDecls();
-		for (int i = 0; i < vars.length; i++) {
-			OpDeclNode var = vars[i];
+		for (OpDeclNode var : vars) {
 			TLAType varType = (TLAType) var.getToolObject(TYPE_ID);
 			if (varType.isUntyped()) {
 				throw new TypeErrorException(
-						"The type of the variable '" + var.getName() + "' can not be inferred: " + varType);
+					"The type of the variable '" + var.getName() + "' can not be inferred: " + varType);
 			}
 		}
 
 		// check if a constant has no type, only constants which will appear in
 		// the resulting B Machine are considered
 		OpDeclNode[] cons = moduleNode.getConstantDecls();
-		for (int i = 0; i < cons.length; i++) {
-			OpDeclNode con = cons[i];
+		for (OpDeclNode con : cons) {
 			if (bConstList == null || bConstList.contains(con)) {
 				TLAType conType = (TLAType) con.getToolObject(TYPE_ID);
 				if (conType.isUntyped()) {
 					throw new TypeErrorException(
-							"The type of constant " + con.getName() + " is still untyped: " + conType);
+						"The type of constant " + con.getName() + " is still untyped: " + conType);
 				}
 			}
 		}
@@ -177,8 +171,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 	}
 
 	private void evalDefinitions(OpDefNode[] opDefs) throws TLA2BException {
-		for (int i = 0; i < opDefs.length; i++) {
-			OpDefNode def = opDefs[i];
+		for (OpDefNode def : opDefs) {
 			// Definition in this module
 			String moduleName1 = def.getOriginallyDefinedInModuleNode().getName().toString();
 			String moduleName2 = def.getSource().getOriginallyDefinedInModuleNode().getName().toString();
@@ -839,7 +832,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 		 */
 		case OPCODE_cp: // $CartesianProd A \X B \X C as $CartesianProd(A, B, C)
 		{
-			ArrayList<TLAType> list = new ArrayList<TLAType>();
+			ArrayList<TLAType> list = new ArrayList<>();
 			for (int i = 0; i < n.getArgs().length; i++) {
 				SetType t = (SetType) visitExprOrOpArgNode(n.getArgs()[i], new SetType(new UntypedType()));
 				list.add(t.getSubType());
@@ -956,7 +949,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 		}
 
 		case OPCODE_uc: {
-			List<TLAType> list = new ArrayList<TLAType>();
+			List<TLAType> list = new ArrayList<>();
 			for (FormalParamNode param : n.getUnbdedQuantSymbols()) {
 				TLAType paramType = new UntypedType();
 				symbolNodeList.add(param);
@@ -1096,7 +1089,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			TLAType valueType = visitExprOrOpArgNode(rightside, untyped);
 
 			OpApplNode seq = (OpApplNode) leftside;
-			LinkedList<ExprOrOpArgNode> list = new LinkedList<ExprOrOpArgNode>();
+			LinkedList<ExprOrOpArgNode> list = new LinkedList<>();
 			Collections.addAll(list, seq.getArgs());
 			ExprOrOpArgNode first = list.poll();
 
@@ -1118,7 +1111,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 				TLAType rangeType;
 				if (domExpr instanceof OpApplNode
 						&& ((OpApplNode) domExpr).getOperator().getName().toString().equals("$Tuple")) {
-					ArrayList<TLAType> domList = new ArrayList<TLAType>();
+					ArrayList<TLAType> domList = new ArrayList<>();
 					OpApplNode domOpAppl = (OpApplNode) domExpr;
 					for (int j = 0; j < domOpAppl.getArgs().length; j++) {
 						TLAType d = visitExprOrOpArgNode(domOpAppl.getArgs()[j], new UntypedType());
@@ -1144,7 +1137,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 	}
 
 	private TLAType evalType(LinkedList<ExprOrOpArgNode> list, TLAType valueType) throws TLA2BException {
-		if (list.size() == 0) {
+		if (list.isEmpty()) {
 			return valueType;
 		}
 		ExprOrOpArgNode head = list.poll();
@@ -1514,7 +1507,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			SetType set = new SetType(new TupleType(2));
 			set = (SetType) visitExprOrOpArgNode(n.getArgs()[0], set);
 			TupleType t = (TupleType) set.getSubType();
-			ArrayList<TLAType> list = new ArrayList<TLAType>();
+			ArrayList<TLAType> list = new ArrayList<>();
 			list.add(t.getTypes().get(1));
 			list.add(t.getTypes().get(0));
 			SetType found = new SetType(new TupleType(list));

@@ -21,8 +21,8 @@ public class RecursiveFunctionHandler extends AbstractASTVisitor {
 	private ArrayList<FormalParamNode> ignoreParamList;
 	private ArrayList<SymbolNode> externParams;
 
-	private final HashSet<OpApplNode> recursiveFunctions = new HashSet<OpApplNode>();
-	private final Hashtable<SemanticNode, ArrayList<SymbolNode>> additionalParamsTable = new Hashtable<SemanticNode, ArrayList<SymbolNode>>();
+	private final HashSet<OpApplNode> recursiveFunctions = new HashSet<>();
+	private final Hashtable<SemanticNode, ArrayList<SymbolNode>> additionalParamsTable = new Hashtable<>();
 
 	public RecursiveFunctionHandler(SpecAnalyser specAnalyser) {
 		for (OpDefNode recFunc : specAnalyser.getRecursiveFunctions()) {
@@ -30,14 +30,14 @@ public class RecursiveFunctionHandler extends AbstractASTVisitor {
 			recursiveFunctions.add(body);
 			FormalParamNode[][] params = body.getBdedQuantSymbolLists();
 
-			paramList = new ArrayList<FormalParamNode>();
+			paramList = new ArrayList<>();
 			FormalParamNode self = body.getUnbdedQuantSymbols()[0];
 			paramList.add(self);
-			for (int i = 0; i < params.length; i++) {
-				Collections.addAll(paramList, params[i]);
+			for (FormalParamNode[] param : params) {
+				Collections.addAll(paramList, param);
 			}
-			externParams = new ArrayList<SymbolNode>();
-			ignoreParamList = new ArrayList<FormalParamNode>();
+			externParams = new ArrayList<>();
+			ignoreParamList = new ArrayList<>();
 			visitExprNode(recFunc.getBody());
 			paramList = null;
 			additionalParamsTable.put(body, externParams);
@@ -78,9 +78,9 @@ public class RecursiveFunctionHandler extends AbstractASTVisitor {
 		case OPCODE_soa: // $SetOfAll Represents {e : p1 \in S, p2,p3 \in S2}
 		{
 			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-			HashSet<FormalParamNode> set = new HashSet<FormalParamNode>();
-			for (int i = 0; i < params.length; i++) {
-				Collections.addAll(set, params[i]);
+			HashSet<FormalParamNode> set = new HashSet<>();
+			for (FormalParamNode[] param : params) {
+				Collections.addAll(set, param);
 			}
 			ignoreParamList.addAll(set);
 			ExprNode[] in = n.getBdedQuantBounds();

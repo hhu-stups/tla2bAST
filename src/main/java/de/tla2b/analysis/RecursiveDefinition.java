@@ -18,18 +18,13 @@ public class RecursiveDefinition  extends BuiltInOPs{
 	private void evalRecursiveDefinition() throws NotImplementedException {
 		if (def.getBody() instanceof OpApplNode) {
 			OpApplNode o = (OpApplNode) def.getBody();
-			switch (getOpCode(o.getOperator().getName())) {
-			case OPCODE_ite: { // IF THEN ELSE
+			if (getOpCode(o.getOperator().getName()) == OPCODE_ite) {// IF THEN ELSE
 				ifThenElse = o;
 				return;
 			}
-			}
-			throw new NotImplementedException(
-					"Only IF/THEN/ELSE or CASE constructs are supported at the body of a recursive function.");
-		} else {
-			throw new NotImplementedException(
-					"Only IF/THEN/ELSE or CASE constructs are supported at the body of a recursive function.");
 		}
+		throw new NotImplementedException(
+				"Only IF/THEN/ELSE or CASE constructs are supported at the body of a recursive function.");
 	}
 	
 	public OpDefNode getOpDefNode() {

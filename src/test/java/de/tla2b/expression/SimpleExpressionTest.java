@@ -1,6 +1,5 @@
 package de.tla2b.expression;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static de.tla2b.util.TestUtil.compareExpr;

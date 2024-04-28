@@ -2,7 +2,6 @@ package de.tla2b.typechecking;
 
 import org.junit.Test;
 
-import de.tla2b.exceptions.FrontEndException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.exceptions.TypeErrorException;
 import de.tla2b.util.TestUtil;
