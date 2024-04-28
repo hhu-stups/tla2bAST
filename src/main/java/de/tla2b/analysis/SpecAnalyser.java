@@ -1,11 +1,5 @@
 package de.tla2b.analysis;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Set;
-
 import de.tla2b.config.ConfigfileEvaluator;
 import de.tla2b.exceptions.ConfigFileErrorException;
 import de.tla2b.exceptions.FrontEndException;
@@ -16,18 +10,11 @@ import de.tla2b.global.TranslationGlobals;
 import de.tla2b.translation.BDefinitionsFinder;
 import de.tla2b.translation.OperationsFinder;
 import de.tla2b.translation.UsedDefinitionsFinder;
-import tla2sany.semantic.ASTConstants;
-import tla2sany.semantic.ExprNode;
-import tla2sany.semantic.ExprOrOpArgNode;
-import tla2sany.semantic.FormalParamNode;
-import tla2sany.semantic.ModuleNode;
-import tla2sany.semantic.OpApplNode;
-import tla2sany.semantic.OpDeclNode;
-import tla2sany.semantic.OpDefNode;
-import tla2sany.semantic.SemanticNode;
-import tla2sany.semantic.SymbolNode;
+import tla2sany.semantic.*;
 import tlc2.tool.BuiltInOPs;
 import tlc2.tool.ToolGlobals;
+
+import java.util.*;
 
 public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobals, TranslationGlobals {
 	private OpDefNode spec;
@@ -95,49 +82,67 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		for (int i = 0; i < m.getOpDefs().length; i++) {
 			definitions.put(m.getOpDefs()[i].getName().toString(), m.getOpDefs()[i]);
 		}
-		
+
 		if (definitions.containsKey("Spec")) {
-			specAnalyser.spec = definitions.get("Spec"); ClausefDetected("Spec","INITIALISATION+OPERATIONS");
+			specAnalyser.spec = definitions.get("Spec");
+			ClausefDetected("Spec", "INITIALISATION+OPERATIONS");
 		} else if (definitions.containsKey("SPECIFICATION")) {
-			specAnalyser.spec = definitions.get("SPECIFICATION"); ClausefDetected("SPECIFICATION","INITIALISATION+OPERATIONS");
+			specAnalyser.spec = definitions.get("SPECIFICATION");
+			ClausefDetected("SPECIFICATION", "INITIALISATION+OPERATIONS");
 		} else if (definitions.containsKey("SPEC")) {
-			specAnalyser.spec = definitions.get("SPEC"); ClausefDetected("SPEC","INITIALISATION+OPERATIONS");
+			specAnalyser.spec = definitions.get("SPEC");
+			ClausefDetected("SPEC", "INITIALISATION+OPERATIONS");
 		}
-		
+
 		if (definitions.containsKey("Init")) {
-			specAnalyser.init = definitions.get("Init"); ClausefDetected("Init","INITIALISATION");
+			specAnalyser.init = definitions.get("Init");
+			ClausefDetected("Init", "INITIALISATION");
 		} else if (definitions.containsKey("INIT")) {
-			specAnalyser.init = definitions.get("INIT"); ClausefDetected("INIT","INITIALISATION");
+			specAnalyser.init = definitions.get("INIT");
+			ClausefDetected("INIT", "INITIALISATION");
 		} else if (definitions.containsKey("Initialisation")) {
-			specAnalyser.init = definitions.get("Initialisation"); ClausefDetected("Initialisation","INITIALISATION");
+			specAnalyser.init = definitions.get("Initialisation");
+			ClausefDetected("Initialisation", "INITIALISATION");
 		} else if (definitions.containsKey("INITIALISATION")) {
-			specAnalyser.init = definitions.get("INITIALISATION"); ClausefDetected("INITIALISATION","INITIALISATION");
+			specAnalyser.init = definitions.get("INITIALISATION");
+			ClausefDetected("INITIALISATION", "INITIALISATION");
 		}
-		
+
 		if (definitions.containsKey("Next")) {
-			specAnalyser.next = definitions.get("Next"); ClausefDetected("Next","OPERATIONS");
+			specAnalyser.next = definitions.get("Next");
+			ClausefDetected("Next", "OPERATIONS");
 		} else if (definitions.containsKey("NEXT")) {
-			specAnalyser.next = definitions.get("NEXT"); ClausefDetected("NEXT","OPERATIONS");
+			specAnalyser.next = definitions.get("NEXT");
+			ClausefDetected("NEXT", "OPERATIONS");
 		}
-		
+
 		if (definitions.containsKey("Inv")) {
-			specAnalyser.invariants.add(definitions.get("Inv")); ClausefDetected("Inv","INVARIANTS");
+			specAnalyser.invariants.add(definitions.get("Inv"));
+			ClausefDetected("Inv", "INVARIANTS");
 		} else if (definitions.containsKey("INVARIANTS")) {
-			specAnalyser.invariants.add(definitions.get("INVARIANTS")); ClausefDetected("INVARIANTS","INVARIANTS");
+			specAnalyser.invariants.add(definitions.get("INVARIANTS"));
+			ClausefDetected("INVARIANTS", "INVARIANTS");
 		} else if (definitions.containsKey("INVARIANT")) {
-			specAnalyser.invariants.add(definitions.get("INVARIANT")); ClausefDetected("INVARIANT","INVARIANTS");
+			specAnalyser.invariants.add(definitions.get("INVARIANT"));
+			ClausefDetected("INVARIANT", "INVARIANTS");
 		} else if (definitions.containsKey("INV")) {
-			specAnalyser.invariants.add(definitions.get("INV")); ClausefDetected("INV","INVARIANTS");
+			specAnalyser.invariants.add(definitions.get("INV"));
+			ClausefDetected("INV", "INVARIANTS");
 		} else if (definitions.containsKey("Invariant")) {
-			specAnalyser.invariants.add(definitions.get("Invariant")); ClausefDetected("Invariant","INVARIANTS");
+			specAnalyser.invariants.add(definitions.get("Invariant"));
+			ClausefDetected("Invariant", "INVARIANTS");
 		} else if (definitions.containsKey("Invariants")) {
-			specAnalyser.invariants.add(definitions.get("Invariants")); ClausefDetected("Invariants","INVARIANTS");
+			specAnalyser.invariants.add(definitions.get("Invariants"));
+			ClausefDetected("Invariants", "INVARIANTS");
 		} else if (definitions.containsKey("TypeInv")) {
-			specAnalyser.invariants.add(definitions.get("TypeInv")); ClausefDetected("TypeInv","INVARIANTS");
+			specAnalyser.invariants.add(definitions.get("TypeInv"));
+			ClausefDetected("TypeInv", "INVARIANTS");
 		} else if (definitions.containsKey("TypeOK")) {
-			specAnalyser.invariants.add(definitions.get("TypeOK")); ClausefDetected("TypeOK","INVARIANTS");
-		}else if (definitions.containsKey("IndInv")) {
-			specAnalyser.invariants.add(definitions.get("IndInv")); ClausefDetected("IndInv","INVARIANTS");
+			specAnalyser.invariants.add(definitions.get("TypeOK"));
+			ClausefDetected("TypeOK", "INVARIANTS");
+		} else if (definitions.containsKey("IndInv")) {
+			specAnalyser.invariants.add(definitions.get("IndInv"));
+			ClausefDetected("IndInv", "INVARIANTS");
 		}
 		// TODO are constant in the right order
 
@@ -145,18 +150,19 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 
 		return specAnalyser;
 	}
-	
+
 	public static void ClausefDetected(String Name, String Clause) {
-	   // TODO: use -verbose OPTION from command line
-	   System.out.println("Detected TLA+ Default Definition "+Name+" for Clause: "+Clause);
+		// TODO: use -verbose OPTION from command line
+		System.out.println("Detected TLA+ Default Definition " + Name + " for Clause: " + Clause);
 	}
+
 	public static void DebugMsg(String Msg) {
-	   // TODO: use -verbose OPTION from command line
-	   System.out.println(Msg);
+		// TODO: use -verbose OPTION from command line
+		System.out.println(Msg);
 	}
 
 	public void start()
-			throws SemanticErrorException, FrontEndException, ConfigFileErrorException, NotImplementedException {
+		throws SemanticErrorException, FrontEndException, ConfigFileErrorException, NotImplementedException {
 
 		if (spec != null) {
 			evalSpec();
@@ -174,17 +180,17 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 				if (opDefNode.getKind() == UserDefinedOpKind && !BBuiltInOPs.contains(opDefNode.getName())) {
 					int i = invariants.indexOf(inv);
 					invariants.set(i, opDefNode);
-					DebugMsg("Adding invariant "+i);
+					DebugMsg("Adding invariant " + i);
 				}
 			} catch (ClassCastException e) {
 			}
 		}
 
-	    DebugMsg("Detecting OPERATIONS from disjunctions");
+		DebugMsg("Detecting OPERATIONS from disjunctions");
 		OperationsFinder operationsFinder = new OperationsFinder(this);
 		bOperations = operationsFinder.getBOperations();
 
-	    DebugMsg("Finding used definitions");
+		DebugMsg("Finding used definitions");
 		UsedDefinitionsFinder definitionFinder = new UsedDefinitionsFinder(this);
 		this.usedDefinitions = definitionFinder.getUsedDefinitions();
 
@@ -192,7 +198,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		this.bDefinitionsSet = bDefinitionFinder.getBDefinitionsSet();
 		// usedDefinitions.addAll(bDefinitionsSet);
 
-	    DebugMsg("Computing variable declarations");
+		DebugMsg("Computing variable declarations");
 		// test whether there is a init predicate if there is a variable
 		if (moduleNode.getVariableDecls().length > 0 && inits == null) {
 			throw new SemanticErrorException("No initial predicate is defined.");
@@ -210,11 +216,11 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		for (OpDeclNode var : moduleNode.getVariableDecls()) {
 			namingHashTable.put(var.getName().toString(), var);
 		}
-	    DebugMsg("Number of variables detected: " + moduleNode.getVariableDecls().length);
+		DebugMsg("Number of variables detected: " + moduleNode.getVariableDecls().length);
 		for (OpDeclNode con : moduleNode.getConstantDecls()) {
 			namingHashTable.put(con.getName().toString(), con);
 		}
-	    DebugMsg("Number of constants detected: " + moduleNode.getConstantDecls().length);
+		DebugMsg("Number of constants detected: " + moduleNode.getConstantDecls().length);
 		for (OpDefNode def : usedDefinitions) {
 			namingHashTable.put(def.getName().toString(), def);
 		}
@@ -223,21 +229,21 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 
 	private void evalInit() {
 		if (init != null) {
-            System.out.println("Using TLA+ Init definition to determine B INITIALISATION");
+			System.out.println("Using TLA+ Init definition to determine B INITIALISATION");
 			inits.add(init.getBody());
 		}
 	}
 
 	private void evalNext() {
 		if (next != null) {
-            System.out.println("Using TLA+ Next definition to determine B OPERATIONS");
+			System.out.println("Using TLA+ Next definition to determine B OPERATIONS");
 			this.nextExpr = next.getBody();
 		}
 	}
 
 	public void evalSpec() throws SemanticErrorException {
 		if (spec != null) {
-            System.out.println("Using TLA+ Spec to determine B INITIALISATION and OPERATIONS");
+			System.out.println("Using TLA+ Spec to determine B INITIALISATION and OPERATIONS");
 			processConfigSpec(spec.getBody());
 		}
 
@@ -274,7 +280,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 			if (opcode == OPCODE_box) {
 				SemanticNode boxArg = args[0];
 				if ((boxArg instanceof OpApplNode)
-						&& BuiltInOPs.getOpCode(((OpApplNode) boxArg).getOperator().getName()) == OPCODE_sa) {
+					&& BuiltInOPs.getOpCode(((OpApplNode) boxArg).getOperator().getName()) == OPCODE_sa) {
 					this.nextExpr = (ExprNode) ((OpApplNode) boxArg).getArgs()[0];
 					return;
 				}
@@ -297,7 +303,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		for (OpDefNode def : set) {
 			if (def.getInRecursive()) {
 				throw new NotImplementedException("Recursive definitions are currently not supported: " + def.getName()
-						+ "\n" + def.getLocation());
+					+ "\n" + def.getLocation());
 				// bDefinitionsSet.remove(def);
 				// RecursiveDefinition rd = new RecursiveDefinition(def);
 				// recursiveDefinitions.add(rd);

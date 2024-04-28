@@ -1,12 +1,12 @@
 package de.tla2b.analysis;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Hashtable;
-
 import tla2sany.semantic.ModuleNode;
 import tla2sany.semantic.OpDeclNode;
 import tla2sany.semantic.OpDefNode;
+
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Hashtable;
 
 public class SymbolSorter {
 	private final ModuleNode moduleNode;
@@ -23,16 +23,16 @@ public class SymbolSorter {
 		// sort definitions
 		Arrays.sort(moduleNode.getOpDefs(), new OpDefNodeComparator());
 	}
-	
-	public static void sortDeclNodes(OpDeclNode[] opDeclNodes){
+
+	public static void sortDeclNodes(OpDeclNode[] opDeclNodes) {
 		Arrays.sort(opDeclNodes, new OpDeclNodeComparator());
 	}
-	
-	public static void sortOpDefNodes(OpDefNode[] opDefNodes){
+
+	public static void sortOpDefNodes(OpDefNode[] opDefNodes) {
 		Arrays.sort(opDefNodes, new OpDefNodeComparator());
 	}
 
-	public static  Hashtable<String, OpDefNode> getDefsHashTable(OpDefNode[] opDefNodes){
+	public static Hashtable<String, OpDefNode> getDefsHashTable(OpDefNode[] opDefNodes) {
 		Hashtable<String, OpDefNode> definitions = new Hashtable<>();
 		for (OpDefNode def : opDefNodes) {
 			// Definition in this module
@@ -47,7 +47,7 @@ public class SymbolSorter {
 		}
 		return definitions;
 	}
-	
+
 }
 
 class OpDeclNodeComparator implements Comparator<OpDeclNode> {

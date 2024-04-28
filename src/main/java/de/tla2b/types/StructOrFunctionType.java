@@ -1,13 +1,13 @@
 package de.tla2b.types;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Set;
-import java.util.Map.Entry;
-
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
 import de.tla2b.output.TypeVisitorInterface;
+
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map.Entry;
+import java.util.Set;
 
 public class StructOrFunctionType extends AbstractHasFollowers {
 	private final LinkedHashMap<String, TLAType> types;
@@ -43,7 +43,7 @@ public class StructOrFunctionType extends AbstractHasFollowers {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("StructOrFunction(");
-		for (Iterator<String> keys = types.keySet().iterator(); keys.hasNext();) {
+		for (Iterator<String> keys = types.keySet().iterator(); keys.hasNext(); ) {
 			String key = keys.next();
 			sb.append("\"").append(key).append("\"");
 			sb.append(" : ").append(types.get(key));
@@ -130,7 +130,7 @@ public class StructOrFunctionType extends AbstractHasFollowers {
 				temp = temp.unify(itr.next());
 			}
 			SetType found = new SetType(new PairType(StringType.getInstance(),
-					temp));
+				temp));
 			return found.unify(o);
 		}
 		if (o instanceof StructType) {

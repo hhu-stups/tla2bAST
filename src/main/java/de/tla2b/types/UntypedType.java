@@ -19,20 +19,20 @@ public class UntypedType extends AbstractHasFollowers {
 		//this.deleteFollowers();
 		return o;
 	}
-	
+
 	@Override
-	public boolean compare(TLAType o){
+	public boolean compare(TLAType o) {
 		return !o.contains(this);
 	}
-	
+
 	@Override
-	public boolean contains(TLAType o){
+	public boolean contains(TLAType o) {
 		return false;
 	}
 
 	@Override
 	public String toString() {
-		return "UNTYPED_"+hashCode();
+		return "UNTYPED_" + hashCode();
 	}
 
 	@Override

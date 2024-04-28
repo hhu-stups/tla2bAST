@@ -11,8 +11,9 @@ final class VersionHelper {
 	private VersionHelper() {
 		throw new AssertionError("Utility class");
 	}
-	
+
 	static final String VERSION;
+
 	static {
 		final Properties buildProperties = new Properties();
 		final InputStream is = VersionHelper.class.getResourceAsStream("/de/tla2b/build.properties");

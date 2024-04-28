@@ -1,18 +1,11 @@
 package de.tla2b.translation;
 
-import java.util.*;
-
-import tla2sany.semantic.AssumeNode;
-import tla2sany.semantic.ExprNode;
-import tla2sany.semantic.ExprOrOpArgNode;
-import tla2sany.semantic.FormalParamNode;
-import tla2sany.semantic.ModuleNode;
-import tla2sany.semantic.OpApplNode;
-import tla2sany.semantic.OpDefNode;
-import tla2sany.semantic.SymbolNode;
 import de.tla2b.analysis.AbstractASTVisitor;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.config.ConfigfileEvaluator;
+import tla2sany.semantic.*;
+
+import java.util.*;
 
 public class BMacroHandler extends AbstractASTVisitor {
 
@@ -25,8 +18,8 @@ public class BMacroHandler extends AbstractASTVisitor {
 			OpDefNode def = moduleNode.getOpDefs()[i];
 			if (specAnalyser.getUsedDefinitions().contains(def)) {
 				if (conEval != null
-						&& conEval.getConstantOverrideTable()
-								.containsValue(def)) {
+					&& conEval.getConstantOverrideTable()
+					.containsValue(def)) {
 					continue;
 				}
 				bDefs.add(def);
@@ -77,36 +70,36 @@ public class BMacroHandler extends AbstractASTVisitor {
 	@Override
 	public void visitBuiltInNode(OpApplNode n) {
 		switch (getOpCode(n.getOperator().getName())) {
-		case OPCODE_rfs:
-		case OPCODE_nrfs:
-		case OPCODE_fc: // Represents [x \in S |-> e]
-		case OPCODE_be: // \E x \in S : P
-		case OPCODE_bf: // \A x \in S : P
-		case OPCODE_bc: // CHOOSE x \in S: P
-		case OPCODE_sso: // $SubsetOf Represents {x \in S : P}
-		case OPCODE_soa: // $SetOfAll Represents {e : p1 \in S, p2,p3 \in S2}
-		{
+			case OPCODE_rfs:
+			case OPCODE_nrfs:
+			case OPCODE_fc: // Represents [x \in S |-> e]
+			case OPCODE_be: // \E x \in S : P
+			case OPCODE_bf: // \A x \in S : P
+			case OPCODE_bc: // CHOOSE x \in S: P
+			case OPCODE_sso: // $SubsetOf Represents {x \in S : P}
+			case OPCODE_soa: // $SetOfAll Represents {e : p1 \in S, p2,p3 \in S2}
+			{
 
-			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-			HashSet<FormalParamNode> set = new HashSet<>();
-			for (FormalParamNode[] param : params) {
-				Collections.addAll(set, param);
+				FormalParamNode[][] params = n.getBdedQuantSymbolLists();
+				HashSet<FormalParamNode> set = new HashSet<>();
+				for (FormalParamNode[] param : params) {
+					Collections.addAll(set, param);
+				}
+				localVariables.addAll(set);
+				ExprNode[] in = n.getBdedQuantBounds();
+				for (ExprNode exprNode : in) {
+					visitExprNode(exprNode);
+				}
+				ExprOrOpArgNode[] arguments = n.getArgs();
+				for (ExprOrOpArgNode exprOrOpArgNode : arguments) {
+					visitExprOrOpArgNode(exprOrOpArgNode);
+				}
+				localVariables.removeAll(set);
+				return;
 			}
-			localVariables.addAll(set);
-			ExprNode[] in = n.getBdedQuantBounds();
-			for (ExprNode exprNode : in) {
-				visitExprNode(exprNode);
+			default: {
+				super.visitBuiltInNode(n);
 			}
-			ExprOrOpArgNode[] arguments = n.getArgs();
-			for (ExprOrOpArgNode exprOrOpArgNode : arguments) {
-				visitExprOrOpArgNode(exprOrOpArgNode);
-			}
-			localVariables.removeAll(set);
-			return;
-		}
-		default: {
-			super.visitBuiltInNode(n);
-		}
 
 		}
 

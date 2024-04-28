@@ -1,12 +1,12 @@
 package de.tla2b.types;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
 import de.tla2b.output.TypeVisitorInterface;
 import de.tla2bAst.BAstCreator;
+
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
 public class EnumType extends AbstractHasFollowers {
 	public final LinkedHashSet<String> modelvalues;
@@ -59,7 +59,7 @@ public class EnumType extends AbstractHasFollowers {
 	public EnumType cloneTLAType() {
 		return this;
 	}
-	
+
 	@Override
 	public boolean contains(TLAType o) {
 		//TODO is this really false
@@ -70,7 +70,7 @@ public class EnumType extends AbstractHasFollowers {
 	public String toString() {
 		return "ENUM" + id;
 	}
-	
+
 	@Override
 	public PExpression getBNode() {
 		return BAstCreator.createIdentifierNode("ENUM" + id);

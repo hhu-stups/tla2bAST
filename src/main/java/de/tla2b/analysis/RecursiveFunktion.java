@@ -12,7 +12,7 @@ public class RecursiveFunktion extends BuiltInOPs {
 	private OpApplNode ifThenElse;
 
 	public RecursiveFunktion(OpDefNode n, OpApplNode rfs)
-			throws NotImplementedException {
+		throws NotImplementedException {
 		def = n;
 		this.rfs = rfs;
 		//evalDef();

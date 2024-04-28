@@ -9,7 +9,7 @@ import tlc2.tool.BuiltInOPs;
 import java.util.HashMap;
 
 public class PredicateVsExpression extends BuiltInOPs implements ASTConstants,
-		BBuildIns, TranslationGlobals {
+	BBuildIns, TranslationGlobals {
 
 	private final HashMap<OpDefNode, DefinitionType> definitionsTypeMap;
 
@@ -34,14 +34,14 @@ public class PredicateVsExpression extends BuiltInOPs implements ASTConstants,
 
 	private DefinitionType visitSemanticNode(SemanticNode s) {
 		switch (s.getKind()) {
-		case OpApplKind: {
-			return visitOppApplNode((OpApplNode) s);
-		}
+			case OpApplKind: {
+				return visitOppApplNode((OpApplNode) s);
+			}
 
-		case LetInKind: {
-			LetInNode letInNode = (LetInNode) s;
-			return visitSemanticNode(letInNode.getBody());
-		}
+			case LetInKind: {
+				LetInNode letInNode = (LetInNode) s;
+				return visitSemanticNode(letInNode.getBody());
+			}
 
 		}
 
@@ -53,37 +53,37 @@ public class PredicateVsExpression extends BuiltInOPs implements ASTConstants,
 
 		if (kind == BuiltInKind) {
 			switch (getOpCode(opApplNode.getOperator().getName())) {
-			case OPCODE_eq: // =
-			case OPCODE_noteq: // /=
-			case OPCODE_cl: // $ConjList
-			case OPCODE_land: // \land
-			case OPCODE_dl: // $DisjList
-			case OPCODE_lor: // \/
-			case OPCODE_equiv: // \equiv
-			case OPCODE_implies: // =>
-			case OPCODE_lnot: // \lnot
-			case OPCODE_be: // \E x \in S : P
-			case OPCODE_bf: // \A x \in S : P
-			case OPCODE_in: // \in
-			case OPCODE_subseteq: // \subseteq {1,2} <: {1,2,3}
-			case OPCODE_unchanged: {
-				return DefinitionType.PREDICATE;
-			}
+				case OPCODE_eq: // =
+				case OPCODE_noteq: // /=
+				case OPCODE_cl: // $ConjList
+				case OPCODE_land: // \land
+				case OPCODE_dl: // $DisjList
+				case OPCODE_lor: // \/
+				case OPCODE_equiv: // \equiv
+				case OPCODE_implies: // =>
+				case OPCODE_lnot: // \lnot
+				case OPCODE_be: // \E x \in S : P
+				case OPCODE_bf: // \A x \in S : P
+				case OPCODE_in: // \in
+				case OPCODE_subseteq: // \subseteq {1,2} <: {1,2,3}
+				case OPCODE_unchanged: {
+					return DefinitionType.PREDICATE;
+				}
 
-			case OPCODE_ite: // IF THEN ELSE
-			{
-				return visitSemanticNode(opApplNode.getArgs()[1]);
-			}
+				case OPCODE_ite: // IF THEN ELSE
+				{
+					return visitSemanticNode(opApplNode.getArgs()[1]);
+				}
 
-			case OPCODE_case: // CASE p1 -> e1 [] p2 -> e2
-			{
-				OpApplNode pair = (OpApplNode) opApplNode.getArgs()[0];
-				return visitSemanticNode(pair.getArgs()[1]);
-			}
+				case OPCODE_case: // CASE p1 -> e1 [] p2 -> e2
+				{
+					OpApplNode pair = (OpApplNode) opApplNode.getArgs()[0];
+					return visitSemanticNode(pair.getArgs()[1]);
+				}
 
-			default: {
-				return DefinitionType.EXPRESSION;
-			}
+				default: {
+					return DefinitionType.EXPRESSION;
+				}
 			}
 		} else if (kind == UserDefinedOpKind) {
 			return visitUserdefinedOp(opApplNode);
@@ -94,19 +94,19 @@ public class PredicateVsExpression extends BuiltInOPs implements ASTConstants,
 	private DefinitionType visitUserdefinedOp(OpApplNode s) {
 		OpDefNode def = (OpDefNode) s.getOperator();
 		if (BBuiltInOPs.contains(def.getName())
-				&& STANDARD_MODULES.contains(def.getSource()
-						.getOriginallyDefinedInModuleNode().getName()
-						.toString())) {
+			&& STANDARD_MODULES.contains(def.getSource()
+			.getOriginallyDefinedInModuleNode().getName()
+			.toString())) {
 
 			switch (BBuiltInOPs.getOpcode(def.getName())) {
-			case B_OPCODE_lt: // <
-			case B_OPCODE_gt: // >
-			case B_OPCODE_leq: // <=
-			case B_OPCODE_geq: // >=
-			case B_OPCODE_finite:
-				return DefinitionType.PREDICATE;
-			default:
-				return DefinitionType.EXPRESSION;
+				case B_OPCODE_lt: // <
+				case B_OPCODE_gt: // >
+				case B_OPCODE_leq: // <=
+				case B_OPCODE_geq: // >=
+				case B_OPCODE_finite:
+					return DefinitionType.PREDICATE;
+				default:
+					return DefinitionType.EXPRESSION;
 			}
 
 		}

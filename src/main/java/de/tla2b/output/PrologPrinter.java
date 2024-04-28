@@ -1,14 +1,5 @@
 package de.tla2b.output;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-
 import de.be4.classicalb.core.parser.BParser;
 import de.be4.classicalb.core.parser.analysis.prolog.ASTProlog;
 import de.be4.classicalb.core.parser.analysis.prolog.RecursiveMachineLoader;
@@ -18,6 +9,11 @@ import de.hhu.stups.sablecc.patch.PositionedNode;
 import de.prob.prolog.output.IPrologTermOutput;
 import de.prob.prolog.output.PrologTermOutput;
 import de.tla2b.types.TLAType;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.*;
 
 public class PrologPrinter {
 	final RecursiveMachineLoader rml;
@@ -30,7 +26,7 @@ public class PrologPrinter {
 	private final Hashtable<Node, TLAType> typeTable;
 
 	public PrologPrinter(RecursiveMachineLoader rml, BParser bParser,
-			File mainFile, String moduleName, Hashtable<Node, TLAType> typeTable) {
+	                     File mainFile, String moduleName, Hashtable<Node, TLAType> typeTable) {
 		this.rml = rml;
 		this.bParser = bParser;
 		this.moduleName = moduleName;
@@ -38,7 +34,7 @@ public class PrologPrinter {
 		files.add(mainFile);
 	}
 
-	public void setPositions( HashSet<PositionedNode> sourcePositions) {
+	public void setPositions(HashSet<PositionedNode> sourcePositions) {
 		positions = sourcePositions;
 	}
 
@@ -53,9 +49,9 @@ public class PrologPrinter {
 		// rml.getNodeIdMapping());
 
 		final TlaTypePrinter pprinter = new TlaTypePrinter(
-				rml.getNodeIdMapping(), typeTable);
+			rml.getNodeIdMapping(), typeTable);
 		pprinter.setSourcePositions(positions);
-		
+
 		final ASTProlog prolog = new ASTProlog(pout, pprinter);
 
 		// parser version
@@ -79,7 +75,7 @@ public class PrologPrinter {
 		pout.closeTerm();
 		pout.fullstop();
 		for (final Map.Entry<String, Start> entry : rml.getParsedMachines()
-				.entrySet()) {
+			.entrySet()) {
 			pout.openTerm("machine");
 			//final SourcePositions src = positions.get(entry.getKey());
 			//pprinter.setSourcePositions(src);

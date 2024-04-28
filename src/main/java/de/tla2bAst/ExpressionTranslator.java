@@ -1,12 +1,11 @@
 package de.tla2bAst;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-
+import de.be4.classicalb.core.parser.node.Start;
+import de.tla2b.analysis.SpecAnalyser;
+import de.tla2b.analysis.SymbolRenamer;
+import de.tla2b.analysis.TypeChecker;
+import de.tla2b.exceptions.ExpressionTranslationException;
+import de.tla2b.exceptions.TLA2BException;
 import tla2sany.drivers.FrontEndException;
 import tla2sany.drivers.InitException;
 import tla2sany.drivers.SANY;
@@ -17,12 +16,13 @@ import tla2sany.semantic.ModuleNode;
 import tla2sany.st.SyntaxTreeConstants;
 import tla2sany.st.TreeNode;
 import util.ToolIO;
-import de.be4.classicalb.core.parser.node.Start;
-import de.tla2b.analysis.SpecAnalyser;
-import de.tla2b.analysis.SymbolRenamer;
-import de.tla2b.analysis.TypeChecker;
-import de.tla2b.exceptions.ExpressionTranslationException;
-import de.tla2b.exceptions.TLA2BException;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ExpressionTranslator implements SyntaxTreeConstants {
 
@@ -58,17 +58,17 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 			tempFile = File.createTempFile("Testing", ".tla");
 
 			moduleName = tempFile.getName().substring(0,
-					tempFile.getName().indexOf("."));
+				tempFile.getName().indexOf("."));
 
 			module = "----MODULE " + moduleName + " ----\n" + "Expression == "
-					+ tlaExpression + "\n====";
+				+ tlaExpression + "\n====";
 
 			FileWriter fw = new FileWriter(tempFile);
 			fw.write(module);
 			fw.close();
 		} catch (IOException e) {
 			throw new ExpressionTranslationException(
-					"Can not create temporary file in directory '" + dir + "'");
+				"Can not create temporary file in directory '" + dir + "'");
 		}
 
 		SpecObj spec = parseModuleWithoutSemanticAnalyse(moduleName, module);
@@ -114,7 +114,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 
 	public Start translateIncludingModel() throws TLA2BException {
 		SpecAnalyser specAnalyser = SpecAnalyser
-				.createSpecAnalyserForTlaExpression(moduleNode);
+			.createSpecAnalyserForTlaExpression(moduleNode);
 		TypeChecker tc = translator.getTypeChecker();
 		tc.visitOpDefNode(specAnalyser.getExpressionOpdefNode());
 
@@ -128,13 +128,13 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 
 	public Start translate() {
 		SpecAnalyser specAnalyser = SpecAnalyser
-				.createSpecAnalyserForTlaExpression(moduleNode);
+			.createSpecAnalyserForTlaExpression(moduleNode);
 		TypeChecker tc = new TypeChecker(moduleNode, specAnalyser);
 		try {
 			tc.start();
 		} catch (TLA2BException e) {
 			String message = "****TypeError****\n" + e.getLocalizedMessage()
-					+ "\n" + expr + "\n";
+				+ "\n" + expr + "\n";
 			throw new ExpressionTranslationException(message);
 		}
 		SymbolRenamer symRenamer = new SymbolRenamer(moduleNode, specAnalyser);
@@ -146,14 +146,14 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 	}
 
 	public static ModuleNode parseModule(String moduleName, String module)
-			throws de.tla2b.exceptions.FrontEndException {
+		throws de.tla2b.exceptions.FrontEndException {
 		SpecObj spec = new SpecObj(moduleName, null);
 		try {
 			SANY.frontEndMain(spec, moduleName, ToolIO.out);
 		} catch (FrontEndException e) {
 			// Error in Frontend, should never happens
 			throw new de.tla2b.exceptions.FrontEndException(
-					"Frontend error! This should never happen.", spec);
+				"Frontend error! This should never happen.", spec);
 		}
 
 		if (spec.parseErrors.isFailure()) {
@@ -174,19 +174,19 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 			System.err.println(spec.getInitErrors());
 			throw new de.tla2b.exceptions.FrontEndException(
 
-			allMessagesToString(ToolIO.getAllMessages()), spec);
+				allMessagesToString(ToolIO.getAllMessages()), spec);
 		}
 
 		if (n == null) { // Parse Error
 			// System.out.println("Rootmodule null");
 			throw new de.tla2b.exceptions.FrontEndException(
-					allMessagesToString(ToolIO.getAllMessages()), spec);
+				allMessagesToString(ToolIO.getAllMessages()), spec);
 		}
 		return n;
 	}
 
 	private SpecObj parseModuleWithoutSemanticAnalyse(String moduleFileName,
-			String module) {
+	                                                  String module) {
 		SpecObj spec = new SpecObj(moduleFileName, null);
 
 		try {
@@ -212,9 +212,9 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		TreeNode n_operatorDefintion = n_body.heirs()[0];
 		TreeNode expr = n_operatorDefintion.heirs()[2];
 		searchVarInSyntaxTree(expr);
-        
-        // this code seems to assume that there is no variable clash between outer and nested variables
-        // I guess the parser will then generate "Multiply-defined symbol ..." errors
+
+		// this code seems to assume that there is no variable clash between outer and nested variables
+		// I guess the parser will then generate "Multiply-defined symbol ..." errors
 		for (String noVariable : noVariables) {
 			variables.remove(noVariable);
 		}
@@ -222,6 +222,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 	}
 
 	private final static Set<String> KEYWORDS = new HashSet<>();
+
 	static {
 		KEYWORDS.add("BOOLEAN");
 		KEYWORDS.add("TRUE");
@@ -247,76 +248,77 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private void searchVarInSyntaxTree(TreeNode treeNode) {
 		// System.out.println(treeNode.getKind() + " " + treeNode.getImage());
 		switch (treeNode.getKind()) {
-		case N_GeneralId: {
-			String con = treeNode.heirs()[1].getImage();
-			if (!variables.contains(con) && !KEYWORDS.contains(con)) {
-				variables.add(con);
+			case N_GeneralId: {
+				String con = treeNode.heirs()[1].getImage();
+				if (!variables.contains(con) && !KEYWORDS.contains(con)) {
+					variables.add(con);
+				}
+				break;
 			}
-			break;
-		}
-		case N_IdentLHS: { // left side of a definition
-			TreeNode[] children = treeNode.heirs();
-			noVariables.add(children[0].getImage());
-			break;
-		}
-		case N_IdentDecl: { // parameter of a LET definition
-							// e.g. x in LET foo(x) == e
-			noVariables.add(treeNode.heirs()[0].getImage());
-			break;
-		}
-		case N_FunctionDefinition: {
-			// the first child is the function name
-			noVariables.add(treeNode.heirs()[0].getImage());
-			break;
-		}
-		case N_UnboundQuant: { // TOOD: check: is this an unbounded quantifier with infinite domain or a quantifier that does not hide the quantified variables?
-			TreeNode[] children = treeNode.heirs();
-			for (int i = 1; i < children.length - 2; i = i + 2) {
-			   // System.out.println("N_UnboundQuant: "+children[i].getImage());
+			case N_IdentLHS: { // left side of a definition
+				TreeNode[] children = treeNode.heirs();
+				noVariables.add(children[0].getImage());
+				break;
 			}
-			searchVarInSyntaxTree(treeNode.heirs()[children.length - 1]);
-			break;
-		}
-		case N_UnboundOrBoundChoose: { // not sure the format is the same as N_QuantBound
-			TreeNode[] children = treeNode.heirs();
-			for (int i = 1; i < children.length - 2; i = i + 2) {
-				String boundedVar = children[i].getImage();
-				// typically children[i+1] is N_MaybeBound
+			case N_IdentDecl: { // parameter of a LET definition
+				// e.g. x in LET foo(x) == e
+				noVariables.add(treeNode.heirs()[0].getImage());
+				break;
+			}
+			case N_FunctionDefinition: {
+				// the first child is the function name
+				noVariables.add(treeNode.heirs()[0].getImage());
+				break;
+			}
+			case
+				N_UnboundQuant: { // TOOD: check: is this an unbounded quantifier with infinite domain or a quantifier that does not hide the quantified variables?
+				TreeNode[] children = treeNode.heirs();
+				for (int i = 1; i < children.length - 2; i = i + 2) {
+					// System.out.println("N_UnboundQuant: "+children[i].getImage());
+				}
+				searchVarInSyntaxTree(treeNode.heirs()[children.length - 1]);
+				break;
+			}
+			case N_UnboundOrBoundChoose: { // not sure the format is the same as N_QuantBound
+				TreeNode[] children = treeNode.heirs();
+				for (int i = 1; i < children.length - 2; i = i + 2) {
+					String boundedVar = children[i].getImage();
+					// typically children[i+1] is N_MaybeBound
+					if (!noVariables.contains(boundedVar)) {
+						noVariables.add(boundedVar);
+						//System.out.println("CHOOSE quantified variable: " + boundedVar);
+					}
+				}
+				searchVarInSyntaxTree(treeNode.heirs()[children.length - 1]);
+				break;
+			}
+			case N_QuantBound: {
+				TreeNode[] children = treeNode.heirs();
+				for (int i = 0; i < children.length - 2; i = i + 2) {
+					String boundedVar = children[i].getImage();
+					if (!noVariables.contains(boundedVar)) {
+						noVariables.add(boundedVar);
+						// System.out.println("N_QuantBound: locally quantified variable" + boundedVar);
+					}
+				}
+				searchVarInSyntaxTree(treeNode.heirs()[children.length - 1]);
+				break;
+			}
+			case N_SubsetOf: { // { x \in S : e }
+				TreeNode[] children = treeNode.heirs();
+				String boundedVar = children[1].getImage(); // x
 				if (!noVariables.contains(boundedVar)) {
 					noVariables.add(boundedVar);
-					//System.out.println("CHOOSE quantified variable: " + boundedVar);
 				}
+				searchVarInSyntaxTree(treeNode.heirs()[3]); // S
+				searchVarInSyntaxTree(treeNode.heirs()[5]); // e
+				break;
 			}
-			searchVarInSyntaxTree(treeNode.heirs()[children.length - 1]);
-			break;
-		}
-		case N_QuantBound: {
-			TreeNode[] children = treeNode.heirs();
-			for (int i = 0; i < children.length - 2; i = i + 2) {
-				String boundedVar = children[i].getImage();
-				if (!noVariables.contains(boundedVar)) {
-					noVariables.add(boundedVar);
-					// System.out.println("N_QuantBound: locally quantified variable" + boundedVar);
-				}
-			}
-			searchVarInSyntaxTree(treeNode.heirs()[children.length - 1]);
-			break;
-		}
-		case N_SubsetOf: { // { x \in S : e }
-			TreeNode[] children = treeNode.heirs();
-			String boundedVar = children[1].getImage(); // x
-			if (!noVariables.contains(boundedVar)) {
-				noVariables.add(boundedVar);
-			}
-			searchVarInSyntaxTree(treeNode.heirs()[3]); // S
-			searchVarInSyntaxTree(treeNode.heirs()[5]); // e
-			break;
-		}
 
 		}
 

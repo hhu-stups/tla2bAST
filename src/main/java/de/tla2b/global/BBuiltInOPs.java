@@ -1,11 +1,12 @@
 package de.tla2b.global;
 
-import java.util.Hashtable;
-
 import util.UniqueString;
 
-public class BBuiltInOPs implements BBuildIns{
+import java.util.Hashtable;
+
+public class BBuiltInOPs implements BBuildIns {
 	private static final Hashtable<UniqueString, Integer> B_Opcode_Table;
+
 	static {
 		B_Opcode_Table = new Hashtable<>();
 		B_Opcode_Table.put(OP_dotdot, B_OPCODE_dotdot);
@@ -17,7 +18,7 @@ public class BBuiltInOPs implements BBuildIns{
 		B_Opcode_Table.put(OP_mod, B_OPCODE_mod);
 		B_Opcode_Table.put(OP_exp, B_OPCODE_exp);
 		B_Opcode_Table.put(OP_uminus, B_OPCODE_uminus);
-		
+
 		B_Opcode_Table.put(OP_lt, B_OPCODE_lt);
 		B_Opcode_Table.put(OP_leq, B_OPCODE_leq);
 		B_Opcode_Table.put(OP_gt, B_OPCODE_gt);
@@ -29,10 +30,10 @@ public class BBuiltInOPs implements BBuildIns{
 		B_Opcode_Table.put(OP_int, B_OPCODE_int);
 		B_Opcode_Table.put(OP_real, B_OPCODE_real);
 		B_Opcode_Table.put(OP_string, B_OPCODE_string);
-		
+
 		B_Opcode_Table.put(OP_finite, B_OPCODE_finite);
 		B_Opcode_Table.put(OP_card, B_OPCODE_card);
-		
+
 		B_Opcode_Table.put(OP_len, B_OPCODE_len);
 		B_Opcode_Table.put(OP_append, B_OPCODE_append);
 		B_Opcode_Table.put(OP_seq, B_OPCODE_seq);
@@ -40,26 +41,26 @@ public class BBuiltInOPs implements BBuildIns{
 		B_Opcode_Table.put(OP_tail, B_OPCODE_tail);
 		B_Opcode_Table.put(OP_subseq, B_OPCODE_subseq);
 		B_Opcode_Table.put(OP_conc, B_OPCODE_conc);
-		
+
 		B_Opcode_Table.put(OP_min, B_OPCODE_min);
 		B_Opcode_Table.put(OP_max, B_OPCODE_max);
 		B_Opcode_Table.put(OP_setprod, B_OPCODE_setprod);
 		B_Opcode_Table.put(OP_setsum, B_OPCODE_setsum);
 		B_Opcode_Table.put(OP_permseq, B_OPCODE_permseq);
-		
+
 		B_Opcode_Table.put(OP_pow1, B_OPCODE_pow1);
-		
+
 		//relations
 		B_Opcode_Table.put(OP_rel_inverse, B_OPCODE_rel_inverse);
-		
+
 		B_Opcode_Table.put(OP_assert, B_OPCODE_assert);
 	}
-	
-	public static boolean contains(UniqueString s){
+
+	public static boolean contains(UniqueString s) {
 		return B_Opcode_Table.containsKey(s);
 	}
-	
-	public static int getOpcode(UniqueString s){
+
+	public static int getOpcode(UniqueString s) {
 		return B_Opcode_Table.get(s);
 	}
 }

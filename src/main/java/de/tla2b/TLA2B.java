@@ -5,13 +5,7 @@ import de.tla2b.exceptions.NotImplementedException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.global.TranslationGlobals;
 import de.tla2bAst.Translator;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.*;
 
 public class TLA2B implements TranslationGlobals {
 	public final static String VERSION = "version";
@@ -84,7 +78,7 @@ public class TLA2B implements TranslationGlobals {
 		Options options = new Options();
 		options.addOption(VERSION, false, "prints the current version of TLA2B");
 		options.addOption(VERBOSE, false, "makes output more verbose (not used yet)");
-		
+
 		Option config = Option.builder("config")
 			.argName("file")
 			.hasArg()

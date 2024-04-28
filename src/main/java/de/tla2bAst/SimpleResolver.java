@@ -1,11 +1,11 @@
 package de.tla2bAst;
 
-import java.io.File;
-
 import util.FilenameToStream;
 
+import java.io.File;
+
 public class SimpleResolver implements FilenameToStream {
-	
+
 	private File file;
 
 	public boolean isStandardModule(String arg0) {

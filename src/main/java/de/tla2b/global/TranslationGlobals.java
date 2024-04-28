@@ -1,9 +1,9 @@
 package de.tla2b.global;
 
+import tla2sany.semantic.FrontEnd;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import tla2sany.semantic.FrontEnd;
 
 public interface TranslationGlobals {
 	String VERSION_NUMBER = VersionHelper.VERSION;
@@ -19,7 +19,7 @@ public interface TranslationGlobals {
 	int EXCEPT_BASE = 6;
 	int LET_PARAMS_ID = 13;
 	int NEW_NAME = 20;
-	
+
 	int SUBSTITUTE_PARAM = 29;
 	int TUPLE = 30;
 
@@ -27,6 +27,6 @@ public interface TranslationGlobals {
 	String IF_THEN_ELSE = " IF_THEN_ELSE(P, a, b) == (%t_.(t_ = TRUE & P = TRUE | a )\\/%t_.(t_= TRUE & not(P= TRUE) | b ))(TRUE)";
 
 	ArrayList<String> STANDARD_MODULES = new ArrayList<>(
-			Arrays.asList("Naturals", "FiniteSets", "Integers", "Reals",
-				"Sequences", "TLC", "Relations", "TLA2B", "BBuildIns"));
+		Arrays.asList("Naturals", "FiniteSets", "Integers", "Reals",
+			"Sequences", "TLC", "Relations", "TLA2B", "BBuildIns"));
 }

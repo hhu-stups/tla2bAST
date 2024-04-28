@@ -1,26 +1,17 @@
 package de.tla2b.config;
 
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import de.tla2b.exceptions.ConfigFileErrorException;
 import de.tla2b.exceptions.UnificationException;
 import de.tla2b.types.*;
-import tla2sany.semantic.InstanceNode;
-import tla2sany.semantic.ModuleNode;
-import tla2sany.semantic.OpDeclNode;
-import tla2sany.semantic.OpDefNode;
-import tla2sany.semantic.OpDefOrDeclNode;
+import tla2sany.semantic.*;
 import tlc2.tool.ModelConfig;
 import tlc2.util.Vect;
 import tlc2.value.IntValue;
 import tlc2.value.ModelValue;
 import tlc2.value.SetEnumValue;
 import tlc2.value.Value;
+
+import java.util.*;
 
 /**
  * This class evaluates the configfile and collects all necessary information of
@@ -106,10 +97,10 @@ public class ConfigfileEvaluator {
 		evalSpec(); // check if SPECIFICATION declaration is a valid definition
 
 		if (moduleNode.getVariableDecls().length > 0 && this.initNode == null
-				&& this.specNode == null) {
+			&& this.specNode == null) {
 			throw new ConfigFileErrorException(
-					"The module contains variables."
-							+ " Hence there must be either a SPECIFICATION or INIT declaration.");
+				"The module contains variables."
+					+ " Hence there must be either a SPECIFICATION or INIT declaration.");
 		}
 
 		evalInvariants();
@@ -133,9 +124,9 @@ public class ConfigfileEvaluator {
 				this.nextNode = definitions.get(next);
 			} else {
 				throw new ConfigFileErrorException(
-						"Invalid declaration of the next state predicate."
-								+ " Module does not contain the defintion '"
-								+ next + "'");
+					"Invalid declaration of the next state predicate."
+						+ " Module does not contain the defintion '"
+						+ next + "'");
 			}
 		} else
 			next = null;
@@ -149,9 +140,9 @@ public class ConfigfileEvaluator {
 				this.initNode = definitions.get(init);
 			} else {
 				throw new ConfigFileErrorException(
-						"Invalid declaration of the initialisation predicate."
-								+ " Module does not contain the defintion '"
-								+ init + "'");
+					"Invalid declaration of the initialisation predicate."
+						+ " Module does not contain the defintion '"
+						+ init + "'");
 			}
 		} else {
 			init = null;
@@ -166,9 +157,9 @@ public class ConfigfileEvaluator {
 				this.specNode = definitions.get(spec);
 			} else {
 				throw new ConfigFileErrorException(
-						"Invalid declaration of the specification predicate."
-								+ "Module does not contain the defintion '"
-								+ spec + "'");
+					"Invalid declaration of the specification predicate."
+						+ "Module does not contain the defintion '"
+						+ spec + "'");
 			}
 		} else
 			spec = null;
@@ -183,8 +174,8 @@ public class ConfigfileEvaluator {
 					String inv = (String) v.elementAt(i);
 					if (!definitions.containsKey(inv)) {
 						throw new ConfigFileErrorException(
-								"Invalid invariant declaration. Module does not contain definition '"
-										+ inv + "'");
+							"Invalid invariant declaration. Module does not contain definition '"
+								+ inv + "'");
 					}
 					invariantNodeList.add(definitions.get(inv));
 				}
@@ -247,7 +238,7 @@ public class ConfigfileEvaluator {
 	}
 
 	private void evalConstantOrOperatorAssignments()
-			throws ConfigFileErrorException {
+		throws ConfigFileErrorException {
 		Vect configCons = configAst.getConstants();
 		// iterate over all constant or operator assignments in the config file
 		// k = 1 or def = 1
@@ -267,7 +258,7 @@ public class ConfigfileEvaluator {
 				 * in the resulting B machine disappears
 				 **/
 				if (symbolType instanceof EnumType
-						&& symbolName.equals(symbolValue.toString())) {
+					&& symbolName.equals(symbolValue.toString())) {
 					bConstantList.remove(c);
 				}
 			} else if (definitions.containsKey(symbolName)) {
@@ -288,7 +279,7 @@ public class ConfigfileEvaluator {
 				// appear in the TLA+
 				// module
 				throw new ConfigFileErrorException(
-						"Module does not contain the symbol: " + symbolName);
+					"Module does not contain the symbol: " + symbolName);
 			}
 		}
 
@@ -306,7 +297,7 @@ public class ConfigfileEvaluator {
 			for (int i = 0; i < assignments.size(); i++) {
 				Vect assigment = (Vect) assignments.elementAt(i);
 				OpDefOrDeclNode opDefOrDeclNode = searchDefinitionOrConstant(
-						mNode, (String) assigment.elementAt(0));
+					mNode, (String) assigment.elementAt(0));
 				String symbolName = opDefOrDeclNode.getName().toString();
 				Value symbolValue = (Value) assigment.elementAt(1);
 				TLAType symbolType = conGetType(assigment.elementAt(1));
@@ -349,7 +340,7 @@ public class ConfigfileEvaluator {
 		// foo <- [Counter] bar or k <- [Counter] bar
 		@SuppressWarnings("unchecked")
 		Hashtable<String, Hashtable<String, String>> configCons = configAst
-				.getModOverrides();
+			.getModOverrides();
 		Enumeration<String> moduleNames = configCons.keys();
 		while (moduleNames.hasMoreElements()) {
 			String moduleName = moduleNames.nextElement();
@@ -416,7 +407,7 @@ public class ConfigfileEvaluator {
 	}
 
 	public ModuleNode searchModule(String moduleName)
-			throws ConfigFileErrorException {
+		throws ConfigFileErrorException {
 		/*
 		 * Search module in extended modules
 		 */
@@ -446,13 +437,13 @@ public class ConfigfileEvaluator {
 			}
 		}
 		throw new ConfigFileErrorException(
-				String.format(
-						"Module '%s' is not included in the specification.",
-						moduleName));
+			String.format(
+				"Module '%s' is not included in the specification.",
+				moduleName));
 	}
 
 	public OpDefOrDeclNode searchDefinitionOrConstant(ModuleNode n,
-			String defOrConName) throws ConfigFileErrorException {
+	                                                  String defOrConName) throws ConfigFileErrorException {
 		for (int i = 0; i < n.getOpDefs().length; i++) {
 			if (n.getOpDefs()[i].getName().toString().equals(defOrConName)) {
 				return n.getOpDefs()[i];
@@ -460,12 +451,12 @@ public class ConfigfileEvaluator {
 		}
 		for (int i = 0; i < n.getConstantDecls().length; i++) {
 			if (n.getConstantDecls()[i].getName().toString()
-					.equals(defOrConName)) {
+				.equals(defOrConName)) {
 				return n.getConstantDecls()[i];
 			}
 		}
 		throw new ConfigFileErrorException(
-				"Module does not contain the symbol: " + defOrConName);
+			"Module does not contain the symbol: " + defOrConName);
 	}
 
 	private TLAType conGetType(Object o) throws ConfigFileErrorException {
@@ -478,16 +469,16 @@ public class ConfigfileEvaluator {
 			SetType t = new SetType(new UntypedType());
 			if (set.isEmpty()) {
 				throw new ConfigFileErrorException(
-						"empty set is not permitted!");
+					"empty set is not permitted!");
 			}
 			TLAType elemType;
 
 			if (set.elems.elementAt(0).getClass().getName()
-					.equals("tlc2.value.ModelValue")) {
+				.equals("tlc2.value.ModelValue")) {
 				EnumType e = new EnumType(new ArrayList<>());
 				for (int i = 0; i < set.size(); i++) {
 					if (set.elems.elementAt(i).getClass().getName()
-							.equals("tlc2.value.ModelValue")) {
+						.equals("tlc2.value.ModelValue")) {
 						String mv = set.elems.elementAt(i).toString();
 						if (!enumeratedSet.contains(mv)) {
 							enumeratedSet.add(mv);
@@ -503,8 +494,8 @@ public class ConfigfileEvaluator {
 
 					} else {
 						throw new ConfigFileErrorException(
-								"Elements of the set must have the same type: "
-										+ o);
+							"Elements of the set must have the same type: "
+								+ o);
 					}
 				}
 				for (String s : e.modelvalues) {
@@ -518,8 +509,8 @@ public class ConfigfileEvaluator {
 					// all Elements have the same Type?
 					if (!t.getSubType().compare(elemType)) {
 						throw new ConfigFileErrorException(
-								"Elements of the set must have the same type: "
-										+ o);
+							"Elements of the set must have the same type: "
+								+ o);
 					}
 				}
 			}
@@ -545,7 +536,7 @@ public class ConfigfileEvaluator {
 			return BoolType.getInstance();
 		} else {
 			throw new ConfigFileErrorException("Unkown ConstantType: " + o
-					+ " " + o.getClass());
+				+ " " + o.getClass());
 		}
 	}
 

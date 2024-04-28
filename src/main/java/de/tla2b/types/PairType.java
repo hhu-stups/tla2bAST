@@ -108,13 +108,13 @@ public class PairType extends AbstractHasFollowers {
 	@Override
 	public PairType cloneTLAType() {
 		return new PairType(this.first.cloneTLAType(),
-				this.second.cloneTLAType());
+			this.second.cloneTLAType());
 	}
 
 	@Override
 	public boolean contains(TLAType o) {
 		return first.equals(o) || first.contains(o) || second.equals(o)
-				|| second.contains(o);
+			|| second.contains(o);
 	}
 
 	@Override

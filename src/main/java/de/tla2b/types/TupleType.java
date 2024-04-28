@@ -1,12 +1,12 @@
 package de.tla2b.types;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import de.be4.classicalb.core.parser.node.AMultOrCartExpression;
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
 import de.tla2b.output.TypeVisitorInterface;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TupleType extends AbstractHasFollowers {
 	private List<TLAType> types;

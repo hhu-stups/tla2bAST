@@ -1,20 +1,20 @@
 package de.tla2b.analysis;
 
+import de.tla2b.exceptions.NotImplementedException;
 import tla2sany.semantic.OpApplNode;
 import tla2sany.semantic.OpDefNode;
 import tlc2.tool.BuiltInOPs;
-import de.tla2b.exceptions.NotImplementedException;
 
-public class RecursiveDefinition  extends BuiltInOPs{
+public class RecursiveDefinition extends BuiltInOPs {
 
 	private final OpDefNode def;
 	private OpApplNode ifThenElse;
-	
-	public RecursiveDefinition(OpDefNode def) throws NotImplementedException{
+
+	public RecursiveDefinition(OpDefNode def) throws NotImplementedException {
 		this.def = def;
 		evalRecursiveDefinition();
 	}
-	
+
 	private void evalRecursiveDefinition() throws NotImplementedException {
 		if (def.getBody() instanceof OpApplNode) {
 			OpApplNode o = (OpApplNode) def.getBody();
@@ -24,9 +24,9 @@ public class RecursiveDefinition  extends BuiltInOPs{
 			}
 		}
 		throw new NotImplementedException(
-				"Only IF/THEN/ELSE or CASE constructs are supported at the body of a recursive function.");
+			"Only IF/THEN/ELSE or CASE constructs are supported at the body of a recursive function.");
 	}
-	
+
 	public OpDefNode getOpDefNode() {
 		return def;
 	}

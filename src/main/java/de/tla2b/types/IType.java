@@ -11,13 +11,13 @@ public interface IType {
 	int POW = 5;
 	int PAIR = 6;
 	int STRUCT = 7;
-	int TUPLEORSEQ  = 8;
+	int TUPLEORSEQ = 8;
 	int STRUCT_OR_FUNCTION = 9;
 	int FUNCTION = 10;
 	int TUPLE = 11;
 	int TUPLE_OR_FUNCTION = 12;
 	int REAL = 13;
 
-	
+
 	void apply(TypeVisitorInterface visitor);
 }

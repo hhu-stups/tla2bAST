@@ -37,16 +37,16 @@ public class SetType extends AbstractHasFollowers {
 	}
 
 	public SetType unify(TLAType o) throws UnificationException {
-		if (!this.compare(o)|| this.contains(o)) {
+		if (!this.compare(o) || this.contains(o)) {
 			throw new UnificationException();
 		}
 		// if o has followers than switch pointer to this
 		if (o instanceof AbstractHasFollowers) {
 			((AbstractHasFollowers) o).setFollowersTo(this);
 		}
-		
-		if (o instanceof StructOrFunctionType){
-			return (SetType)o.unify(this);
+
+		if (o instanceof StructOrFunctionType) {
+			return (SetType) o.unify(this);
 		}
 		if (o instanceof SetType) {
 			SetType p = (SetType) o;
@@ -61,12 +61,12 @@ public class SetType extends AbstractHasFollowers {
 
 	@Override
 	public boolean compare(TLAType o) {
-		if(this.contains(o))
+		if (this.contains(o))
 			return false;
-		
+
 		if (o.getKind() == UNTYPED)
 			return true;
-		
+
 		if (o instanceof SetType) {
 			SetType p = (SetType) o;
 			// test sub types compatibility

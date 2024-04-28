@@ -44,65 +44,65 @@ public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
 
 	public void visitExprNode(ExprNode node) {
 		switch (node.getKind()) {
-		case OpApplKind: {
-			visitOpApplNode((OpApplNode) node);
-			return;
-		}
-		case NumeralKind: {
-			visitNumeralNode((NumeralNode) node);
-			return;
-		}
-		case DecimalKind: {
-			visitDecimalNode((DecimalNode) node);
-			return;
-		}
-		case StringKind: {
-			visitStringNode((StringNode) node);
-			return;
-		}
-		case SubstInKind: {
-			visitStubstInNode((SubstInNode) node);
-			return;
-		}
-		case AtNodeKind: { // @
-			visitAtNode((AtNode) node);
-			return;
-		}
-		case LetInKind: {
-			visitLetInNode((LetInNode) node);
-		}
+			case OpApplKind: {
+				visitOpApplNode((OpApplNode) node);
+				return;
+			}
+			case NumeralKind: {
+				visitNumeralNode((NumeralNode) node);
+				return;
+			}
+			case DecimalKind: {
+				visitDecimalNode((DecimalNode) node);
+				return;
+			}
+			case StringKind: {
+				visitStringNode((StringNode) node);
+				return;
+			}
+			case SubstInKind: {
+				visitStubstInNode((SubstInNode) node);
+				return;
+			}
+			case AtNodeKind: { // @
+				visitAtNode((AtNode) node);
+				return;
+			}
+			case LetInKind: {
+				visitLetInNode((LetInNode) node);
+			}
 		}
 	}
 
 	public void visitOpApplNode(OpApplNode node) {
 		switch (node.getOperator().getKind()) {
-		case VariableDeclKind: {
-			visitVariableNode(node);
-			return;
-		}
-		case ConstantDeclKind: {
-			visitConstantNode(node);
-			return;
-		}
-
-		case FormalParamKind: {
-			visitFormalParamNode(node);
-			return;
-		}
-
-		case BuiltInKind: {
-			visitBuiltInNode(node);
-			return;
-		}
-
-		case UserDefinedOpKind: {
-			if (BBuiltInOPs.contains(node.getOperator().getName())) {
-				visitBBuiltinsNode(node);
-			} else {
-				visitUserDefinedNode(node);
+			case VariableDeclKind: {
+				visitVariableNode(node);
+				return;
+			}
+			case ConstantDeclKind: {
+				visitConstantNode(node);
+				return;
 			}
 
-		}
+			case FormalParamKind: {
+				visitFormalParamNode(node);
+				return;
+			}
+
+			case BuiltInKind: {
+				visitBuiltInNode(node);
+				return;
+			}
+
+			case UserDefinedOpKind: {
+				if (BBuiltInOPs.contains(node.getOperator().getName())) {
+					visitBBuiltinsNode(node);
+				} else {
+					visitUserDefinedNode(node);
+				}
+
+			}
 		}
 
 	}

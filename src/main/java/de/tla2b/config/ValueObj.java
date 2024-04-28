@@ -23,9 +23,9 @@ public class ValueObj {
 	public void setType(TLAType type) {
 		this.type = type;
 	}
-	
-	public TLAType getType(){
+
+	public TLAType getType() {
 		return type;
 	}
-		
+
 }

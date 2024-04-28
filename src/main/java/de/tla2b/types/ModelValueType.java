@@ -26,12 +26,12 @@ public class ModelValueType extends TLAType {
 	public boolean isUntyped() {
 		return false;
 	}
-	
+
 	@Override
 	public boolean compare(TLAType o) {
 		return o.getKind() == UNTYPED || o.getKind() == MODELVALUE;
 	}
-	
+
 	@Override
 	public ModelValueType unify(TLAType o) throws UnificationException {
 		if (o.getKind() == MODELVALUE) {
@@ -47,7 +47,7 @@ public class ModelValueType extends TLAType {
 	public ModelValueType cloneTLAType() {
 		return this;
 	}
-	
+
 	@Override
 	public boolean contains(TLAType o) {
 		return false;

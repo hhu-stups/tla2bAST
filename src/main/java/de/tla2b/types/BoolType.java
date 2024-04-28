@@ -31,7 +31,7 @@ public class BoolType extends TLAType {
 	public boolean compare(TLAType o) {
 		return o.getKind() == UNTYPED || o.getKind() == BOOL;
 	}
-	
+
 	@Override
 	public BoolType unify(TLAType o) throws UnificationException {
 		if (o.getKind() == BOOL) {
@@ -47,7 +47,7 @@ public class BoolType extends TLAType {
 	public BoolType cloneTLAType() {
 		return this;
 	}
-	
+
 	@Override
 	public boolean contains(TLAType o) {
 		return false;

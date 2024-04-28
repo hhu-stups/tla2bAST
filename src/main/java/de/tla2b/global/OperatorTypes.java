@@ -1,11 +1,13 @@
 package de.tla2b.global;
 
-import java.util.HashSet;
 import tlc2.tool.ToolGlobals;
+
+import java.util.HashSet;
 
 public class OperatorTypes implements ToolGlobals, BBuildIns {
 	private static final HashSet<Integer> TLA_Predicate_Operators;
 	private static final HashSet<Integer> BBuiltIn_Predicate_Operators;
+
 	static {
 		TLA_Predicate_Operators = new HashSet<>();
 		TLA_Predicate_Operators.add(OPCODE_eq);

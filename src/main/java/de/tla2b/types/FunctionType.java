@@ -39,8 +39,8 @@ public class FunctionType extends AbstractHasFollowers {
 		if (other.getKind() == UNTYPED)
 			return true;
 		if (other instanceof StringType
-				&& domain.compare(IntType.getInstance())
-				&& range instanceof UntypedType) {
+			&& domain.compare(IntType.getInstance())
+			&& range instanceof UntypedType) {
 			return true;
 		}
 		if (other instanceof FunctionType) {
@@ -59,7 +59,7 @@ public class FunctionType extends AbstractHasFollowers {
 	@Override
 	public boolean contains(TLAType o) {
 		return domain.equals(o) || domain.contains(o) || range.equals(o)
-				|| range.contains(o);
+			|| range.contains(o);
 	}
 
 	@Override
@@ -139,7 +139,7 @@ public class FunctionType extends AbstractHasFollowers {
 	@Override
 	public PExpression getBNode() {
 		return new APartialFunctionExpression(domain.getBNode(),
-				range.getBNode());
+			range.getBNode());
 	}
 
 	public void apply(TypeVisitorInterface vistor) {

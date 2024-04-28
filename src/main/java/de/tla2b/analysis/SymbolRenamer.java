@@ -1,27 +1,20 @@
 package de.tla2b.analysis;
 
 
+import de.tla2b.global.BBuiltInOPs;
+import de.tla2b.global.TranslationGlobals;
+import tla2sany.semantic.*;
+import tlc2.tool.BuiltInOPs;
+
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 
-import de.tla2b.global.BBuiltInOPs;
-import de.tla2b.global.TranslationGlobals;
-import tla2sany.semantic.ASTConstants;
-import tla2sany.semantic.AssumeNode;
-import tla2sany.semantic.FormalParamNode;
-import tla2sany.semantic.LetInNode;
-import tla2sany.semantic.ModuleNode;
-import tla2sany.semantic.OpApplNode;
-import tla2sany.semantic.OpDeclNode;
-import tla2sany.semantic.OpDefNode;
-import tla2sany.semantic.SemanticNode;
-import tlc2.tool.BuiltInOPs;
-
 public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals,
-		ASTConstants {
+	ASTConstants {
 
 	private final static Set<String> KEYWORDS = new HashSet<>();
+
 	static {
 		KEYWORDS.add("seq");
 		KEYWORDS.add("left");
@@ -76,6 +69,7 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals,
 	}
 
 	private final static Hashtable<String, String> INFIX_OPERATOR = new Hashtable<>();
+
 	static {
 		INFIX_OPERATOR.put("!!", "exclamationmark2");
 		INFIX_OPERATOR.put("??", "questionmark2");
@@ -98,6 +92,7 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals,
 	}
 
 	private final static Hashtable<String, String> BBUILTIN_OPERATOR = new Hashtable<>();
+
 	static {
 		BBUILTIN_OPERATOR.put("+", "plus");
 		BBUILTIN_OPERATOR.put("-", "minus");
@@ -182,70 +177,70 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals,
 
 		switch (n.getKind()) {
 
-		case LetInKind: {
-			LetInNode letInNode = (LetInNode) n;
-			OpDefNode[] defs = letInNode.getLets();
+			case LetInKind: {
+				LetInNode letInNode = (LetInNode) n;
+				OpDefNode[] defs = letInNode.getLets();
 
-			// Initialize all local definitions (get a new name, get an empty
-			// list)
-			for (OpDefNode def : defs) {
-				String newName = getOperatorName(def);
-				globalNames.add(newName);
-				def.setToolObject(NEW_NAME, newName);
-				usedNamesTable.put(def, new HashSet<>(usedNames));
-			}
-
-			// first visit the IN expression
-			visitNode(letInNode.getBody(), usedNames);
-
-			// visit the definition itself
-			for (int i = defs.length - 1; i >= 0; i--) {
-				OpDefNode def = defs[i];
-				Set<String> usedNamesOfDef = usedNamesTable.get(def);
-				for (int j = 0; j < def.getParams().length; j++) {
-					FormalParamNode p = def.getParams()[j];
-					String paramName = p.getName().toString();
-					String newParamName = incName(paramName);
-					p.setToolObject(NEW_NAME, newParamName);
-					//usedNamesOfDef.add(newParamName);
+				// Initialize all local definitions (get a new name, get an empty
+				// list)
+				for (OpDefNode def : defs) {
+					String newName = getOperatorName(def);
+					globalNames.add(newName);
+					def.setToolObject(NEW_NAME, newName);
+					usedNamesTable.put(def, new HashSet<>(usedNames));
 				}
-				visitNode(def.getBody(), usedNamesOfDef);
-			}
-			return;
-		}
 
-		case OpApplKind: {
-			OpApplNode opApplNode = (OpApplNode) n;
-			switch (opApplNode.getOperator().getKind()) {
+				// first visit the IN expression
+				visitNode(letInNode.getBody(), usedNames);
 
-			case BuiltInKind: {
-				visitBuiltinNode(opApplNode, usedNames);
+				// visit the definition itself
+				for (int i = defs.length - 1; i >= 0; i--) {
+					OpDefNode def = defs[i];
+					Set<String> usedNamesOfDef = usedNamesTable.get(def);
+					for (int j = 0; j < def.getParams().length; j++) {
+						FormalParamNode p = def.getParams()[j];
+						String paramName = p.getName().toString();
+						String newParamName = incName(paramName);
+						p.setToolObject(NEW_NAME, newParamName);
+						//usedNamesOfDef.add(newParamName);
+					}
+					visitNode(def.getBody(), usedNamesOfDef);
+				}
 				return;
 			}
 
-			case UserDefinedOpKind: {
-				OpDefNode def = (OpDefNode) opApplNode.getOperator();
-				if (BBuiltInOPs.contains(def.getName())) {
-					break;
+			case OpApplKind: {
+				OpApplNode opApplNode = (OpApplNode) n;
+				switch (opApplNode.getOperator().getKind()) {
+
+					case BuiltInKind: {
+						visitBuiltinNode(opApplNode, usedNames);
+						return;
+					}
+
+					case UserDefinedOpKind: {
+						OpDefNode def = (OpDefNode) opApplNode.getOperator();
+						if (BBuiltInOPs.contains(def.getName())) {
+							break;
+						}
+						Set<String> set = usedNamesTable.get(def);
+						if (set != null) {
+							usedNamesTable.get(def).addAll(usedNames);
+						}
+
+
+						for (int i = 0; i < n.getChildren().length; i++) {
+							visitNode(opApplNode.getArgs()[i], usedNames);
+						}
+						return;
+					}
 				}
-				Set<String> set = usedNamesTable.get(def);
-				if (set!=null){
-					usedNamesTable.get(def).addAll(usedNames);
-				}
-				
-				
-				for (int i = 0; i < n.getChildren().length; i++) {
+
+				for (int i = 0; i < opApplNode.getArgs().length; i++) {
 					visitNode(opApplNode.getArgs()[i], usedNames);
 				}
 				return;
 			}
-			}
-
-			for (int i = 0; i < opApplNode.getArgs().length; i++) {
-				visitNode(opApplNode.getArgs()[i], usedNames);
-			}
-			return;
-		}
 		}
 
 		if (n.getChildren() != null) {
@@ -259,40 +254,39 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals,
 
 		switch (getOpCode(opApplNode.getOperator().getName())) {
 
-		case OPCODE_nrfs:
-		case OPCODE_fc: // Represents [x \in S |-> e]
-		case OPCODE_bc: // CHOOSE x \in S: P
-		case OPCODE_soa: // $SetOfAll Represents {e : p1 \in S, p2,p3 \in S2}
-		case OPCODE_sso: // $SubsetOf Represents {x \in S : P}
-		case OPCODE_bf: // \A x \in S : P
-		case OPCODE_be: // \E x \in S : P
-		{
-			FormalParamNode[][] params = opApplNode.getBdedQuantSymbolLists();
-			Set<String> newUsedNames = new HashSet<>(usedNames);
-			for (FormalParamNode[] formalParamNodes : params) {
-				for (int j = 0; j < formalParamNodes.length; j++) {
-					FormalParamNode param = formalParamNodes[j];
-					String paramName = param.getName().toString();
-					String newName = incName(paramName, usedNames);
-					param.setToolObject(NEW_NAME, newName);
-					newUsedNames.add(newName);
+			case OPCODE_nrfs:
+			case OPCODE_fc: // Represents [x \in S |-> e]
+			case OPCODE_bc: // CHOOSE x \in S: P
+			case OPCODE_soa: // $SetOfAll Represents {e : p1 \in S, p2,p3 \in S2}
+			case OPCODE_sso: // $SubsetOf Represents {x \in S : P}
+			case OPCODE_bf: // \A x \in S : P
+			case OPCODE_be: // \E x \in S : P
+			{
+				FormalParamNode[][] params = opApplNode.getBdedQuantSymbolLists();
+				Set<String> newUsedNames = new HashSet<>(usedNames);
+				for (FormalParamNode[] formalParamNodes : params) {
+					for (FormalParamNode param : formalParamNodes) {
+						String paramName = param.getName().toString();
+						String newName = incName(paramName, usedNames);
+						param.setToolObject(NEW_NAME, newName);
+						newUsedNames.add(newName);
+					}
 				}
-			}
-			for (int i = 0; i < opApplNode.getBdedQuantBounds().length; i++) {
-				visitNode(opApplNode.getBdedQuantBounds()[i], usedNames);
-			}
-
-			visitNode(opApplNode.getArgs()[0], newUsedNames);
-
-			return;
-		}
-
-		default:
-			for (int i = 0; i < opApplNode.getArgs().length; i++) {
-				if (opApplNode.getArgs()[i] != null) {
-					visitNode(opApplNode.getArgs()[i], usedNames);
+				for (int i = 0; i < opApplNode.getBdedQuantBounds().length; i++) {
+					visitNode(opApplNode.getBdedQuantBounds()[i], usedNames);
 				}
+
+				visitNode(opApplNode.getArgs()[0], newUsedNames);
+
+				return;
 			}
+
+			default:
+				for (int i = 0; i < opApplNode.getArgs().length; i++) {
+					if (opApplNode.getArgs()[i] != null) {
+						visitNode(opApplNode.getArgs()[i], usedNames);
+					}
+				}
 
 		}
 	}
@@ -303,7 +297,7 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals,
 		if (BBUILTIN_OPERATOR.containsKey(newName)) {
 			// a B built-in operator is defined outside of a standard module
 			if (!STANDARD_MODULES.contains(def.getSource()
-					.getOriginallyDefinedInModuleNode().getName().toString())) {
+				.getOriginallyDefinedInModuleNode().getName().toString())) {
 				return incName(BBUILTIN_OPERATOR.get(newName));
 			}
 		}

@@ -1,23 +1,12 @@
 package de.tla2b.output;
 
+import de.be4.classicalb.core.parser.analysis.DepthFirstAdapter;
+import de.be4.classicalb.core.parser.node.*;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
-
-import de.be4.classicalb.core.parser.analysis.DepthFirstAdapter;
-import de.be4.classicalb.core.parser.node.AConjunctPredicate;
-import de.be4.classicalb.core.parser.node.AConstantsMachineClause;
-import de.be4.classicalb.core.parser.node.AExistsPredicate;
-import de.be4.classicalb.core.parser.node.AForallPredicate;
-import de.be4.classicalb.core.parser.node.AImplicationPredicate;
-import de.be4.classicalb.core.parser.node.APredicateDefinitionDefinition;
-import de.be4.classicalb.core.parser.node.APropertiesMachineClause;
-import de.be4.classicalb.core.parser.node.ASetsMachineClause;
-import de.be4.classicalb.core.parser.node.Node;
-import de.be4.classicalb.core.parser.node.PExpression;
-import de.be4.classicalb.core.parser.node.PSet;
-import de.be4.classicalb.core.parser.node.Start;
 
 public class Indentation extends DepthFirstAdapter {
 
@@ -100,7 +89,7 @@ public class Indentation extends DepthFirstAdapter {
 	}
 
 	public void inAPredicateDefinitionDefinition(
-			APredicateDefinitionDefinition node) {
+		APredicateDefinitionDefinition node) {
 		indentation.put(node.getRhs(), 0);
 	}
 

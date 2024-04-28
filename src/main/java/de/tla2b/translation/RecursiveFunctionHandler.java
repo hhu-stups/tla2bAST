@@ -1,19 +1,13 @@
 package de.tla2b.translation;
 
+import de.tla2b.analysis.AbstractASTVisitor;
+import de.tla2b.analysis.SpecAnalyser;
+import tla2sany.semantic.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
-
-import tla2sany.semantic.ExprNode;
-import tla2sany.semantic.ExprOrOpArgNode;
-import tla2sany.semantic.FormalParamNode;
-import tla2sany.semantic.OpApplNode;
-import tla2sany.semantic.OpDefNode;
-import tla2sany.semantic.SemanticNode;
-import tla2sany.semantic.SymbolNode;
-import de.tla2b.analysis.AbstractASTVisitor;
-import de.tla2b.analysis.SpecAnalyser;
 
 public class RecursiveFunctionHandler extends AbstractASTVisitor {
 
@@ -68,34 +62,34 @@ public class RecursiveFunctionHandler extends AbstractASTVisitor {
 	@Override
 	public void visitBuiltInNode(OpApplNode n) {
 		switch (getOpCode(n.getOperator().getName())) {
-		case OPCODE_rfs:
-		case OPCODE_nrfs:
-		case OPCODE_fc: // Represents [x \in S |-> e]
-		case OPCODE_be: // \E x \in S : P
-		case OPCODE_bf: // \A x \in S : P
-		case OPCODE_bc: // CHOOSE x \in S: P
-		case OPCODE_sso: // $SubsetOf Represents {x \in S : P}
-		case OPCODE_soa: // $SetOfAll Represents {e : p1 \in S, p2,p3 \in S2}
-		{
-			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-			HashSet<FormalParamNode> set = new HashSet<>();
-			for (FormalParamNode[] param : params) {
-				Collections.addAll(set, param);
+			case OPCODE_rfs:
+			case OPCODE_nrfs:
+			case OPCODE_fc: // Represents [x \in S |-> e]
+			case OPCODE_be: // \E x \in S : P
+			case OPCODE_bf: // \A x \in S : P
+			case OPCODE_bc: // CHOOSE x \in S: P
+			case OPCODE_sso: // $SubsetOf Represents {x \in S : P}
+			case OPCODE_soa: // $SetOfAll Represents {e : p1 \in S, p2,p3 \in S2}
+			{
+				FormalParamNode[][] params = n.getBdedQuantSymbolLists();
+				HashSet<FormalParamNode> set = new HashSet<>();
+				for (FormalParamNode[] param : params) {
+					Collections.addAll(set, param);
+				}
+				ignoreParamList.addAll(set);
+				ExprNode[] in = n.getBdedQuantBounds();
+				for (ExprNode exprNode : in) {
+					visitExprNode(exprNode);
+				}
+				ExprOrOpArgNode[] arguments = n.getArgs();
+				for (ExprOrOpArgNode exprOrOpArgNode : arguments) {
+					visitExprOrOpArgNode(exprOrOpArgNode);
+				}
+				return;
 			}
-			ignoreParamList.addAll(set);
-			ExprNode[] in = n.getBdedQuantBounds();
-			for (ExprNode exprNode : in) {
-				visitExprNode(exprNode);
+			default: {
+				super.visitBuiltInNode(n);
 			}
-			ExprOrOpArgNode[] arguments = n.getArgs();
-			for (ExprOrOpArgNode exprOrOpArgNode : arguments) {
-				visitExprOrOpArgNode(exprOrOpArgNode);
-			}
-			return;
-		}
-		default: {
-			super.visitBuiltInNode(n);
-		}
 
 		}
 

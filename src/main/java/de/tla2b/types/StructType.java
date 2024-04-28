@@ -1,22 +1,12 @@
 package de.tla2b.types;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import de.be4.classicalb.core.parser.node.ABoolSetExpression;
-import de.be4.classicalb.core.parser.node.AMultOrCartExpression;
-import de.be4.classicalb.core.parser.node.APowSubsetExpression;
-import de.be4.classicalb.core.parser.node.ARecEntry;
-import de.be4.classicalb.core.parser.node.AStructExpression;
-import de.be4.classicalb.core.parser.node.PExpression;
-import de.be4.classicalb.core.parser.node.PRecEntry;
+import de.be4.classicalb.core.parser.node.*;
 import de.tla2b.exceptions.UnificationException;
 import de.tla2b.output.TypeVisitorInterface;
 import de.tla2bAst.BAstCreator;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 public class StructType extends AbstractHasFollowers {
 	private final LinkedHashMap<String, TLAType> types;

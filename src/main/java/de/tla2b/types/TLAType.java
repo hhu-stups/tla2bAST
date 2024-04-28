@@ -15,20 +15,20 @@ public abstract class TLAType implements IType {
 	}
 
 	public abstract String toString();
-	
+
 	public abstract PExpression getBNode();
 
 	public abstract boolean compare(TLAType o);
-	
+
 	public abstract boolean contains(TLAType o);
-	
+
 	public abstract boolean isUntyped();
-	
+
 	public abstract TLAType cloneTLAType();
 
 	public abstract TLAType unify(TLAType o) throws UnificationException;
-	
-	public TLAType unityAll(TLAType[] types) throws UnificationException{
+
+	public TLAType unityAll(TLAType[] types) throws UnificationException {
 		TLAType current = this;
 		for (TLAType type : types) {
 			current = current.unify(type);

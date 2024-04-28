@@ -1,9 +1,5 @@
 package de.tla2b.output;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Hashtable;
-
 import de.be4.classicalb.core.parser.analysis.prolog.INodeIds;
 import de.be4.classicalb.core.parser.analysis.prolog.PositionPrinter;
 import de.be4.classicalb.core.parser.node.Node;
@@ -11,6 +7,10 @@ import de.hhu.stups.sablecc.patch.PositionedNode;
 import de.prob.prolog.output.IPrologTermOutput;
 import de.tla2b.exceptions.NotImplementedException;
 import de.tla2b.types.*;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Hashtable;
 
 public class TlaTypePrinter implements PositionPrinter, TypeVisitorInterface {
 	private IPrologTermOutput pout;
@@ -23,7 +23,7 @@ public class TlaTypePrinter implements PositionPrinter, TypeVisitorInterface {
 	private HashSet<PositionedNode> positions;
 
 	public TlaTypePrinter(INodeIds nodeIds,
-			Hashtable<Node, TLAType> typeTable) {
+	                      Hashtable<Node, TLAType> typeTable) {
 		this.nodeIds = nodeIds;
 		this.typeTable = typeTable;
 	}

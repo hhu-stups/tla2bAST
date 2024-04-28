@@ -1,9 +1,8 @@
 package de.tla2b.types;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import tla2sany.semantic.SemanticNode;
+
+import java.util.ArrayList;
 
 public abstract class AbstractHasFollowers extends TLAType {
 

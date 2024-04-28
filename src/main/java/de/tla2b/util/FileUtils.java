@@ -25,11 +25,11 @@ public class FileUtils {
 		} else {
 			// Remove the last period and everything after it
 			File renamed = new File(f.getParent(), name.substring(0,
-					lastPeriodPos));
+				lastPeriodPos));
 			return renamed.getPath();
 		}
 	}
-	
+
 	public static String fileToString(String fileName) throws IOException {
 		StringBuilder res = new StringBuilder();
 		BufferedReader in = new BufferedReader(new FileReader(fileName));
@@ -40,7 +40,6 @@ public class FileUtils {
 		in.close();
 		return res.toString();
 	}
-	
-	
-	
+
+
 }
