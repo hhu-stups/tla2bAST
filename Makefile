@@ -1,6 +1,6 @@
 # Makefile as documentation on how to build the TLA2B.jar file
-# This file should then appear in ProB's lib folder
-# This file is for documentation, for user's not familiar with gradle
+# This file should then be put into ProB's lib folder
+# This file is for documentation, for users not familiar with gradle
 build/libs/TLA2B.jar: src/main/java/de/tla2b/*/*.java src/main/java/de/tla2b/*.java src/main/java/de/tla2bAst/*.java build.gradle
 	@echo "Building TLA2B.jar"
 	gradle shadowJar
