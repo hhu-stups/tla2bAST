@@ -17,6 +17,16 @@ public class TestKeywords {
 	}
 
 	@Test
+	public void testInt() throws Exception {
+		compareExpr("INTEGER", "Int");
+	}
+
+	@Test
+	public void testReal() throws Exception {
+		compareExpr("REAL", "Real");
+	}
+
+	@Test
 	public void testExcept() throws Exception {
 		compareExpr("x = a <+ {1 |-> 1}", "x = [a EXCEPT ![1] = 1]");
 	}

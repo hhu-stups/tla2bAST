@@ -39,6 +39,11 @@ public class ComplexExpressionTest {
 	}
 
 	@Test
+	public void testLetTwoDefsReal() throws Exception {
+		compareExpr("1.0 + 2.0", "LET foo == 1.0 bar == 2.0 IN foo + bar ");
+	}
+
+	@Test
 	public void testPrime() throws Exception {
 		compareExpr("x_n = 1", "x' = 1");
 	}

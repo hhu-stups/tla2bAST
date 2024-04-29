@@ -11,6 +11,13 @@ public class InstanceTest {
 	private static final String path = "src/test/resources/typechecking/modules/";
 
 	@Test
+	public void TestCounterReal() throws Exception {
+		TestTypeChecker t = TestUtil.typeCheck(path + "CounterReal.tla");
+		assertEquals("REAL", t.getConstantType("start"));
+		assertEquals("REAL", t.getVariableType("x"));
+	}
+
+	@Test
 	public void TestNamedInstanceCounter() throws Exception {
 		TestTypeChecker t = TestUtil.typeCheck(path + "NamedInstanceCounter.tla");
 		assertEquals("INTEGER", t.getVariableType("c"));

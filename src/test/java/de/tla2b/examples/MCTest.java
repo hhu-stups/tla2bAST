@@ -72,7 +72,7 @@ public class MCTest {
 	
 	@Ignore
 	@Test
-	public void testRecursiveFunciton() throws Exception {
+	public void testRecursiveFunction() throws Exception {
 		String file = "src/test/resources/examples/RecursiveFunction/RecursiveFunction.tla";
 		runModule(file);
 	}
