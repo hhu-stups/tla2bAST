@@ -1,9 +1,5 @@
 package de.tla2b.util;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import de.be4.classicalb.core.parser.BParser;
 import de.be4.classicalb.core.parser.analysis.prolog.ASTProlog;
 import de.be4.classicalb.core.parser.exceptions.BCompoundException;
@@ -14,9 +10,12 @@ import de.be4.classicalb.core.parser.util.SuffixIdentifierRenaming;
 import de.prob.prolog.output.PrologTermStringOutput;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2bAst.Translator;
-
 import util.FileUtil;
 import util.ToolIO;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -26,7 +25,7 @@ public class TestUtil {
 	public static List<File> getModulesRecursively(String path) {
 		File root = new File(path);
 		File[] list = root.listFiles();
-		
+
 		List<File> files = new ArrayList<>();
 		if (list == null) {
 			return files;

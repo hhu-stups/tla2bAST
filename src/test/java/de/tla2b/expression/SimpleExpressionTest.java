@@ -44,8 +44,8 @@ public class SimpleExpressionTest {
 	@Test
 	public void testIfThenElse() throws Exception {
 		compareExpr(
-				"IF 1 = 1 THEN 1 ELSE 2 END", //"(%t_.( t_ = 0 & 1 = 1 | 1 )\\/%t_.( t_ = 0 & not(1 = 1) | 2 ))(0)",
-				"IF 1 = 1 THEN 1 ELSE 2");
+			"IF 1 = 1 THEN 1 ELSE 2 END", //"(%t_.( t_ = 0 & 1 = 1 | 1 )\\/%t_.( t_ = 0 & not(1 = 1) | 2 ))(0)",
+			"IF 1 = 1 THEN 1 ELSE 2");
 	}
 
 	@Test

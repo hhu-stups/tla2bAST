@@ -1,8 +1,8 @@
 package de.tla2b.expression;
 
-import static de.tla2b.util.TestUtil.compareExpr;
-
 import org.junit.Test;
+
+import static de.tla2b.util.TestUtil.compareExpr;
 
 public class TestSequences {
 

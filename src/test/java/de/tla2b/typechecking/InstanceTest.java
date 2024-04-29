@@ -1,10 +1,10 @@
 package de.tla2b.typechecking;
 
-import static org.junit.Assert.assertEquals;
-import org.junit.Test;
-
 import de.tla2b.util.TestTypeChecker;
 import de.tla2b.util.TestUtil;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class InstanceTest {
 

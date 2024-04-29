@@ -1,8 +1,7 @@
 package de.tla2b.main;
 
-import org.junit.Test;
-
 import de.tla2b.util.TestUtil;
+import org.junit.Test;
 
 public class RenamerTest {
 

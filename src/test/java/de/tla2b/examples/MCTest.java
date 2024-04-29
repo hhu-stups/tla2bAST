@@ -12,7 +12,7 @@ public class MCTest {
 		String file = "src/test/resources/MCTests/simple/MC.tla";
 		runModule(file);
 	}
-	
+
 	@Test
 	public void testInvariantMC() throws Exception {
 		String file = "src/test/resources/MCTests/Invariant/MC.tla";
@@ -54,39 +54,39 @@ public class MCTest {
 		String file = "src/test/resources/MCTests/DieHarder/MC.tla";
 		runModule(file);
 	}
-	
-	
+
+
 	@Ignore
 	@Test
 	public void testCarTalkPuzzle() throws Exception {
 		String file = "src/test/resources/MCTests/CarTalkPuzzle/MC.tla";
 		runModule(file);
 	}
-	
+
 	@Ignore
 	@Test
 	public void testCarTalkPuzzleModel2() throws Exception {
 		String file = "src/test/resources/MCTests/CarTalkPuzzle/Model2/MC.tla";
 		runModule(file);
 	}
-	
+
 	@Ignore
 	@Test
 	public void testRecursiveFunction() throws Exception {
 		String file = "src/test/resources/examples/RecursiveFunction/RecursiveFunction.tla";
 		runModule(file);
 	}
-	
+
 	@Test
 	public void testQueens() throws Exception {
 		String file = "src/test/resources/MCTests/Queens/MC.tla";
 		runModule(file);
 	}
-	
+
 	@Test
 	public void testMacroTest() throws Exception {
 		String file = "src/test/resources/renamer/MacroTest/MacroTest.tla";
 		runModule(file);
 	}
-	
+
 }

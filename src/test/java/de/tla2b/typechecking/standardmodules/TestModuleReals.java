@@ -17,9 +17,9 @@ public class TestModuleReals {
 	@Test
 	public void unifyReal() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "EXTENDS Reals \n"
-				+ "CONSTANTS k \n"
-				+ "ASSUME k = Real \n" + "=================================";
+			+ "EXTENDS Reals \n"
+			+ "CONSTANTS k \n"
+			+ "ASSUME k = Real \n" + "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
 		assertEquals("POW(REAL)", t.getConstantType("k"));
 	}
@@ -27,9 +27,9 @@ public class TestModuleReals {
 	@Test(expected = TypeErrorException.class)
 	public void unifyErrorReal() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "EXTENDS Reals \n"
-				+ "ASSUME TRUE \\in Real \n"
-				+ "=================================";
+			+ "EXTENDS Reals \n"
+			+ "ASSUME TRUE \\in Real \n"
+			+ "=================================";
 
 		TestUtil.typeCheckString(module);
 	}
@@ -40,9 +40,9 @@ public class TestModuleReals {
 	@Test
 	public void unifyUnaryMinusReal() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "EXTENDS Reals \n"
-				+ "CONSTANTS k \n"
-				+ "ASSUME k = -1.0 \n" + "=================================";
+			+ "EXTENDS Reals \n"
+			+ "CONSTANTS k \n"
+			+ "ASSUME k = -1.0 \n" + "=================================";
 
 		TestTypeChecker t = TestUtil.typeCheckString(module);
 		assertEquals("REAL", t.getConstantType("k"));
@@ -60,9 +60,9 @@ public class TestModuleReals {
 	@Test(expected = TypeErrorException.class)
 	public void unifyErrorUnaryMinusReal() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "EXTENDS Reals \n"
-				+ "ASSUME TRUE = -1.0 \n"
-				+ "=================================";
+			+ "EXTENDS Reals \n"
+			+ "ASSUME TRUE = -1.0 \n"
+			+ "=================================";
 		TestUtil.typeCheckString(module);
 	}
 

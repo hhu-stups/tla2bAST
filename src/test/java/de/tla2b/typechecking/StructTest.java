@@ -1,14 +1,13 @@
 package de.tla2b.typechecking;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.exceptions.TypeErrorException;
 import de.tla2b.util.TestTypeChecker;
 import de.tla2b.util.TestUtil;
+import org.junit.Test;
 import util.ToolIO;
+
+import static org.junit.Assert.assertEquals;
 
 public class StructTest {
 	static {
@@ -21,9 +20,9 @@ public class StructTest {
 	@Test
 	public void testStruct() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k \n"
-				+ "ASSUME k = [a : {1}, b : BOOLEAN] \n"
-				+ "=================================";
+			+ "CONSTANTS k \n"
+			+ "ASSUME k = [a : {1}, b : BOOLEAN] \n"
+			+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
 		assertEquals("POW(struct(a:INTEGER,b:BOOL))", t.getConstantType("k"));
 	}
@@ -32,21 +31,21 @@ public class StructTest {
 	public void testStruct2() throws TLA2BException {
 
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k, k2, k3 \n"
-				+ "ASSUME k = [a : k2, b : k3] /\\ k2 = {1} /\\ k3 = BOOLEAN \n"
-				+ "=================================";
+			+ "CONSTANTS k, k2, k3 \n"
+			+ "ASSUME k = [a : k2, b : k3] /\\ k2 = {1} /\\ k3 = BOOLEAN \n"
+			+ "=================================";
 
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		
+
 		assertEquals("POW(struct(a:INTEGER,b:BOOL))", t.getConstantType("k"));
 	}
 
 	@Test
 	public void testStruct3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k, k2 \n"
-				+ "ASSUME [a : {1}, b : BOOLEAN] = [a : k, b : k2] \n"
-				+ "=================================";
+			+ "CONSTANTS k, k2 \n"
+			+ "ASSUME [a : {1}, b : BOOLEAN] = [a : k, b : k2] \n"
+			+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
 		assertEquals("POW(INTEGER)", t.getConstantType("k"));
 		assertEquals("POW(BOOL)", t.getConstantType("k2"));
@@ -55,26 +54,26 @@ public class StructTest {
 	@Test(expected = TypeErrorException.class)
 	public void testStructException() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k \n"
-				+ "ASSUME 1 = [a : 1, b : TRUE] \n"
-				+ "=================================";
+			+ "CONSTANTS k \n"
+			+ "ASSUME 1 = [a : 1, b : TRUE] \n"
+			+ "=================================";
 		TestUtil.typeCheckString(module);
 	}
 
 	@Test(expected = TypeErrorException.class)
 	public void testStructException2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "ASSUME [a : {1}, b : BOOLEAN] = [a : BOOLEAN, b : BOOLEAN] \n"
-				+ "=================================";
+			+ "ASSUME [a : {1}, b : BOOLEAN] = [a : BOOLEAN, b : BOOLEAN] \n"
+			+ "=================================";
 		TestUtil.typeCheckString(module);
 	}
 
 	@Test(expected = TypeErrorException.class)
 	public void testStructException3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k, k2 \n"
-				+ "ASSUME [aa : {1}, b : BOOLEAN] = [a : {1}, b : BOOLEAN] \n"
-				+ "=================================";
+			+ "CONSTANTS k, k2 \n"
+			+ "ASSUME [aa : {1}, b : BOOLEAN] = [a : {1}, b : BOOLEAN] \n"
+			+ "=================================";
 
 		TestUtil.typeCheckString(module);
 	}
@@ -86,9 +85,9 @@ public class StructTest {
 	@Test
 	public void testRecord() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k \n"
-				+ "ASSUME k = [a |-> 1, b |-> TRUE] \n"
-				+ "=================================";
+			+ "CONSTANTS k \n"
+			+ "ASSUME k = [a |-> 1, b |-> TRUE] \n"
+			+ "=================================";
 
 		TestTypeChecker t = TestUtil.typeCheckString(module);
 		assertEquals("struct(a:INTEGER,b:BOOL)", t.getConstantType("k"));
@@ -97,9 +96,9 @@ public class StructTest {
 	@Test
 	public void testRecord2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k, k2, k3 \n"
-				+ "ASSUME k = [a |-> k2, b |-> k3] /\\ k2 = 1 /\\ k3 = TRUE \n"
-				+ "=================================";
+			+ "CONSTANTS k, k2, k3 \n"
+			+ "ASSUME k = [a |-> k2, b |-> k3] /\\ k2 = 1 /\\ k3 = TRUE \n"
+			+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
 		assertEquals("struct(a:INTEGER,b:BOOL)", t.getConstantType("k"));
 	}
@@ -107,17 +106,17 @@ public class StructTest {
 	@Test(expected = TypeErrorException.class)
 	public void testRecordException() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "ASSUME 1 = [b |-> 1, a |-> TRUE] \n"
-				+ "=================================";
+			+ "ASSUME 1 = [b |-> 1, a |-> TRUE] \n"
+			+ "=================================";
 		TestUtil.typeCheckString(module);
 	}
 
 	@Test
 	public void testRecord3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k, k2 \n"
-				+ "ASSUME [a |-> k, b |-> k2] \\in [a: {1}, b: BOOLEAN]  \n"
-				+ "=================================";
+			+ "CONSTANTS k, k2 \n"
+			+ "ASSUME [a |-> k, b |-> k2] \\in [a: {1}, b: BOOLEAN]  \n"
+			+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
 		assertEquals("INTEGER", t.getConstantType("k"));
 		assertEquals("BOOL", t.getConstantType("k2"));
@@ -130,9 +129,9 @@ public class StructTest {
 	@Test
 	public void testRecordSelect() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k, k2 \n"
-				+ "ASSUME k = [a |-> 1, b |-> TRUE] /\\ k2 = k.a \n"
-				+ "=================================";
+			+ "CONSTANTS k, k2 \n"
+			+ "ASSUME k = [a |-> 1, b |-> TRUE] /\\ k2 = k.a \n"
+			+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
 		assertEquals("struct(a:INTEGER,b:BOOL)", t.getConstantType("k"));
 		assertEquals("INTEGER", t.getConstantType("k2"));
@@ -141,9 +140,9 @@ public class StructTest {
 	@Test
 	public void testRecordSelect2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k, k2 \n"
-				+ "ASSUME k2 = k.a /\\ k = [a |-> 1, b |-> TRUE] \n"
-				+ "=================================";
+			+ "CONSTANTS k, k2 \n"
+			+ "ASSUME k2 = k.a /\\ k = [a |-> 1, b |-> TRUE] \n"
+			+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
 		assertEquals("struct(a:INTEGER,b:BOOL)", t.getConstantType("k"));
 		assertEquals("INTEGER", t.getConstantType("k2"));
@@ -152,11 +151,11 @@ public class StructTest {
 	@Test
 	public void testRecordSelect3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k, k2, k3 \n"
-				+ "ASSUME k = [a |-> k2, b |-> k3]  /\\ k.a = 1 /\\ k.b = TRUE \n"
-				+ "=================================";
+			+ "CONSTANTS k, k2, k3 \n"
+			+ "ASSUME k = [a |-> k2, b |-> k3]  /\\ k.a = 1 /\\ k.b = TRUE \n"
+			+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		
+
 		assertEquals("struct(a:INTEGER,b:BOOL)", t.getConstantType("k"));
 		assertEquals("INTEGER", t.getConstantType("k2"));
 		assertEquals("BOOL", t.getConstantType("k3"));
@@ -165,9 +164,9 @@ public class StructTest {
 	@Test
 	public void testRecordSelect4() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k, k2, k3 \n"
-				+ "ASSUME k \\in [a : k2, b : k3]  /\\ k.a = 1 /\\ k.b = TRUE \n"
-				+ "=================================";
+			+ "CONSTANTS k, k2, k3 \n"
+			+ "ASSUME k \\in [a : k2, b : k3]  /\\ k.a = 1 /\\ k.b = TRUE \n"
+			+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
 		assertEquals("struct(a:INTEGER,b:BOOL)", t.getConstantType("k"));
 		assertEquals("POW(INTEGER)", t.getConstantType("k2"));
@@ -178,18 +177,18 @@ public class StructTest {
 	public void testRecordSelectException3() throws
 		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k \n"
-				+ "ASSUME k = [a |-> 1] /\\ TRUE = k.b \n"
-				+ "=================================";
+			+ "CONSTANTS k \n"
+			+ "ASSUME k = [a |-> 1] /\\ TRUE = k.b \n"
+			+ "=================================";
 		TestUtil.typeCheckString(module);
 	}
 
 	@Test
 	public void testRecordSelect5() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k \n"
-				+ "ASSUME 1 = k.a /\\ TRUE = k.b  /\\ k = [a |-> 1] \n"
-				+ "=================================";
+			+ "CONSTANTS k \n"
+			+ "ASSUME 1 = k.a /\\ TRUE = k.b  /\\ k = [a |-> 1] \n"
+			+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
 		assertEquals("struct(a:INTEGER,b:BOOL)", t.getConstantType("k"));
 	}
@@ -198,9 +197,9 @@ public class StructTest {
 	public void testRecordSelectException() throws
 		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k \n"
-				+ "ASSUME TRUE = k.a  /\\ k = [a |-> 1] \n"
-				+ "=================================";
+			+ "CONSTANTS k \n"
+			+ "ASSUME TRUE = k.a  /\\ k = [a |-> 1] \n"
+			+ "=================================";
 		TestUtil.typeCheckString(module);
 	}
 
@@ -209,9 +208,9 @@ public class StructTest {
 		TLA2BException {
 
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k \n"
-				+ "ASSUME k = [a |-> 1] /\\ TRUE = k.a \n"
-				+ "=================================";
+			+ "CONSTANTS k \n"
+			+ "ASSUME k = [a |-> 1] /\\ TRUE = k.a \n"
+			+ "=================================";
 		TestUtil.typeCheckString(module);
 	}
 
@@ -222,9 +221,9 @@ public class StructTest {
 	@Test
 	public void testRecordExcept() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k, k2, k3, k4 \n"
-				+ "ASSUME k = [a|-> k2, b|-> k3] /\\ k4 = [k EXCEPT !.a = 1, !.b = TRUE]\n"
-				+ "=================================";
+			+ "CONSTANTS k, k2, k3, k4 \n"
+			+ "ASSUME k = [a|-> k2, b|-> k3] /\\ k4 = [k EXCEPT !.a = 1, !.b = TRUE]\n"
+			+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
 		assertEquals("struct(a:INTEGER,b:BOOL)", t.getConstantType("k"));
 		assertEquals("struct(a:INTEGER,b:BOOL)", t.getConstantType("k4"));
@@ -235,9 +234,9 @@ public class StructTest {
 	@Test
 	public void testRecordExcept2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k, k2 \n"
-				+ "ASSUME k.a = 1/\\ k2 = [k EXCEPT !.a = 1, !.b = TRUE] /\\ k2 = [a|->2, b |-> FALSE]\n"
-				+ "=================================";
+			+ "CONSTANTS k, k2 \n"
+			+ "ASSUME k.a = 1/\\ k2 = [k EXCEPT !.a = 1, !.b = TRUE] /\\ k2 = [a|->2, b |-> FALSE]\n"
+			+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
 		assertEquals("struct(a:INTEGER,b:BOOL)", t.getConstantType("k"));
 		assertEquals("struct(a:INTEGER,b:BOOL)", t.getConstantType("k2"));
@@ -250,9 +249,9 @@ public class StructTest {
 	@Test
 	public void testRecordExceptAt() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k, k2, k3 \n"
-				+ "ASSUME k = [a|-> TRUE] /\\ k2 = [k EXCEPT !.a = @ = k3]\n"
-				+ "=================================";
+			+ "CONSTANTS k, k2, k3 \n"
+			+ "ASSUME k = [a|-> TRUE] /\\ k2 = [k EXCEPT !.a = @ = k3]\n"
+			+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
 		assertEquals("struct(a:BOOL)", t.getConstantType("k"));
 		assertEquals("struct(a:BOOL)", t.getConstantType("k2"));
@@ -263,19 +262,19 @@ public class StructTest {
 	public void testRecordExceptAtException() throws
 		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k, k2, k3 \n"
-				+ "ASSUME k = [a|-> TRUE] /\\ k2 = [k EXCEPT !.a = @ = 1]\n"
-				+ "=================================";
+			+ "CONSTANTS k, k2, k3 \n"
+			+ "ASSUME k = [a|-> TRUE] /\\ k2 = [k EXCEPT !.a = @ = 1]\n"
+			+ "=================================";
 		TestUtil.typeCheckString(module);
 	}
-	
-	@Test (expected = TypeErrorException.class)
+
+	@Test(expected = TypeErrorException.class)
 	public void testRecord5() throws
 		TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
-				+ "CONSTANTS k, k2 \n"
-				+ "ASSUME k = [k EXCEPT !.a = 1] /\\ k ={k2} \n"
-				+ "=================================";
+			+ "CONSTANTS k, k2 \n"
+			+ "ASSUME k = [k EXCEPT !.a = 1] /\\ k ={k2} \n"
+			+ "=================================";
 		TestUtil.typeCheckString(module);
 	}
 }

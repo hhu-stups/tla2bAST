@@ -1,10 +1,9 @@
 package de.tla2b.expression;
 
-import static de.tla2b.util.TestUtil.compareExpr;
-
+import de.tla2b.exceptions.ExpressionTranslationException;
 import org.junit.Test;
 
-import de.tla2b.exceptions.ExpressionTranslationException;
+import static de.tla2b.util.TestUtil.compareExpr;
 
 public class TestError {
 
