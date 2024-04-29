@@ -1172,6 +1172,8 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 				return BoolType.getInstance();
 			}
 
+			// arithmetic operators: support both integers and reals
+			// for UntypedTypes the default is integer; if this leads to a TypeErrorException real is tried instead
 			case B_OPCODE_plus: // +
 			case B_OPCODE_minus: // -
 			case B_OPCODE_times: // *
@@ -1179,40 +1181,25 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			case B_OPCODE_mod: // % modulo
 			case B_OPCODE_exp: { // x hoch y, x^y
 				TLAType type;
-				// TODO: Simplify
-				if (expected instanceof RealType) {
+				try {
+					IntType.getInstance().unify(expected); // throws UnificationException
+					type = IntType.getInstance();
+					for (int i = 0; i < n.getArgs().length; i++) {
+						// throws TypeErrorException; check whether IntType is OK, else try the same with RealType
+						visitExprOrOpArgNode(n.getArgs()[i], type);
+					}
+				} catch (UnificationException | TypeErrorException e) {
 					try {
 						RealType.getInstance().unify(expected);
 						type = RealType.getInstance();
-					} catch (UnificationException e) {
-						throw new TypeErrorException(String.format("Expected %s, found REAL at '%s',%n%s", expected,
-							n.getOperator().getName(), n.getLocation()));
-					}
-				} else if (expected instanceof IntType) {
-					try {
-						IntType.getInstance().unify(expected);
-						type = IntType.getInstance();
+						for (int i = 0; i < n.getArgs().length; i++) {
+							// if TypeErrorException is thrown here, the type is incompatible and it is a real type error!
+							visitExprOrOpArgNode(n.getArgs()[i], type);
+						}
 					} catch (UnificationException ue) {
 						throw new TypeErrorException(String.format("Expected %s, found INTEGER at '%s',%n%s", expected,
 							n.getOperator().getName(), n.getLocation()));
 					}
-				} else if (expected instanceof UntypedType) {
-					IntType.getInstance().unify(expected);
-					type = IntType.getInstance();
-					try {
-						for (int i = 0; i < n.getArgs().length; i++) {
-							visitExprOrOpArgNode(n.getArgs()[i], type);
-						}
-					} catch (TypeErrorException e) {
-						RealType.getInstance().unify(expected);
-						type = RealType.getInstance();
-					}
-				} else {
-					throw new TypeErrorException(String.format("Expected %s, found INTEGER at '%s',%n%s", expected,
-						n.getOperator().getName(), n.getLocation()));
-				}
-				for (int i = 0; i < n.getArgs().length; i++) {
-					visitExprOrOpArgNode(n.getArgs()[i], type);
 				}
 
 				return type;
@@ -1287,38 +1274,24 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 
 			case B_OPCODE_uminus: // -x
 			{
-				// TODO: simplify
 				TLAType type;
-				if (expected instanceof RealType) {
+				try {
+					IntType.getInstance().unify(expected); // throws UnificationException
+					type = IntType.getInstance();
+					// throws TypeErrorException; check whether IntType is OK, else try the same with RealType
+					visitExprOrOpArgNode(n.getArgs()[0], type);
+				} catch (UnificationException | TypeErrorException e) {
 					try {
 						RealType.getInstance().unify(expected);
 						type = RealType.getInstance();
-					} catch (UnificationException e) {
-						throw new TypeErrorException(
-							String.format("Expected %s, found REAL at '-',%n%s", expected, n.getLocation()));
-					}
-				} else if (expected instanceof IntType) {
-					try {
-						IntType.getInstance().unify(expected);
-						type = IntType.getInstance();
-					} catch (UnificationException e) {
+						// if TypeErrorException is thrown here, the type is incompatible and it is a real type error!
+						visitExprOrOpArgNode(n.getArgs()[0], type);
+					} catch (UnificationException ue) {
 						throw new TypeErrorException(
 							String.format("Expected %s, found INTEGER at '-',%n%s", expected, n.getLocation()));
 					}
-				} else if (expected instanceof UntypedType) {
-					IntType.getInstance().unify(expected);
-					type = IntType.getInstance();
-					try {
-						visitExprOrOpArgNode(n.getArgs()[0], type);
-					} catch (TypeErrorException e) {
-						RealType.getInstance().unify(expected);
-						type = RealType.getInstance();
-					}
-				} else {
-					throw new TypeErrorException(
-						String.format("Expected %s, found INTEGER at '-',%n%s", expected, n.getLocation()));
 				}
-				visitExprOrOpArgNode(n.getArgs()[0], type);
+
 				return type;
 			}
 
