@@ -45,7 +45,8 @@ java {
 	withJavadocJar()
 }
 
-jar {
+shadowJar {
+	archiveFileName = 'TLA2B.jar'
 	manifest {
 		attributes(
 			'Main-Class': 'de.tla2b.TLA2B'
