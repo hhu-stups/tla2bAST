@@ -78,7 +78,7 @@ publishing {
 		mavenJava(MavenPublication) {
 			from components.java
 			// Don't publish the shadowJar to Maven Central
-			artifacts.removeIf {it.classifier == "all"}
+			artifacts = artifacts.findAll {it.classifier != "all"}
 
 			pom {
 				name = 'TLA+ to B-AST'
