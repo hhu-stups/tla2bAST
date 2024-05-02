@@ -1166,8 +1166,14 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 					throw new TypeErrorException(String.format("Expected %s, found BOOL at '%s',%n%s", expected,
 						n.getOperator().getName(), n.getLocation()));
 				}
-				for (int i = 0; i < n.getArgs().length; i++) {
-					visitExprOrOpArgNode(n.getArgs()[i], IntType.getInstance());
+				try {
+					for (int i = 0; i < n.getArgs().length; i++) {
+						visitExprOrOpArgNode(n.getArgs()[i], IntType.getInstance());
+					}
+				} catch (TypeErrorException e) {
+					for (int i = 0; i < n.getArgs().length; i++) {
+						visitExprOrOpArgNode(n.getArgs()[i], RealType.getInstance());
+					}
 				}
 				return BoolType.getInstance();
 			}
@@ -1428,6 +1434,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			case B_OPCODE_setprod: // SetProduct(S)
 			case B_OPCODE_setsum: // SetSummation(S)
 			{
+				// TODO: do we need support for Reals here?
 				try {
 					IntType.getInstance().unify(expected);
 				} catch (UnificationException e) {
