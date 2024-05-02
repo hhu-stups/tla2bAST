@@ -54,6 +54,13 @@ shadowJar {
 	}
 }
 
+// Don't publish the shadowJar to Maven Central. Code from:
+// https://github.com/johnrengelman/shadow/issues/586#issuecomment-708375599
+// https://github.com/johnrengelman/shadow/issues/651#issuecomment-815921124
+components.java.withVariantsFromConfiguration(configurations.shadowRuntimeElements) {
+	skip()
+}
+
 processResources {
 	inputs.property("project.version", project.version)
 	filesMatching("de/tla2b/build.properties") {
@@ -77,8 +84,6 @@ publishing {
 	publications {
 		mavenJava(MavenPublication) {
 			from components.java
-			// Don't publish the shadowJar to Maven Central
-			artifacts = artifacts.findAll {it.classifier != "all"}
 
 			pom {
 				name = 'TLA+ to B-AST'
