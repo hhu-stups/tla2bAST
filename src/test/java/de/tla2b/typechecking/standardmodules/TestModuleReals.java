@@ -66,6 +66,23 @@ public class TestModuleReals {
 		TestUtil.typeCheckString(module);
 	}
 
+	@Test
+	public void testRelationalOperators() throws
+		TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+			+ "EXTENDS Reals \n"
+			+ "CONSTANTS l, leq, g, geq \n"
+			+ "ASSUME l = (2.0 < 1.0) /\\ leq = (2.0 <= 1.0) /\\ g = (2.0 > 1.0) /\\ geq = (2.0 >= 1.0)\n"
+			+ "=================================";
+
+		TestTypeChecker t = TestUtil.typeCheckString(module);
+		assertEquals("BOOL", t.getConstantType("l"));
+		assertEquals("BOOL", t.getConstantType("leq"));
+		assertEquals("BOOL", t.getConstantType("g"));
+		assertEquals("BOOL", t.getConstantType("geq"));
+
+	}
+
 	@Test(expected = TypeErrorException.class)
 	public void testRelationalOperatorsException1() throws
 		TLA2BException {

@@ -84,6 +84,12 @@ public class MCTest {
 	}
 
 	@Test
+	public void testRealDefinition() throws Exception {
+		String file = "src/test/resources/MCTests/InvariantReals/RealInvariant.tla";
+		runModule(file);
+	}
+
+	@Test
 	public void testMacroTest() throws Exception {
 		String file = "src/test/resources/renamer/MacroTest/MacroTest.tla";
 		runModule(file);
