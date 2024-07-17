@@ -4,12 +4,12 @@ import de.tla2b.exceptions.ConfigFileErrorException;
 import de.tla2b.exceptions.UnificationException;
 import de.tla2b.types.*;
 import tla2sany.semantic.*;
-import tlc2.tool.ModelConfig;
+import tlc2.tool.impl.ModelConfig;
 import tlc2.util.Vect;
-import tlc2.value.IntValue;
-import tlc2.value.ModelValue;
-import tlc2.value.SetEnumValue;
-import tlc2.value.Value;
+import tlc2.value.impl.IntValue;
+import tlc2.value.impl.ModelValue;
+import tlc2.value.impl.SetEnumValue;
+import tlc2.value.impl.Value;
 
 import java.util.*;
 
@@ -464,7 +464,7 @@ public class ConfigfileEvaluator {
 
 			// IntValue iv = (IntValue) o;
 			return IntType.getInstance();
-		} else if (o.getClass().getName().equals("tlc2.value.SetEnumValue")) {
+		} else if (o.getClass().getName().equals("tlc2.value.impl.SetEnumValue")) {
 			SetEnumValue set = (SetEnumValue) o;
 			SetType t = new SetType(new UntypedType());
 			if (set.isEmpty()) {
@@ -474,11 +474,11 @@ public class ConfigfileEvaluator {
 			TLAType elemType;
 
 			if (set.elems.elementAt(0).getClass().getName()
-				.equals("tlc2.value.ModelValue")) {
+				.equals("tlc2.value.impl.ModelValue")) {
 				EnumType e = new EnumType(new ArrayList<>());
 				for (int i = 0; i < set.size(); i++) {
 					if (set.elems.elementAt(i).getClass().getName()
-						.equals("tlc2.value.ModelValue")) {
+						.equals("tlc2.value.impl.ModelValue")) {
 						String mv = set.elems.elementAt(i).toString();
 						if (!enumeratedSet.contains(mv)) {
 							enumeratedSet.add(mv);
@@ -517,7 +517,7 @@ public class ConfigfileEvaluator {
 			t.setSubType(elemType);
 			return t;
 
-		} else if (o.getClass().getName().equals("tlc2.value.ModelValue")) {
+		} else if (o.getClass().getName().equals("tlc2.value.impl.ModelValue")) {
 			ModelValue mv = (ModelValue) o;
 			if (!enumeratedSet.contains(mv.toString())) {
 				enumeratedSet.add(mv.toString());
@@ -530,9 +530,9 @@ public class ConfigfileEvaluator {
 				return enumeratedTypes.get(mv.toString());
 			}
 
-		} else if (o.getClass().getName().equals("tlc2.value.StringValue")) {
+		} else if (o.getClass().getName().equals("tlc2.value.impl.StringValue")) {
 			return StringType.getInstance();
-		} else if (o.getClass().getName().equals("tlc2.value.BoolValue")) {
+		} else if (o.getClass().getName().equals("tlc2.value.impl.BoolValue")) {
 			return BoolType.getInstance();
 		} else {
 			throw new ConfigFileErrorException("Unkown ConstantType: " + o

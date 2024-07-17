@@ -17,10 +17,13 @@ import de.tla2b.types.*;
 import tla2sany.semantic.*;
 import tla2sany.st.Location;
 import tlc2.tool.BuiltInOPs;
-import tlc2.value.*;
+import tlc2.value.ValueConstants;
+import tlc2.value.impl.*;
 
 import java.util.*;
 import java.util.Map.Entry;
+
+import static tlc2.value.ValueConstants.*;
 
 public class BAstCreator extends BuiltInOPs
 	implements TranslationGlobals, ASTConstants, BBuildIns, Priorities, ValueConstants {

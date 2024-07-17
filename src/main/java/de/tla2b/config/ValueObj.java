@@ -1,7 +1,7 @@
 package de.tla2b.config;
 
 import de.tla2b.types.TLAType;
-import tlc2.value.Value;
+import tlc2.value.impl.Value;
 
 public class ValueObj {
 	private Value value;

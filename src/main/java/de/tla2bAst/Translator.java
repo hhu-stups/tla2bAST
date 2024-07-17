@@ -23,7 +23,7 @@ import de.tla2b.util.FileUtils;
 import tla2sany.drivers.SANY;
 import tla2sany.modanalyzer.SpecObj;
 import tla2sany.semantic.ModuleNode;
-import tlc2.tool.ModelConfig;
+import tlc2.tool.impl.ModelConfig;
 import util.ToolIO;
 
 import java.io.*;
