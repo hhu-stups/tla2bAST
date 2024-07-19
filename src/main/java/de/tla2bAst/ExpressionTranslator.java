@@ -151,7 +151,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		try {
 			SANY.frontEndMain(spec, moduleName, ToolIO.out);
 		} catch (FrontEndException e) {
-			// Error in Frontend, should never happens
+			// Error in Frontend, should never happen
 			throw new de.tla2b.exceptions.FrontEndException(
 				"Frontend error! This should never happen.", spec);
 		}
@@ -206,7 +206,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 	}
 
 	private void evalVariables(SpecObj spec, String moduleName) {
-		ParseUnit p = (ParseUnit) spec.parseUnitContext.get(moduleName);
+		ParseUnit p = spec.parseUnitContext.get(moduleName);
 		TreeNode n_module = p.getParseTree();
 		TreeNode n_body = n_module.heirs()[2];
 		TreeNode n_operatorDefintion = n_body.heirs()[0];
@@ -276,7 +276,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 				break;
 			}
 			case
-				N_UnboundQuant: { // TOOD: check: is this an unbounded quantifier with infinite domain or a quantifier that does not hide the quantified variables?
+				N_UnboundQuant: { // TODO: check: is this an unbounded quantifier with infinite domain or a quantifier that does not hide the quantified variables?
 				TreeNode[] children = treeNode.heirs();
 				for (int i = 1; i < children.length - 2; i = i + 2) {
 					// System.out.println("N_UnboundQuant: "+children[i].getImage());

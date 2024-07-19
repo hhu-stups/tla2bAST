@@ -59,7 +59,7 @@ public class Translator implements TranslationGlobals {
 	}
 
 	private void findConfigFile() {
-		String configFileName = FileUtils.removeExtention(moduleFile.getAbsolutePath());
+		String configFileName = FileUtils.removeExtension(moduleFile.getAbsolutePath());
 		configFileName = configFileName + ".cfg";
 		configFile = new File(configFileName);
 		if (!configFile.exists()) {
@@ -235,7 +235,7 @@ public class Translator implements TranslationGlobals {
 	}
 
 	public void createProbFile() {
-		String fileName = FileUtils.removeExtention(moduleFile.getAbsolutePath());
+		String fileName = FileUtils.removeExtension(moduleFile.getAbsolutePath());
 		fileName = fileName + ".prob";
 		File probFile;
 		probFile = new File(fileName);
@@ -252,7 +252,7 @@ public class Translator implements TranslationGlobals {
 			bParser.getDefinitions().addDefinitions(getBDefinitions());
 			final RecursiveMachineLoader rml = parseAllMachines(getBAST(), getModuleFile(), bParser);
 
-			String moduleName = FileUtils.removeExtention(moduleFile.getName());
+			String moduleName = FileUtils.removeExtension(moduleFile.getName());
 			PrologPrinter prologPrinter = new PrologPrinter(rml, bParser, moduleFile, moduleName, typeTable);
 			prologPrinter.setPositions(bAstCreator.getSourcePositions());
 
@@ -268,7 +268,7 @@ public class Translator implements TranslationGlobals {
 	}
 
 	public void createMachineFile() {
-		String bFile = FileUtils.removeExtention(moduleFile.getAbsolutePath());
+		String bFile = FileUtils.removeExtension(moduleFile.getAbsolutePath());
 		bFile = bFile + "_tla.txt";
 
 		File machineFile;

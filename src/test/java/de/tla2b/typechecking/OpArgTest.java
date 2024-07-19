@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 public class OpArgTest {
 
 	@Test
-	public void TestConOverridenByLessOp() throws Exception {
+	public void TestConOverriddenByLessOp() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
 			+ "EXTENDS Naturals \n"
 			+ "CONSTANTS k(_,_), k2 \n"
@@ -21,7 +21,7 @@ public class OpArgTest {
 	}
 
 	@Test(expected = ConfigFileErrorException.class)
-	public void TestOverridenConstantWrongArityException() throws Exception {
+	public void TestOverriddenConstantWrongArityException() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
 			+ "CONSTANTS k(_,_) \n"
 			+ "def == TRUE /\\ FALSE \n"
@@ -31,7 +31,7 @@ public class OpArgTest {
 	}
 
 	@Test(expected = ConfigFileErrorException.class)
-	public void TestOverridenDefWrongArityException() throws Exception {
+	public void TestOverriddenDefWrongArityException() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
 			+ "foo(a, b) == a /\\ b  \n"
 			+ "def == TRUE /\\ FALSE \n"
@@ -42,7 +42,7 @@ public class OpArgTest {
 	}
 
 	@Test
-	public void TestOverridenByDef() throws Exception {
+	public void TestOverriddenByDef() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
 			+ "CONSTANTS k(_,_), k2 \n"
 			+ "def(a,b) == a /\\ b \n"

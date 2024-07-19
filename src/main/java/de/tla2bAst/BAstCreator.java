@@ -23,8 +23,6 @@ import tlc2.value.impl.*;
 import java.util.*;
 import java.util.Map.Entry;
 
-import static tlc2.value.ValueConstants.*;
-
 public class BAstCreator extends BuiltInOPs
 	implements TranslationGlobals, ASTConstants, BBuildIns, Priorities, ValueConstants {
 
@@ -764,7 +762,7 @@ public class BAstCreator extends BuiltInOPs
 		if (BBuiltInOPs.contains(def.getName()) // Operator is a B built-in
 			// operator
 			&& STANDARD_MODULES.contains(def.getSource().getOriginallyDefinedInModuleNode().getName().toString())) {
-			return visitBBuitInsPredicate(n);
+			return visitBBuiltInsPredicate(n);
 		}
 		if (specAnalyser.getRecursiveFunctions().contains(def)) {
 			return new AEqualPredicate(createIdentifierNode(def), new ABooleanTrueExpression());
@@ -804,7 +802,7 @@ public class BAstCreator extends BuiltInOPs
 		// Operator is a B built-in operator
 		if (BBuiltInOPs.contains(def.getName())
 			&& STANDARD_MODULES.contains(def.getSource().getOriginallyDefinedInModuleNode().getName().toString())) {
-			return visitBBuitInsExpression(n);
+			return visitBBuiltInsExpression(n);
 		}
 
 		if (specAnalyser.getRecursiveFunctions().contains(def)) {
@@ -873,7 +871,7 @@ public class BAstCreator extends BuiltInOPs
 
 	}
 
-	private PPredicate visitBBuitInsPredicate(OpApplNode opApplNode) {
+	private PPredicate visitBBuiltInsPredicate(OpApplNode opApplNode) {
 		PPredicate returnNode = null;
 		switch (BBuiltInOPs.getOpcode(opApplNode.getOperator().getName())) {
 			case B_OPCODE_lt: // <
@@ -936,7 +934,7 @@ public class BAstCreator extends BuiltInOPs
 		}
 	}
 
-	private PExpression visitBBuitInsExpression(OpApplNode opApplNode) {
+	private PExpression visitBBuiltInsExpression(OpApplNode opApplNode) {
 		PExpression returnNode = null;
 		switch (BBuiltInOPs.getOpcode(opApplNode.getOperator().getName())) {
 			case B_OPCODE_bool: // BOOLEAN
@@ -1279,7 +1277,7 @@ public class BAstCreator extends BuiltInOPs
 			}
 
 			case 0: {
-				return visitBBuitInsExpression(n);
+				return visitBBuiltInsExpression(n);
 			}
 
 			case OPCODE_setdiff: // set difference
@@ -1335,46 +1333,47 @@ public class BAstCreator extends BuiltInOPs
 					FormalParamNode p = params[0][i];
 					list.add(createIdentifierNode(p));
 				}
-				AComprehensionSetExpression compre = new AComprehensionSetExpression();
-				compre.setIdentifiers(list);
-				PPredicate typing = visitBoundsOfFunctionsVariables(n);
-				AConjunctPredicate conj = new AConjunctPredicate(typing, visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-				compre.setPredicates(conj);
-				return compre;
+				return new AComprehensionSetExpression(
+					list,
+					new AConjunctPredicate(
+						visitBoundsOfFunctionsVariables(n),
+						visitExprOrOpArgNodePredicate(n.getArgs()[0])
+					)
+				);
 			}
 
 			case OPCODE_soa: { // $SetOfAll Represents {e : p1 \in S, p2,p3 \in S2}
 				FormalParamNode[][] params = n.getBdedQuantSymbolLists();
 				List<PExpression> idList = createListOfIdentifier(params);
 				List<PPredicate> predList = new ArrayList<>();
-
 				predList.add(visitBoundsOfLocalVariables(n));
-				final String nameOfTempVariable = "t_";
-				AEqualPredicate equals = new AEqualPredicate();
-				equals.setLeft(createIdentifierNode(nameOfTempVariable));
-				equals.setRight(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
+
+				// currently not used:
+				/* final String nameOfTempVariable = "t_";
+
+				AEqualPredicate equals = new AEqualPredicate(
+					createIdentifierNode(nameOfTempVariable),
+					visitExprOrOpArgNodeExpression(n.getArgs()[0])
+				);
 				// predList.add(equals);
-				AExistsPredicate exist = new AExistsPredicate();
-				exist.setIdentifiers(idList);
-				exist.setPredicate(createConjunction(predList));
+				AExistsPredicate exist = new AExistsPredicate(
+					idList,
+					createConjunction(predList)
+				);
 
 				AComprehensionSetExpression compre = new AComprehensionSetExpression();
 				List<PExpression> tList = new ArrayList<>();
 				tList.add(createIdentifierNode(nameOfTempVariable));
 				compre.setIdentifiers(tList);
-				compre.setPredicates(exist);
+				compre.setPredicates(exist);*/
 
 				// UNION(p1,p2,p3).(P | {e})
-				AQuantifiedUnionExpression union = new AQuantifiedUnionExpression();
-				union.setIdentifiers(idList);
-				union.setPredicates(createConjunction(predList));
-				ASetExtensionExpression set = new ASetExtensionExpression();
-				List<PExpression> list = new ArrayList<>();
-				list.add(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
-				set.setExpressions(list);
-				union.setExpression(set);
-
-				return union;
+				return new AQuantifiedUnionExpression(
+					idList,
+					createConjunction(predList),
+					new ASetExtensionExpression(
+						Collections.singletonList(visitExprOrOpArgNodeExpression(n.getArgs()[0])))
+				);
 			}
 
 			case OPCODE_nrfs:
@@ -2188,7 +2187,7 @@ public class BAstCreator extends BuiltInOPs
 				break;
 			}
 			case 0:
-				return visitBBuitInsPredicate(n);
+				return visitBBuiltInsPredicate(n);
 			default:
 				throw new NotImplementedException(n.getOperator().getName().toString());
 		}

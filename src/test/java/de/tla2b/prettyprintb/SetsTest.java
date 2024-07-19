@@ -104,7 +104,7 @@ public class SetsTest {
 	 * Subseteq: subset or equal
 	 */
 	@Test
-	public void testSubsteq() throws Exception {
+	public void testSubseteq() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
 			+ "ASSUME TRUE = ({1} \\subseteq {1,2}) \n"
 			+ "=================================";

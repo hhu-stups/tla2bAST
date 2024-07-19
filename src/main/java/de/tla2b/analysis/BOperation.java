@@ -80,7 +80,6 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 		AAssignSubstitution assign = new AAssignSubstitution();
 		if (!anyVariables.isEmpty()) { // ANY x_n WHERE P THEN A END
 			AAnySubstitution any = new AAnySubstitution();
-			any = new AAnySubstitution();
 			List<PExpression> anyParams = new ArrayList<>();
 			for (OpDeclNode var : anyVariables) {
 				String varName = var.getName().toString();
@@ -290,10 +289,10 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 
 	private void findUnchangedVariables() {
 		unchangedVariables = new ArrayList<>();
-		findUnchangedVaribalesInSemanticNode(node);
+		findUnchangedVariablesInSemanticNode(node);
 	}
 
-	private void findUnchangedVaribalesInSemanticNode(SemanticNode node) {
+	private void findUnchangedVariablesInSemanticNode(SemanticNode node) {
 		switch (node.getKind()) {
 			case OpApplKind: {
 				findUnchangedVariablesInOpApplNode((OpApplNode) node);
@@ -301,13 +300,13 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 			}
 			case LetInKind: {
 				LetInNode letNode = (LetInNode) node;
-				findUnchangedVaribalesInSemanticNode(letNode.getBody());
+				findUnchangedVariablesInSemanticNode(letNode.getBody());
 				return;
 			}
 
 			case SubstInKind: {
 				SubstInNode substInNode = (SubstInNode) node;
-				findUnchangedVaribalesInSemanticNode(substInNode.getBody());
+				findUnchangedVariablesInSemanticNode(substInNode.getBody());
 			}
 		}
 	}
@@ -318,14 +317,14 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 		if (kind == UserDefinedOpKind
 			&& !BBuiltInOPs.contains(n.getOperator().getName())) {
 			OpDefNode def = (OpDefNode) n.getOperator();
-			findUnchangedVaribalesInSemanticNode(def.getBody());
+			findUnchangedVariablesInSemanticNode(def.getBody());
 		} else if (kind == BuiltInKind) {
 			int opcode = BuiltInOPs.getOpCode(n.getOperator().getName());
 			switch (opcode) {
 				case OPCODE_land: // \land
 				case OPCODE_cl: { // $ConjList
 					for (int i = 0; i < n.getArgs().length; i++) {
-						findUnchangedVaribalesInSemanticNode(n.getArgs()[i]);
+						findUnchangedVariablesInSemanticNode(n.getArgs()[i]);
 					}
 					return;
 				}

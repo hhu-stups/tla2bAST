@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import static de.tla2b.util.TestUtil.compare;
 
-public class ExternelFunctionsTest {
+public class ExternalFunctionsTest {
 
 
 	@Test

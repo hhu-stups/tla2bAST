@@ -61,7 +61,7 @@ public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
 				return;
 			}
 			case SubstInKind: {
-				visitStubstInNode((SubstInNode) node);
+				visitSubstInNode((SubstInNode) node);
 				return;
 			}
 			case AtNodeKind: { // @
@@ -150,7 +150,7 @@ public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
 	public void visitAtNode(AtNode n) {
 	}
 
-	public void visitStubstInNode(SubstInNode n) {
+	public void visitSubstInNode(SubstInNode n) {
 		visitExprNode(n.getBody());
 	}
 

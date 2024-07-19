@@ -23,7 +23,7 @@ public class ConfigfileEvaluator {
 	private ModelConfig configAst;
 	private ModuleNode moduleNode;
 	private Hashtable<String, OpDefNode> definitions;
-	// Hashtable of all definitons in module
+	// Hashtable of all definitions in module
 	private Hashtable<String, OpDeclNode> constants;
 	// Hashtable of all constants in the module
 
@@ -45,7 +45,7 @@ public class ConfigfileEvaluator {
 	// List of constants in the resulting B machine. This list does not contain
 	// a TLA+ constant if the constant is substituted by a modelvalue with the
 	// same name (the constant name is moved to an enumerated set) or if the
-	// constants has arguments and is overriden by an operator
+	// constants has arguments and is overridden by an operator
 	public Hashtable<OpDefNode, OpDefNode> operatorOverrideTable;
 	// This table contains mappings for operators which are overridden in the
 	// configuration file
@@ -125,7 +125,7 @@ public class ConfigfileEvaluator {
 			} else {
 				throw new ConfigFileErrorException(
 					"Invalid declaration of the next state predicate."
-						+ " Module does not contain the defintion '"
+						+ " Module does not contain the definition '"
 						+ next + "'");
 			}
 		} else
@@ -141,7 +141,7 @@ public class ConfigfileEvaluator {
 			} else {
 				throw new ConfigFileErrorException(
 					"Invalid declaration of the initialisation predicate."
-						+ " Module does not contain the defintion '"
+						+ " Module does not contain the definition '"
 						+ init + "'");
 			}
 		} else {
@@ -158,7 +158,7 @@ public class ConfigfileEvaluator {
 			} else {
 				throw new ConfigFileErrorException(
 					"Invalid declaration of the specification predicate."
-						+ "Module does not contain the defintion '"
+						+ "Module does not contain the definition '"
 						+ spec + "'");
 			}
 		} else
@@ -185,12 +185,10 @@ public class ConfigfileEvaluator {
 	}
 
 	/**
-	 * Represents a override statement in the configuration file: k &lt;- def
+	 * Represents an override statement in the configuration file: k &lt;- def
 	 */
-	@SuppressWarnings("unchecked")
 	private void evalConstantOrDefOverrides() throws ConfigFileErrorException {
-		for (Map.Entry<String, String> entry : (Iterable<Map.Entry<String, String>>) configAst.getOverrides()
-			.entrySet()) {
+		for (Map.Entry<String, String> entry : configAst.getOverrides().entrySet()) {
 			String left = entry.getKey();
 			String right = entry.getValue();
 
@@ -228,9 +226,7 @@ public class ConfigfileEvaluator {
 
 				operatorOverrideTable.put(defNode, rightDefNode);
 			} else {
-				// every constants in the configuration file must appear in the
-				// TLA+
-				// module
+				// every constant in the configuration file must appear in the TLA+ module
 				throw new ConfigFileErrorException(
 					"Module does not contain the symbol: " + left);
 			}
@@ -275,9 +271,7 @@ public class ConfigfileEvaluator {
 				}
 
 			} else {
-				// every constants or operator in the configuration file must
-				// appear in the TLA+
-				// module
+				// every constant or operator in the configuration file must appear in the TLA+ module
 				throw new ConfigFileErrorException(
 					"Module does not contain the symbol: " + symbolName);
 			}
@@ -378,13 +372,13 @@ public class ConfigfileEvaluator {
 						// if (instanceNodes[i].getModule().getName().toString()
 						// .equals(moduleName)) {
 						// /*
-						// * A constant overridden in a instanced module make
-						// * no sence. Such a constant will be overridden by
+						// * A constant overridden in an instanced module make
+						// * no sense. Such a constant will be overridden by
 						// * the instance statement
 						// */
 						// throw new ConfigFileErrorException(
 						// String.format(
-						// "Invalid substitution for constant '%s' of module '%s'.%n A Constant of an instanced module can not be overriden.",
+						// "Invalid substitution for constant '%s' of module '%s'.%n A Constant of an instanced module can not be overridden.",
 						// left, mNode.getName().toString()));
 						// }
 					}
@@ -411,7 +405,6 @@ public class ConfigfileEvaluator {
 		/*
 		 * Search module in extended modules
 		 */
-		@SuppressWarnings("unchecked")
 		HashSet<ModuleNode> extendedModules = moduleNode.getExtendedModuleSet();
 		for (ModuleNode m : extendedModules) {
 			if (m.getName().toString().equals(moduleName)) {
@@ -535,7 +528,7 @@ public class ConfigfileEvaluator {
 		} else if (o.getClass().getName().equals("tlc2.value.impl.BoolValue")) {
 			return BoolType.getInstance();
 		} else {
-			throw new ConfigFileErrorException("Unkown ConstantType: " + o
+			throw new ConfigFileErrorException("Unknown ConstantType: " + o
 				+ " " + o.getClass());
 		}
 	}

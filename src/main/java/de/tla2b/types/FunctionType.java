@@ -142,8 +142,8 @@ public class FunctionType extends AbstractHasFollowers {
 			range.getBNode());
 	}
 
-	public void apply(TypeVisitorInterface vistor) {
-		vistor.caseFunctionType(this);
+	public void apply(TypeVisitorInterface visitor) {
+		visitor.caseFunctionType(this);
 	}
 
 }

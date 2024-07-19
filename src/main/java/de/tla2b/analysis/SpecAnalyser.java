@@ -29,7 +29,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 	private ExprNode nextExpr;
 
 	private ArrayList<OpDeclNode> bConstants;
-	// used to check if a b constant has arguments and is not overriden in the
+	// used to check if a b constant has arguments and is not overridden in the
 	// configfile
 
 	private ArrayList<BOperation> bOperations = new ArrayList<>();
@@ -40,7 +40,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 	private Set<OpDefNode> usedDefinitions = new HashSet<>();
 	// definitions which are used for the type inference algorithm
 	private final Hashtable<OpDefNode, FormalParamNode[]> letParams = new Hashtable<>();
-	// additional parameters of an let Operator, these parameters are from the
+	// additional parameters of a let Operator, these parameters are from the
 	// surrounding operator
 	private final ArrayList<String> definitionMacros = new ArrayList<>();
 
@@ -199,7 +199,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		// usedDefinitions.addAll(bDefinitionsSet);
 
 		DebugMsg("Computing variable declarations");
-		// test whether there is a init predicate if there is a variable
+		// test whether there is an init predicate if there is a variable
 		if (moduleNode.getVariableDecls().length > 0 && inits == null) {
 			throw new SemanticErrorException("No initial predicate is defined.");
 		}
@@ -208,7 +208,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		for (OpDeclNode con : bConstants) {
 			if (con.getArity() > 0) {
 				throw new ConfigFileErrorException(
-					String.format("Constant '%s' must be overriden in the configuration file.", con.getName()));
+					String.format("Constant '%s' must be overridden in the configuration file.", con.getName()));
 			}
 		}
 		findRecursiveConstructs();
