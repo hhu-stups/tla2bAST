@@ -30,7 +30,7 @@ def parser_version = '2.13.2'
 
 dependencies {
 	implementation(group: 'commons-cli', name: 'commons-cli', version: '1.7.0')
-	api(group: 'de.hhu.stups', name: 'tlatools', version: '1.0.3-SNAPSHOT')
+	api(group: 'de.hhu.stups', name: 'tlatools', version: '1.1.0-SNAPSHOT')
 	api(group: 'de.hhu.stups', name: 'prologlib', version: parser_version)
 	api(group: 'de.hhu.stups', name: 'bparser', version: parser_version)
 
