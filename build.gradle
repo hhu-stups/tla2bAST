@@ -8,7 +8,7 @@ plugins {
 	id "com.github.johnrengelman.shadow" version "8.1.1"
 }
 
-project.version = '1.3.1-SNAPSHOT'
+project.version = '1.4.0-SNAPSHOT'
 project.group = 'de.hhu.stups'
 final isSnapshot = project.version.endsWith("-SNAPSHOT")
 
