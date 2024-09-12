@@ -10,6 +10,7 @@ import de.tla2b.global.TranslationGlobals;
 import de.tla2b.translation.BDefinitionsFinder;
 import de.tla2b.translation.OperationsFinder;
 import de.tla2b.translation.UsedDefinitionsFinder;
+import de.tla2b.util.DebugUtils;
 import tla2sany.semantic.*;
 import tlc2.tool.BuiltInOPs;
 import tlc2.tool.ToolGlobals;
@@ -143,6 +144,8 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		} else if (definitions.containsKey("IndInv")) {
 			specAnalyser.invariants.add(definitions.get("IndInv"));
 			ClausefDetected("IndInv", "INVARIANTS");
+		} else {
+		    System.out.println("No default Invariant detected");
 		}
 		// TODO are constant in the right order
 
@@ -152,13 +155,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 	}
 
 	public static void ClausefDetected(String Name, String Clause) {
-		// TODO: use -verbose OPTION from command line
-		System.out.println("Detected TLA+ Default Definition " + Name + " for Clause: " + Clause);
-	}
-
-	public static void DebugMsg(String Msg) {
-		// TODO: use -verbose OPTION from command line
-		System.out.println(Msg);
+		DebugUtils.printMsg("Detected TLA+ Default Definition " + Name + " for Clause: " + Clause);
 	}
 
 	public void start()
@@ -180,17 +177,17 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 				if (opDefNode.getKind() == UserDefinedOpKind && !BBuiltInOPs.contains(opDefNode.getName())) {
 					int i = invariants.indexOf(inv);
 					invariants.set(i, opDefNode);
-					DebugMsg("Adding invariant " + i);
+					DebugUtils.printDebugMsg("Adding invariant " + i);
 				}
 			} catch (ClassCastException e) {
 			}
 		}
 
-		DebugMsg("Detecting OPERATIONS from disjunctions");
+		DebugUtils.printDebugMsg("Detecting OPERATIONS from disjunctions");
 		OperationsFinder operationsFinder = new OperationsFinder(this);
 		bOperations = operationsFinder.getBOperations();
 
-		DebugMsg("Finding used definitions");
+		DebugUtils.printDebugMsg("Finding used definitions");
 		UsedDefinitionsFinder definitionFinder = new UsedDefinitionsFinder(this);
 		this.usedDefinitions = definitionFinder.getUsedDefinitions();
 
@@ -198,7 +195,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		this.bDefinitionsSet = bDefinitionFinder.getBDefinitionsSet();
 		// usedDefinitions.addAll(bDefinitionsSet);
 
-		DebugMsg("Computing variable declarations");
+		DebugUtils.printDebugMsg("Computing variable declarations");
 		// test whether there is an init predicate if there is a variable
 		if (moduleNode.getVariableDecls().length > 0 && inits == null) {
 			throw new SemanticErrorException("No initial predicate is defined.");
@@ -216,11 +213,11 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		for (OpDeclNode var : moduleNode.getVariableDecls()) {
 			namingHashTable.put(var.getName().toString(), var);
 		}
-		DebugMsg("Number of variables detected: " + moduleNode.getVariableDecls().length);
+		DebugUtils.printMsg("Number of variables detected: " + moduleNode.getVariableDecls().length);
 		for (OpDeclNode con : moduleNode.getConstantDecls()) {
 			namingHashTable.put(con.getName().toString(), con);
 		}
-		DebugMsg("Number of constants detected: " + moduleNode.getConstantDecls().length);
+		DebugUtils.printMsg("Number of constants detected: " + moduleNode.getConstantDecls().length);
 		for (OpDefNode def : usedDefinitions) {
 			namingHashTable.put(def.getName().toString(), def);
 		}
@@ -229,21 +226,21 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 
 	private void evalInit() {
 		if (init != null) {
-			System.out.println("Using TLA+ Init definition to determine B INITIALISATION");
+			DebugUtils.printMsg("Using TLA+ Init definition to determine B INITIALISATION");
 			inits.add(init.getBody());
 		}
 	}
 
 	private void evalNext() {
 		if (next != null) {
-			System.out.println("Using TLA+ Next definition to determine B OPERATIONS");
+			DebugUtils.printMsg("Using TLA+ Next definition to determine B OPERATIONS");
 			this.nextExpr = next.getBody();
 		}
 	}
 
 	public void evalSpec() throws SemanticErrorException {
 		if (spec != null) {
-			System.out.println("Using TLA+ Spec to determine B INITIALISATION and OPERATIONS");
+			DebugUtils.printMsg("Using TLA+ Spec to determine B INITIALISATION and OPERATIONS");
 			processConfigSpec(spec.getBody());
 		}
 
