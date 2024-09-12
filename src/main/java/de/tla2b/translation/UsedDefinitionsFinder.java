@@ -5,6 +5,7 @@ import de.tla2b.analysis.AbstractASTVisitor;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.global.TranslationGlobals;
+import de.tla2b.util.DebugUtils;
 import tla2sany.semantic.ASTConstants;
 import tla2sany.semantic.ModuleNode;
 import tla2sany.semantic.OpApplNode;
@@ -60,7 +61,9 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor implements ASTCons
 		for (OpDefNode opDef : specAnalyser.getModuleNode().getOpDefs()) {
 			String defName = opDef.getName().toString();
 			// GOAL, ANIMATION_FUNCTION, ANIMATION_IMGxx, SET_PREF_xxx, etc.
+			// DebugUtils.printDebugMsg("Checking definition: " + defName);
 			if (Utils.isProBSpecialDefinitionName(defName)) {
+			    DebugUtils.printMsg("ProB special definition: " + defName);
 				usedDefinitions.add(opDef);
 			}
 		}

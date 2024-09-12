@@ -7,6 +7,11 @@ public class DebugUtils {
 		debugOn = newDebugOn;
 	}
 
+	public static void printVeryVerboseMsg(String Msg) {
+	    // TODO: turn on using -vv flag
+		// System.out.println(Msg);
+	}
+
 	public static void printDebugMsg(String Msg) {
 		if(debugOn) {
 		   System.out.println(Msg);
