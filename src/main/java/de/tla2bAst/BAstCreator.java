@@ -210,7 +210,7 @@ public class BAstCreator extends BuiltInOPs
 				d.setName(new TDefLiteralPredicate(getName(opDefNode)));
 				d.setParameters(list);
 				d.setRhs(visitExprNodePredicate(opDefNode.getBody()));
-				defs.add(d);
+				defs.add(createPositionedNode(d,opDefNode));
 			} else {
 				AExpressionDefinitionDefinition d = new AExpressionDefinitionDefinition();
 				d.setName(new TIdentifierLiteral(getName(opDefNode)));
@@ -219,7 +219,7 @@ public class BAstCreator extends BuiltInOPs
 
 				d.setParameters(list);
 				d.setRhs(visitExprNodeExpression(opDefNode.getBody()));
-				defs.add(d);
+				defs.add(createPositionedNode(d,opDefNode));
 			}
 
 		}
