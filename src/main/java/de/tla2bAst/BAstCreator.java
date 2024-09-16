@@ -214,6 +214,8 @@ public class BAstCreator extends BuiltInOPs
 			} else {
 				AExpressionDefinitionDefinition d = new AExpressionDefinitionDefinition();
 				d.setName(new TIdentifierLiteral(getName(opDefNode)));
+				// System.out.println("Creating Expression DEFINITION " + getName(opDefNode));
+				// TODO: these definitions have no position info in the definition_decl term nor at the top-level body
 
 				d.setParameters(list);
 				d.setRhs(visitExprNodeExpression(opDefNode.getBody()));
