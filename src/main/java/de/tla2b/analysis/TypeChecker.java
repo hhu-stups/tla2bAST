@@ -74,17 +74,23 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 					((AbstractHasFollowers) t).addFollower(con);
 				}
 			} else {
-				UntypedType u = new UntypedType();
-				con.setToolObject(TYPE_ID, u);
-				u.addFollower(con);
+				// if constant already has a type: keep type; otherwise add an untyped type
+				if (con.getToolObject(TYPE_ID) == null) {
+					UntypedType u = new UntypedType();
+					con.setToolObject(TYPE_ID, u);
+					u.addFollower(con);
+				}
 			}
 		}
 
 		OpDeclNode[] vars = moduleNode.getVariableDecls();
 		for (OpDeclNode var : vars) {
-			UntypedType u = new UntypedType();
-			var.setToolObject(TYPE_ID, u);
-			u.addFollower(var);
+			// if variable already has a type: keep type; otherwise add an untyped type
+			if (var.getToolObject(TYPE_ID) == null) {
+				UntypedType u = new UntypedType();
+				var.setToolObject(TYPE_ID, u);
+				u.addFollower(var);
+			}
 		}
 
 		evalDefinitions(moduleNode.getOpDefs());
@@ -312,7 +318,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 
 				TLAType c = (TLAType) con.getToolObject(TYPE_ID);
 				if (c == null) {
-					throw new RuntimeException(con.getName() + " has no type yet!");
+					throw new TypeErrorException(con.getName() + " has no type yet!");
 				}
 				try {
 					TLAType result = expected.unify(c);
@@ -335,7 +341,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 						// symbolNode is variable of an expression, e.g. v + 1
 						v = (TLAType) var.getToolObject(TYPE_ID);
 					} else {
-						throw new RuntimeException(vName + " has no type yet!");
+						throw new TypeErrorException(vName + " has no type yet!");
 					}
 				}
 				try {

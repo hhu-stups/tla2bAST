@@ -6,6 +6,7 @@ import de.tla2b.analysis.SymbolRenamer;
 import de.tla2b.analysis.TypeChecker;
 import de.tla2b.exceptions.ExpressionTranslationException;
 import de.tla2b.exceptions.TLA2BException;
+import de.tla2b.exceptions.TypeErrorException;
 import tla2sany.drivers.FrontEndException;
 import tla2sany.drivers.InitException;
 import tla2sany.drivers.SANY;
@@ -56,9 +57,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		String module;
 		try {
 			tempFile = File.createTempFile("Testing", ".tla");
-
-			moduleName = tempFile.getName().substring(0,
-				tempFile.getName().indexOf("."));
+			moduleName = tempFile.getName().substring(0,tempFile.getName().indexOf("."));
 
 			module = "----MODULE " + moduleName + " ----\n" + "Expression == "
 				+ tlaExpression + "\n====";
@@ -113,11 +112,26 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 	}
 
 	public Start translateIncludingModel() throws TLA2BException {
-		SpecAnalyser specAnalyser = SpecAnalyser
-			.createSpecAnalyserForTlaExpression(moduleNode);
+		SpecAnalyser specAnalyser = SpecAnalyser.createSpecAnalyserForTlaExpression(moduleNode);
 		TypeChecker tc = translator.getTypeChecker();
-		tc.visitOpDefNode(specAnalyser.getExpressionOpdefNode());
+		try {
+			// here we add typing for known identifiers from the module
+			tc.visitOpDefNode(specAnalyser.getExpressionOpdefNode());
+		} catch (TypeErrorException e) {
+			// ignore type errors; new free variables will always throw an exception here
+			// (they have no type, which is correct as they are not part of the module);
+			// real type errors are checked below
+		}
 
+		TypeChecker tc2 = new TypeChecker(moduleNode, specAnalyser);
+		try {
+			// here we add the typing for new variables
+			// the types of module variables are also checked
+			tc2.start();
+		} catch (TypeErrorException e) {
+			String message = "****TypeError****\n" + e.getLocalizedMessage() + "\n" + expr + "\n";
+			throw new ExpressionTranslationException(message);
+		}
 		SymbolRenamer symRenamer = new SymbolRenamer(moduleNode, specAnalyser);
 		symRenamer.start();
 		BAstCreator bASTCreator = new BAstCreator(moduleNode, specAnalyser);

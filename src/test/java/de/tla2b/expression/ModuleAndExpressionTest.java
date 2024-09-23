@@ -1,6 +1,6 @@
 package de.tla2b.expression;
 
-import de.tla2b.exceptions.TypeErrorException;
+import de.tla2b.exceptions.ExpressionTranslationException;
 import org.junit.Test;
 
 import static de.tla2b.util.TestUtil.compareExprIncludingModel;
@@ -16,7 +16,7 @@ public class ModuleAndExpressionTest {
 		compareExprIncludingModel("k = 1", "k = 1", module);
 	}
 
-	@Test(expected = TypeErrorException.class)
+	@Test(expected = ExpressionTranslationException.class)
 	public void testTypeError() throws Exception {
 		String module = "---- MODULE Testing ----\n"
 			+ "CONSTANTS k \n"
