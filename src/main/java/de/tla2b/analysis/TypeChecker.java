@@ -321,7 +321,6 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 				} catch (UnificationException e) {
 					throw new TypeErrorException(String.format("Expected %s, found %s at constant '%s',%n%s", expected, c,
 						con.getName(), n.getLocation())
-
 					);
 				}
 			}

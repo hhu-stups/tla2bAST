@@ -321,17 +321,16 @@ public class Translator implements TranslationGlobals {
 		return rml;
 	}
 
-	public Start translateExpression(String tlaExpression) throws TLA2BException {
+	public Start translateExpressionIncludingModel(String tlaExpression) throws TLA2BException {
 		ExpressionTranslator expressionTranslator = new ExpressionTranslator(tlaExpression, this);
 		expressionTranslator.parse();
 		return expressionTranslator.translateIncludingModel();
 	}
 
-	public static Start translateTlaExpression(String tlaExpression) {
+	public static Start translateExpressionWithoutModel(String tlaExpression) {
 		ExpressionTranslator expressionTranslator = new ExpressionTranslator(tlaExpression);
 		expressionTranslator.parse();
-		expressionTranslator.translate();
-		return expressionTranslator.getBExpressionParseUnit();
+		return expressionTranslator.translateWithoutModel();
 	}
 
 	public Definitions getBDefinitions() {

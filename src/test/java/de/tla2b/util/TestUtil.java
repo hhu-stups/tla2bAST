@@ -67,7 +67,7 @@ public class TestUtil {
 	public static void compareExpr(String bExpr, String tlaExpr) throws BCompoundException {
 		ToolIO.setMode(ToolIO.TOOL);
 		ToolIO.reset();
-		Start resultNode = Translator.translateTlaExpression(tlaExpr);
+		Start resultNode = Translator.translateExpressionWithoutModel(tlaExpr);
 		PrettyPrinter pp = new PrettyPrinter();
 		pp.setRenaming(new SuffixIdentifierRenaming());
 		resultNode.apply(pp);
@@ -80,7 +80,7 @@ public class TestUtil {
 	public static void compareExprIncludingModel(String bExpr, String tlaExpr, String moduleString) throws BCompoundException, TLA2BException {
 		Translator trans = new Translator(moduleString, null);
 		trans.translate();
-		Start resultNode = trans.translateExpression(tlaExpr);
+		Start resultNode = trans.translateExpressionIncludingModel(tlaExpr);
 		PrettyPrinter pp = new PrettyPrinter();
 		pp.setRenaming(new SuffixIdentifierRenaming());
 		resultNode.apply(pp);

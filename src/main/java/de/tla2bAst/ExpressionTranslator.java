@@ -126,15 +126,14 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		return this.expressionStart;
 	}
 
-	public Start translate() {
-		SpecAnalyser specAnalyser = SpecAnalyser
-			.createSpecAnalyserForTlaExpression(moduleNode);
+	public Start translateWithoutModel() {
+		SpecAnalyser specAnalyser = SpecAnalyser.createSpecAnalyserForTlaExpression(moduleNode);
 		TypeChecker tc = new TypeChecker(moduleNode, specAnalyser);
 		try {
 			tc.start();
 		} catch (TLA2BException e) {
 			String message = "****TypeError****\n" + e.getLocalizedMessage()
-				+ "\n" + expr + "\n";
+					+ "\n" + expr + "\n";
 			throw new ExpressionTranslationException(message);
 		}
 		SymbolRenamer symRenamer = new SymbolRenamer(moduleNode, specAnalyser);
