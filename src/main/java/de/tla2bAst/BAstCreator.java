@@ -292,11 +292,10 @@ public class BAstCreator extends BuiltInOPs
 
 		List<POperation> opList = new ArrayList<>();
 		for (BOperation op : bOperations) {
-			opList.add(op.getBOperation(this));
+			opList.add(createPositionedNode(op.getBOperation(this), op.getNode()));
 		}
 
-		AOperationsMachineClause opClause = new AOperationsMachineClause(opList);
-		machineClauseList.add(opClause);
+		machineClauseList.add(new AOperationsMachineClause(opList));
 	}
 
 	private void createInitClause() {

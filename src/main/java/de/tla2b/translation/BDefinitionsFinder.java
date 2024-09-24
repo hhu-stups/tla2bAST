@@ -10,6 +10,7 @@ import tlc2.tool.ToolGlobals;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class BDefinitionsFinder extends AbstractASTVisitor implements ASTConstants, ToolGlobals, TranslationGlobals {
@@ -23,8 +24,7 @@ public class BDefinitionsFinder extends AbstractASTVisitor implements ASTConstan
 
 		for (BOperation op : specAnalyser.getBOperations()) {
 			visitExprNode(op.getNode());
-			ArrayList<OpApplNode> existQuans = op.getExistQuans();
-			for (OpApplNode opApplNode : existQuans) {
+			for (OpApplNode opApplNode : op.getExistQuans()) {
 				ExprNode[] bdedQuantBounds = opApplNode.getBdedQuantBounds();
 				for (ExprNode exprNode : bdedQuantBounds) {
 					visitExprNode(exprNode);

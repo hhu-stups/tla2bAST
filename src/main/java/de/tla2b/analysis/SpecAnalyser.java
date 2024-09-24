@@ -184,8 +184,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		}
 
 		DebugUtils.printDebugMsg("Detecting OPERATIONS from disjunctions");
-		OperationsFinder operationsFinder = new OperationsFinder(this);
-		bOperations = operationsFinder.getBOperations();
+		bOperations = new OperationsFinder(this).getBOperations();
 
 		DebugUtils.printDebugMsg("Finding used definitions");
 		UsedDefinitionsFinder definitionFinder = new UsedDefinitionsFinder(this);

@@ -69,9 +69,7 @@ public class OperationsFinder extends AbstractASTVisitor implements
 	public void visitUserDefinedNode(OpApplNode n) {
 		OpDefNode def = (OpDefNode) n.getOperator();
 		if (BBuiltInOPs.contains(def.getName())) {
-			BOperation op = new BOperation(def.getName().toString(), n, exists,
-				specAnalyser);
-			bOperations.add(op);
+			bOperations.add(new BOperation(def.getName().toString(), n, exists, specAnalyser));
 			return;
 		}
 
@@ -139,8 +137,7 @@ public class OperationsFinder extends AbstractASTVisitor implements
 			case OPCODE_ite: // IF THEN ELSE
 			case OPCODE_case: {
 				// no further decomposing: create a B operation
-				BOperation op = new BOperation(currentName, n, exists, specAnalyser);
-				bOperations.add(op);
+				bOperations.add(new BOperation(currentName, n, exists, specAnalyser));
 				return;
 			}
 
@@ -149,8 +146,7 @@ public class OperationsFinder extends AbstractASTVisitor implements
 
 		if (opname == BBuildIns.OP_false ||  // FALSE: always disabled
 			opname == BBuildIns.OP_true) {  // TRUE: CHAOS
-			BOperation op = new BOperation(currentName, n, exists, specAnalyser);
-			bOperations.add(op);
+			bOperations.add(new BOperation(currentName, n, exists, specAnalyser));
 			return;
 		}
 		throw new RuntimeException(String.format(
