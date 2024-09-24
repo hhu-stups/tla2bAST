@@ -1144,8 +1144,7 @@ public class BAstCreator extends BuiltInOPs
 			case B_OPCODE_setsum: {
 				AGeneralSumExpression sum = new AGeneralSumExpression();
 				String variableName = "t_"; // TODO unused identifier name
-				List<PExpression> exprList = createPexpressionList(createIdentifierNode(variableName));
-				sum.setIdentifiers(exprList);
+				sum.setIdentifiers(Collections.singletonList(createIdentifierNode(variableName)));
 				AMemberPredicate memberPredicate = new AMemberPredicate();
 				memberPredicate.setLeft(createIdentifierNode(variableName));
 				memberPredicate.setRight(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
@@ -1166,20 +1165,16 @@ public class BAstCreator extends BuiltInOPs
 
 	private <T extends PositionedNode> T createPositionedNode(T positionedNode, SemanticNode semanticNode) {
 		Location location = semanticNode.getTreeNode().getLocation();
-		SourcePosition startPos = new SourcePosition(location.beginLine(), location.beginColumn());
-		SourcePosition endPos = new SourcePosition(location.endLine(), location.endColumn());
-		positionedNode.setStartPos(startPos);
-		positionedNode.setEndPos(endPos);
+		positionedNode.setStartPos(new SourcePosition(location.beginLine(), location.beginColumn()));
+		positionedNode.setEndPos(new SourcePosition(location.endLine(), location.endColumn()));
 		sourcePosition.add(positionedNode);
 		return positionedNode;
 	}
 
 	private void setPosition(PositionedNode positionNode, OpApplNode opApplNode) {
 		Location location = opApplNode.getTreeNode().getLocation();
-		SourcePosition startPos = new SourcePosition(location.beginLine(), location.beginColumn());
-		SourcePosition endPos = new SourcePosition(location.endLine(), location.endColumn());
-		positionNode.setStartPos(startPos);
-		positionNode.setEndPos(endPos);
+		positionNode.setStartPos(new SourcePosition(location.beginLine(), location.beginColumn()));
+		positionNode.setEndPos(new SourcePosition(location.endLine(), location.endColumn()));
 		sourcePosition.add(positionNode);
 	}
 
@@ -1570,18 +1565,12 @@ public class BAstCreator extends BuiltInOPs
 					List<PRecEntry> recList = new ArrayList<>();
 					for (int i = 0; i < struct.getFields().size(); i++) {
 						String fieldName = struct.getFields().get(i);
-						AIdentifierExpression field = createIdentifierNode(fieldName);
 						ARecEntry rec = new ARecEntry();
-						rec.setIdentifier(field);
+						rec.setIdentifier(createIdentifierNode(fieldName));
 						if (pairTable.containsKey(fieldName)) {
-
-							ACoupleExpression couple = new ACoupleExpression();
-							List<PExpression> coupleList = new ArrayList<>();
-							coupleList.add(new ABooleanTrueExpression());
-							coupleList.add(pairTable.get(fieldName));
-							couple.setList(coupleList);
-							ASetExtensionExpression set = new ASetExtensionExpression(createPexpressionList(couple));
-							rec.setValue(set);
+							ACoupleExpression couple = new ACoupleExpression(Arrays.asList(
+									new ABooleanTrueExpression(), pairTable.get(fieldName)));
+							rec.setValue(new ASetExtensionExpression(Collections.singletonList(couple)));
 						} else {
 							AEmptySetExpression emptySet = new AEmptySetExpression();
 							rec.setValue(emptySet);
@@ -1626,7 +1615,7 @@ public class BAstCreator extends BuiltInOPs
 					rcdSelect.setIdentifier(createIdentifierNode(stringNode.getRep().toString()));
 					AFunctionExpression funcCall = new AFunctionExpression();
 					funcCall.setIdentifier(rcdSelect);
-					funcCall.setParameters(createPexpressionList(new ABooleanTrueExpression()));
+					funcCall.setParameters(Collections.singletonList(new ABooleanTrueExpression()));
 					return funcCall;
 				} else {
 					ARecordFieldExpression rcdSelect = new ARecordFieldExpression();
@@ -2226,36 +2215,31 @@ public class BAstCreator extends BuiltInOPs
 				if (params[i].length == 1) {
 					// one-tuple is handled is translated as a sequence
 					FormalParamNode param = params[i][0];
-					AMemberPredicate member = new AMemberPredicate();
-					ASequenceExtensionExpression seq = new ASequenceExtensionExpression();
-					List<PExpression> list = new ArrayList<>();
-					list.add(createIdentifierNode(param));
-					seq.setExpression(list);
-					member.setLeft(seq);
-					member.setRight(visitExprNodeExpression(in[i]));
-					predList.add(member);
+					predList.add(new AMemberPredicate(
+							new ASequenceExtensionExpression(Collections.singletonList(createIdentifierNode(param))),
+							visitExprNodeExpression(in[i]))
+					);
 
 				} else {
 					ArrayList<PExpression> list = new ArrayList<>();
 					for (int j = 0; j < params[i].length; j++) {
-						FormalParamNode param = params[i][j];
-						list.add(createIdentifierNode(param));
+						list.add(createIdentifierNode(params[i][j]));
 					}
-					AMemberPredicate member = new AMemberPredicate();
-					member.setLeft(new ACoupleExpression(list));
-					member.setRight(visitExprNodeExpression(in[i]));
-					predList.add(member);
+					predList.add(new AMemberPredicate(
+							new ACoupleExpression(list),
+							visitExprNodeExpression(in[i])
+					));
 				}
 			} else {
 				for (int j = 0; j < params[i].length; j++) {
-					AMemberPredicate member = new AMemberPredicate();
-					member.setLeft(createIdentifierNode(params[i][j]));
-					member.setRight(visitExprNodeExpression(in[i]));
-					predList.add(member);
+					predList.add(new AMemberPredicate(
+							createIdentifierNode(params[i][j]),
+							visitExprNodeExpression(in[i])
+					));
 				}
 			}
 		}
-		return createConjunction(predList);
+		return createPositionedNode(createConjunction(predList), n);
 	}
 
 	public PPredicate visitBoundsOfFunctionsVariables(OpApplNode n) {
@@ -2371,16 +2355,7 @@ public class BAstCreator extends BuiltInOPs
 	}
 
 	public static List<TIdentifierLiteral> createTIdentifierLiteral(String name) {
-		List<TIdentifierLiteral> list = new ArrayList<>();
-		TIdentifierLiteral tid = new TIdentifierLiteral(name);
-		list.add(tid);
-		return list;
-	}
-
-	public static List<PExpression> createPexpressionList(PExpression expr) {
-		ArrayList<PExpression> list = new ArrayList<>();
-		list.add(expr);
-		return list;
+		return Collections.singletonList(new TIdentifierLiteral(name));
 	}
 
 	public Start getStartNode() {
