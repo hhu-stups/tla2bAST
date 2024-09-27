@@ -92,8 +92,7 @@ public class OperationsFinder extends AbstractASTVisitor implements
 					visitExprOrOpArgNode(n.getArgs()[0]);
 				} else {
 					String oldName = currentName;
-					ArrayList<OpApplNode> oldExists = new ArrayList<>(
-						exists);
+					ArrayList<OpApplNode> oldExists = new ArrayList<>(exists);
 
 					for (int i = 0; i < n.getArgs().length; i++) {
 						exists = new ArrayList<>(oldExists);

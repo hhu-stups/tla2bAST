@@ -13,10 +13,9 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-public class BOperation extends BuiltInOPs implements ASTConstants,
-	ToolGlobals, TranslationGlobals {
+public class BOperation extends BuiltInOPs implements ASTConstants, ToolGlobals, TranslationGlobals {
 	private final String name;
-	private final ExprNode node;
+	private final OpApplNode node;
 	private final List<OpApplNode> existQuans;
 	private List<String> opParams;
 	private List<FormalParamNode> formalParams;
@@ -28,7 +27,7 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 	private List<OpDeclNode> anyVariables;
 	private final SpecAnalyser specAnalyser;
 
-	public BOperation(String name, ExprNode n, List<OpApplNode> existQuans, SpecAnalyser specAnalyser) {
+	public BOperation(String name, OpApplNode n, List<OpApplNode> existQuans, SpecAnalyser specAnalyser) {
 		this.name = name;
 		this.node = n;
 		this.existQuans = existQuans;
@@ -225,10 +224,9 @@ public class BOperation extends BuiltInOPs implements ASTConstants,
 	}
 
 	public SymbolNode getSymbolNode() {
-		if (node instanceof OpApplNode) {
-			OpApplNode n = ((OpApplNode) node);
-			if (n.getOperator().getKind() == UserDefinedOpKind) {
-				return ((OpApplNode) node).getOperator();
+		if (node != null) {
+			if (node.getOperator().getKind() == UserDefinedOpKind) {
+				return node.getOperator();
 			}
 		}
 		return null;
