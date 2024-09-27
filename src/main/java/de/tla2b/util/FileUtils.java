@@ -1,9 +1,6 @@
 package de.tla2b.util;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 
 public class FileUtils {
 
@@ -29,17 +26,4 @@ public class FileUtils {
 			return renamed.getPath();
 		}
 	}
-
-	public static String fileToString(String fileName) throws IOException {
-		StringBuilder res = new StringBuilder();
-		BufferedReader in = new BufferedReader(new FileReader(fileName));
-		String str;
-		while ((str = in.readLine()) != null) {
-			res.append(str).append("\n");
-		}
-		in.close();
-		return res.toString();
-	}
-
-
 }
