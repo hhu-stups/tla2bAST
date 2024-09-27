@@ -132,8 +132,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 			String message = "****TypeError****\n" + e.getLocalizedMessage() + "\n" + expr + "\n";
 			throw new ExpressionTranslationException(message);
 		}
-		SymbolRenamer symRenamer = new SymbolRenamer(moduleNode, specAnalyser);
-		symRenamer.start();
+		SymbolRenamer.run(moduleNode, specAnalyser);
 		BAstCreator bASTCreator = new BAstCreator(moduleNode, specAnalyser);
 
 		this.expressionStart = bASTCreator.expressionStart;
@@ -150,8 +149,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 					+ "\n" + expr + "\n";
 			throw new ExpressionTranslationException(message);
 		}
-		SymbolRenamer symRenamer = new SymbolRenamer(moduleNode, specAnalyser);
-		symRenamer.start();
+		SymbolRenamer.run(moduleNode, specAnalyser);
 		BAstCreator bASTCreator = new BAstCreator(moduleNode, specAnalyser);
 
 		this.expressionStart = bASTCreator.expressionStart;
@@ -165,19 +163,16 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 			SANY.frontEndMain(spec, moduleName, ToolIO.out);
 		} catch (FrontEndException e) {
 			// Error in Frontend, should never happen
-			throw new de.tla2b.exceptions.FrontEndException(
-				"Frontend error! This should never happen.", spec);
+			throw new de.tla2b.exceptions.FrontEndException("Frontend error! This should never happen.", spec);
 		}
 
 		if (spec.parseErrors.isFailure()) {
-			String message = module + "\n\n" + spec.parseErrors;
-			message += allMessagesToString(ToolIO.getAllMessages());
+			String message = module + "\n\n" + spec.parseErrors + allMessagesToString(ToolIO.getAllMessages());
 			throw new de.tla2b.exceptions.FrontEndException(message, spec);
 		}
 
 		if (spec.semanticErrors.isFailure()) {
-			String message = module + "\n\n" + spec.semanticErrors;
-			message += allMessagesToString(ToolIO.getAllMessages());
+			String message = module + "\n\n" + spec.semanticErrors + allMessagesToString(ToolIO.getAllMessages());
 			throw new de.tla2b.exceptions.FrontEndException(message, spec);
 		}
 
@@ -185,9 +180,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		ModuleNode n = spec.getExternalModuleTable().rootModule;
 		if (spec.getInitErrors().isFailure()) {
 			System.err.println(spec.getInitErrors());
-			throw new de.tla2b.exceptions.FrontEndException(
-
-				allMessagesToString(ToolIO.getAllMessages()), spec);
+			throw new de.tla2b.exceptions.FrontEndException(allMessagesToString(ToolIO.getAllMessages()), spec);
 		}
 
 		if (n == null) { // Parse Error

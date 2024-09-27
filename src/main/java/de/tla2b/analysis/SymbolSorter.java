@@ -9,19 +9,14 @@ import java.util.Comparator;
 import java.util.Hashtable;
 
 public class SymbolSorter {
-	private final ModuleNode moduleNode;
 
-	public SymbolSorter(ModuleNode moduleNode) {
-		this.moduleNode = moduleNode;
-	}
-
-	public void sort() {
+	public static void sort(ModuleNode moduleNode) {
 		// sort constants
-		Arrays.sort(moduleNode.getConstantDecls(), new OpDeclNodeComparator());
+		sortDeclNodes(moduleNode.getConstantDecls());
 		// sort variables
-		Arrays.sort(moduleNode.getVariableDecls(), new OpDeclNodeComparator());
+		sortDeclNodes(moduleNode.getVariableDecls());
 		// sort definitions
-		Arrays.sort(moduleNode.getOpDefs(), new OpDefNodeComparator());
+		sortOpDefNodes(moduleNode.getOpDefs());
 	}
 
 	public static void sortDeclNodes(OpDeclNode[] opDeclNodes) {
@@ -47,7 +42,6 @@ public class SymbolSorter {
 		}
 		return definitions;
 	}
-
 }
 
 class OpDeclNodeComparator implements Comparator<OpDeclNode> {

@@ -198,16 +198,11 @@ public class Translator implements TranslationGlobals {
 	}
 
 	public Start translate() throws TLA2BException {
-		InstanceTransformation trans = new InstanceTransformation(moduleNode);
-		trans.start();
-
-		SymbolSorter symbolSorter = new SymbolSorter(moduleNode);
-		symbolSorter.sort();
-		PredicateVsExpression predicateVsExpression = new PredicateVsExpression(moduleNode);
+		InstanceTransformation.run(moduleNode);
+		SymbolSorter.sort(moduleNode);
 
 		ConfigfileEvaluator conEval = null;
 		if (modelConfig != null) {
-
 			conEval = new ConfigfileEvaluator(modelConfig, moduleNode);
 			conEval.start();
 
@@ -220,13 +215,12 @@ public class Translator implements TranslationGlobals {
 		specAnalyser.start();
 		typechecker = new TypeChecker(moduleNode, conEval, specAnalyser);
 		typechecker.start();
-		SymbolRenamer symRenamer = new SymbolRenamer(moduleNode, specAnalyser);
-		symRenamer.start();
-		UsedExternalFunctions usedExternalFunctions = new UsedExternalFunctions(moduleNode, specAnalyser);
-		RecursiveFunctionHandler recursiveFunctionHandler = new RecursiveFunctionHandler(specAnalyser);
-		BMacroHandler bMacroHandler = new BMacroHandler(specAnalyser, conEval);
-		bAstCreator = new BAstCreator(moduleNode, conEval, specAnalyser, usedExternalFunctions, predicateVsExpression,
-			bMacroHandler, recursiveFunctionHandler);
+		SymbolRenamer.run(moduleNode, specAnalyser);
+		bAstCreator = new BAstCreator(moduleNode, conEval, specAnalyser,
+				new UsedExternalFunctions(moduleNode, specAnalyser),
+				new PredicateVsExpression(moduleNode),
+				new BMacroHandler(specAnalyser, conEval),
+				new RecursiveFunctionHandler(specAnalyser));
 
 		this.BAst = bAstCreator.getStartNode();
 		this.typeTable = bAstCreator.getTypeTable();
