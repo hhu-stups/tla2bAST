@@ -156,6 +156,11 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		return this.expressionStart;
 	}
 
+	@Deprecated
+	public Start translate() {
+		return this.translateWithoutModel();
+	}
+
 	public static ModuleNode parseModule(String moduleName, String module)
 		throws de.tla2b.exceptions.FrontEndException {
 		SpecObj spec = new SpecObj(moduleName, null);

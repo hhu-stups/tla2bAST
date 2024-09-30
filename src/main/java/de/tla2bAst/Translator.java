@@ -321,10 +321,20 @@ public class Translator implements TranslationGlobals {
 		return expressionTranslator.translateIncludingModel();
 	}
 
+	@Deprecated
+	public Start translateExpression(String tlaExpression) throws TLA2BException {
+		return this.translateExpressionIncludingModel(tlaExpression);
+	}
+
 	public static Start translateExpressionWithoutModel(String tlaExpression) {
 		ExpressionTranslator expressionTranslator = new ExpressionTranslator(tlaExpression);
 		expressionTranslator.parse();
 		return expressionTranslator.translateWithoutModel();
+	}
+
+	@Deprecated
+	public static Start translateTlaExpression(String tlaExpression) {
+		return translateExpressionWithoutModel(tlaExpression);
 	}
 
 	public Definitions getBDefinitions() {
