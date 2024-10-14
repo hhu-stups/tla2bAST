@@ -224,10 +224,8 @@ public class BOperation extends BuiltInOPs implements ASTConstants, ToolGlobals,
 	}
 
 	public SymbolNode getSymbolNode() {
-		if (node != null) {
-			if (node.getOperator().getKind() == UserDefinedOpKind) {
-				return node.getOperator();
-			}
+		if (node != null && node.getOperator().getKind() == UserDefinedOpKind) {
+			return node.getOperator();
 		}
 		return null;
 	}

@@ -191,7 +191,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 		FormalParamNode[] params = def.getParams();
 		for (FormalParamNode p : params) {
 			if (p.getArity() > 0) {
-				throw new FrontEndException(String.format("TLA2B do not support 2nd-order operators: '%s'%n %s ",
+				throw new TLA2BFrontEndException(String.format("TLA2B do not support 2nd-order operators: '%s'%n %s ",
 					def.getName(), def.getLocation()));
 			}
 			UntypedType u = new UntypedType();

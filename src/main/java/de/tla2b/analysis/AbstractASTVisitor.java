@@ -7,9 +7,7 @@ import tlc2.tool.BuiltInOPs;
 public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
 
 	public void visitModuleNode(ModuleNode moduleNode) {
-
 		visitDefinitions(moduleNode.getOpDefs());
-
 		visitAssumptions(moduleNode.getAssumptions());
 	}
 
@@ -17,6 +15,10 @@ public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
 		for (OpDefNode opDefNode : opDefs) {
 			visitDefinition(opDefNode);
 		}
+	}
+
+	public void visitDefinition(OpDefNode opDefNode) {
+		visitExprNode(opDefNode.getBody());
 	}
 
 	public void visitAssumptions(AssumeNode[] assumptions) {
@@ -29,17 +31,12 @@ public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
 		visitExprNode(assumeNode.getAssume());
 	}
 
-	public void visitDefinition(OpDefNode opDefNode) {
-		visitExprNode(opDefNode.getBody());
-	}
-
 	public void visitExprOrOpArgNode(ExprOrOpArgNode n) {
 		if (n instanceof ExprNode) {
 			visitExprNode((ExprNode) n);
 		} else {
 			throw new RuntimeException("Should not appear.");
 		}
-
 	}
 
 	public void visitExprNode(ExprNode node) {
@@ -101,10 +98,8 @@ public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
 				} else {
 					visitUserDefinedNode(node);
 				}
-
 			}
 		}
-
 	}
 
 	public void visitBBuiltinsNode(OpApplNode n) {
@@ -131,7 +126,6 @@ public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
 			if (exprOrOpArgNode != null) {
 				visitExprOrOpArgNode(exprOrOpArgNode);
 			}
-
 		}
 	}
 

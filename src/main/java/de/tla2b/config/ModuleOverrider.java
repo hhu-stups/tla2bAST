@@ -12,25 +12,18 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 	private final Hashtable<OpDefNode, OpDefNode> operatorOverrideTable;
 	private final Hashtable<OpDefNode, ValueObj> operatorAssignments;
 
-	public ModuleOverrider(ModuleNode moduleNode,
-	                       Hashtable<OpDeclNode, OpDefNode> constantOverrideTable,
-	                       Hashtable<OpDefNode, OpDefNode> operatorOverrideTable,
-	                       Hashtable<OpDefNode, ValueObj> operatorAssignments) {
-		this.moduleNode = moduleNode;
-		this.constantOverrideTable = constantOverrideTable;
-		this.operatorOverrideTable = operatorOverrideTable;
-		this.operatorAssignments = operatorAssignments;
-	}
-
-	public ModuleOverrider(ModuleNode moduleNode, ConfigfileEvaluator conEval) {
+	private ModuleOverrider(ModuleNode moduleNode, ConfigfileEvaluator conEval) {
 		this.moduleNode = moduleNode;
 		this.constantOverrideTable = conEval.getConstantOverrideTable();
 		this.operatorOverrideTable = conEval.getOperatorOverrideTable();
 		this.operatorAssignments = conEval.getOperatorAssignments();
-
 	}
 
-	public void start() {
+	public static void run(ModuleNode moduleNode, ConfigfileEvaluator conEval) {
+		new ModuleOverrider(moduleNode, conEval).start();
+	}
+
+	private void start() {
 		OpDefNode[] defs = moduleNode.getOpDefs();
 		for (OpDefNode def : defs) {
 			if (operatorAssignments.containsKey(def)) {

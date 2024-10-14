@@ -21,8 +21,7 @@ public class FileUtils {
 			return filePath;
 		} else {
 			// Remove the last period and everything after it
-			File renamed = new File(f.getParent(), name.substring(0,
-				lastPeriodPos));
+			File renamed = new File(f.getParent(), name.substring(0, lastPeriodPos));
 			return renamed.getPath();
 		}
 	}

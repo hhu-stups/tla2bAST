@@ -6,7 +6,8 @@ import tla2sany.semantic.OpDefNode;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SymbolSorter {
 
@@ -27,8 +28,8 @@ public class SymbolSorter {
 		Arrays.sort(opDefNodes, new OpDefNodeComparator());
 	}
 
-	public static Hashtable<String, OpDefNode> getDefsHashTable(OpDefNode[] opDefNodes) {
-		Hashtable<String, OpDefNode> definitions = new Hashtable<>();
+	public static Map<String, OpDefNode> getDefsMap(OpDefNode[] opDefNodes) {
+		Map<String, OpDefNode> definitions = new HashMap<>();
 		for (OpDefNode def : opDefNodes) {
 			// Definition in this module
 //			if (StandardModules.contains(def.getOriginallyDefinedInModuleNode()

@@ -1,6 +1,6 @@
 package de.tla2b;
 
-import de.tla2b.exceptions.FrontEndException;
+import de.tla2b.exceptions.TLA2BFrontEndException;
 import de.tla2b.exceptions.NotImplementedException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.global.TranslationGlobals;
@@ -50,13 +50,12 @@ public class TLA2B implements TranslationGlobals {
 	public static void main(String[] args) {
 		// To indicate an error we use the exit code -1
 		TLA2B tla2b = new TLA2B();
-
 		tla2b.handleParameter(args);
 
 		Translator translator = null;
 		try {
 			translator = new Translator(tla2b.mainFile);
-		} catch (FrontEndException e) {
+		} catch (TLA2BFrontEndException e) {
 			System.exit(-1);
 		}
 		try {

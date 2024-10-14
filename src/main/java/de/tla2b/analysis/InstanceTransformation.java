@@ -5,17 +5,19 @@ import tla2sany.semantic.*;
 import tlc2.tool.BuiltInOPs;
 import util.UniqueString;
 
-import java.util.Hashtable;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 
 	private final OpDefNode[] defs;
-	private final Hashtable<String, OpDefNode> defsHash;
+	private final Map<String, OpDefNode> defsHash;
 	private final int substitutionId = 11;
 
 	private InstanceTransformation(ModuleNode moduleNode) {
 		this.defs = moduleNode.getOpDefs();
-		this.defsHash = SymbolSorter.getDefsHashTable(defs);
+		this.defsHash = SymbolSorter.getDefsMap(defs);
 	}
 
 	public static void run(ModuleNode moduleNode) {
@@ -58,8 +60,7 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 			}
 
 			case NumeralKind: {
-				NumeralNode num = (NumeralNode) n;
-				return new NumeralNode(num.toString(), n.getTreeNode());
+				return new NumeralNode(n.toString(), n.getTreeNode());
 			}
 
 			case DecimalKind: {
@@ -71,28 +72,21 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 			}
 
 			case StringKind: {
-				StringNode str = (StringNode) n;
-				return new StringNode(str.getTreeNode(), false);
+				return new StringNode(n.getTreeNode(), false);
 			}
 
 			case SubstInKind: {
 				SubstInNode substInNode = (SubstInNode) n;
-
-				Subst[] subs = substInNode.getSubsts();
-				for (Subst sub : subs) {
-					OpDeclNode op = sub.getOp();
-					ExprOrOpArgNode expr = sub.getExpr();
-					op.setToolObject(substitutionId, expr);
+				for (Subst sub : substInNode.getSubsts()) {
+					sub.getOp().setToolObject(substitutionId, sub.getExpr());
 				}
 				return generateNewExprNode(substInNode.getBody(), prefix);
 			}
+
 			case AtNodeKind: { // @
 				AtNode old = (AtNode) n;
-				OpApplNode oldExcept = old.getExceptRef();
-				OpApplNode newExcept = (OpApplNode) oldExcept.getToolObject(substitutionId);
-				OpApplNode oldComponent = old.getExceptComponentRef();
-				OpApplNode newComponent = (OpApplNode) oldComponent.getToolObject(substitutionId);
-				return new AtNode(newExcept, newComponent);
+				return new AtNode((OpApplNode) old.getExceptRef().getToolObject(substitutionId),
+						(OpApplNode) old.getExceptComponentRef().getToolObject(substitutionId));
 			}
 
 			case LetInKind: {
@@ -112,12 +106,11 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 					cc.addSymbolToContext(newName, newLet);
 				}
 
-				return new LetInNode(oldLetNode.getTreeNode(),
-					newLets, null, generateNewExprNode(oldLetNode.getBody(),
-					prefix), cc);
+				return new LetInNode(oldLetNode.getTreeNode(), newLets, null,
+						generateNewExprNode(oldLetNode.getBody(), prefix), cc);
 			}
 		}
-		throw new RuntimeException();
+		throw new IllegalArgumentException("unknown ExprNode kind " + n.getKind());
 	}
 
 	private ExprNode generateNewOpApplNode(OpApplNode n, String prefix) throws AbortException {
@@ -144,8 +137,7 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 			}
 
 			case FormalParamKind: {
-				FormalParamNode f = (FormalParamNode) n.getOperator()
-					.getToolObject(substitutionId);
+				FormalParamNode f = (FormalParamNode) n.getOperator().getToolObject(substitutionId);
 				if (f == null) {
 					throw new RuntimeException();
 				}

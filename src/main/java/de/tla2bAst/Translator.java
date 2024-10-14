@@ -12,7 +12,7 @@ import de.be4.classicalb.core.parser.util.SuffixIdentifierRenaming;
 import de.tla2b.analysis.*;
 import de.tla2b.config.ConfigfileEvaluator;
 import de.tla2b.config.ModuleOverrider;
-import de.tla2b.exceptions.FrontEndException;
+import de.tla2b.exceptions.TLA2BFrontEndException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.global.TranslationGlobals;
 import de.tla2b.output.PrologPrinter;
@@ -20,6 +20,7 @@ import de.tla2b.translation.BMacroHandler;
 import de.tla2b.translation.RecursiveFunctionHandler;
 import de.tla2b.types.TLAType;
 import de.tla2b.util.FileUtils;
+import tla2sany.drivers.FrontEndException;
 import tla2sany.drivers.SANY;
 import tla2sany.modanalyzer.SpecObj;
 import tla2sany.semantic.ModuleNode;
@@ -49,34 +50,25 @@ public class Translator implements TranslationGlobals {
 	private SpecAnalyser specAnalyser;
 	private TypeChecker typechecker;
 
-	public Translator(String moduleFileName) throws FrontEndException {
+	public Translator(String moduleFileName) throws TLA2BFrontEndException {
 		this.moduleFileName = moduleFileName;
 
-		findModuleFile();
-		findConfigFile();
-
-		parse();
-	}
-
-	private void findConfigFile() {
-		String configFileName = FileUtils.removeExtension(moduleFile.getAbsolutePath());
-		configFileName = configFileName + ".cfg";
-		configFile = new File(configFileName);
-		if (!configFile.exists()) {
-			configFile = null;
-		}
-	}
-
-	private void findModuleFile() {
-		moduleFile = new File(moduleFileName);
+		this.moduleFile = new File(moduleFileName);
 		if (!moduleFile.exists()) {
 			throw new RuntimeException("Can not find module file: '" + moduleFileName + "'");
 		}
 		try {
-			moduleFile = moduleFile.getCanonicalFile();
+			this.moduleFile = moduleFile.getCanonicalFile();
 		} catch (IOException e) {
 			throw new RuntimeException("Can not access module file: '" + moduleFileName + "'");
 		}
+
+		this.configFile = new File(FileUtils.removeExtension(moduleFile.getAbsolutePath()) + ".cfg");
+		if (!configFile.exists()) {
+			this.configFile = null;
+		}
+
+		parse();
 	}
 
 	/**
@@ -100,27 +92,11 @@ public class Translator implements TranslationGlobals {
 	}
 
 	// Used for Testing in tla2bAST project
-	public Translator(String moduleString, String configString) throws FrontEndException {
+	public Translator(String moduleString, String configString) throws TLA2BFrontEndException {
 		String moduleName = "Testing";
 		createTLATempFile(moduleString, moduleName);
 		createCfgFile(configString, moduleName);
 		parse();
-	}
-
-	private void createCfgFile(String configString, String moduleName) {
-		modelConfig = null;
-		if (configString != null) {
-			configFile = new File("temp/" + moduleName + ".cfg");
-			try {
-				configFile.createNewFile();
-				try (BufferedWriter out = new BufferedWriter(
-					new OutputStreamWriter(Files.newOutputStream(configFile.toPath()), StandardCharsets.UTF_8))) {
-					out.write(configString);
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 
 	private void createTLATempFile(String moduleString, String moduleName) {
@@ -140,53 +116,23 @@ public class Translator implements TranslationGlobals {
 		}
 	}
 
-	public ModuleNode parseModule() throws de.tla2b.exceptions.FrontEndException {
-		String fileName = moduleFile.getName();
-		ToolIO.setUserDir(moduleFile.getParent());
-
-		SpecObj spec = new SpecObj(fileName, null);
-		try {
-			SANY.frontEndMain(spec, fileName, ToolIO.out);
-		} catch (tla2sany.drivers.FrontEndException e) {
-			// should never happen
-			e.printStackTrace();
+	private void createCfgFile(String configString, String moduleName) {
+		modelConfig = null;
+		if (configString != null) {
+			configFile = new File("temp/" + moduleName + ".cfg");
+			try {
+				configFile.createNewFile();
+				try (BufferedWriter out = new BufferedWriter(
+						new OutputStreamWriter(Files.newOutputStream(configFile.toPath()), StandardCharsets.UTF_8))) {
+					out.write(configString);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
-
-		if (spec.parseErrors.isFailure()) {
-			throw new de.tla2b.exceptions.FrontEndException(
-				allMessagesToString(ToolIO.getAllMessages()) + spec.parseErrors, spec);
-		}
-
-		if (spec.semanticErrors.isFailure()) {
-			throw new de.tla2b.exceptions.FrontEndException(
-				// allMessagesToString(ToolIO.getAllMessages())
-				"" + spec.semanticErrors, spec);
-		}
-
-		// RootModule
-		ModuleNode n = spec.getExternalModuleTable().rootModule;
-		if (spec.getInitErrors().isFailure()) {
-			System.err.println(spec.getInitErrors());
-			return null;
-		}
-
-		if (n == null) { // Parse Error
-			// System.out.println("Rootmodule null");
-			throw new de.tla2b.exceptions.FrontEndException(allMessagesToString(ToolIO.getAllMessages()), spec);
-		}
-
-		return n;
 	}
 
-	public static String allMessagesToString(String[] allMessages) {
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < allMessages.length - 1; i++) {
-			sb.append(allMessages[i]).append("\n");
-		}
-		return sb.toString();
-	}
-
-	private void parse() throws FrontEndException {
+	private void parse() throws TLA2BFrontEndException {
 		moduleNode = parseModule();
 
 		modelConfig = null;
@@ -194,7 +140,43 @@ public class Translator implements TranslationGlobals {
 			modelConfig = new ModelConfig(configFile.getAbsolutePath(), new SimpleResolver());
 			modelConfig.parse();
 		}
+	}
 
+	public ModuleNode parseModule() throws TLA2BFrontEndException {
+		String fileName = moduleFile.getName();
+		ToolIO.setUserDir(moduleFile.getParent());
+
+		SpecObj spec = new SpecObj(fileName, null);
+		try {
+			SANY.frontEndMain(spec, fileName, ToolIO.out);
+		} catch (FrontEndException e) {
+			// should never happen
+			throw new RuntimeException("Could not parse module: '" + fileName + "'", e);
+		}
+
+		if (spec.getParseErrors().isFailure()) {
+			throw new TLA2BFrontEndException(allMessagesToString(ToolIO.getAllMessages()) + spec.getParseErrors(), spec);
+		}
+
+		if (spec.getSemanticErrors().isFailure()) {
+			throw new TLA2BFrontEndException(allMessagesToString(ToolIO.getAllMessages()) + spec.getSemanticErrors(), spec);
+		}
+
+		// RootModule
+		ModuleNode n = spec.getExternalModuleTable().getRootModule();
+		if (spec.getInitErrors().isFailure()) {
+			throw new TLA2BFrontEndException(spec.getInitErrors().toString(), spec);
+		}
+
+		if (n == null) { // Parse Error
+			throw new TLA2BFrontEndException(allMessagesToString(ToolIO.getAllMessages()), spec);
+		}
+
+		return n;
+	}
+
+	public static String allMessagesToString(String[] allMessages) {
+		return String.join("\n", allMessages) + "\n";
 	}
 
 	public Start translate() throws TLA2BException {
@@ -206,8 +188,7 @@ public class Translator implements TranslationGlobals {
 			conEval = new ConfigfileEvaluator(modelConfig, moduleNode);
 			conEval.start();
 
-			ModuleOverrider modOver = new ModuleOverrider(moduleNode, conEval);
-			modOver.start();
+			ModuleOverrider.run(moduleNode, conEval);
 			specAnalyser = SpecAnalyser.createSpecAnalyser(moduleNode, conEval);
 		} else {
 			specAnalyser = SpecAnalyser.createSpecAnalyser(moduleNode);
@@ -222,10 +203,9 @@ public class Translator implements TranslationGlobals {
 				new BMacroHandler(specAnalyser, conEval),
 				new RecursiveFunctionHandler(specAnalyser));
 
-		this.BAst = bAstCreator.getStartNode();
 		this.typeTable = bAstCreator.getTypeTable();
 		this.bDefinitions = bAstCreator.getBDefinitions();
-		return BAst;
+		return this.BAst = bAstCreator.getStartNode();
 	}
 
 	public void createProbFile() {

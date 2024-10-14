@@ -6,6 +6,7 @@ import de.tla2b.analysis.SymbolRenamer;
 import de.tla2b.analysis.TypeChecker;
 import de.tla2b.exceptions.ExpressionTranslationException;
 import de.tla2b.exceptions.TLA2BException;
+import de.tla2b.exceptions.TLA2BFrontEndException;
 import de.tla2b.exceptions.TypeErrorException;
 import tla2sany.drivers.FrontEndException;
 import tla2sany.drivers.InitException;
@@ -106,7 +107,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		this.moduleNode = null;
 		try {
 			moduleNode = parseModule(moduleName, sb.toString());
-		} catch (de.tla2b.exceptions.FrontEndException e) {
+		} catch (TLA2BFrontEndException e) {
 			throw new ExpressionTranslationException(e.getLocalizedMessage());
 		}
 	}
@@ -162,35 +163,35 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 	}
 
 	public static ModuleNode parseModule(String moduleName, String module)
-		throws de.tla2b.exceptions.FrontEndException {
+		throws TLA2BFrontEndException {
 		SpecObj spec = new SpecObj(moduleName, null);
 		try {
 			SANY.frontEndMain(spec, moduleName, ToolIO.out);
 		} catch (FrontEndException e) {
 			// Error in Frontend, should never happen
-			throw new de.tla2b.exceptions.FrontEndException("Frontend error! This should never happen.", spec);
+			throw new TLA2BFrontEndException("Frontend error! This should never happen.", spec);
 		}
 
 		if (spec.parseErrors.isFailure()) {
 			String message = module + "\n\n" + spec.parseErrors + allMessagesToString(ToolIO.getAllMessages());
-			throw new de.tla2b.exceptions.FrontEndException(message, spec);
+			throw new TLA2BFrontEndException(message, spec);
 		}
 
 		if (spec.semanticErrors.isFailure()) {
 			String message = module + "\n\n" + spec.semanticErrors + allMessagesToString(ToolIO.getAllMessages());
-			throw new de.tla2b.exceptions.FrontEndException(message, spec);
+			throw new TLA2BFrontEndException(message, spec);
 		}
 
 		// RootModule
 		ModuleNode n = spec.getExternalModuleTable().rootModule;
 		if (spec.getInitErrors().isFailure()) {
 			System.err.println(spec.getInitErrors());
-			throw new de.tla2b.exceptions.FrontEndException(allMessagesToString(ToolIO.getAllMessages()), spec);
+			throw new TLA2BFrontEndException(allMessagesToString(ToolIO.getAllMessages()), spec);
 		}
 
 		if (n == null) { // Parse Error
 			// System.out.println("Rootmodule null");
-			throw new de.tla2b.exceptions.FrontEndException(
+			throw new TLA2BFrontEndException(
 				allMessagesToString(ToolIO.getAllMessages()), spec);
 		}
 		return n;

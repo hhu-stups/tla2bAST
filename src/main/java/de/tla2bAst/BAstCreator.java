@@ -1810,26 +1810,14 @@ public class BAstCreator extends BuiltInOPs
 			return new ARecExpression(list);
 
 		} else {
-			FunctionType func = (FunctionType) tlaType;
-
-			ACoupleExpression couple = new ACoupleExpression();
-			List<PExpression> coupleList = new ArrayList<>();
-			coupleList.add(visitExprOrOpArgNodeExpression(head));
-
-			AFunctionExpression funcCall = new AFunctionExpression();
-			funcCall.setIdentifier(prefix);
-			List<PExpression> argList = new ArrayList<>();
-			argList.add(visitExprOrOpArgNodeExpression(head));
-			funcCall.setParameters(argList);
-			coupleList.add(evalExceptValue(funcCall, seqList, func.getRange(), val));
-			couple.setList(coupleList);
-			List<PExpression> setList = new ArrayList<>();
-			setList.add(couple);
-			ASetExtensionExpression setExtension = new ASetExtensionExpression(setList);
-			AOverwriteExpression overwrite = new AOverwriteExpression();
-			overwrite.setLeft(prefix.clone());
-			overwrite.setRight(setExtension);
-			return overwrite;
+			AFunctionExpression funcCall = new AFunctionExpression(prefix,
+					Collections.singletonList(visitExprOrOpArgNodeExpression(head)));
+			List<PExpression> coupleList = Arrays.asList(visitExprOrOpArgNodeExpression(head),
+					evalExceptValue(funcCall, seqList, ((FunctionType) tlaType).getRange(), val));
+			return new AOverwriteExpression(
+					prefix.clone(),
+					new ASetExtensionExpression(Collections.singletonList(new ACoupleExpression(coupleList)))
+			);
 		}
 	}
 
@@ -1841,10 +1829,10 @@ public class BAstCreator extends BuiltInOPs
 		int index;
 		if (field == 1) {
 			index = 2;
-			AFirstProjectionExpression first = new AFirstProjectionExpression();
-			first.setExp1(tuple.getTypes().get(0).getBNode());
-			first.setExp2(tuple.getTypes().get(1).getBNode());
-			returnFunc.setIdentifier(first);
+			returnFunc.setIdentifier(new AFirstProjectionExpression(
+					tuple.getTypes().get(0).getBNode(),
+					tuple.getTypes().get(1).getBNode()
+			));
 		} else {
 			index = field;
 			ASecondProjectionExpression second = new ASecondProjectionExpression();

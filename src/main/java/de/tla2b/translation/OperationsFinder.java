@@ -19,16 +19,13 @@ public class OperationsFinder extends AbstractASTVisitor implements
 
 	private String currentName;
 	private ArrayList<OpApplNode> exists;
-	// a list containing all existential quantifier which will be parameters in
-	// the resulting B Maschine
-
+	// a list containing all existential quantifier which will be parameters in the resulting B Machine
 	private final ArrayList<BOperation> bOperations;
 
 	public OperationsFinder(SpecAnalyser specAnalyser) {
 		this.specAnalyser = specAnalyser;
 		this.bOperations = new ArrayList<>();
 		if (specAnalyser.getNext() != null) {
-
 			currentName = "Next";
 			exists = new ArrayList<>();
 			visitExprNode(specAnalyser.getNext());
@@ -150,11 +147,9 @@ public class OperationsFinder extends AbstractASTVisitor implements
 		}
 		throw new RuntimeException(String.format(
 			"Expected an action at '%s' :%n%s", n.getOperator().getName(), n.getLocation().toString()));
-
 	}
 
 	public ArrayList<BOperation> getBOperations() {
 		return bOperations;
 	}
-
 }

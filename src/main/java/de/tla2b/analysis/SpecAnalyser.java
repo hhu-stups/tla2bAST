@@ -2,7 +2,7 @@ package de.tla2b.analysis;
 
 import de.tla2b.config.ConfigfileEvaluator;
 import de.tla2b.exceptions.ConfigFileErrorException;
-import de.tla2b.exceptions.FrontEndException;
+import de.tla2b.exceptions.TLA2BFrontEndException;
 import de.tla2b.exceptions.NotImplementedException;
 import de.tla2b.exceptions.SemanticErrorException;
 import de.tla2b.global.BBuiltInOPs;
@@ -159,7 +159,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 	}
 
 	public void start()
-		throws SemanticErrorException, FrontEndException, ConfigFileErrorException, NotImplementedException {
+		throws SemanticErrorException, TLA2BFrontEndException, ConfigFileErrorException, NotImplementedException {
 
 		if (spec != null) {
 			evalSpec();
