@@ -11,10 +11,10 @@ public class InstanceTest {
 	private static final String path = "src/test/resources/typechecking/modules/";
 
 	@Test
-	public void TestCounterReal() throws Exception {
-		TestTypeChecker t = TestUtil.typeCheck(path + "CounterReal.tla");
+	public void TestNamedInstanceCounterReal() throws Exception {
+		TestTypeChecker t = TestUtil.typeCheck(path + "NamedInstanceCounterReal.tla");
+		assertEquals("REAL", t.getVariableType("c"));
 		assertEquals("REAL", t.getConstantType("start"));
-		assertEquals("REAL", t.getVariableType("x"));
 	}
 
 	@Test
