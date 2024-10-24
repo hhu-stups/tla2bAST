@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * This class handles substitutions during module instantiation, e.g.
  * <p>
- *      M1 == INSTANCE Counter WITH x <- c, start <- 0
+ *      M1 == INSTANCE Counter WITH x &lt;- c, start &lt;- 0
  * <p>
  * Example for usage in module:
  *      OpDef == /\ M1!Init
