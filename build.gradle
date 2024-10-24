@@ -5,7 +5,7 @@ plugins {
 	id 'jacoco'
 	id 'signing'
 
-	id "com.github.johnrengelman.shadow" version "8.1.1"
+	id "com.gradleup.shadow" version "8.3.3"
 }
 
 project.version = '1.4.0-SNAPSHOT'
@@ -26,10 +26,10 @@ configurations.configureEach {
 	resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-def parser_version = '2.13.2'
+def parser_version = '2.13.5-SNAPSHOT'
 
 dependencies {
-	implementation(group: 'commons-cli', name: 'commons-cli', version: '1.7.0')
+	implementation(group: 'commons-cli', name: 'commons-cli', version: '1.9.0')
 	api(group: 'de.hhu.stups', name: 'tlatools', version: '1.1.0-SNAPSHOT')
 	api(group: 'de.hhu.stups', name: 'prologlib', version: parser_version)
 	api(group: 'de.hhu.stups', name: 'bparser', version: parser_version)
