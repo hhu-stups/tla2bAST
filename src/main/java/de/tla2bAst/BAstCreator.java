@@ -25,7 +25,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public class BAstCreator extends BuiltInOPs
-	implements TranslationGlobals, ASTConstants, BBuildIns, Priorities, ValueConstants {
+	implements TranslationGlobals, ASTConstants, BBuildIns, ValueConstants {
 
 	List<PMachineClause> machineClauseList;
 	ConfigfileEvaluator conEval;
