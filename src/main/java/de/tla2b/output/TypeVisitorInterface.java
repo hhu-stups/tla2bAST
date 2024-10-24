@@ -2,7 +2,6 @@ package de.tla2b.output;
 
 import de.tla2b.types.*;
 
-
 public interface TypeVisitorInterface {
 
 	void caseIntegerType(IntType type);

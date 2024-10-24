@@ -3,17 +3,18 @@ package de.tla2b.types;
 import tla2sany.semantic.SemanticNode;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AbstractHasFollowers extends TLAType {
 
-	public ArrayList<Object> followers;
+	public List<Object> followers;
 
 	public AbstractHasFollowers(int t) {
 		super(t);
 		followers = new ArrayList<>();
 	}
 
-	public ArrayList<Object> getFollowers() {
+	public List<Object> getFollowers() {
 		return followers;
 	}
 
@@ -26,7 +27,6 @@ public abstract class AbstractHasFollowers extends TLAType {
 			}
 			followers.add(o);
 		}
-
 	}
 
 	public void deleteFollower(Object o) {
@@ -69,7 +69,6 @@ public abstract class AbstractHasFollowers extends TLAType {
 				if (pair.getSecond() == this) {
 					pair.setSecond(newType);
 				}
-
 			} else if (follower instanceof FunctionType) {
 				((FunctionType) follower).update(this, newType);
 			} else if (follower instanceof StructType) {
@@ -79,8 +78,7 @@ public abstract class AbstractHasFollowers extends TLAType {
 			} else if (follower instanceof TupleOrFunction) {
 				((TupleOrFunction) follower).setNewType(this, newType);
 			} else {
-				throw new RuntimeException("Unknown follower type: "
-					+ follower.getClass());
+				throw new RuntimeException("Unknown follower type: " + follower.getClass());
 			}
 		});
 	}

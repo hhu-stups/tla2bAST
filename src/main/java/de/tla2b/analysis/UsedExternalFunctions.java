@@ -19,16 +19,13 @@ public class UsedExternalFunctions extends AbstractASTVisitor implements BBuildI
 		return usedExternalFunctions;
 	}
 
-	public UsedExternalFunctions(ModuleNode moduleNode,
-	                             SpecAnalyser specAnalyser) {
+	public UsedExternalFunctions(ModuleNode moduleNode, SpecAnalyser specAnalyser) {
 		usedExternalFunctions = new HashSet<>();
-
 		visitAssumptions(moduleNode.getAssumptions());
 
 		for (OpDefNode def : specAnalyser.getUsedDefinitions()) {
 			visitDefinition(def);
 		}
-
 	}
 
 	@Override
@@ -62,7 +59,6 @@ public class UsedExternalFunctions extends AbstractASTVisitor implements BBuildI
 			usedExternalFunctions.add(EXTERNAL_FUNCTIONS.ASSERT);
 		}
 
-
 		ExprNode[] in = n.getBdedQuantBounds();
 		for (ExprNode exprNode : in) {
 			visitExprNode(exprNode);
@@ -73,5 +69,4 @@ public class UsedExternalFunctions extends AbstractASTVisitor implements BBuildI
 			visitExprOrOpArgNode(exprOrOpArgNode);
 		}
 	}
-
 }

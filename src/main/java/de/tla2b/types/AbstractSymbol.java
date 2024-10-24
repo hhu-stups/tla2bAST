@@ -12,7 +12,6 @@ public abstract class AbstractSymbol {
 		return type;
 	}
 
-
 	protected void setType(TLAType t) {
 		this.type = t;
 		if (type instanceof AbstractHasFollowers) {
