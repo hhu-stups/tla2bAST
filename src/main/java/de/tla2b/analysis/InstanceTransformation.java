@@ -5,10 +5,18 @@ import tla2sany.semantic.*;
 import tlc2.tool.BuiltInOPs;
 import util.UniqueString;
 
-import java.util.Arrays;
 import java.util.Map;
-import java.util.stream.Collectors;
 
+/**
+ * This class handles substitutions during module instantiation, e.g.
+ * <p>
+ *      M1 == INSTANCE Counter WITH x <- c, start <- 0
+ * <p>
+ * Example for usage in module:
+ *      OpDef == /\ M1!Init
+ * <p>
+ * cf. <a href="https://lamport.azurewebsites.net/tla/newmodule.html">https://lamport.azurewebsites.net/tla/newmodule.html</a>
+ */
 public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 
 	private final OpDefNode[] defs;
@@ -24,6 +32,9 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 		new InstanceTransformation(moduleNode).start();
 	}
 
+	/**
+	 * replace all substitutions M1!Op1 by the real Op1 (?)
+	 */
 	private void start() {
 		for (OpDefNode def : defs) {
 			if (def.getSource() != def && !BBuiltInOPs.contains(def.getSource().getName())) {
