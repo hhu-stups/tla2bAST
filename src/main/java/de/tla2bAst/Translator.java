@@ -32,12 +32,18 @@ import util.ToolIO;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Translator implements TranslationGlobals {
 	private String moduleFileName;
+	private String parentPath;
 	private File moduleFile;
 	private File configFile;
+	private List<File> moduleFiles = new ArrayList<>();
 	private Start BAst;
 	private Map<Node, TLAType> types;
 
@@ -64,6 +70,7 @@ public class Translator implements TranslationGlobals {
 		} catch (IOException e) {
 			throw new RuntimeException("Can not access module file: '" + moduleFileName + "'");
 		}
+		this.parentPath = moduleFile.getParent() == null ? "." : moduleFile.getParent();
 
 		this.configFile = new File(FileUtils.removeExtension(moduleFile.getAbsolutePath()) + ".cfg");
 		if (!configFile.exists()) {
@@ -207,6 +214,8 @@ public class Translator implements TranslationGlobals {
 
 		this.types = bAstCreator.getTypes();
 		this.bDefinitions = bAstCreator.getBDefinitions();
+		this.moduleFiles = bAstCreator.getFilesOrderedById().stream()
+				.map(file -> new File(parentPath, file + ".tla")).collect(Collectors.toList());
 		return this.BAst = bAstCreator.getStartNode();
 	}
 
@@ -287,8 +296,18 @@ public class Translator implements TranslationGlobals {
 	}
 
 	public RecursiveMachineLoader parseAllMachines(final Start ast, final File f, final BParser bparser) throws BCompoundException {
-		final RecursiveMachineLoader rml = new RecursiveMachineLoader(f.getParent(), bparser.getContentProvider());
+		final RecursiveMachineLoader rml = new RecursiveMachineLoader(parentPath, bparser.getContentProvider());
 		rml.loadAllMachines(f, ast, bparser.getDefinitions());
+
+		// Create the assignment of nodes to TLA modules:
+		// manipulate loaded files in RML: this is necessary for printing ALL included module file names in rml.printAsProlog
+		// per default only the main module (startFile) is included
+		rml.getMachineFilesLoaded().clear(); // clear to ensure correct order of file numbers assigned below
+		rml.getMachineFilesLoaded().addAll(this.moduleFiles);
+		for (PositionedNode node : bAstCreator.getSourcePositions()) {
+			// Overwrite node ID mapping with the assignment that is created when positioned nodes are created
+			rml.getNodeIdMapping().assignIdentifiers(bAstCreator.getNodeFileNumbers().lookupFileNumber((Node) node), (Node) node);
+		}
 		// this is required for correct positions in ProB2(-UI) when rml.printAsProlog is called
 		rml.setPositionPrinter(new TlaTypePrinter(rml.getNodeIdMapping(), bAstCreator.getTypes()));
 		return rml;
@@ -338,6 +357,10 @@ public class Translator implements TranslationGlobals {
 
 	public File getModuleFile() {
 		return moduleFile;
+	}
+
+	public List<File> getModuleFiles() {
+		return Collections.unmodifiableList(moduleFiles);
 	}
 
 	public Map<Node, TLAType> getTypes() {
