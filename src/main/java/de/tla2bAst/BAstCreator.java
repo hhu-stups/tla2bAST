@@ -676,7 +676,7 @@ public class BAstCreator extends BuiltInOPs
 			StringNode stringNode = (StringNode) list.poll();
 			// TODO rename field name
 			String fieldName = stringNode.getRep().toString();
-			select.setIdentifier(createIdentifierNode(fieldName));
+			select.setIdentifier(new TIdentifierLiteral(fieldName));
 			return evalAtNode(list, structType.getType(fieldName), select);
 		}
 	}
@@ -1531,9 +1531,8 @@ public class BAstCreator extends BuiltInOPs
 				if (struct.isExtensible()) {
 					for (int i = 0; i < struct.getFields().size(); i++) {
 						String fieldName = struct.getFields().get(i); // name
-						AIdentifierExpression field = createIdentifierNode(fieldName);
 						ARecEntry rec = new ARecEntry();
-						rec.setIdentifier(field);
+						rec.setIdentifier(new TIdentifierLiteral(fieldName));
 						AMultOrCartExpression cart = new AMultOrCartExpression();
 						cart.setLeft(new ABoolSetExpression());
 						if (pairTable.containsKey(fieldName)) {
@@ -1547,9 +1546,8 @@ public class BAstCreator extends BuiltInOPs
 				} else {
 					for (int i = 0; i < struct.getFields().size(); i++) {
 						String fieldName = struct.getFields().get(i);
-						AIdentifierExpression field = createIdentifierNode(fieldName);
 						ARecEntry rec = new ARecEntry();
-						rec.setIdentifier(field);
+						rec.setIdentifier(new TIdentifierLiteral(fieldName));
 						if (pairTable.containsKey(fieldName)) {
 							rec.setValue(pairTable.get(fieldName));
 						} else {
@@ -1576,7 +1574,7 @@ public class BAstCreator extends BuiltInOPs
 					for (int i = 0; i < struct.getFields().size(); i++) {
 						String fieldName = struct.getFields().get(i);
 						ARecEntry rec = new ARecEntry();
-						rec.setIdentifier(createIdentifierNode(fieldName));
+						rec.setIdentifier(new TIdentifierLiteral(fieldName));
 						if (pairTable.containsKey(fieldName)) {
 							ACoupleExpression couple = new ACoupleExpression(Arrays.asList(
 									new ABooleanTrueExpression(), pairTable.get(fieldName)));
@@ -1600,9 +1598,8 @@ public class BAstCreator extends BuiltInOPs
 					List<PRecEntry> recList = new ArrayList<>();
 					for (int i = 0; i < struct.getFields().size(); i++) {
 						String fieldName = struct.getFields().get(i);
-						AIdentifierExpression field = createIdentifierNode(fieldName);
 						ARecEntry rec = new ARecEntry();
-						rec.setIdentifier(field);
+						rec.setIdentifier(new TIdentifierLiteral(fieldName));
 						if (pairTable.containsKey(fieldName)) {
 							rec.setValue(pairTable.get(fieldName));
 						} else {
@@ -1622,7 +1619,7 @@ public class BAstCreator extends BuiltInOPs
 					ARecordFieldExpression rcdSelect = new ARecordFieldExpression();
 					rcdSelect.setRecord(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
 					StringNode stringNode = (StringNode) n.getArgs()[1];
-					rcdSelect.setIdentifier(createIdentifierNode(stringNode.getRep().toString()));
+					rcdSelect.setIdentifier(new TIdentifierLiteral(stringNode.getRep().toString()));
 					AFunctionExpression funcCall = new AFunctionExpression();
 					funcCall.setIdentifier(rcdSelect);
 					funcCall.setParameters(Collections.singletonList(new ABooleanTrueExpression()));
@@ -1631,7 +1628,7 @@ public class BAstCreator extends BuiltInOPs
 					ARecordFieldExpression rcdSelect = new ARecordFieldExpression();
 					rcdSelect.setRecord(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
 					StringNode stringNode = (StringNode) n.getArgs()[1];
-					rcdSelect.setIdentifier(createIdentifierNode(stringNode.getRep().toString()));
+					rcdSelect.setIdentifier(new TIdentifierLiteral(stringNode.getRep().toString()));
 					return rcdSelect;
 				}
 			}
@@ -1801,12 +1798,12 @@ public class BAstCreator extends BuiltInOPs
 			for (int i = 0; i < structType.getFields().size(); i++) {
 				ARecEntry entry = new ARecEntry();
 				String fieldName = structType.getFields().get(i);
-				entry.setIdentifier(createIdentifierNode(fieldName));
+				entry.setIdentifier(new TIdentifierLiteral(fieldName));
 
 				PExpression value;
 				ARecordFieldExpression select = new ARecordFieldExpression();
 				select.setRecord(prefix.clone());
-				select.setIdentifier(createIdentifierNode(fieldName));
+				select.setIdentifier(new TIdentifierLiteral(fieldName));
 				if (fieldName.equals(field)) {
 					value = evalExceptValue(select, seqList, structType.getType(fieldName), val);
 				} else {
@@ -2119,7 +2116,7 @@ public class BAstCreator extends BuiltInOPs
 				ARecordFieldExpression rcdSelect = new ARecordFieldExpression();
 				rcdSelect.setRecord(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
 				StringNode stringNode = (StringNode) n.getArgs()[1];
-				rcdSelect.setIdentifier(createIdentifierNode(stringNode.getRep().toString()));
+				rcdSelect.setIdentifier(new TIdentifierLiteral(stringNode.getRep().toString()));
 				returnNode = new AEqualPredicate(rcdSelect, new ABooleanTrueExpression());
 				break;
 			}

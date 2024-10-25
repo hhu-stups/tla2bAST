@@ -3,7 +3,6 @@ package de.tla2b.types;
 import de.be4.classicalb.core.parser.node.*;
 import de.tla2b.exceptions.UnificationException;
 import de.tla2b.output.TypeVisitorInterface;
-import de.tla2bAst.BAstCreator;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -189,7 +188,7 @@ public class StructType extends AbstractHasFollowers {
 		List<PRecEntry> recList = new ArrayList<>();
 		for (Entry<String, TLAType> entry : types.entrySet()) {
 			ARecEntry rec = new ARecEntry();
-			rec.setIdentifier(BAstCreator.createIdentifierNode(entry.getKey()));
+			rec.setIdentifier(new TIdentifierLiteral(entry.getKey()));
 			if (extensible) {
 
 				AMultOrCartExpression cart = new AMultOrCartExpression();
