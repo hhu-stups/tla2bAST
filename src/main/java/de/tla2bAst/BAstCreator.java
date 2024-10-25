@@ -1,6 +1,7 @@
 package de.tla2bAst;
 
 import de.be4.classicalb.core.parser.Definitions;
+import de.be4.classicalb.core.parser.analysis.prolog.NodeFileNumbers;
 import de.be4.classicalb.core.parser.node.*;
 import de.hhu.stups.sablecc.patch.PositionedNode;
 import de.hhu.stups.sablecc.patch.SourcePosition;
@@ -44,6 +45,8 @@ public class BAstCreator extends BuiltInOPs
 	private Start start;
 	private final Hashtable<Node, TLAType> typeTable = new Hashtable<>();
 	private final HashSet<PositionedNode> sourcePosition = new HashSet<>();
+	private final NodeFileNumbers nodeFileNumbers = new NodeFileNumbers();
+	private final List<String> filesOrderedById = new ArrayList<>();
 	private List<String> toplevelUnchangedVariableNames = new ArrayList<>();
 
 	public Start expressionStart;
@@ -1168,14 +1171,18 @@ public class BAstCreator extends BuiltInOPs
 		positionedNode.setStartPos(new SourcePosition(location.beginLine(), location.beginColumn()));
 		positionedNode.setEndPos(new SourcePosition(location.endLine(), location.endColumn()));
 		sourcePosition.add(positionedNode);
+		String source = semanticNode.getLocation().source();
+		int id = filesOrderedById.indexOf(source);
+		if (id == -1) {
+			id = filesOrderedById.size();
+			filesOrderedById.add(source);
+		}
+		nodeFileNumbers.assignIdentifiers(id+1, (Node) positionedNode);
 		return positionedNode;
 	}
 
 	private void setPosition(PositionedNode positionNode, OpApplNode opApplNode) {
-		Location location = opApplNode.getTreeNode().getLocation();
-		positionNode.setStartPos(new SourcePosition(location.beginLine(), location.beginColumn()));
-		positionNode.setEndPos(new SourcePosition(location.endLine(), location.endColumn()));
-		sourcePosition.add(positionNode);
+		createPositionedNode(positionNode, opApplNode);
 	}
 
 	private PExpression visitBuiltInKindExpression(OpApplNode n) {
@@ -2361,6 +2368,14 @@ public class BAstCreator extends BuiltInOPs
 
 	public HashSet<PositionedNode> getSourcePositions() {
 		return this.sourcePosition;
+	}
+
+	public NodeFileNumbers getNodeFileNumbers() {
+		return nodeFileNumbers;
+	}
+
+	public List<String> getFilesOrderedById() {
+		return filesOrderedById;
 	}
 
 	public List<String> getUnchangedVariablesNames() {
