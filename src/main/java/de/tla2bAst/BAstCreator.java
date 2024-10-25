@@ -182,17 +182,17 @@ public class BAstCreator extends BuiltInOPs
 			OpDefNode def = moduleNode.getOpDefs()[i];
 			if (specAnalyser.getBDefinitions().contains(def)) {
 				if (conEval != null && conEval.getConstantOverrideTable().containsValue(def)) {
-			        DebugUtils.printVeryVerboseMsg("Not creating B DEFINITION (in Override Table) " + def.getName() + " " + def);
+					DebugUtils.printVeryVerboseMsg("Not creating B DEFINITION (in Override Table) " + def.getName() + " " + def);
 					continue;
 				}
 				if (def.getOriginallyDefinedInModuleNode().getName().toString().equals("MC")) {
 					continue;
 				}
-			    //debugUtils.printVeryVerboseMsg("Creating B DEFINITION " + def.getName() + " " + def);
+				//debugUtils.printVeryVerboseMsg("Creating B DEFINITION " + def.getName() + " " + def);
 
 				bDefs.add(def);
 			} else {
-			    DebugUtils.printVeryVerboseMsg("Not creating unused B DEFINITION for " + def.getName() + " " + def);
+				DebugUtils.printVeryVerboseMsg("Not creating unused B DEFINITION for " + def.getName() + " " + def);
 			}
 
 		}
