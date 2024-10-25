@@ -377,8 +377,7 @@ public class BAstCreator extends BuiltInOPs
 
 		List<PExpression> constantsList = new ArrayList<>();
 		for (OpDeclNode opDeclNode : bConstants) {
-			AIdentifierExpression id = createPositionedNode(
-				new AIdentifierExpression(createTIdentifierLiteral(getName(opDeclNode))), opDeclNode);
+			AIdentifierExpression id = createPositionedNode(createIdentifierNode(getName(opDeclNode)), opDeclNode);
 			constantsList.add(id);
 			TLAType type = (TLAType) opDeclNode.getToolObject(TYPE_ID);
 			types.put(id, type);
@@ -395,6 +394,10 @@ public class BAstCreator extends BuiltInOPs
 		} else {
 			return createPositionedNode(createIdentifierNode(symbolNode.getName().toString()), symbolNode);
 		}
+	}
+
+	public static AIdentifierExpression createIdentifierNode(String name) {
+		return new AIdentifierExpression(createTIdentifierLiteral(name));
 	}
 
 	private void createPropertyClause() {
@@ -2309,10 +2312,6 @@ public class BAstCreator extends BuiltInOPs
 		} else {
 			throw new RuntimeException("OpArgNode not implemented jet");
 		}
-	}
-
-	public static AIdentifierExpression createIdentifierNode(String name) {
-		return new AIdentifierExpression(createTIdentifierLiteral(name));
 	}
 
 	public PPredicate createConjunction(List<PPredicate> list) {
