@@ -43,8 +43,8 @@ public class BAstCreator extends BuiltInOPs
 	private final Definitions bDefinitions = new Definitions();
 
 	private Start start;
-	private final Hashtable<Node, TLAType> typeTable = new Hashtable<>();
-	private final HashSet<PositionedNode> sourcePosition = new HashSet<>();
+	private final Map<Node, TLAType> types = new HashMap<>();
+	private final Set<PositionedNode> sourcePosition = new HashSet<>();
 	private final NodeFileNumbers nodeFileNumbers = new NodeFileNumbers();
 	private final List<String> filesOrderedById = new ArrayList<>();
 	private List<String> toplevelUnchangedVariableNames = new ArrayList<>();
@@ -334,7 +334,7 @@ public class BAstCreator extends BuiltInOPs
 					new AIdentifierExpression(createTIdentifierLiteral(getName(opDeclNode))), opDeclNode);
 				list.add(id);
 				TLAType type = (TLAType) opDeclNode.getToolObject(TYPE_ID);
-				typeTable.put(id, type);
+				types.put(id, type);
 			}
 			AVariablesMachineClause varClause = new AVariablesMachineClause(list);
 			machineClauseList.add(varClause);
@@ -350,14 +350,14 @@ public class BAstCreator extends BuiltInOPs
 				recDef.getOpDefNode());
 			constantsList.add(id);
 			TLAType type = (TLAType) recDef.getOpDefNode().getToolObject(TYPE_ID);
-			typeTable.put(id, type);
+			types.put(id, type);
 		}
 
 		for (OpDefNode recFunc : specAnalyser.getRecursiveFunctions()) {
 			AIdentifierExpression id = new AIdentifierExpression(createTIdentifierLiteral(getName(recFunc)));
 			constantsList.add(id);
 			TLAType type = (TLAType) recFunc.getToolObject(TYPE_ID);
-			typeTable.put(id, type);
+			types.put(id, type);
 		}
 
 		if (!constantsList.isEmpty()) {
@@ -381,7 +381,7 @@ public class BAstCreator extends BuiltInOPs
 				new AIdentifierExpression(createTIdentifierLiteral(getName(opDeclNode))), opDeclNode);
 			constantsList.add(id);
 			TLAType type = (TLAType) opDeclNode.getToolObject(TYPE_ID);
-			typeTable.put(id, type);
+			types.put(id, type);
 		}
 		if (!constantsList.isEmpty()) {
 			AConstantsMachineClause constantsClause = new AConstantsMachineClause(constantsList);
@@ -2362,11 +2362,11 @@ public class BAstCreator extends BuiltInOPs
 		return bDefinitions;
 	}
 
-	public Hashtable<Node, TLAType> getTypeTable() {
-		return this.typeTable;
+	public Map<Node, TLAType> getTypes() {
+		return this.types;
 	}
 
-	public HashSet<PositionedNode> getSourcePositions() {
+	public Set<PositionedNode> getSourcePositions() {
 		return this.sourcePosition;
 	}
 

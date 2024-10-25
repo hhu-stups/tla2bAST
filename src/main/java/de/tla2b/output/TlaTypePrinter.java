@@ -1,76 +1,49 @@
 package de.tla2b.output;
 
+import de.be4.classicalb.core.parser.analysis.prolog.ClassicalPositionPrinter;
 import de.be4.classicalb.core.parser.analysis.prolog.INodeIds;
-import de.be4.classicalb.core.parser.analysis.prolog.PositionPrinter;
 import de.be4.classicalb.core.parser.node.Node;
-import de.hhu.stups.sablecc.patch.PositionedNode;
 import de.prob.prolog.output.IPrologTermOutput;
 import de.tla2b.exceptions.NotImplementedException;
 import de.tla2b.types.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
-public class TlaTypePrinter implements PositionPrinter, TypeVisitorInterface {
+public class TlaTypePrinter extends ClassicalPositionPrinter implements TypeVisitorInterface {
+
 	private IPrologTermOutput pout;
+	private final Map<Node, TLAType> types;
 
-	// to look up the identifier of each node
-	public final INodeIds nodeIds;
-
-	private final Hashtable<Node, TLAType> typeTable;
-
-	private HashSet<PositionedNode> positions;
-
-	public TlaTypePrinter(INodeIds nodeIds,
-	                      Hashtable<Node, TLAType> typeTable) {
-		this.nodeIds = nodeIds;
-		this.typeTable = typeTable;
-	}
-
-	public void setSourcePositions(final HashSet<PositionedNode> positions) {
-		this.positions = positions;
+	public TlaTypePrinter(INodeIds nodeIds, Map<Node, TLAType> types) {
+		super(nodeIds);
+		super.setPrintSourcePositions(true, true);
+		this.types = types;
 	}
 
 	public void printPosition(final Node node) {
-		TLAType type = typeTable.get(node);
+		TLAType type = types.get(node);
 		if (type != null) {
 			pout.openTerm("info");
 		}
 
-		final Integer id = nodeIds.lookup(node);
-		if (positions != null && positions.contains(node)) {
-			pout.openTerm("pos", true);
-			pout.printNumber(id == null ? -1 : id);
-			pout.printNumber(nodeIds.lookupFileNumber(node));
-			pout.printNumber(node.getStartPos().getLine());
-			pout.printNumber(node.getStartPos().getPos());
-			pout.printNumber(node.getEndPos().getLine());
-			pout.printNumber(node.getEndPos().getPos());
-			pout.closeTerm();
-		} else {
-			if (id == null) {
-				pout.printAtom("none");
-			} else {
-				pout.printNumber(id);
-			}
-		}
+		super.printPosition(node);
+
 		if (type != null) {
 			pout.openTerm("tla_type");
 			type.apply(this);
 			pout.closeTerm();
-
 			pout.closeTerm();
 		}
 	}
 
 	public void setPrologTermOutput(final IPrologTermOutput pout) {
+		super.setPrologTermOutput(pout);
 		this.pout = pout;
 	}
 
 	public void caseIntegerType(IntType t) {
 		pout.printAtom("integer");
-
 	}
 
 	public void caseBoolType(BoolType t) {
@@ -122,7 +95,7 @@ public class TlaTypePrinter implements PositionPrinter, TypeVisitorInterface {
 	public void caseStructType(StructType type) {
 		pout.openTerm("record");
 		pout.openList();
-		ArrayList<String> fields = type.getFields();
+		List<String> fields = type.getFields();
 		for (String field : fields) {
 			if (type.isExtensible()) {
 				pout.openTerm("opt");
@@ -150,5 +123,4 @@ public class TlaTypePrinter implements PositionPrinter, TypeVisitorInterface {
 	public void caseUntyped(UntypedType type) {
 		throw new NotImplementedException("should not happen");
 	}
-
 }

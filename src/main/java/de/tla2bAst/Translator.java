@@ -9,13 +9,15 @@ import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.Start;
 import de.be4.classicalb.core.parser.util.PrettyPrinter;
 import de.be4.classicalb.core.parser.util.SuffixIdentifierRenaming;
+import de.hhu.stups.sablecc.patch.PositionedNode;
+import de.prob.prolog.output.PrologTermOutput;
 import de.tla2b.analysis.*;
 import de.tla2b.config.ConfigfileEvaluator;
 import de.tla2b.config.ModuleOverrider;
 import de.tla2b.exceptions.TLA2BFrontEndException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.global.TranslationGlobals;
-import de.tla2b.output.PrologPrinter;
+import de.tla2b.output.TlaTypePrinter;
 import de.tla2b.translation.BMacroHandler;
 import de.tla2b.translation.RecursiveFunctionHandler;
 import de.tla2b.types.TLAType;
@@ -30,14 +32,14 @@ import util.ToolIO;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Hashtable;
+import java.util.Map;
 
 public class Translator implements TranslationGlobals {
 	private String moduleFileName;
 	private File moduleFile;
 	private File configFile;
 	private Start BAst;
-	private Hashtable<Node, TLAType> typeTable;
+	private Map<Node, TLAType> types;
 
 	private Definitions bDefinitions;
 
@@ -203,7 +205,7 @@ public class Translator implements TranslationGlobals {
 				new BMacroHandler(specAnalyser, conEval),
 				new RecursiveFunctionHandler(specAnalyser));
 
-		this.typeTable = bAstCreator.getTypeTable();
+		this.types = bAstCreator.getTypes();
 		this.bDefinitions = bAstCreator.getBDefinitions();
 		return this.BAst = bAstCreator.getStartNode();
 	}
@@ -226,12 +228,8 @@ public class Translator implements TranslationGlobals {
 			bParser.getDefinitions().addDefinitions(getBDefinitions());
 			final RecursiveMachineLoader rml = parseAllMachines(getBAST(), getModuleFile(), bParser);
 
-			String moduleName = FileUtils.removeExtension(moduleFile.getName());
-			PrologPrinter prologPrinter = new PrologPrinter(rml, bParser, moduleFile, moduleName, typeTable);
-			prologPrinter.setPositions(bAstCreator.getSourcePositions());
-
 			PrintWriter outWriter = new PrintWriter(probFile, "UTF-8");
-			prologPrinter.printAsProlog(outWriter, false);
+			rml.printAsProlog(new PrologTermOutput(outWriter, false));
 			outWriter.close();
 			System.out.println(probFile.getAbsolutePath() + " created.");
 
@@ -288,10 +286,11 @@ public class Translator implements TranslationGlobals {
 
 	}
 
-	public static RecursiveMachineLoader parseAllMachines(final Start ast, final File f, final BParser bparser)
-		throws BCompoundException {
 		final RecursiveMachineLoader rml = new RecursiveMachineLoader(f.getParent(), bparser.getContentProvider());
+	public RecursiveMachineLoader parseAllMachines(final Start ast, final File f, final BParser bparser) throws BCompoundException {
 		rml.loadAllMachines(f, ast, bparser.getDefinitions());
+		// this is required for correct positions in ProB2(-UI) when rml.printAsProlog is called
+		rml.setPositionPrinter(new TlaTypePrinter(rml.getNodeIdMapping(), bAstCreator.getTypes()));
 		return rml;
 	}
 
@@ -341,8 +340,8 @@ public class Translator implements TranslationGlobals {
 		return moduleFile;
 	}
 
-	public Hashtable<Node, TLAType> getTypeTable() {
-		return this.typeTable;
+	public Map<Node, TLAType> getTypes() {
+		return this.types;
 	}
 
 }
