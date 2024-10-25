@@ -98,7 +98,7 @@ public class BOperation extends BuiltInOPs implements ASTConstants, ToolGlobals,
 
 		return new AOperation(
 				new ArrayList<>(),
-				BAstCreator.createTIdentifierLiteral(name),
+				bASTCreator.createPositionedTIdentifierLiteral(name, getNode()),
 				this.getFormalParams().stream().map(bASTCreator::createIdentifierNode).collect(Collectors.toList()),
 				operationBody
 		);

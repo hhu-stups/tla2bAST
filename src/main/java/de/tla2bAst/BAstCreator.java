@@ -2353,6 +2353,10 @@ public class BAstCreator extends BuiltInOPs
 		return Collections.singletonList(new TIdentifierLiteral(name));
 	}
 
+	public List<TIdentifierLiteral> createPositionedTIdentifierLiteral(String name, SemanticNode node) {
+		return Collections.singletonList(createPositionedNode(new TIdentifierLiteral(name), node));
+	}
+
 	public Start getStartNode() {
 		return start;
 	}
