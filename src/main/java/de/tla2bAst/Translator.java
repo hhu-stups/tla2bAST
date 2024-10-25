@@ -286,8 +286,8 @@ public class Translator implements TranslationGlobals {
 
 	}
 
-		final RecursiveMachineLoader rml = new RecursiveMachineLoader(f.getParent(), bparser.getContentProvider());
 	public RecursiveMachineLoader parseAllMachines(final Start ast, final File f, final BParser bparser) throws BCompoundException {
+		final RecursiveMachineLoader rml = new RecursiveMachineLoader(f.getParent(), bparser.getContentProvider());
 		rml.loadAllMachines(f, ast, bparser.getDefinitions());
 		// this is required for correct positions in ProB2(-UI) when rml.printAsProlog is called
 		rml.setPositionPrinter(new TlaTypePrinter(rml.getNodeIdMapping(), bAstCreator.getTypes()));
