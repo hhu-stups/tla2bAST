@@ -228,9 +228,7 @@ public class BAstCreator extends BuiltInOPs
 		}
 
 		if (!defs.isEmpty()) {
-			ADefinitionsMachineClause defClause = new ADefinitionsMachineClause();
-			defClause.setDefinitions(defs);
-			machineClauseList.add(defClause);
+			machineClauseList.add(new ADefinitionsMachineClause(defs));
 
 			for (PDefinition def : defs) {
 				if (def instanceof AExpressionDefinitionDefinition) {
@@ -241,54 +239,43 @@ public class BAstCreator extends BuiltInOPs
 					bDefinitions.addDefinition((ASubstitutionDefinitionDefinition) def, Definitions.Type.Substitution);
 				}
 			}
-
 		}
-
 	}
 
-	private ArrayList<PDefinition> createDefinitionsForExternalFunctions(Set<EXTERNAL_FUNCTIONS> set) {
-		ArrayList<PDefinition> list = new ArrayList<>();
-
+	private List<PDefinition> createDefinitionsForExternalFunctions(Set<EXTERNAL_FUNCTIONS> set) {
+		List<PDefinition> list = new ArrayList<>();
 		if (set.contains(UsedExternalFunctions.EXTERNAL_FUNCTIONS.CHOOSE)) {
-			AExpressionDefinitionDefinition def1 = new AExpressionDefinitionDefinition();
-			def1.setName(new TIdentifierLiteral("CHOOSE"));
-			def1.setParameters(createIdentifierList("X"));
-			def1.setRhs(new AStringExpression(new TStringLiteral("a member of X")));
-			list.add(def1);
-			AExpressionDefinitionDefinition def2 = new AExpressionDefinitionDefinition();
-			def2.setName(new TIdentifierLiteral("EXTERNAL_FUNCTION_CHOOSE"));
-			def2.setParameters(createIdentifierList("T"));
-			ATotalFunctionExpression total = new ATotalFunctionExpression();
-			total.setLeft(new APowSubsetExpression(createIdentifierNode("T")));
-			total.setRight(createIdentifierNode("T"));
-			def2.setRhs(total);
-			list.add(def2);
+			list.add(new AExpressionDefinitionDefinition(
+					new TIdentifierLiteral("CHOOSE"),
+					createIdentifierList("X"),
+					new AStringExpression(new TStringLiteral("a member of X"))
+			));
+			list.add(new AExpressionDefinitionDefinition(
+					new TIdentifierLiteral("EXTERNAL_FUNCTION_CHOOSE"),
+					createIdentifierList("T"),
+					new ATotalFunctionExpression(
+							new APowSubsetExpression(createIdentifierNode("T")),
+							createIdentifierNode("T")
+					)
+			));
 		}
 		if (set.contains(UsedExternalFunctions.EXTERNAL_FUNCTIONS.ASSERT)) {
-			APredicateDefinitionDefinition def1 = new APredicateDefinitionDefinition();
-			def1.setName(new TDefLiteralPredicate("ASSERT_TRUE"));
-			ArrayList<PExpression> params = new ArrayList<>();
-			params.add(createIdentifierNode("P"));
-			params.add(createIdentifierNode("Msg"));
-			def1.setParameters(params);
-			def1.setRhs(new AEqualPredicate(new AIntegerExpression(new TIntegerLiteral("1")),
-				new AIntegerExpression(new TIntegerLiteral("1"))));
-			list.add(def1);
-
-			AExpressionDefinitionDefinition def2 = new AExpressionDefinitionDefinition();
-			def2.setName(new TIdentifierLiteral("EXTERNAL_PREDICATE_ASSERT_TRUE"));
-			def2.setParameters(new ArrayList<>());
-			AMultOrCartExpression cart = new AMultOrCartExpression();
-			cart.setLeft(new ABoolSetExpression());
-			cart.setRight(new AStringSetExpression());
-			def2.setRhs(cart);
-			list.add(def2);
+			list.add(new APredicateDefinitionDefinition(
+					new TDefLiteralPredicate("ASSERT_TRUE"),
+					Arrays.asList(createIdentifierNode("P"), createIdentifierNode("Msg")),
+					new ATruthPredicate()
+			));
+			list.add(new AExpressionDefinitionDefinition(
+					new TIdentifierLiteral("EXTERNAL_PREDICATE_ASSERT_TRUE"),
+					new ArrayList<>(),
+					new AMultOrCartExpression(new ABoolSetExpression(), new AStringSetExpression())
+			));
 		}
 		return list;
 	}
 
 	private void createOperationsClause() {
-		ArrayList<BOperation> bOperations = specAnalyser.getBOperations();
+		List<BOperation> bOperations = specAnalyser.getBOperations();
 		if (bOperations == null || bOperations.isEmpty()) {
 			return;
 		}
@@ -309,19 +296,17 @@ public class BAstCreator extends BuiltInOPs
 		for (OpDeclNode var : vars) {
 			varList.add(createIdentifierNode(var));
 		}
-		ABecomesSuchSubstitution becomes = new ABecomesSuchSubstitution();
-		becomes.setIdentifiers(varList);
 
 		List<PPredicate> predList = new ArrayList<>();
 		for (ExprNode node : specAnalyser.getInits()) {
 			predList.add(visitExprNodePredicate(node));
 		}
 		if (predList.isEmpty()) {
-			throw new NotImplementedException("Could not find a definition of Init.");
+			throw new IllegalStateException("Could not find a definition of Init.");
 		}
-		becomes.setPredicate(createConjunction(predList));
-		AInitialisationMachineClause initClause = new AInitialisationMachineClause(becomes);
-		machineClauseList.add(initClause);
+		machineClauseList.add(new AInitialisationMachineClause(
+				new ABecomesSuchSubstitution(varList,createConjunction(predList))
+		));
 	}
 
 	private void createVariableClause() {
@@ -329,15 +314,11 @@ public class BAstCreator extends BuiltInOPs
 		if (!bVariables.isEmpty()) {
 			List<PExpression> list = new ArrayList<>();
 			for (OpDeclNode opDeclNode : bVariables) {
-
-				AIdentifierExpression id = createPositionedNode(
-					new AIdentifierExpression(createTIdentifierLiteral(getName(opDeclNode))), opDeclNode);
+				AIdentifierExpression id = createPositionedNode(createIdentifierNode(getName(opDeclNode)), opDeclNode);
 				list.add(id);
-				TLAType type = (TLAType) opDeclNode.getToolObject(TYPE_ID);
-				types.put(id, type);
+				types.put(id, (TLAType) opDeclNode.getToolObject(TYPE_ID));
 			}
-			AVariablesMachineClause varClause = new AVariablesMachineClause(list);
-			machineClauseList.add(varClause);
+			machineClauseList.add(new AVariablesMachineClause(list));
 		}
 	}
 
@@ -345,25 +326,20 @@ public class BAstCreator extends BuiltInOPs
 		List<PExpression> constantsList = new ArrayList<>();
 
 		for (RecursiveDefinition recDef : specAnalyser.getRecursiveDefinitions()) {
-			AIdentifierExpression id = createPositionedNode(
-				new AIdentifierExpression(createTIdentifierLiteral(getName(recDef.getOpDefNode()))),
+			AIdentifierExpression id = createPositionedNode(createIdentifierNode(getName(recDef.getOpDefNode())),
 				recDef.getOpDefNode());
 			constantsList.add(id);
-			TLAType type = (TLAType) recDef.getOpDefNode().getToolObject(TYPE_ID);
-			types.put(id, type);
+			types.put(id, (TLAType) recDef.getOpDefNode().getToolObject(TYPE_ID));
 		}
 
 		for (OpDefNode recFunc : specAnalyser.getRecursiveFunctions()) {
 			AIdentifierExpression id = new AIdentifierExpression(createTIdentifierLiteral(getName(recFunc)));
 			constantsList.add(id);
-			TLAType type = (TLAType) recFunc.getToolObject(TYPE_ID);
-			types.put(id, type);
+			types.put(id, (TLAType) recFunc.getToolObject(TYPE_ID));
 		}
 
 		if (!constantsList.isEmpty()) {
-			AAbstractConstantsMachineClause abstractConstantsClause = new AAbstractConstantsMachineClause(
-				constantsList);
-			machineClauseList.add(abstractConstantsClause);
+			machineClauseList.add(new AAbstractConstantsMachineClause(constantsList));
 		}
 	}
 
@@ -2249,22 +2225,13 @@ public class BAstCreator extends BuiltInOPs
 					// sequence
 					FormalParamNode param = params[i][0];
 					param.setToolObject(TUPLE, params[i]);
-
-					AMemberPredicate member = new AMemberPredicate();
-					member.setLeft(createIdentifierNode(param));
-					member.setRight(visitExprNodeExpression(in[i]));
-					predList.add(member);
-
+					predList.add(new AMemberPredicate(createIdentifierNode(param), visitExprNodeExpression(in[i])));
 				} else if (i == 0) {
-					ArrayList<PExpression> list = new ArrayList<>();
+					List<PExpression> list = new ArrayList<>();
 					for (int j = 0; j < params[i].length; j++) {
-						FormalParamNode param = params[i][j];
-						list.add(createIdentifierNode(param));
+						list.add(createIdentifierNode(params[i][j]));
 					}
-					AMemberPredicate member = new AMemberPredicate();
-					member.setLeft(new ACoupleExpression(list));
-					member.setRight(visitExprNodeExpression(in[i]));
-					predList.add(member);
+					predList.add(new AMemberPredicate(new ACoupleExpression(list), visitExprNodeExpression(in[i])));
 				} else {
 					ArrayList<PExpression> list = new ArrayList<>();
 					StringBuilder sb = new StringBuilder();
@@ -2277,18 +2244,11 @@ public class BAstCreator extends BuiltInOPs
 						sb.append(param.getName().toString());
 						list.add(createIdentifierNode(param));
 					}
-					PExpression id = createIdentifierNode(sb.toString());
-					AMemberPredicate member = new AMemberPredicate();
-					member.setLeft(id);
-					member.setRight(visitExprNodeExpression(in[i]));
-					predList.add(member);
+					predList.add(new AMemberPredicate(createIdentifierNode(sb.toString()), visitExprNodeExpression(in[i])));
 				}
 			} else {
 				for (int j = 0; j < params[i].length; j++) {
-					AMemberPredicate member = new AMemberPredicate();
-					member.setLeft(createIdentifierNode(params[i][j]));
-					member.setRight(visitExprNodeExpression(in[i]));
-					predList.add(member);
+					predList.add(new AMemberPredicate(createIdentifierNode(params[i][j]), visitExprNodeExpression(in[i])));
 				}
 			}
 		}

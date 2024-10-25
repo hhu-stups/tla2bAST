@@ -16,7 +16,7 @@ public class ExternalFunctionsTest {
 
 		final String expected = "MACHINE Testing\n"
 			+ "DEFINITIONS "
-			+ "ASSERT_TRUE(P, Msg) == 1 = 1; \n"
+			+ "ASSERT_TRUE(P, Msg) == btrue; \n"
 			+ "EXTERNAL_PREDICATE_ASSERT_TRUE == BOOL * STRING; \n"
 			+ "PROPERTIES ASSERT_TRUE(TRUE, \"abc\") \n"
 			+ "END";
