@@ -1,5 +1,9 @@
 package de.tla2b.util;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import de.be4.classicalb.core.parser.BParser;
 import de.be4.classicalb.core.parser.analysis.prolog.ASTProlog;
 import de.be4.classicalb.core.parser.exceptions.BCompoundException;
@@ -10,12 +14,8 @@ import de.be4.classicalb.core.parser.util.SuffixIdentifierRenaming;
 import de.prob.prolog.output.PrologTermStringOutput;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2bAst.Translator;
-import util.FileUtil;
-import util.ToolIO;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import util.ToolIO;
 
 import static org.junit.Assert.assertEquals;
 
@@ -146,7 +146,7 @@ public class TestUtil {
 	public static TestTypeChecker typeCheck(String moduleFileName) throws TLA2BException {
 		ToolIO.setMode(ToolIO.TOOL);
 		ToolIO.reset();
-		moduleFileName = moduleFileName.replace('/', FileUtil.separatorChar);
+		moduleFileName = moduleFileName.replace('/', File.separatorChar);
 		TestTypeChecker testTypeChecker = new TestTypeChecker();
 		testTypeChecker.start(moduleFileName);
 		return testTypeChecker;
