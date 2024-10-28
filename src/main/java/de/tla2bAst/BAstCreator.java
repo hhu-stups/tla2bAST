@@ -24,6 +24,7 @@ import tlc2.value.impl.*;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 public class BAstCreator extends BuiltInOPs
 	implements TranslationGlobals, ASTConstants, BBuildIns, ValueConstants {
@@ -1501,7 +1502,6 @@ public class BAstCreator extends BuiltInOPs
 					OpApplNode pair = (OpApplNode) arg;
 					StringNode stringNode = (StringNode) pair.getArgs()[0];
 					pairTable.put(stringNode.getRep().toString(), visitExprOrOpArgNodeExpression(pair.getArgs()[1]));
-
 				}
 				List<PRecEntry> recList = new ArrayList<>();
 				if (struct.isExtensible()) {
@@ -1539,7 +1539,7 @@ public class BAstCreator extends BuiltInOPs
 			case OPCODE_rc: { // [h_1 |-> 1, h_2 |-> 2]
 				StructType struct = (StructType) n.getToolObject(TYPE_ID);
 				if (struct.isExtensible()) {
-					Hashtable<String, PExpression> pairTable = new Hashtable<>();
+					Map<String, PExpression> pairTable = new HashMap<>();
 					ExprOrOpArgNode[] args = n.getArgs();
 					for (ExprOrOpArgNode arg : args) {
 						OpApplNode pair = (OpApplNode) arg;
@@ -1547,8 +1547,7 @@ public class BAstCreator extends BuiltInOPs
 						pairTable.put(stringNode.getRep().toString(), visitExprOrOpArgNodeExpression(pair.getArgs()[1]));
 					}
 					List<PRecEntry> recList = new ArrayList<>();
-					for (int i = 0; i < struct.getFields().size(); i++) {
-						String fieldName = struct.getFields().get(i);
+					for (String fieldName : struct.getFields()) {
 						ARecEntry rec = new ARecEntry();
 						rec.setIdentifier(new TIdentifierLiteral(fieldName));
 						if (pairTable.containsKey(fieldName)) {
@@ -1572,8 +1571,7 @@ public class BAstCreator extends BuiltInOPs
 						pairTable.put(stringNode.getRep().toString(), visitExprOrOpArgNodeExpression(pair.getArgs()[1]));
 					}
 					List<PRecEntry> recList = new ArrayList<>();
-					for (int i = 0; i < struct.getFields().size(); i++) {
-						String fieldName = struct.getFields().get(i);
+					for (String fieldName : struct.getFields()) {
 						ARecEntry rec = new ARecEntry();
 						rec.setIdentifier(new TIdentifierLiteral(fieldName));
 						if (pairTable.containsKey(fieldName)) {
@@ -1616,11 +1614,11 @@ public class BAstCreator extends BuiltInOPs
 			}
 
 			case OPCODE_ite: { // IF THEN ELSE
-				List<PExpression> Elsifs = new ArrayList<>();
-				AIfThenElseExpression ifthenElse = new AIfThenElseExpression(visitExprOrOpArgNodePredicate(n.getArgs()[0]),
-					visitExprOrOpArgNodeExpression(n.getArgs()[1]), Elsifs,
-					visitExprOrOpArgNodeExpression(n.getArgs()[2]));
-				return ifthenElse;
+				return new AIfThenElseExpression(
+						visitExprOrOpArgNodePredicate(n.getArgs()[0]),
+						visitExprOrOpArgNodeExpression(n.getArgs()[1]),
+						new ArrayList<>(),
+						visitExprOrOpArgNodeExpression(n.getArgs()[2]));
 
 				// ALambdaExpression lambda1 = new ALambdaExpression();
 				// lambda1.setIdentifiers(createIdentifierList("t_"));
@@ -1701,8 +1699,7 @@ public class BAstCreator extends BuiltInOPs
 				}
 			}
 
-			case OPCODE_seq: // !
-			{
+			case OPCODE_seq: { // !
 				return visitExprOrOpArgNodeExpression(n.getArgs()[0]);
 			}
 
@@ -1716,31 +1713,40 @@ public class BAstCreator extends BuiltInOPs
 
 			case OPCODE_bf: { // \A x \in S : P
 				FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-				ArrayList<PExpression> list = new ArrayList<>();
+				List<PExpression> list = new ArrayList<>();
 				for (FormalParamNode[] param : params) {
 					for (FormalParamNode formalParamNode : param) {
 						list.add(createIdentifierNode(formalParamNode));
 					}
 				}
-				AImplicationPredicate implication = new AImplicationPredicate();
-				implication.setLeft(visitBoundsOfLocalVariables(n));
-				implication.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-				return new AConvertBoolExpression(new AForallPredicate(list, implication));
+				return new AConvertBoolExpression(
+						new AForallPredicate(
+								list,
+								new AImplicationPredicate(
+									visitBoundsOfLocalVariables(n),
+									visitExprOrOpArgNodePredicate(n.getArgs()[0])
+								)
+						)
+				);
 			}
 
 			case OPCODE_be: { // \E x \in S : P
 				FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-				ArrayList<PExpression> list = new ArrayList<>();
+				List<PExpression> list = new ArrayList<>();
 				for (FormalParamNode[] param : params) {
 					for (FormalParamNode formalParamNode : param) {
 						list.add(createIdentifierNode(formalParamNode));
 					}
 				}
-				AConjunctPredicate conjunction = new AConjunctPredicate();
-				conjunction.setLeft(visitBoundsOfLocalVariables(n));
-				conjunction.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-				AExistsPredicate exists = new AExistsPredicate(list, conjunction);
-				return new AConvertBoolExpression(exists);
+				return new AConvertBoolExpression(
+						new AExistsPredicate(
+								list,
+								new AConjunctPredicate(
+										visitBoundsOfLocalVariables(n),
+										visitExprOrOpArgNodePredicate(n.getArgs()[0])
+								)
+						)
+				);
 			}
 
 		}
@@ -1806,7 +1812,6 @@ public class BAstCreator extends BuiltInOPs
 
 	private PExpression createProjectionFunction(PExpression pair, int field, TLAType t) {
 		TupleType tuple = (TupleType) t;
-		int size = tuple.getTypes().size();
 
 		AFunctionExpression returnFunc = new AFunctionExpression();
 		int index;
@@ -1818,35 +1823,33 @@ public class BAstCreator extends BuiltInOPs
 			));
 		} else {
 			index = field;
-			ASecondProjectionExpression second = new ASecondProjectionExpression();
-			ArrayList<TLAType> typeList = new ArrayList<>();
+			List<TLAType> typeList = new ArrayList<>();
 			for (int i = 0; i < field - 1; i++) {
 				typeList.add(tuple.getTypes().get(i));
 			}
-			second.setExp1(createNestedCouple(typeList));
-			second.setExp2(tuple.getTypes().get(field - 1).getBNode());
-			returnFunc.setIdentifier(second);
+			// we could use AEventBSecondProjectionV2Expression here (which would be much easier),
+			// but this is only supported by ProB (?)
+			returnFunc.setIdentifier(new ASecondProjectionExpression(
+					createNestedCouple(typeList),
+					tuple.getTypes().get(field - 1).getBNode()
+			));
 		}
 		AFunctionExpression func = returnFunc;
-		for (int i = index; i < size; i++) {
+		for (int i = index; i < tuple.getTypes().size(); i++) {
 			AFunctionExpression newfunc = new AFunctionExpression();
-			AFirstProjectionExpression first = new AFirstProjectionExpression();
-			ArrayList<TLAType> typeList = new ArrayList<>();
+			List<TLAType> typeList = new ArrayList<>();
 			for (int j = 0; j < i; j++) {
 				typeList.add(tuple.getTypes().get(j));
 			}
-			first.setExp1(createNestedCouple(typeList));
-			first.setExp2(tuple.getTypes().get(i).getBNode());
-			newfunc.setIdentifier(first);
+			newfunc.setIdentifier(new AFirstProjectionExpression(
+					createNestedCouple(typeList),
+					tuple.getTypes().get(i).getBNode()
+			));
 
-			ArrayList<PExpression> list = new ArrayList<>();
-			list.add(newfunc);
-			func.setParameters(list);
+			func.setParameters(Collections.singletonList(newfunc));
 			func = newfunc;
 		}
-		ArrayList<PExpression> list = new ArrayList<>();
-		list.add(pair);
-		func.setParameters(list);
+		func.setParameters(Collections.singletonList(pair));
 		return returnFunc;
 	}
 
@@ -1874,39 +1877,26 @@ public class BAstCreator extends BuiltInOPs
 	}
 
 	private PExpression createUnboundedChoose(OpApplNode n) {
-		ADefinitionExpression defCall = new ADefinitionExpression();
-		defCall.setDefLiteral(new TIdentifierLiteral("CHOOSE"));
-		AComprehensionSetExpression comprehension = new AComprehensionSetExpression();
-		List<PExpression> paramList = new ArrayList<>();
-		for (FormalParamNode param : n.getUnbdedQuantSymbols()) {
-			paramList.add(createIdentifierNode(param));
-		}
-		comprehension.setIdentifiers(paramList);
-		comprehension.setPredicates(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-		List<PExpression> list = new ArrayList<>();
-		list.add(comprehension);
-		defCall.setParameters(list);
-		return defCall;
+		return new ADefinitionExpression(
+				new TIdentifierLiteral("CHOOSE"),
+				Collections.singletonList(new AComprehensionSetExpression(
+						Arrays.stream(n.getUnbdedQuantSymbols()).map(this::createIdentifierNode).collect(Collectors.toList()),
+						visitExprOrOpArgNodePredicate(n.getArgs()[0])
+				))
+		);
 	}
 
 	private PExpression createBoundedChoose(OpApplNode n) {
-		ADefinitionExpression defCall = new ADefinitionExpression();
-		defCall.setDefLiteral(new TIdentifierLiteral("CHOOSE"));
-		AComprehensionSetExpression comprehension = new AComprehensionSetExpression();
-		List<PExpression> paramList = new ArrayList<>();
-		for (FormalParamNode param : n.getBdedQuantSymbolLists()[0]) {
-			paramList.add(createIdentifierNode(param));
-		}
-		comprehension.setIdentifiers(paramList);
-		PPredicate typingPredicate = visitBoundsOfLocalVariables(n);
-		AConjunctPredicate conj = new AConjunctPredicate();
-		conj.setLeft(typingPredicate);
-		conj.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-		comprehension.setPredicates(conj);
-		List<PExpression> list = new ArrayList<>();
-		list.add(comprehension);
-		defCall.setParameters(list);
-		return defCall;
+		return new ADefinitionExpression(
+				new TIdentifierLiteral("CHOOSE"),
+				Collections.singletonList(new AComprehensionSetExpression(
+						Arrays.stream(n.getBdedQuantSymbolLists()[0]).map(this::createIdentifierNode).collect(Collectors.toList()),
+						new AConjunctPredicate(
+								visitBoundsOfLocalVariables(n),
+								visitExprOrOpArgNodePredicate(n.getArgs()[0])
+						)
+				))
+		);
 	}
 
 	private PExpression createCaseNode(OpApplNode n) {
