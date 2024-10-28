@@ -114,7 +114,7 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 			case ConstantDeclKind: {
 				if (constantOverrideTable.containsKey(s) && s.getArity() > 0) {
 					SymbolNode newOperator = constantOverrideTable.get(s);
-					OpApplNode newNode = null;
+					OpApplNode newNode;
 					try {
 						newNode = new OpApplNode(newOperator, n.getArgs(),
 							n.getTreeNode(), null);
@@ -160,7 +160,7 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 					&& !operatorOverrideTable.containsKey(operator))
 					break;
 
-				SymbolNode newOperator = null;
+				SymbolNode newOperator;
 				// IF there are two override statements in the configuration file
 				//(a: Add <- (Rule) Add2, b: R1!Add <- Add3)
 				// TLC uses variant a) overriding the source definition

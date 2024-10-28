@@ -104,15 +104,10 @@ public class ConfigfileEvaluator {
 
 		evalInvariants();
 		// check if INVARIANT declarations are valid definitions
-
 		evalConstantOrDefOverrides();
-
 		evalConstantOrOperatorAssignments();
-
 		evalModConOrDefAssignments();
-
 		evalModConOrDefOverrides();
-
 	}
 
 
@@ -127,9 +122,7 @@ public class ConfigfileEvaluator {
 						+ " Module does not contain the definition '"
 						+ next + "'");
 			}
-		} else
-			next = null;
-
+		}
 	}
 
 	private void evalInit() throws ConfigFileErrorException {
@@ -143,10 +136,7 @@ public class ConfigfileEvaluator {
 						+ " Module does not contain the definition '"
 						+ init + "'");
 			}
-		} else {
-			init = null;
 		}
-
 	}
 
 	private void evalSpec() throws ConfigFileErrorException {
@@ -160,8 +150,7 @@ public class ConfigfileEvaluator {
 						+ "Module does not contain the definition '"
 						+ spec + "'");
 			}
-		} else
-			spec = null;
+		}
 	}
 
 	private void evalInvariants() throws ConfigFileErrorException {
@@ -180,7 +169,6 @@ public class ConfigfileEvaluator {
 				}
 			}
 		}
-
 	}
 
 	/**
@@ -303,11 +291,9 @@ public class ConfigfileEvaluator {
 					OpDeclNode c = (OpDeclNode) opDefOrDeclNode;
 					ValueObj valueObj = new ValueObj(symbolValue, symbolType);
 					constantAssignments.put(c, valueObj);
-					/**
-					 * if conValue is a model value and the name of value is the
-					 * same as the name of constants, then the constant
-					 * declaration in the resulting B machine disappears
-					 **/
+					// if conValue is a model value and the name of value is the
+					// same as the name of constants, then the constant
+					// declaration in the resulting B machine disappears
 					if (symbolName.equals(symbolValue.toString())) {
 						bConstantList.remove(c);
 					}
@@ -323,7 +309,6 @@ public class ConfigfileEvaluator {
 					} else if ((symbolType instanceof EnumType)) {
 						operatorModelvalues.add(def);
 					}
-
 				}
 			}
 		}
@@ -332,8 +317,7 @@ public class ConfigfileEvaluator {
 	private void evalModConOrDefOverrides() throws ConfigFileErrorException {
 		// foo <- [Counter] bar or k <- [Counter] bar
 		@SuppressWarnings("unchecked")
-		Hashtable<String, Hashtable<String, String>> configCons = configAst
-			.getModOverrides();
+		Hashtable<String, Hashtable<String, String>> configCons = configAst.getModOverrides();
 		Enumeration<String> moduleNames = configCons.keys();
 		while (moduleNames.hasMoreElements()) {
 			String moduleName = moduleNames.nextElement();
@@ -351,8 +335,7 @@ public class ConfigfileEvaluator {
 							+ ".\n Module does not contain definition "
 							+ right + ".");
 				}
-				OpDefOrDeclNode opDefOrDeclNode = searchDefinitionOrConstant(
-					mNode, left);
+				OpDefOrDeclNode opDefOrDeclNode = searchDefinitionOrConstant(mNode, left);
 
 				if (opDefOrDeclNode instanceof OpDefNode) {
 					// an operator is overridden by another operator
@@ -392,15 +375,12 @@ public class ConfigfileEvaluator {
 					}
 					bConstantList.remove(conNode);
 					constantOverrideTable.put(conNode, rightDefNode);
-
 				}
 			}
-
 		}
 	}
 
-	public ModuleNode searchModule(String moduleName)
-		throws ConfigFileErrorException {
+	public ModuleNode searchModule(String moduleName) throws ConfigFileErrorException {
 		/*
 		 * Search module in extended modules
 		 */
@@ -414,7 +394,6 @@ public class ConfigfileEvaluator {
 		/*
 		 * search module in instanced modules
 		 */
-
 		OpDefNode[] defs = moduleNode.getOpDefs();
 		for (int j = defs.length - 1; j > 0; j--) {
 			OpDefNode def = null;
@@ -434,43 +413,36 @@ public class ConfigfileEvaluator {
 				moduleName));
 	}
 
-	public OpDefOrDeclNode searchDefinitionOrConstant(ModuleNode n,
-	                                                  String defOrConName) throws ConfigFileErrorException {
+	public OpDefOrDeclNode searchDefinitionOrConstant(ModuleNode n, String defOrConName) throws ConfigFileErrorException {
 		for (int i = 0; i < n.getOpDefs().length; i++) {
 			if (n.getOpDefs()[i].getName().toString().equals(defOrConName)) {
 				return n.getOpDefs()[i];
 			}
 		}
 		for (int i = 0; i < n.getConstantDecls().length; i++) {
-			if (n.getConstantDecls()[i].getName().toString()
-				.equals(defOrConName)) {
+			if (n.getConstantDecls()[i].getName().toString().equals(defOrConName)) {
 				return n.getConstantDecls()[i];
 			}
 		}
-		throw new ConfigFileErrorException(
-			"Module does not contain the symbol: " + defOrConName);
+		throw new ConfigFileErrorException("Module does not contain the symbol: " + defOrConName);
 	}
 
 	private TLAType conGetType(Object o) throws ConfigFileErrorException {
 		if (o instanceof IntValue) {
-
 			// IntValue iv = (IntValue) o;
 			return IntType.getInstance();
 		} else if (o.getClass().getName().equals("tlc2.value.impl.SetEnumValue")) {
 			SetEnumValue set = (SetEnumValue) o;
 			SetType t = new SetType(new UntypedType());
 			if (set.isEmpty()) {
-				throw new ConfigFileErrorException(
-					"empty set is not permitted!");
+				throw new ConfigFileErrorException("empty set is not permitted!");
 			}
 			TLAType elemType;
 
-			if (set.elems.elementAt(0).getClass().getName()
-				.equals("tlc2.value.impl.ModelValue")) {
+			if (set.elems.elementAt(0).getClass().getName().equals("tlc2.value.impl.ModelValue")) {
 				EnumType e = new EnumType(new ArrayList<>());
 				for (int i = 0; i < set.size(); i++) {
-					if (set.elems.elementAt(i).getClass().getName()
-						.equals("tlc2.value.impl.ModelValue")) {
+					if (set.elems.elementAt(i).getClass().getName().equals("tlc2.value.impl.ModelValue")) {
 						String mv = set.elems.elementAt(i).toString();
 						if (!enumeratedSet.contains(mv)) {
 							enumeratedSet.add(mv);
@@ -485,9 +457,7 @@ public class ConfigfileEvaluator {
 						}
 
 					} else {
-						throw new ConfigFileErrorException(
-							"Elements of the set must have the same type: "
-								+ o);
+						throw new ConfigFileErrorException("Elements of the set must have the same type: " + o);
 					}
 				}
 				for (String s : e.modelvalues) {
@@ -500,9 +470,7 @@ public class ConfigfileEvaluator {
 					elemType = conGetType(set.elems.elementAt(i));
 					// all Elements have the same Type?
 					if (!t.getSubType().compare(elemType)) {
-						throw new ConfigFileErrorException(
-							"Elements of the set must have the same type: "
-								+ o);
+						throw new ConfigFileErrorException("Elements of the set must have the same type: " + o);
 					}
 				}
 			}
@@ -527,8 +495,7 @@ public class ConfigfileEvaluator {
 		} else if (o.getClass().getName().equals("tlc2.value.impl.BoolValue")) {
 			return BoolType.getInstance();
 		} else {
-			throw new ConfigFileErrorException("Unknown ConstantType: " + o
-				+ " " + o.getClass());
+			throw new ConfigFileErrorException("Unknown ConstantType: " + o + " " + o.getClass());
 		}
 	}
 

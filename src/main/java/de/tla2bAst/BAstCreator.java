@@ -144,7 +144,7 @@ public class BAstCreator extends BuiltInOPs
 		for (OpDeclNode con : cons) {
 			TLAType type = (TLAType) con.getToolObject(TYPE_ID);
 
-			EnumType e = null;
+			EnumType e;
 			if (type instanceof SetType) {
 				if (((SetType) type).getSubType() instanceof EnumType) {
 					e = (EnumType) ((SetType) type).getSubType();
@@ -419,7 +419,7 @@ public class BAstCreator extends BuiltInOPs
 			for (Entry<OpDeclNode, OpDefNode> entry : conEval.getConstantOverrideTable().entrySet()) {
 				OpDeclNode con = entry.getKey();
 				OpDefNode generatedDef = entry.getValue();
-				OpDefNode def = null;
+				OpDefNode def;
 				try {
 					OpApplNode opApplNode = (OpApplNode) generatedDef.getBody();
 					if (opApplNode.getKind() == UserDefinedOpKind) {

@@ -793,7 +793,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 
 				FunctionType func = new FunctionType(new UntypedType(), new UntypedType());
 				func = (FunctionType) visitExprOrOpArgNode(n.getArgs()[0], func);
-				TLAType res = null;
+				TLAType res;
 				try {
 					res = new SetType(func.getDomain()).unify(expected);
 				} catch (UnificationException e) {
@@ -957,7 +957,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 					setType(param, paramType);
 					list.add(paramType);
 				}
-				TLAType found = null;
+				TLAType found;
 				if (list.size() == 1) {
 					found = list.get(0);
 				} else {
@@ -1063,7 +1063,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			}
 		}
 
-		TLAType domType = null;
+		TLAType domType;
 		if (domList.size() == 1) {
 			domType = domList.get(0);
 		} else {

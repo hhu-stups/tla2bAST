@@ -29,7 +29,6 @@ public class PredicateVsExpression extends BuiltInOPs implements ASTConstants,
 			DefinitionType type = visitSemanticNode(def.getBody());
 			definitionsTypeMap.put(def, type);
 		}
-
 	}
 
 	private DefinitionType visitSemanticNode(SemanticNode s) {
@@ -42,9 +41,7 @@ public class PredicateVsExpression extends BuiltInOPs implements ASTConstants,
 				LetInNode letInNode = (LetInNode) s;
 				return visitSemanticNode(letInNode.getBody());
 			}
-
 		}
-
 		return DefinitionType.EXPRESSION;
 	}
 
@@ -94,9 +91,7 @@ public class PredicateVsExpression extends BuiltInOPs implements ASTConstants,
 	private DefinitionType visitUserdefinedOp(OpApplNode s) {
 		OpDefNode def = (OpDefNode) s.getOperator();
 		if (BBuiltInOPs.contains(def.getName())
-			&& STANDARD_MODULES.contains(def.getSource()
-			.getOriginallyDefinedInModuleNode().getName()
-			.toString())) {
+			&& STANDARD_MODULES.contains(def.getSource().getOriginallyDefinedInModuleNode().getName().toString())) {
 
 			switch (BBuiltInOPs.getOpcode(def.getName())) {
 				case B_OPCODE_lt: // <
