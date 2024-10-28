@@ -339,13 +339,10 @@ public class BOperation extends BuiltInOPs implements ASTConstants, ToolGlobals,
 class PrimedVariablesFinder extends AbstractASTVisitor {
 	private final Set<SymbolNode> all;
 	private final Set<SymbolNode> twiceUsedVariables;
-	private final Hashtable<SemanticNode, Set<SymbolNode>> table;
-	private Set<SymbolNode> currentSet;
 
 	public PrimedVariablesFinder(List<ExprOrOpArgNode> list) {
 		this.all = new HashSet<>();
 		this.twiceUsedVariables = new HashSet<>();
-		this.table = new Hashtable<>();
 
 		for (ExprOrOpArgNode exprOrOpArgNode : list) {
 			findPrimedVariables(exprOrOpArgNode);
@@ -353,9 +350,7 @@ class PrimedVariablesFinder extends AbstractASTVisitor {
 	}
 
 	public void findPrimedVariables(ExprOrOpArgNode n) {
-		currentSet = new HashSet<>();
 		this.visitExprOrOpArgNode(n);
-		table.put(n, currentSet);
 	}
 
 	public void visitBuiltInNode(OpApplNode n) {
@@ -363,8 +358,6 @@ class PrimedVariablesFinder extends AbstractASTVisitor {
 			if (n.getArgs()[0] instanceof OpApplNode) {
 				OpApplNode varNode = (OpApplNode) n.getArgs()[0];
 				SymbolNode var = varNode.getOperator();
-
-				currentSet.add(var);
 
 				if (all.contains(var)) {
 					twiceUsedVariables.add(var);
