@@ -22,36 +22,35 @@ public class ConfigfileEvaluator {
 
 	private ModelConfig configAst;
 	private ModuleNode moduleNode;
-	private Hashtable<String, OpDefNode> definitions;
-	// Hashtable of all definitions in module
-	private Hashtable<String, OpDeclNode> constants;
-	// Hashtable of all constants in the module
+	private Map<String, OpDefNode> definitions;
+	// map of all definitions in module
+	private Map<String, OpDeclNode> constants;
+	// map of all constants in the module
 
 	private OpDefNode specNode; // SPECIFICATION node, may be null
 	private OpDefNode nextNode; // NEXT node, may be null
 	private OpDefNode initNode; // INIT node, may be null
-	private final ArrayList<OpDefNode> invariantNodeList = new ArrayList<>();
-	private ArrayList<String> enumeratedSet;
-	private LinkedHashMap<String, EnumType> enumeratedTypes;
-	public Hashtable<OpDeclNode, ValueObj> constantAssignments;
+	private final List<OpDefNode> invariantNodeList = new ArrayList<>();
+	private List<String> enumeratedSet;
+	private Map<String, EnumType> enumeratedTypes;
+	public Map<OpDeclNode, ValueObj> constantAssignments;
 	// k = 1, the ValueObj describes the right side of the assignment and
 	// contains it type
-	public Hashtable<OpDefNode, ValueObj> operatorAssignments;
+	public Map<OpDefNode, ValueObj> operatorAssignments;
 	// def = 1
 
-	private ArrayList<OpDefNode> operatorModelvalues;
+	private List<OpDefNode> operatorModelvalues;
 
-	private final ArrayList<OpDeclNode> bConstantList = new ArrayList<>();
+	private final List<OpDeclNode> bConstantList = new ArrayList<>();
 	// List of constants in the resulting B machine. This list does not contain
 	// a TLA+ constant if the constant is substituted by a modelvalue with the
 	// same name (the constant name is moved to an enumerated set) or if the
 	// constants has arguments and is overridden by an operator
-	public Hashtable<OpDefNode, OpDefNode> operatorOverrideTable;
-	// This table contains mappings for operators which are overridden in the
+	public Map<OpDefNode, OpDefNode> operatorOverrideTable;
+	// This map contains mappings for operators which are overridden in the
 	// configuration file
-	public Hashtable<OpDeclNode, OpDefNode> constantOverrideTable;
-
-	// This table contains mappings for constants which are overridden in the
+	public Map<OpDeclNode, OpDefNode> constantOverrideTable;
+	// This map contains mappings for constants which are overridden in the
 	// configuration file. All constants with arguments have to be overridden in
 	// the configuration file.
 
@@ -59,13 +58,13 @@ public class ConfigfileEvaluator {
 		this.configAst = configAst;
 		this.moduleNode = moduleNode;
 
-		definitions = new Hashtable<>();
+		definitions = new HashMap<>();
 		OpDefNode[] defs = moduleNode.getOpDefs();
 		for (OpDefNode def : defs) {
 			definitions.put(def.getName().toString(), def);
 		}
 
-		constants = new Hashtable<>();
+		constants = new HashMap<>();
 		OpDeclNode[] cons = moduleNode.getConstantDecls();
 		for (OpDeclNode con : cons) {
 			constants.put(con.getName().toString(), con);
@@ -80,11 +79,11 @@ public class ConfigfileEvaluator {
 	}
 
 	private void initialize() {
-		this.constantOverrideTable = new Hashtable<>();
-		this.operatorOverrideTable = new Hashtable<>();
+		this.constantOverrideTable = new HashMap<>();
+		this.operatorOverrideTable = new HashMap<>();
 
-		this.constantAssignments = new Hashtable<>();
-		this.operatorAssignments = new Hashtable<>();
+		this.constantAssignments = new HashMap<>();
+		this.operatorAssignments = new HashMap<>();
 		this.operatorModelvalues = new ArrayList<>();
 
 		this.enumeratedSet = new ArrayList<>();
@@ -545,35 +544,35 @@ public class ConfigfileEvaluator {
 		return initNode;
 	}
 
-	public Hashtable<OpDeclNode, OpDefNode> getConstantOverrideTable() {
+	public Map<OpDeclNode, OpDefNode> getConstantOverrideTable() {
 		return constantOverrideTable;
 	}
 
-	public ArrayList<OpDefNode> getInvariants() {
+	public List<OpDefNode> getInvariants() {
 		return this.invariantNodeList;
 	}
 
-	public Hashtable<OpDeclNode, ValueObj> getConstantAssignments() {
+	public Map<OpDeclNode, ValueObj> getConstantAssignments() {
 		return this.constantAssignments;
 	}
 
-	public Hashtable<OpDefNode, ValueObj> getOperatorAssignments() {
+	public Map<OpDefNode, ValueObj> getOperatorAssignments() {
 		return this.operatorAssignments;
 	}
 
-	public ArrayList<OpDeclNode> getbConstantList() {
+	public List<OpDeclNode> getbConstantList() {
 		return bConstantList;
 	}
 
-	public Hashtable<OpDefNode, OpDefNode> getOperatorOverrideTable() {
+	public Map<OpDefNode, OpDefNode> getOperatorOverrideTable() {
 		return operatorOverrideTable;
 	}
 
-	public ArrayList<String> getEnumerationSet() {
+	public List<String> getEnumerationSet() {
 		return this.enumeratedSet;
 	}
 
-	public ArrayList<OpDefNode> getOperatorModelvalues() {
+	public List<OpDefNode> getOperatorModelvalues() {
 		return this.operatorModelvalues;
 	}
 }

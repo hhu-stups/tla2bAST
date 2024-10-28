@@ -3,14 +3,14 @@ package de.tla2b.config;
 import tla2sany.semantic.*;
 import tlc2.tool.BuiltInOPs;
 
-import java.util.Hashtable;
+import java.util.Map;
 
 public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 
 	private final ModuleNode moduleNode;
-	private final Hashtable<OpDeclNode, OpDefNode> constantOverrideTable;
-	private final Hashtable<OpDefNode, OpDefNode> operatorOverrideTable;
-	private final Hashtable<OpDefNode, ValueObj> operatorAssignments;
+	private final Map<OpDeclNode, OpDefNode> constantOverrideTable;
+	private final Map<OpDefNode, OpDefNode> operatorOverrideTable;
+	private final Map<OpDefNode, ValueObj> operatorAssignments;
 
 	private ModuleOverrider(ModuleNode moduleNode, ConfigfileEvaluator conEval) {
 		this.moduleNode = moduleNode;

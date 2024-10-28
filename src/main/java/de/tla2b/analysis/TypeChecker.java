@@ -19,19 +19,19 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 	private static final int TEMP_TYPE_ID = 6;
 	private int paramId;
 
-	private ArrayList<ExprNode> inits;
+	private List<ExprNode> inits;
 	private ExprNode nextExpr;
 	private final Set<OpDefNode> usedDefinitions;
 	private final Set<OpDefNode> bDefinitions;
 
-	private final ArrayList<SymbolNode> symbolNodeList = new ArrayList<>();
-	private final ArrayList<SemanticNode> tupleNodeList = new ArrayList<>();
+	private final List<SymbolNode> symbolNodeList = new ArrayList<>();
+	private final List<SemanticNode> tupleNodeList = new ArrayList<>();
 
 	private final ModuleNode moduleNode;
-	private ArrayList<OpDeclNode> bConstList;
+	private List<OpDeclNode> bConstList;
 	private final SpecAnalyser specAnalyser;
 
-	private Hashtable<OpDeclNode, ValueObj> constantAssignments;
+	private Map<OpDeclNode, ValueObj> constantAssignments;
 
 	private ConfigfileEvaluator conEval;
 

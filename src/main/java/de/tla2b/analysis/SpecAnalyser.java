@@ -21,7 +21,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 	private OpDefNode spec;
 	private OpDefNode init;
 	private OpDefNode next;
-	private ArrayList<OpDefNode> invariants = new ArrayList<>();
+	private List<OpDefNode> invariants = new ArrayList<>();
 
 	private OpDefNode expressionOpdefNode;
 	private final Hashtable<String, SymbolNode> namingHashTable = new Hashtable<>();
@@ -29,12 +29,12 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 	private final ModuleNode moduleNode;
 	private ExprNode nextExpr;
 
-	private ArrayList<OpDeclNode> bConstants;
+	private List<OpDeclNode> bConstants;
 	// used to check if a b constant has arguments and is not overridden in the
 	// configfile
 
-	private ArrayList<BOperation> bOperations = new ArrayList<>();
-	private final ArrayList<ExprNode> inits = new ArrayList<>();
+	private List<BOperation> bOperations = new ArrayList<>();
+	private final List<ExprNode> inits = new ArrayList<>();
 
 	private Set<OpDefNode> bDefinitionsSet = new HashSet<>();
 	// set of OpDefNodes which will appear in the resulting B Machine
@@ -43,11 +43,11 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 	private final Hashtable<OpDefNode, FormalParamNode[]> letParams = new Hashtable<>();
 	// additional parameters of a let Operator, these parameters are from the
 	// surrounding operator
-	private final ArrayList<String> definitionMacros = new ArrayList<>();
+	private final List<String> definitionMacros = new ArrayList<>();
 
-	private final ArrayList<OpDefNode> recursiveFunctions = new ArrayList<>();
+	private final List<OpDefNode> recursiveFunctions = new ArrayList<>();
 
-	private final ArrayList<RecursiveDefinition> recursiveDefinitions = new ArrayList<>();
+	private final List<RecursiveDefinition> recursiveDefinitions = new ArrayList<>();
 
 	private ConfigfileEvaluator configFileEvaluator;
 
@@ -313,11 +313,11 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		}
 	}
 
-	public ArrayList<BOperation> getBOperations() {
+	public List<BOperation> getBOperations() {
 		return this.bOperations;
 	}
 
-	public ArrayList<ExprNode> getInits() {
+	public List<ExprNode> getInits() {
 		return this.inits;
 	}
 
@@ -333,7 +333,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		return new Hashtable<>(letParams);
 	}
 
-	public ArrayList<String> getDefinitionMacros() {
+	public List<String> getDefinitionMacros() {
 		return definitionMacros;
 	}
 
@@ -341,11 +341,11 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		return usedDefinitions;
 	}
 
-	public ArrayList<OpDefNode> getRecursiveFunctions() {
+	public List<OpDefNode> getRecursiveFunctions() {
 		return recursiveFunctions;
 	}
 
-	public ArrayList<RecursiveDefinition> getRecursiveDefinitions() {
+	public List<RecursiveDefinition> getRecursiveDefinitions() {
 		return recursiveDefinitions;
 	}
 
@@ -357,7 +357,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		return configFileEvaluator;
 	}
 
-	public ArrayList<OpDefNode> getInvariants() {
+	public List<OpDefNode> getInvariants() {
 		return invariants;
 	}
 

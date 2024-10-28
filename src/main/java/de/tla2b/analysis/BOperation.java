@@ -23,7 +23,7 @@ public class BOperation extends BuiltInOPs implements ASTConstants, ToolGlobals,
 	private final List<OpDeclNode> unchangedVariablesList;
 	private final List<ExprOrOpArgNode> guards;
 	private final List<ExprOrOpArgNode> beforeAfterPredicates;
-	private final LinkedHashMap<SymbolNode, ExprOrOpArgNode> assignments = new LinkedHashMap<>();
+	private final Map<SymbolNode, ExprOrOpArgNode> assignments = new LinkedHashMap<>();
 	private List<OpDeclNode> anyVariables;
 	private final SpecAnalyser specAnalyser;
 
