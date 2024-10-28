@@ -1,9 +1,9 @@
 package de.tla2b.types;
 
-import de.be4.classicalb.core.parser.node.AMultOrCartExpression;
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
 import de.tla2b.output.TypeVisitorInterface;
+import de.tla2bAst.BAstCreator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,7 @@ public class TupleType extends AbstractHasFollowers {
 		setTypes(list);
 	}
 
-	public ArrayList<TLAType> getTypes() {
+	public List<TLAType> getTypes() {
 		return new ArrayList<>(types);
 	}
 
@@ -95,7 +95,7 @@ public class TupleType extends AbstractHasFollowers {
 
 	@Override
 	public TLAType cloneTLAType() {
-		ArrayList<TLAType> list = new ArrayList<>();
+		List<TLAType> list = new ArrayList<>();
 		for (TLAType tlaType : types) {
 			list.add(tlaType.cloneTLAType());
 		}
@@ -146,24 +146,7 @@ public class TupleType extends AbstractHasFollowers {
 
 	@Override
 	public PExpression getBNode() {
-		List<PExpression> list = new ArrayList<>();
-		for (TLAType t : types) {
-			list.add(t.getBNode());
-		}
-		AMultOrCartExpression card = new AMultOrCartExpression();
-		card.setLeft(list.get(0));
-		for (int i = 1; i < list.size(); i++) {
-			if (i < list.size() - 1) {
-				AMultOrCartExpression old = card;
-				old.setRight(list.get(i));
-				card = new AMultOrCartExpression();
-				card.setLeft(old);
-			} else {
-				card.setRight(list.get(i));
-			}
-
-		}
-		return card;
+		return BAstCreator.createNestedCouple(types);
 	}
 
 	public void apply(TypeVisitorInterface visitor) {
