@@ -155,8 +155,7 @@ public class StructOrFunctionType extends AbstractHasFollowers {
 					this.types.put(field, type);
 				}
 			}
-			TLAType res = testRecord();
-			return res;
+			return testRecord();
 		}
 		return this;
 	}

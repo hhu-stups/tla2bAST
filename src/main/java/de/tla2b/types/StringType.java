@@ -25,7 +25,6 @@ public class StringType extends TLAType {
 			return o.compare(this);
 		} else
 			return false;
-
 	}
 
 	@Override
@@ -38,22 +37,15 @@ public class StringType extends TLAType {
 		if (!this.compare(o)) {
 			throw new UnificationException();
 		}
-		if (o.getKind() == STRING) {
-			return this;
-		} else if (o instanceof UntypedType) {
+		if (o instanceof UntypedType) {
 			((UntypedType) o).setFollowersTo(this);
 			((UntypedType) o).deleteFollowers();
-			return this;
 		} else if (o instanceof FunctionType) {
 			// function
-			if (o instanceof AbstractHasFollowers) {
-				((AbstractHasFollowers) o).setFollowersTo(this);
-				((AbstractHasFollowers) o).deleteFollowers();
-			}
-			return this;
-		} else {
-			throw new UnificationException();
+			((FunctionType) o).setFollowersTo(this);
+			((FunctionType) o).deleteFollowers();
 		}
+		return this;
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package de.tla2b.types;
 
-
 import de.be4.classicalb.core.parser.node.AMultOrCartExpression;
 import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
@@ -107,33 +106,22 @@ public class PairType extends AbstractHasFollowers {
 
 	@Override
 	public PairType cloneTLAType() {
-		return new PairType(this.first.cloneTLAType(),
-			this.second.cloneTLAType());
+		return new PairType(this.first.cloneTLAType(), this.second.cloneTLAType());
 	}
 
 	@Override
 	public boolean contains(TLAType o) {
-		return first.equals(o) || first.contains(o) || second.equals(o)
-			|| second.contains(o);
+		return first.equals(o) || first.contains(o) || second.equals(o) || second.contains(o);
 	}
 
 	@Override
 	public String toString() {
-		String res = first + "*";
-		if (second instanceof PairType) {
-			res += "(" + second + ")";
-		} else
-			res += second;
-		return res;
-
+		return first + "*" + (second instanceof PairType ? "(" + second + ")" : second);
 	}
 
 	@Override
 	public PExpression getBNode() {
-		AMultOrCartExpression card = new AMultOrCartExpression();
-		card.setLeft(first.getBNode());
-		card.setRight(second.getBNode());
-		return card;
+		return new AMultOrCartExpression(first.getBNode(), second.getBNode());
 	}
 
 	public void apply(TypeVisitorInterface visitor) {

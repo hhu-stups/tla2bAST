@@ -104,8 +104,8 @@ public class StructType extends AbstractHasFollowers {
 
 		if (o instanceof StructType) {
 			StructType otherStruct = (StructType) o;
-			boolean extendStruct = false;
 
+			boolean extendStruct;
 			if (this.incompleteStruct && otherStruct.incompleteStruct) {
 				extendStruct = false;
 			} else if (this.incompleteStruct) {
