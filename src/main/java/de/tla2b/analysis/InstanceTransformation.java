@@ -1,6 +1,7 @@
 package de.tla2b.analysis;
 
 import de.tla2b.global.BBuiltInOPs;
+import de.tla2b.util.TlaUtils;
 import tla2sany.semantic.*;
 import tlc2.tool.BuiltInOPs;
 import util.UniqueString;
@@ -25,7 +26,7 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 
 	private InstanceTransformation(ModuleNode moduleNode) {
 		this.defs = moduleNode.getOpDefs();
-		this.defsHash = SymbolSorter.getDefsMap(defs);
+		this.defsHash = TlaUtils.getOpDefsMap(defs);
 	}
 
 	public static void run(ModuleNode moduleNode) {

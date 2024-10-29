@@ -3,6 +3,7 @@ package de.tla2b.config;
 import de.tla2b.exceptions.ConfigFileErrorException;
 import de.tla2b.exceptions.UnificationException;
 import de.tla2b.types.*;
+import de.tla2b.util.TlaUtils;
 import tla2sany.semantic.*;
 import tlc2.tool.impl.ModelConfig;
 import tlc2.util.Vect;
@@ -57,12 +58,7 @@ public class ConfigfileEvaluator {
 	public ConfigfileEvaluator(ModelConfig configAst, ModuleNode moduleNode) {
 		this.configAst = configAst;
 		this.moduleNode = moduleNode;
-
-		definitions = new HashMap<>();
-		OpDefNode[] defs = moduleNode.getOpDefs();
-		for (OpDefNode def : defs) {
-			definitions.put(def.getName().toString(), def);
-		}
+		this.definitions = TlaUtils.getOpDefsMap(moduleNode.getOpDefs());
 
 		constants = new HashMap<>();
 		OpDeclNode[] cons = moduleNode.getConstantDecls();
