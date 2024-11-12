@@ -44,13 +44,16 @@ java {
 	withJavadocJar()
 }
 
+jar {
+	manifest {
+		attributes([
+			"Main-Class": "de.tla2b.TLA2B",
+		])
+	}
+}
+
 shadowJar {
 	archiveFileName = 'TLA2B.jar'
-	manifest {
-		attributes(
-			'Main-Class': 'de.tla2b.TLA2B'
-		)
-	}
 }
 
 // Don't publish the shadowJar to Maven Central. Code from:
