@@ -10,7 +10,7 @@ plugins {
 }
 
 project.group = 'de.hhu.stups'
-project.version = "1.4.0"
+project.version = "1.4.1-SNAPSHOT"
 final isSnapshot = project.version.endsWith("-SNAPSHOT")
 
 repositories {
