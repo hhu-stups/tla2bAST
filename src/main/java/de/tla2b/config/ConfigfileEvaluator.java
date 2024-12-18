@@ -4,6 +4,7 @@ import de.tla2b.exceptions.ConfigFileErrorException;
 import de.tla2b.exceptions.UnificationException;
 import de.tla2b.types.*;
 import de.tla2b.util.TlaUtils;
+import de.tla2b.util.DebugUtils;
 import tla2sany.semantic.*;
 import tlc2.tool.impl.ModelConfig;
 import tlc2.util.Vect;
@@ -193,8 +194,11 @@ public class ConfigfileEvaluator {
 							rightDefNode.getArity()));
 				}
 				if (conNode.getArity() > 0) {
-					bConstantList.remove(conNode);
+					bConstantList.remove(conNode); // Why?
+					// to not get error message Constant 'Leader' must be overridden in the configuration file.
+					// but we get other problem
 				}
+				DebugUtils.printMsg("Putting Constant into CONSTANT OverrideTable " + conNode.getName() + "/" + conNode.getArity());
 				constantOverrideTable.put(conNode, rightDefNode);
 			} else if (definitions.containsKey(left)) {
 				// an operator is overridden by another operator
@@ -207,6 +211,7 @@ public class ConfigfileEvaluator {
 							rightDefNode.getArity()));
 				}
 
+				DebugUtils.printMsg("Putting Definition into OPERATOR OverrideTable " + defNode.getName() + "/" + defNode.getArity());
 				operatorOverrideTable.put(defNode, rightDefNode);
 			} else {
 				// every constant in the configuration file must appear in the TLA+ module
