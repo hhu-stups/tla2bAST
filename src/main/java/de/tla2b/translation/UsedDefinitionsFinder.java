@@ -20,6 +20,9 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor implements ASTCons
 	private final HashSet<OpDefNode> usedDefinitions = new HashSet<>();
 
 	public UsedDefinitionsFinder(SpecAnalyser specAnalyser) {
+		DebugUtils.printMsg("Finding used definitions");
+		// some definition are not yet supported, like recursive definitions
+		// hence it is important not to try and translate all of them and only the used ones
 
 		if (specAnalyser.getConfigFileEvaluator() != null) {
 			Collection<OpDefNode> cons = specAnalyser.getConfigFileEvaluator().getConstantOverrideTable().values();
@@ -27,7 +30,7 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor implements ASTCons
 				visitExprNode(def.getBody());
 			}
 			Collection<OpDefNode> ops = specAnalyser.getConfigFileEvaluator().getOperatorOverrideTable().values();
-			for (OpDefNode def : cons) {
+			for (OpDefNode def : ops) {
 				visitExprNode(def.getBody());
 			}
 			usedDefinitions.addAll(cons);
