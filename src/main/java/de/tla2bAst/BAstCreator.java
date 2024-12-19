@@ -182,7 +182,7 @@ public class BAstCreator extends BuiltInOPs
 		for (int i = 0; i < moduleNode.getOpDefs().length; i++) {
 			OpDefNode def = moduleNode.getOpDefs()[i];
 			if (specAnalyser.getBDefinitions().contains(def)) {
-				if (conEval != null && conEval.getConstantOverrideTable().containsValue(def)) {
+				if (conEval != null && conEval.getConstantOverrides().containsValue(def)) {
 					DebugUtils.printVeryVerboseMsg("Not creating B DEFINITION (in Override Table) " + def.getName() + " " + def);
 					continue;
 				}
@@ -416,7 +416,7 @@ public class BAstCreator extends BuiltInOPs
 		}
 
 		if (conEval != null) {
-			for (Entry<OpDeclNode, OpDefNode> entry : conEval.getConstantOverrideTable().entrySet()) {
+			for (Entry<OpDeclNode, OpDefNode> entry : conEval.getConstantOverrides().entrySet()) {
 				OpDeclNode con = entry.getKey();
 				OpDefNode generatedDef = entry.getValue();
 				OpDefNode def;
@@ -816,10 +816,10 @@ public class BAstCreator extends BuiltInOPs
 				params.add(visitExprOrOpArgNodeExpression(n.getArgs()[i]));
 			}
 
-			if (conEval != null && conEval.getConstantOverrideTable().containsValue(def)) {
+			if (conEval != null && conEval.getConstantOverrides().containsValue(def)) {
 				// used constants name instead of the definition overriding the
 				// constant
-				Iterator<Entry<OpDeclNode, OpDefNode>> iter = conEval.getConstantOverrideTable().entrySet().iterator();
+				Iterator<Entry<OpDeclNode, OpDefNode>> iter = conEval.getConstantOverrides().entrySet().iterator();
 				String name = null;
 				while (iter.hasNext()) {
 					Entry<OpDeclNode, OpDefNode> entry = iter.next();

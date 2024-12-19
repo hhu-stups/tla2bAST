@@ -14,8 +14,8 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 
 	private ModuleOverrider(ModuleNode moduleNode, ConfigfileEvaluator conEval) {
 		this.moduleNode = moduleNode;
-		this.constantOverrideTable = conEval.getConstantOverrideTable();
-		this.operatorOverrideTable = conEval.getOperatorOverrideTable();
+		this.constantOverrideTable = conEval.getConstantOverrides();
+		this.operatorOverrideTable = conEval.getOperatorOverrides();
 		this.operatorAssignments = conEval.getOperatorAssignments();
 	}
 

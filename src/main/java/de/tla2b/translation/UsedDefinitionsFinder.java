@@ -25,11 +25,11 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor implements ASTCons
 		// hence it is important not to try and translate all of them and only the used ones
 
 		if (specAnalyser.getConfigFileEvaluator() != null) {
-			Collection<OpDefNode> cons = specAnalyser.getConfigFileEvaluator().getConstantOverrideTable().values();
+			Collection<OpDefNode> cons = specAnalyser.getConfigFileEvaluator().getConstantOverrides().values();
 			for (OpDefNode def : cons) {
 				visitExprNode(def.getBody());
 			}
-			Collection<OpDefNode> ops = specAnalyser.getConfigFileEvaluator().getOperatorOverrideTable().values();
+			Collection<OpDefNode> ops = specAnalyser.getConfigFileEvaluator().getOperatorOverrides().values();
 			for (OpDefNode def : ops) {
 				visitExprNode(def.getBody());
 			}

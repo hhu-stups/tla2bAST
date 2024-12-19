@@ -452,7 +452,7 @@ public class ConfigfileEvaluator {
 		return initNode;
 	}
 
-	public Map<OpDeclNode, OpDefNode> getConstantOverrideTable() {
+	public Map<OpDeclNode, OpDefNode> getConstantOverrides() {
 		return constantOverrides;
 	}
 
@@ -472,7 +472,7 @@ public class ConfigfileEvaluator {
 		return bConstantList;
 	}
 
-	public Map<OpDefNode, OpDefNode> getOperatorOverrideTable() {
+	public Map<OpDefNode, OpDefNode> getOperatorOverrides() {
 		return operatorOverrides;
 	}
 

@@ -8,9 +8,7 @@ import de.tla2b.global.TranslationGlobals;
 import tla2sany.semantic.*;
 import tlc2.tool.ToolGlobals;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class BDefinitionsFinder extends AbstractASTVisitor implements ASTConstants, ToolGlobals, TranslationGlobals {
@@ -18,8 +16,8 @@ public class BDefinitionsFinder extends AbstractASTVisitor implements ASTConstan
 
 	public BDefinitionsFinder(SpecAnalyser specAnalyser) {
 		if (specAnalyser.getConfigFileEvaluator() != null) {
-			bDefinitionsSet.addAll(specAnalyser.getConfigFileEvaluator().getConstantOverrideTable().values());
-			bDefinitionsSet.addAll(specAnalyser.getConfigFileEvaluator().getOperatorOverrideTable().values());
+			bDefinitionsSet.addAll(specAnalyser.getConfigFileEvaluator().getConstantOverrides().values());
+			bDefinitionsSet.addAll(specAnalyser.getConfigFileEvaluator().getOperatorOverrides().values());
 		}
 
 		for (BOperation op : specAnalyser.getBOperations()) {

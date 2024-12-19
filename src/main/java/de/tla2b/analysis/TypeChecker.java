@@ -96,7 +96,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 		evalDefinitions(moduleNode.getOpDefs());
 
 		if (conEval != null) {
-			for (Entry<OpDeclNode, OpDefNode> entry : conEval.getConstantOverrideTable().entrySet()) {
+			for (Entry<OpDeclNode, OpDefNode> entry : conEval.getConstantOverrides().entrySet()) {
 				OpDeclNode con = entry.getKey();
 				if (!bConstList.contains(con)) {
 					continue;

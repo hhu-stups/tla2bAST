@@ -18,7 +18,7 @@ public class BMacroHandler extends AbstractASTVisitor {
 			OpDefNode def = moduleNode.getOpDefs()[i];
 			if (specAnalyser.getUsedDefinitions().contains(def)) {
 				if (conEval != null
-					&& conEval.getConstantOverrideTable()
+					&& conEval.getConstantOverrides()
 					.containsValue(def)) {
 					continue;
 				}
