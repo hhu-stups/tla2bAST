@@ -162,8 +162,7 @@ public class TupleOrFunction extends AbstractHasFollowers {
 		return false;
 	}
 
-	private static boolean isTupleOrFunction(TupleOrFunction t1,
-	                                         TupleOrFunction t2) {
+	private static boolean isTupleOrFunction(TupleOrFunction t1, TupleOrFunction t2) {
 		List<TLAType> typeList = new ArrayList<>();
 		typeList.addAll(t1.types.values());
 		typeList.addAll(t2.types.values());

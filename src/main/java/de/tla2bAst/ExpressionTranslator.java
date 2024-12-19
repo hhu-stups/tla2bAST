@@ -197,8 +197,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		return n;
 	}
 
-	private SpecObj parseModuleWithoutSemanticAnalyse(String moduleFileName,
-	                                                  String module) {
+	private SpecObj parseModuleWithoutSemanticAnalyse(String moduleFileName, String module) {
 		SpecObj spec = new SpecObj(moduleFileName, null);
 
 		try {

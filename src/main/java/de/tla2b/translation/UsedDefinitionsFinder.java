@@ -66,7 +66,7 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor implements ASTCons
 			// GOAL, ANIMATION_FUNCTION, ANIMATION_IMGxx, SET_PREF_xxx, etc.
 			// DebugUtils.printDebugMsg("Checking definition: " + defName);
 			if (Utils.isProBSpecialDefinitionName(defName)) {
-			    DebugUtils.printMsg("ProB special definition: " + defName);
+				DebugUtils.printMsg("ProB special definition: " + defName);
 				usedDefinitions.add(opDef);
 			}
 		}

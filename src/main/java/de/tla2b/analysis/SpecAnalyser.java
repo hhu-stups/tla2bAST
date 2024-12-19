@@ -145,7 +145,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 			specAnalyser.invariants.add(definitions.get("IndInv"));
 			ClausefDetected("IndInv", "INVARIANTS");
 		} else {
-		    System.out.println("No default Invariant detected");
+			System.out.println("No default Invariant detected");
 		}
 		// TODO are constant in the right order
 

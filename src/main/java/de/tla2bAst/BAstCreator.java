@@ -1764,9 +1764,7 @@ public class BAstCreator extends BuiltInOPs
 		return list;
 	}
 
-	private PExpression evalExceptValue(PExpression prefix, LinkedList<ExprOrOpArgNode> seqList, TLAType tlaType,
-	                                    ExprOrOpArgNode val) {
-
+	private PExpression evalExceptValue(PExpression prefix, LinkedList<ExprOrOpArgNode> seqList, TLAType tlaType, ExprOrOpArgNode val) {
 		ExprOrOpArgNode head = seqList.poll();
 		if (head == null) {
 			return visitExprOrOpArgNodeExpression(val);
