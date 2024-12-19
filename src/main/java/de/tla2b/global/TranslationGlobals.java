@@ -12,15 +12,15 @@ public interface TranslationGlobals {
 	int TLCValueKind = 100;
 
 	int USED = FrontEnd.getToolId();
+
+	int TYPE_ID = 5;
+	int EXCEPT_BASE = 6;
+	int PRINT_DEFINITION = 11;
+	int LET_PARAMS_ID = 13;
 	int OVERRIDE_SUBSTITUTION_ID = 17;
 	int CONSTANT_OBJECT = 18;
 	int DEF_OBJECT = 19;
-	int PRINT_DEFINITION = 11;
-	int TYPE_ID = 5;
-	int EXCEPT_BASE = 6;
-	int LET_PARAMS_ID = 13;
 	int NEW_NAME = 20;
-
 	int SUBSTITUTE_PARAM = 29;
 	int TUPLE = 30;
 
