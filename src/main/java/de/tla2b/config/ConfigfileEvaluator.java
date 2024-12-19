@@ -91,19 +91,14 @@ public class ConfigfileEvaluator {
 	}
 
 	private void evalInvariants() throws ConfigFileErrorException {
-
-		Vect v = configAst.getInvariants();
-		if (v.capacity() != 0) {
-			for (int i = 0; i < v.capacity(); i++) {
-				if (v.elementAt(i) != null) {
-					String inv = (String) v.elementAt(i);
-					if (!definitions.containsKey(inv)) {
-						throw new ConfigFileErrorException(
-							"Invalid invariant declaration. Module does not contain definition '"
-								+ inv + "'");
-					}
-					invariantNodeList.add(definitions.get(inv));
+		Vect<?> v = configAst.getInvariants();
+		for (int i = 0; i < v.capacity(); i++) {
+			if (v.elementAt(i) != null) {
+				String inv = (String) v.elementAt(i);
+				if (!definitions.containsKey(inv)) {
+					throw new ConfigFileErrorException("Invalid invariant declaration. Module does not contain definition '" + inv + "'");
 				}
+				invariantNodeList.add(definitions.get(inv));
 			}
 		}
 	}
@@ -118,9 +113,8 @@ public class ConfigfileEvaluator {
 
 			OpDefNode rightDefNode = definitions.get(right);
 			if (rightDefNode == null) {
-				throw new ConfigFileErrorException("Invalid substitution for "
-					+ left + ".\n Module does not contain definition "
-					+ right + ".");
+				throw new ConfigFileErrorException("Invalid substitution for " + left
+						+ ".\n Module does not contain definition " + right + ".");
 			}
 
 			if (constants.containsKey(left)) {
@@ -155,19 +149,17 @@ public class ConfigfileEvaluator {
 				operatorOverrides.put(defNode, rightDefNode);
 			} else {
 				// every constant in the configuration file must appear in the TLA+ module
-				throw new ConfigFileErrorException(
-					"Module does not contain the symbol: " + left);
+				throw new ConfigFileErrorException("Module does not contain the symbol: " + left);
 			}
 		}
 	}
 
-	private void evalConstantOrOperatorAssignments()
-		throws ConfigFileErrorException {
-		Vect configCons = configAst.getConstants();
+	private void evalConstantOrOperatorAssignments() throws ConfigFileErrorException {
+		Vect<?> configCons = configAst.getConstants();
 		// iterate over all constant or operator assignments in the config file
 		// k = 1 or def = 1
 		for (int i = 0; i < configCons.size(); i++) {
-			Vect symbol = (Vect) configCons.elementAt(i);
+			Vect<?> symbol = (Vect<?>) configCons.elementAt(i);
 			String symbolName = symbol.elementAt(0).toString();
 			Value symbolValue = (Value) symbol.elementAt(symbol.size() - 1);
 			TLAType symbolType = conGetType(symbol.elementAt(symbol.size() - 1));
@@ -176,13 +168,10 @@ public class ConfigfileEvaluator {
 
 				ValueObj valueObj = new ValueObj(symbolValue, symbolType);
 				constantAssignments.put(c, valueObj);
-				/**
-				 * if conValue is a model value and the name of the value is the
-				 * same as the name of constants, then the constant declaration
-				 * in the resulting B machine disappears
-				 **/
-				if (symbolType instanceof EnumType
-					&& symbolName.equals(symbolValue.toString())) {
+				// if conValue is a model value and the name of the value is the
+				// same as the name of constants, then the constant declaration
+				// in the resulting B machine disappears
+				if (symbolType instanceof EnumType && symbolName.equals(symbolValue.toString())) {
 					bConstantList.remove(c);
 				}
 			} else if (definitions.containsKey(symbolName)) {
@@ -190,36 +179,30 @@ public class ConfigfileEvaluator {
 				ValueObj valueObj = new ValueObj(symbolValue, symbolType);
 				operatorAssignments.put(def, valueObj);
 
-				if (symbolType instanceof SetType) {
-					if (((SetType) symbolType).getSubType() instanceof EnumType) {
-						operatorModelvalues.add(def);
-					}
+				if (symbolType instanceof SetType && ((SetType) symbolType).getSubType() instanceof EnumType) {
+					operatorModelvalues.add(def);
 				} else if ((symbolType instanceof EnumType)) {
 					operatorModelvalues.add(def);
 				}
-
 			} else {
 				// every constant or operator in the configuration file must appear in the TLA+ module
-				throw new ConfigFileErrorException(
-					"Module does not contain the symbol: " + symbolName);
+				throw new ConfigFileErrorException("Module does not contain the symbol: " + symbolName);
 			}
 		}
-
 	}
 
 	private void evalModConOrDefAssignments() throws ConfigFileErrorException {
 		// val = [Counter] 7
 		@SuppressWarnings("unchecked")
-		Hashtable<String, Vect> configCons = configAst.getModConstants();
+		Hashtable<String, Vect<?>> configCons = configAst.getModConstants();
 		Enumeration<String> moduleNames = configCons.keys();
 		while (moduleNames.hasMoreElements()) {
 			String moduleName = moduleNames.nextElement();
 			ModuleNode mNode = searchModule(moduleName);
-			Vect assignments = configCons.get(moduleName);
+			Vect<?> assignments = configCons.get(moduleName);
 			for (int i = 0; i < assignments.size(); i++) {
-				Vect assigment = (Vect) assignments.elementAt(i);
-				OpDefOrDeclNode opDefOrDeclNode = searchDefinitionOrConstant(
-					mNode, (String) assigment.elementAt(0));
+				Vect<?> assigment = (Vect<?>) assignments.elementAt(i);
+				OpDefOrDeclNode opDefOrDeclNode = searchDefinitionOrConstant(mNode, (String) assigment.elementAt(0));
 				String symbolName = opDefOrDeclNode.getName().toString();
 				Value symbolValue = (Value) assigment.elementAt(1);
 				TLAType symbolType = conGetType(assigment.elementAt(1));
@@ -348,22 +331,17 @@ public class ConfigfileEvaluator {
 				}
 			}
 		}
-		throw new ConfigFileErrorException(
-			String.format(
-				"Module '%s' is not included in the specification.",
-				moduleName));
+		throw new ConfigFileErrorException(String.format("Module '%s' is not included in the specification.", moduleName));
 	}
 
 	public OpDefOrDeclNode searchDefinitionOrConstant(ModuleNode n, String defOrConName) throws ConfigFileErrorException {
-		for (int i = 0; i < n.getOpDefs().length; i++) {
-			if (n.getOpDefs()[i].getName().toString().equals(defOrConName)) {
-				return n.getOpDefs()[i];
-			}
+		for (OpDefNode opDef : n.getOpDefs()) {
+			if (opDef.getName().toString().equals(defOrConName))
+				return opDef;
 		}
-		for (int i = 0; i < n.getConstantDecls().length; i++) {
-			if (n.getConstantDecls()[i].getName().toString().equals(defOrConName)) {
-				return n.getConstantDecls()[i];
-			}
+		for (OpDeclNode opDecl : n.getConstantDecls()) {
+			if (opDecl.getName().toString().equals(defOrConName))
+				return opDecl;
 		}
 		throw new ConfigFileErrorException("Module does not contain the symbol: " + defOrConName);
 	}
@@ -419,16 +397,14 @@ public class ConfigfileEvaluator {
 			return t;
 
 		} else if (o.getClass().getName().equals("tlc2.value.impl.ModelValue")) {
-			ModelValue mv = (ModelValue) o;
-			if (!enumeratedSet.contains(mv.toString())) {
-				enumeratedSet.add(mv.toString());
-				ArrayList<String> temp = new ArrayList<>();
-				temp.add(mv.toString());
-				EnumType e = new EnumType(temp);
-				enumeratedTypes.put(mv.toString(), e);
+			String mv = ((ModelValue) o).toString();
+			if (!enumeratedSet.contains(mv)) {
+				enumeratedSet.add(mv);
+				EnumType e = new EnumType(Collections.singletonList(mv));
+				enumeratedTypes.put(mv, e);
 				return e;
 			} else {
-				return enumeratedTypes.get(mv.toString());
+				return enumeratedTypes.get(mv);
 			}
 
 		} else if (o.getClass().getName().equals("tlc2.value.impl.StringValue")) {
