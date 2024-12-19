@@ -182,7 +182,6 @@ public class Translator implements TranslationGlobals {
 		ConfigfileEvaluator conEval = null;
 		if (modelConfig != null) {
 			conEval = new ConfigfileEvaluator(modelConfig, moduleNode);
-			conEval.start();
 
 			ModuleOverrider.run(moduleNode, conEval);
 			specAnalyser = SpecAnalyser.createSpecAnalyser(moduleNode, conEval);

@@ -22,132 +22,72 @@ import java.util.*;
  */
 public class ConfigfileEvaluator {
 
-	private ModelConfig configAst;
-	private ModuleNode moduleNode;
-	private Map<String, OpDefNode> definitions;
-	// map of all definitions in module
-	private Map<String, OpDeclNode> constants;
-	// map of all constants in the module
+	private final ModelConfig configAst;
+	private final ModuleNode moduleNode;
+	private final Map<String, OpDefNode> definitions; // map of all definitions in module
+	private final Map<String, OpDeclNode> constants; // map of all constants in the module
 
-	private OpDefNode specNode; // SPECIFICATION node, may be null
-	private OpDefNode nextNode; // NEXT node, may be null
-	private OpDefNode initNode; // INIT node, may be null
+	private final OpDefNode specNode; // SPECIFICATION node, may be null
+	private final OpDefNode nextNode; // NEXT node, may be null
+	private final OpDefNode initNode; // INIT node, may be null
 	private final List<OpDefNode> invariantNodeList = new ArrayList<>();
-	private List<String> enumeratedSet;
-	private Map<String, EnumType> enumeratedTypes;
-	public Map<OpDeclNode, ValueObj> constantAssignments;
-	// k = 1, the ValueObj describes the right side of the assignment and
-	// contains it type
-	public Map<OpDefNode, ValueObj> operatorAssignments;
-	// def = 1
+	private final List<String> enumeratedSet = new ArrayList<>();
+	private final Map<String, EnumType> enumeratedTypes = new LinkedHashMap<>();
+	private final Map<OpDeclNode, ValueObj> constantAssignments = new HashMap<>();
+	// k = 1, the ValueObj describes the right side of the assignment and contains its type
+	private final Map<OpDefNode, ValueObj> operatorAssignments = new HashMap<>(); // def = 1
 
-	private List<OpDefNode> operatorModelvalues;
+	private final List<OpDefNode> operatorModelvalues = new ArrayList<>();
 
 	private final List<OpDeclNode> bConstantList = new ArrayList<>();
 	// List of constants in the resulting B machine. This list does not contain
 	// a TLA+ constant if the constant is substituted by a modelvalue with the
 	// same name (the constant name is moved to an enumerated set) or if the
 	// constants has arguments and is overridden by an operator
-	public Map<OpDefNode, OpDefNode> operatorOverrideTable;
+	private final Map<OpDefNode, OpDefNode> operatorOverrides = new HashMap<>();
 	// This map contains mappings for operators which are overridden in the
 	// configuration file
-	public Map<OpDeclNode, OpDefNode> constantOverrideTable;
+	private final Map<OpDeclNode, OpDefNode> constantOverrides = new HashMap<>();
 	// This map contains mappings for constants which are overridden in the
 	// configuration file. All constants with arguments have to be overridden in
 	// the configuration file.
 
-	public ConfigfileEvaluator(ModelConfig configAst, ModuleNode moduleNode) {
+	public ConfigfileEvaluator(ModelConfig configAst, ModuleNode moduleNode) throws ConfigFileErrorException {
 		this.configAst = configAst;
 		this.moduleNode = moduleNode;
 		this.definitions = TlaUtils.getOpDefsMap(moduleNode.getOpDefs());
 
-		constants = new HashMap<>();
-		OpDeclNode[] cons = moduleNode.getConstantDecls();
-		for (OpDeclNode con : cons) {
-			constants.put(con.getName().toString(), con);
-			bConstantList.add(con);
+		this.constants = new HashMap<>();
+		for (OpDeclNode con : moduleNode.getConstantDecls()) {
+			this.constants.put(con.getName().toString(), con);
+			this.bConstantList.add(con);
 		}
 
-		initialize();
-	}
+		this.nextNode = evalPredicate(configAst.getNext(), "next state"); // check if NEXT declaration is a valid definition
+		this.initNode = evalPredicate(configAst.getInit(), "initialisation"); // check if INIT declaration is a valid definition
+		this.specNode = evalPredicate(configAst.getSpec(), "specification"); // check if SPECIFICATION declaration is a valid definition
 
-	public ConfigfileEvaluator() {
-		initialize();
-	}
-
-	private void initialize() {
-		this.constantOverrideTable = new HashMap<>();
-		this.operatorOverrideTable = new HashMap<>();
-
-		this.constantAssignments = new HashMap<>();
-		this.operatorAssignments = new HashMap<>();
-		this.operatorModelvalues = new ArrayList<>();
-
-		this.enumeratedSet = new ArrayList<>();
-		this.enumeratedTypes = new LinkedHashMap<>();
-	}
-
-	public void start() throws ConfigFileErrorException {
-		evalNext(); // check if NEXT declaration is a valid definition
-		evalInit(); // check if INIT declaration is a valid definition
-		evalSpec(); // check if SPECIFICATION declaration is a valid definition
-
-		if (moduleNode.getVariableDecls().length > 0 && this.initNode == null
-			&& this.specNode == null) {
-			throw new ConfigFileErrorException(
-				"The module contains variables."
+		if (moduleNode.getVariableDecls().length > 0 && this.initNode == null && this.specNode == null) {
+			throw new ConfigFileErrorException("The module contains variables."
 					+ " Hence there must be either a SPECIFICATION or INIT declaration.");
 		}
 
-		evalInvariants();
-		// check if INVARIANT declarations are valid definitions
+		evalInvariants(); // check if INVARIANT declarations are valid definitions
 		evalConstantOrDefOverrides();
 		evalConstantOrOperatorAssignments();
 		evalModConOrDefAssignments();
 		evalModConOrDefOverrides();
 	}
 
-
-	private void evalNext() throws ConfigFileErrorException {
-		String next = configAst.getNext();
-		if (!next.isEmpty()) {
-			if (definitions.containsKey(next)) {
-				this.nextNode = definitions.get(next);
-			} else {
-				throw new ConfigFileErrorException(
-					"Invalid declaration of the next state predicate."
-						+ " Module does not contain the definition '"
-						+ next + "'");
+	private OpDefNode evalPredicate(String predicate, String description) throws ConfigFileErrorException {
+		if (!predicate.isEmpty()) {
+			if (!definitions.containsKey(predicate)) {
+				throw new ConfigFileErrorException("Invalid declaration of the " + description + " predicate."
+						+ " Module does not contain the definition '" + predicate + "'");
 			}
+			return definitions.get(predicate);
 		}
-	}
-
-	private void evalInit() throws ConfigFileErrorException {
-		String init = configAst.getInit();
-		if (!init.isEmpty()) {
-			if (definitions.containsKey(init)) {
-				this.initNode = definitions.get(init);
-			} else {
-				throw new ConfigFileErrorException(
-					"Invalid declaration of the initialisation predicate."
-						+ " Module does not contain the definition '"
-						+ init + "'");
-			}
-		}
-	}
-
-	private void evalSpec() throws ConfigFileErrorException {
-		String spec = configAst.getSpec();
-		if (!spec.isEmpty()) {
-			if (definitions.containsKey(spec)) {
-				this.specNode = definitions.get(spec);
-			} else {
-				throw new ConfigFileErrorException(
-					"Invalid declaration of the specification predicate."
-						+ "Module does not contain the definition '"
-						+ spec + "'");
-			}
-		}
+		return null;
 	}
 
 	private void evalInvariants() throws ConfigFileErrorException {
@@ -199,7 +139,7 @@ public class ConfigfileEvaluator {
 					// but we get other problem
 				}
 				DebugUtils.printMsg("Putting Constant into CONSTANT OverrideTable " + conNode.getName() + "/" + conNode.getArity());
-				constantOverrideTable.put(conNode, rightDefNode);
+				constantOverrides.put(conNode, rightDefNode);
 			} else if (definitions.containsKey(left)) {
 				// an operator is overridden by another operator
 				OpDefNode defNode = definitions.get(left);
@@ -212,7 +152,7 @@ public class ConfigfileEvaluator {
 				}
 
 				DebugUtils.printMsg("Putting Definition into OPERATOR OverrideTable " + defNode.getName() + "/" + defNode.getArity());
-				operatorOverrideTable.put(defNode, rightDefNode);
+				operatorOverrides.put(defNode, rightDefNode);
 			} else {
 				// every constant in the configuration file must appear in the TLA+ module
 				throw new ConfigFileErrorException(
@@ -348,7 +288,7 @@ public class ConfigfileEvaluator {
 								left, left, defNode.getArity(), right,
 								rightDefNode.getArity()));
 					}
-					operatorOverrideTable.put(defNode, rightDefNode);
+					operatorOverrides.put(defNode, rightDefNode);
 				} else {
 					InstanceNode[] instanceNodes = moduleNode.getInstances();
 					for (int i = 0; i < instanceNodes.length; i++) {
@@ -375,7 +315,7 @@ public class ConfigfileEvaluator {
 								rightDefNode.getArity()));
 					}
 					bConstantList.remove(conNode);
-					constantOverrideTable.put(conNode, rightDefNode);
+					constantOverrides.put(conNode, rightDefNode);
 				}
 			}
 		}
@@ -513,7 +453,7 @@ public class ConfigfileEvaluator {
 	}
 
 	public Map<OpDeclNode, OpDefNode> getConstantOverrideTable() {
-		return constantOverrideTable;
+		return constantOverrides;
 	}
 
 	public List<OpDefNode> getInvariants() {
@@ -533,7 +473,7 @@ public class ConfigfileEvaluator {
 	}
 
 	public Map<OpDefNode, OpDefNode> getOperatorOverrideTable() {
-		return operatorOverrideTable;
+		return operatorOverrides;
 	}
 
 	public List<String> getEnumerationSet() {
