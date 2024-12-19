@@ -5,15 +5,16 @@ import de.tla2b.exceptions.UnificationException;
 import de.tla2b.output.TypeVisitorInterface;
 import de.tla2bAst.BAstCreator;
 
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 public class EnumType extends AbstractHasFollowers {
-	public final LinkedHashSet<String> modelvalues;
+	public final Set<String> modelvalues;
 	public int id;
 	private boolean noVal = false;
 
-	public EnumType(ArrayList<String> enums) {
+	public EnumType(List<String> enums) {
 		super(MODELVALUE);
 		modelvalues = new LinkedHashSet<>(enums);
 	}
@@ -26,7 +27,7 @@ public class EnumType extends AbstractHasFollowers {
 		return noVal;
 	}
 
-	public LinkedHashSet<String> getValues() {
+	public Set<String> getValues() {
 		return modelvalues;
 	}
 
