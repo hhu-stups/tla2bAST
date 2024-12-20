@@ -186,7 +186,11 @@ public class BAstCreator extends BuiltInOPs
 					DebugUtils.printVeryVerboseMsg("Not creating B DEFINITION (in Override Table) " + def.getName() + " " + def);
 					continue;
 				}
-				if (def.getOriginallyDefinedInModuleNode().getName().toString().equals("MC")) {
+				if (def.getOriginallyDefinedInModuleNode().getName().toString().equals("MC")
+						&& !specAnalyser.getUsedDefinitions().contains(def)) {
+					// don't skip MC definitions if they are used
+					// TODO: check if this is correct (see invariant check for MC below)
+					DebugUtils.printDebugMsg("Skipping MC definition: " + def.getName());
 					continue;
 				}
 				//debugUtils.printVeryVerboseMsg("Creating B DEFINITION " + def.getName() + " " + def);
