@@ -347,56 +347,36 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 			if (conEval != null && conEval.getConstantAssignments().containsKey(con) && bConstants.contains(con)) {
 				ValueObj v = conEval.getConstantAssignments().get(con);
 				TLAType t = v.getType();
-				boolean isEnum = false;
-				if (t instanceof SetType) {
-					TLAType sub = ((SetType) t).getSubType();
-					if (sub instanceof EnumType) {
-						EnumType en = (EnumType) sub;
-						SetEnumValue set = (SetEnumValue) v.getValue();
-						if (set.elems.size() == en.modelvalues.size()) {
-							isEnum = true;
-						}
-					}
-				}
+
 				AEqualPredicate equal = new AEqualPredicate();
-				if (isEnum) {
-					equal.setLeft(createIdentifierNode(con));
+				equal.setLeft(createIdentifierNode(con));
+				if (t instanceof SetType && ((SetType) t).getSubType() instanceof EnumType
+						&& ((SetEnumValue) v.getValue()).elems.size() == ((EnumType) ((SetType) t).getSubType()).modelvalues.size()) {
+					// isEnum = true
 					equal.setRight(createIdentifierNode(((SetType) t).getSubType().toString()));
 				} else {
-					equal.setLeft(createIdentifierNode(con));
-					Value tlcValue = v.getValue();
-					equal.setRight(createTLCValue(tlcValue));
+					equal.setRight(createTLCValue(v.getValue()));
 				}
 				propertiesList.add(equal);
 			} else {
-				AMemberPredicate member = new AMemberPredicate();
-				member.setLeft(createIdentifierNode(con));
 				TLAType t = (TLAType) con.getToolObject(TYPE_ID);
-				member.setRight(t.getBNode());
-				propertiesList.add(member);
+				propertiesList.add(new AMemberPredicate(createIdentifierNode(con), t.getBNode()));
 			}
 		}
 
 		if (conEval != null) {
 			for (Entry<OpDeclNode, OpDefNode> entry : conEval.getConstantOverrides().entrySet()) {
 				OpDeclNode con = entry.getKey();
-				OpDefNode generatedDef = entry.getValue();
-				OpDefNode def;
+				OpDefNode def = entry.getValue(); // generated def
 				try {
-					OpApplNode opApplNode = (OpApplNode) generatedDef.getBody();
+					OpApplNode opApplNode = (OpApplNode) def.getBody();
 					if (opApplNode.getKind() == UserDefinedOpKind) {
 						def = (OpDefNode) opApplNode.getOperator();
-					} else {
-						def = generatedDef;
 					}
 				} catch (ClassCastException e) {
-					def = generatedDef;
+					// ignore
 				}
-
-				AEqualPredicate equal = new AEqualPredicate();
-				equal.setLeft(createIdentifierNode(con));
-				equal.setRight(visitExprNodeExpression(def.getBody()));
-				propertiesList.add(equal);
+				propertiesList.add(new AEqualPredicate(createIdentifierNode(con), visitExprNodeExpression(def.getBody())));
 			}
 		}
 
@@ -405,24 +385,19 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 		for (AssumeNode assumeNode : assumes) {
 			ThmOrAssumpDefNode def = assumeNode.getDef();
 			if (def != null) {
-				ALabelPredicate aLabelPredicate = new ALabelPredicate(new TPragmaIdOrString(def.getName().toString()),
-					createPositionedNode(visitAssumeNode(assumeNode), assumeNode));
-				assertionList.add(aLabelPredicate);
+				assertionList.add(new ALabelPredicate(
+						new TPragmaIdOrString(def.getName().toString()),
+						createPositionedNode(visitAssumeNode(assumeNode), assumeNode)));
 			} else {
 				propertiesList.add(visitAssumeNode(assumeNode));
 			}
 		}
 		if (!propertiesList.isEmpty()) {
-			APropertiesMachineClause propertiesClause = new APropertiesMachineClause();
-			propertiesClause.setPredicates(createConjunction(propertiesList));
-			machineClauseList.add(propertiesClause);
+			machineClauseList.add(new APropertiesMachineClause(createConjunction(propertiesList)));
 		}
 		if (!assertionList.isEmpty()) {
-			AAssertionsMachineClause assertionClause = new AAssertionsMachineClause();
-			assertionClause.setPredicates(assertionList);
-			machineClauseList.add(assertionClause);
+			machineClauseList.add(new AAssertionsMachineClause(assertionList));
 		}
-
 	}
 
 	private List<PPredicate> evalRecursiveFunctions() {
@@ -507,12 +482,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 		List<PPredicate> predList = new ArrayList<>();
 		for (OpDeclNode var : vars) {
 			TLAType varType = (TLAType) var.getToolObject(TYPE_ID);
-
-			AMemberPredicate member = new AMemberPredicate();
-			member.setLeft(createIdentifierNode(var));
-			member.setRight(varType.getBNode());
-
-			predList.add(member);
+			predList.add(new AMemberPredicate(createIdentifierNode(var), varType.getBNode()));
 		}
 
 		for (OpDefNode def : specAnalyser.getInvariants()) {
@@ -528,7 +498,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 					defExpr.setDefLiteral(new TIdentifierLiteral(getName(def)));
 					predList.add(new AEqualPredicate(defExpr, new ABooleanTrueExpression()));
 				}
-
 			}
 		}
 
