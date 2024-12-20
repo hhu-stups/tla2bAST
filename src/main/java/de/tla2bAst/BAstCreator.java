@@ -454,6 +454,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 		switch (tlcValue.getKind()) {
 			case INTVALUE:
 				return new AIntegerExpression(new TIntegerLiteral(tlcValue.toString()));
+			case REALVALUE:
+				return new ARealExpression(new TRealLiteral(tlcValue.toString()));
 			case SETENUMVALUE: {
 				SetEnumValue s = (SetEnumValue) tlcValue;
 				ArrayList<PExpression> list = new ArrayList<>();
