@@ -4,20 +4,21 @@ import de.be4.classicalb.core.parser.util.Utils;
 import de.tla2b.analysis.AbstractASTVisitor;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.global.BBuiltInOPs;
-import de.tla2b.global.TranslationGlobals;
 import de.tla2b.util.DebugUtils;
-import tla2sany.semantic.ASTConstants;
+import tla2sany.semantic.ExprNode;
 import tla2sany.semantic.ModuleNode;
 import tla2sany.semantic.OpApplNode;
 import tla2sany.semantic.OpDefNode;
-import tlc2.tool.ToolGlobals;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
-public class UsedDefinitionsFinder extends AbstractASTVisitor implements ASTConstants, ToolGlobals, TranslationGlobals {
+import static de.tla2b.global.TranslationGlobals.STANDARD_MODULES;
 
-	private final HashSet<OpDefNode> usedDefinitions = new HashSet<>();
+public class UsedDefinitionsFinder extends AbstractASTVisitor {
+
+	private final Set<OpDefNode> usedDefinitions = new HashSet<>();
 
 	public UsedDefinitionsFinder(SpecAnalyser specAnalyser) {
 		DebugUtils.printMsg("Finding used definitions");
@@ -48,14 +49,13 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor implements ASTCons
 		}
 
 		if (specAnalyser.getInits() != null) {
-			for (int i = 0; i < specAnalyser.getInits().size(); i++) {
-				visitExprNode(specAnalyser.getInits().get(i));
+			for (ExprNode init : specAnalyser.getInits()) {
+				visitExprNode(init);
 			}
 		}
 
 		if (specAnalyser.getInvariants() != null) {
-			for (int i = 0; i < specAnalyser.getInvariants().size(); i++) {
-				OpDefNode def = specAnalyser.getInvariants().get(i);
+			for (OpDefNode def : specAnalyser.getInvariants()) {
 				usedDefinitions.add(def);
 				visitExprNode(def.getBody());
 			}
@@ -72,7 +72,7 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor implements ASTCons
 		}
 	}
 
-	public HashSet<OpDefNode> getUsedDefinitions() {
+	public Set<OpDefNode> getUsedDefinitions() {
 		return usedDefinitions;
 	}
 
@@ -92,6 +92,5 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor implements ASTCons
 		if (usedDefinitions.add(def)) {
 			visitExprNode(def.getBody());
 		}
-
 	}
 }
