@@ -175,37 +175,33 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 			} else {
 				DebugUtils.printVeryVerboseMsg("Not creating unused B DEFINITION for " + def.getName() + " " + def);
 			}
-
 		}
 
 		Set<EXTERNAL_FUNCTIONS> set = usedExternalFunctions.getUsedExternalFunctions();
 		List<PDefinition> defs = new ArrayList<>(createDefinitionsForExternalFunctions(set));
 
 		for (OpDefNode opDefNode : bDefs) {
-			List<PExpression> list = new ArrayList<>();
-			for (int i = 0; i < opDefNode.getParams().length; i++) {
-				FormalParamNode p = opDefNode.getParams()[i];
-				list.add(createIdentifierNode(p));
-			}
+			List<PExpression> params = Arrays.stream(opDefNode.getParams())
+					.map(this::createIdentifierNode).collect(Collectors.toList());
 			// TLAType type = (TLAType) opDefNode.getToolObject(TYPE_ID);
 			// if (opDefNode.level == 2 || type instanceof BoolType) {
+			PDefinition definition;
 			if (predicateVsExpression.getDefinitionType(opDefNode) == DefinitionType.PREDICATE) {
-				APredicateDefinitionDefinition d = new APredicateDefinitionDefinition();
-				d.setName(new TDefLiteralPredicate(getName(opDefNode)));
-				d.setParameters(list);
-				d.setRhs(visitExprNodePredicate(opDefNode.getBody()));
-				defs.add(createPositionedNode(d,opDefNode));
+				definition = new APredicateDefinitionDefinition(
+						new TDefLiteralPredicate(getName(opDefNode)),
+						params,
+						visitExprNodePredicate(opDefNode.getBody())
+				);
+				DebugUtils.printVeryVerboseMsg("Creating Predicate DEFINITION " + getName(opDefNode));
 			} else {
-				AExpressionDefinitionDefinition d = new AExpressionDefinitionDefinition();
-				d.setName(new TIdentifierLiteral(getName(opDefNode)));
-				// System.out.println("Creating Expression DEFINITION " + getName(opDefNode));
-				// TODO: these definitions have no position info in the definition_decl term nor at the top-level body
-
-				d.setParameters(list);
-				d.setRhs(visitExprNodeExpression(opDefNode.getBody()));
-				defs.add(createPositionedNode(d,opDefNode));
+				definition = new AExpressionDefinitionDefinition(
+						new TIdentifierLiteral(getName(opDefNode)),
+						params,
+						visitExprNodeExpression(opDefNode.getBody())
+				);
+				DebugUtils.printVeryVerboseMsg("Creating Expression DEFINITION " + getName(opDefNode));
 			}
-
+			defs.add(createPositionedNode(definition, opDefNode));
 		}
 
 		if (!defs.isEmpty()) {
@@ -273,15 +269,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 		OpDeclNode[] vars = moduleNode.getVariableDecls();
 		if (vars.length == 0)
 			return;
-		List<PExpression> varList = new ArrayList<>();
-		for (OpDeclNode var : vars) {
-			varList.add(createIdentifierNode(var));
-		}
-
-		List<PPredicate> predList = new ArrayList<>();
-		for (ExprNode node : specAnalyser.getInits()) {
-			predList.add(visitExprNodePredicate(node));
-		}
+		List<PExpression> varList = Arrays.stream(vars).map(this::createIdentifierNode).collect(Collectors.toList());
+		List<PPredicate> predList = specAnalyser.getInits().stream().map(this::visitExprNodePredicate).collect(Collectors.toList());
 		if (predList.isEmpty()) {
 			throw new IllegalStateException("Could not find a definition of Init.");
 		}
@@ -325,23 +314,16 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 	}
 
 	private void createConstantsClause() {
-		List<OpDeclNode> bConstants;
-		if (conEval != null) {
-			bConstants = conEval.getbConstantList();
-		} else {
-			bConstants = Arrays.asList(moduleNode.getConstantDecls());
-		}
+		List<OpDeclNode> bConstants = conEval != null ? conEval.getbConstantList() : Arrays.asList(moduleNode.getConstantDecls());
 
 		List<PExpression> constantsList = new ArrayList<>();
 		for (OpDeclNode opDeclNode : bConstants) {
 			AIdentifierExpression id = createPositionedNode(createIdentifierNode(getName(opDeclNode)), opDeclNode);
 			constantsList.add(id);
-			TLAType type = (TLAType) opDeclNode.getToolObject(TYPE_ID);
-			types.put(id, type);
+			types.put(id, (TLAType) opDeclNode.getToolObject(TYPE_ID));
 		}
 		if (!constantsList.isEmpty()) {
-			AConstantsMachineClause constantsClause = new AConstantsMachineClause(constantsList);
-			machineClauseList.add(constantsClause);
+			machineClauseList.add(new AConstantsMachineClause(constantsList));
 		}
 	}
 
@@ -551,10 +533,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 		}
 
 		if (!predList.isEmpty()) {
-			AInvariantMachineClause invClause = new AInvariantMachineClause(createConjunction(predList));
-			machineClauseList.add(invClause);
+			machineClauseList.add(new AInvariantMachineClause(createConjunction(predList)));
 		}
-
 	}
 
 	private PPredicate visitAssumeNode(AssumeNode assumeNode) {
