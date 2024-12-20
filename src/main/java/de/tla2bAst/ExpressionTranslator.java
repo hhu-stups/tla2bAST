@@ -134,10 +134,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 			throw new ExpressionTranslationException(message);
 		}
 		SymbolRenamer.run(moduleNode, specAnalyser);
-		BAstCreator bASTCreator = new BAstCreator(moduleNode, specAnalyser);
-
-		this.expressionStart = bASTCreator.expressionStart;
-		return this.expressionStart;
+		return this.expressionStart = new BAstCreator(moduleNode, specAnalyser).getStartNode();
 	}
 
 	public Start translateWithoutModel() {
@@ -151,10 +148,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 			throw new ExpressionTranslationException(message);
 		}
 		SymbolRenamer.run(moduleNode, specAnalyser);
-		BAstCreator bASTCreator = new BAstCreator(moduleNode, specAnalyser);
-
-		this.expressionStart = bASTCreator.expressionStart;
-		return this.expressionStart;
+		return this.expressionStart = new BAstCreator(moduleNode, specAnalyser).getStartNode();
 	}
 
 	@Deprecated

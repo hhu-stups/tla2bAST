@@ -43,14 +43,12 @@ public class BAstCreator extends BuiltInOPs
 
 	private final Definitions bDefinitions = new Definitions();
 
-	private Start start;
+	private final Start start;
 	private final Map<Node, TLAType> types = new HashMap<>();
 	private final Set<PositionedNode> sourcePosition = new HashSet<>();
 	private final NodeFileNumbers nodeFileNumbers = new NodeFileNumbers();
 	private final List<String> filesOrderedById = new ArrayList<>();
 	private List<String> toplevelUnchangedVariableNames = new ArrayList<>();
-
-	public Start expressionStart;
 
 	/**
 	 * Creates a B AST node for a TLA expression
@@ -64,13 +62,9 @@ public class BAstCreator extends BuiltInOPs
 
 		ExprNode expr = moduleNode.getOpDefs()[moduleNode.getOpDefs().length - 1].getBody();
 		if (expressionIsAPredicate(expr)) {
-			APredicateParseUnit predicateParseUnit = new APredicateParseUnit();
-			predicateParseUnit.setPredicate(visitExprNodePredicate(expr));
-			expressionStart = new Start(predicateParseUnit, new EOF());
+			start = new Start(new APredicateParseUnit(visitExprNodePredicate(expr)), new EOF());
 		} else {
-			AExpressionParseUnit expressionParseUnit = new AExpressionParseUnit();
-			expressionParseUnit.setExpression(visitExprNodeExpression(expr));
-			expressionStart = new Start(expressionParseUnit, new EOF());
+			start = new Start(new AExpressionParseUnit(visitExprNodeExpression(expr)), new EOF());
 		}
 	}
 
