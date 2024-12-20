@@ -523,11 +523,15 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 			case OpApplKind:
 				return visitOpApplNodeExpression((OpApplNode) exprNode);
 			case NumeralKind: {
-				String number = String.valueOf(((NumeralNode) exprNode).val());
+				NumeralNode node = (NumeralNode) exprNode;
+				String number = String.valueOf(node.useVal() ? node.val() : node.bigVal());
 				return createPositionedNode(new AIntegerExpression(new TIntegerLiteral(number)), exprNode);
 			}
 			case DecimalKind: {
-				return createPositionedNode(new ARealExpression(new TRealLiteral(exprNode.toString())), exprNode);
+				DecimalNode node = (DecimalNode) exprNode;
+				String number = String.valueOf(node.bigVal() == null ? node.mantissa() * Math.pow(10,node.exponent()) : node.bigVal());
+				// the image of BigDecimal should always be with .0, because the node would not have been of DecimalKind otherwise
+				return createPositionedNode(new ARealExpression(new TRealLiteral(number)), exprNode);
 			}
 			case StringKind: {
 				StringNode s = (StringNode) exprNode;
