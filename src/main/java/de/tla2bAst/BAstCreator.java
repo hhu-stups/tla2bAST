@@ -327,18 +327,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 		}
 	}
 
-	public AIdentifierExpression createIdentifierNode(SymbolNode symbolNode) {
-		if (bMacroHandler.containsSymbolNode(symbolNode)) {
-			return createPositionedNode(createIdentifierNode(bMacroHandler.getNewName(symbolNode)), symbolNode);
-		} else {
-			return createPositionedNode(createIdentifierNode(symbolNode.getName().toString()), symbolNode);
-		}
-	}
-
-	public static AIdentifierExpression createIdentifierNode(String name) {
-		return new AIdentifierExpression(createTIdentifierLiteral(name));
-	}
-
 	private void createPropertyClause() {
 		List<PPredicate> propertiesList = new ArrayList<>();
 		propertiesList.addAll(evalRecursiveDefinitions());
@@ -2180,6 +2168,20 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 		} else {
 			throw new RuntimeException("OpArgNode not implemented jet");
 		}
+	}
+
+	// HELPER METHODS
+
+	public AIdentifierExpression createIdentifierNode(SymbolNode symbolNode) {
+		if (bMacroHandler.containsSymbolNode(symbolNode)) {
+			return createPositionedNode(createIdentifierNode(bMacroHandler.getNewName(symbolNode)), symbolNode);
+		} else {
+			return createPositionedNode(createIdentifierNode(symbolNode.getName().toString()), symbolNode);
+		}
+	}
+
+	public static AIdentifierExpression createIdentifierNode(String name) {
+		return new AIdentifierExpression(createTIdentifierLiteral(name));
 	}
 
 	public PPredicate createConjunction(List<PPredicate> list) {
