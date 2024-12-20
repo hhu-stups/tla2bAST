@@ -403,14 +403,14 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 	private List<PPredicate> evalRecursiveFunctions() {
 		List<PPredicate> propertiesList = new ArrayList<>();
 		for (OpDefNode def : specAnalyser.getRecursiveFunctions()) {
-			AEqualPredicate equals = new AEqualPredicate(createIdentifierNode(def),
-				visitExprNodeExpression(def.getBody()));
-			propertiesList.add(equals);
+			propertiesList.add(new AEqualPredicate(createIdentifierNode(def),
+					visitExprNodeExpression(def.getBody())));
 		}
 		return propertiesList;
 	}
 
 	private List<PPredicate> evalRecursiveDefinitions() {
+		// TODO: review this method
 		List<PPredicate> propertiesList = new ArrayList<>();
 
 		for (RecursiveDefinition recDef : specAnalyser.getRecursiveDefinitions()) {
@@ -456,23 +456,13 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 				return new AIntegerExpression(new TIntegerLiteral(tlcValue.toString()));
 			case REALVALUE:
 				return new ARealExpression(new TRealLiteral(tlcValue.toString()));
-			case SETENUMVALUE: {
-				SetEnumValue s = (SetEnumValue) tlcValue;
-				ArrayList<PExpression> list = new ArrayList<>();
-				for (int i = 0; i < s.elems.size(); i++) {
-					Value v = s.elems.elementAt(i);
-					list.add(createTLCValue(v));
-				}
-				return new ASetExtensionExpression(list);
-			}
-			case MODELVALUE: {
-				ModelValue m = (ModelValue) tlcValue;
-				return createIdentifierNode(m.toString());
-			}
-			case STRINGVALUE: {
-				StringValue stringValue = (StringValue) tlcValue;
-				return new AStringExpression(new TStringLiteral(stringValue.getVal().toString()));
-			}
+			case SETENUMVALUE:
+				return new ASetExtensionExpression(Arrays.stream(((SetEnumValue) tlcValue).elems.toArray())
+						.map(this::createTLCValue).collect(Collectors.toList()));
+			case MODELVALUE:
+				return createIdentifierNode(tlcValue.toString());
+			case STRINGVALUE:
+				return new AStringExpression(new TStringLiteral(((StringValue) tlcValue).getVal().toString()));
 			default:
 				throw new NotImplementedException("TLC value in configuration file: " + tlcValue.getClass());
 		}
@@ -516,14 +506,12 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 		switch (exprNode.getKind()) {
 			case OpApplKind:
 				return visitOpApplNodePredicate((OpApplNode) exprNode);
-			case LetInKind: {
-				LetInNode letInNode = (LetInNode) exprNode;
-				return visitExprNodePredicate(letInNode.getBody());
-			}
+			case LetInKind:
+				return visitExprNodePredicate(((LetInNode) exprNode).getBody());
 			case NumeralKind:
-			case DecimalKind: {
+			case DecimalKind:
+				// TODO: description
 				throw new RuntimeException();
-			}
 			default:
 				throw new NotImplementedException(exprNode.getClass().toString());
 		}
