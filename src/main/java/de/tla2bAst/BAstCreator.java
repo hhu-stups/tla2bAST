@@ -26,12 +26,11 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-public class BAstCreator extends BuiltInOPs
-	implements TranslationGlobals, ASTConstants, BBuildIns, ValueConstants {
+public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuildIns, ValueConstants {
 
-	List<PMachineClause> machineClauseList;
-	ConfigfileEvaluator conEval;
-	final SpecAnalyser specAnalyser;
+	private List<PMachineClause> machineClauseList;
+	private ConfigfileEvaluator conEval;
+	private final SpecAnalyser specAnalyser;
 	private final PredicateVsExpression predicateVsExpression;
 	private final BMacroHandler bMacroHandler;
 	private final RecursiveFunctionHandler recursiveFunctionHandler;
@@ -106,13 +105,6 @@ public class BAstCreator extends BuiltInOPs
 
 		machineClauseList = new ArrayList<>();
 
-		AAbstractMachineParseUnit aAbstractMachineParseUnit = new AAbstractMachineParseUnit();
-		aAbstractMachineParseUnit.setVariant(new AMachineMachineVariant());
-		AMachineHeader machineHeader = new AMachineHeader();
-		List<TIdentifierLiteral> headerName = createTIdentifierLiteral(getName(moduleNode));
-		machineHeader.setName(headerName);
-		aAbstractMachineParseUnit.setHeader(machineHeader);
-
 		createSetsClause();
 		createDefinitionClause();
 		createAbstractConstantsClause();
@@ -123,58 +115,48 @@ public class BAstCreator extends BuiltInOPs
 		createInitClause();
 		createOperationsClause();
 
-		aAbstractMachineParseUnit.setMachineClauses(machineClauseList);
-		start = new Start(aAbstractMachineParseUnit, new EOF());
-
+		start = new Start(new AAbstractMachineParseUnit(new AMachineMachineVariant(),
+				new AMachineHeader(createTIdentifierLiteral(getName(moduleNode)), new LinkedList<>()),
+				machineClauseList), new EOF());
 	}
 
 	private void createSetsClause() {
 		if (conEval == null || conEval.getEnumerationSet() == null || conEval.getEnumerationSet().isEmpty())
 			return;
-		ASetsMachineClause setsClause = new ASetsMachineClause();
 
-		ArrayList<EnumType> printed = new ArrayList<>();
+		List<EnumType> printed = new ArrayList<>();
 		OpDeclNode[] cons = moduleNode.getConstantDecls();
 		for (OpDeclNode con : cons) {
 			TLAType type = (TLAType) con.getToolObject(TYPE_ID);
 
-			EnumType e;
-			if (type instanceof SetType) {
-				if (((SetType) type).getSubType() instanceof EnumType) {
-					e = (EnumType) ((SetType) type).getSubType();
-					if (!printed.contains(e)) {
-						printed.add(e);
-					}
-				}
-			} else if ((type instanceof EnumType)) {
+			EnumType e = null;
+			if (type instanceof SetType && ((SetType) type).getSubType() instanceof EnumType) {
+				e = (EnumType) ((SetType) type).getSubType();
+			} else if (type instanceof EnumType) {
 				e = (EnumType) type;
-				if (!printed.contains(e)) {
-					printed.add(e);
-				}
+			}
+
+			if (e != null && !printed.contains(e)) {
+				printed.add(e);
 			}
 		}
 
-		ArrayList<PSet> sets = new ArrayList<>();
+		List<PSet> sets = new ArrayList<>();
 		for (int i = 0; i < printed.size(); i++) {
-			AEnumeratedSetSet eSet = new AEnumeratedSetSet();
-			printed.get(i).id = i + 1;
-			eSet.setIdentifier(createTIdentifierLiteral("ENUM" + (i + 1)));
-			List<PExpression> list = new ArrayList<>();
-			for (String s : printed.get(i).modelvalues) {
-				list.add(createIdentifierNode(s));
-			}
-			eSet.setElements(list);
-			sets.add(eSet);
+			EnumType enumType = printed.get(i);
+			enumType.id = i + 1;
+			List<PExpression> elements = enumType.getValues().stream()
+					.map(BAstCreator::createIdentifierNode)
+					.collect(Collectors.toList());
+			sets.add(new AEnumeratedSetSet(((AIdentifierExpression) enumType.getBNode()).getIdentifier(), elements));
 		}
-		setsClause.setSetDefinitions(sets);
-		machineClauseList.add(setsClause);
 
+		machineClauseList.add(new ASetsMachineClause(sets));
 	}
 
 	private void createDefinitionClause() {
-		ArrayList<OpDefNode> bDefs = new ArrayList<>();
-		for (int i = 0; i < moduleNode.getOpDefs().length; i++) {
-			OpDefNode def = moduleNode.getOpDefs()[i];
+		List<OpDefNode> bDefs = new ArrayList<>();
+		for (OpDefNode def : moduleNode.getOpDefs()) {
 			if (specAnalyser.getBDefinitions().contains(def)) {
 				if (conEval != null && conEval.getConstantOverrides().containsValue(def)) {
 					DebugUtils.printVeryVerboseMsg("Not creating B DEFINITION (in Override Table) " + def.getName() + " " + def);
