@@ -19,9 +19,7 @@ public class TLCValueNode extends NumeralNode implements TranslationGlobals {
 	}
 
 	public String toString2() {
-		return "\n*TLCValueNode: Value: '"
-			+ value.toString() + "'";
-
+		return "\n*TLCValueNode: Value: '" + value.toString() + "'";
 	}
 
 	public TLAType getType() {

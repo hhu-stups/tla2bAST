@@ -5,13 +5,13 @@ import tla2sany.semantic.OpApplNode;
 import tla2sany.semantic.OpDefNode;
 import tlc2.tool.BuiltInOPs;
 
-public class RecursiveFunktion extends BuiltInOPs {
+public class RecursiveFunction extends BuiltInOPs {
 
 	private final OpDefNode def;
 	private final OpApplNode rfs;
 	private OpApplNode ifThenElse;
 
-	public RecursiveFunktion(OpDefNode n, OpApplNode rfs)
+	public RecursiveFunction(OpDefNode n, OpApplNode rfs)
 		throws NotImplementedException {
 		def = n;
 		this.rfs = rfs;

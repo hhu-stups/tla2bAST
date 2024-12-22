@@ -61,7 +61,7 @@ public class PairType extends AbstractHasFollowers {
 			secondHasFollowers.addFollower(this);
 		}
 
-		// setting second can leads to a completely typed type
+		// setting second can lead to a completely typed type
 		if (!this.isUntyped()) {
 			// this type is completely typed
 			this.deleteFollowers();

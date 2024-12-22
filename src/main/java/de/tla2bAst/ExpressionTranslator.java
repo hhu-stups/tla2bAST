@@ -185,8 +185,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 
 		if (n == null) { // Parse Error
 			// System.out.println("Rootmodule null");
-			throw new TLA2BFrontEndException(
-				allMessagesToString(ToolIO.getAllMessages()), spec);
+			throw new TLA2BFrontEndException(allMessagesToString(ToolIO.getAllMessages()), spec);
 		}
 		return n;
 	}

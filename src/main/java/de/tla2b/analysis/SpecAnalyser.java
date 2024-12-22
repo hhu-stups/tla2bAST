@@ -41,8 +41,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 	private Set<OpDefNode> usedDefinitions = new HashSet<>();
 	// definitions which are used for the type inference algorithm
 	private final Hashtable<OpDefNode, FormalParamNode[]> letParams = new Hashtable<>();
-	// additional parameters of a let Operator, these parameters are from the
-	// surrounding operator
+	// additional parameters of a let Operator, these parameters are from the surrounding operator
 	private final List<String> definitionMacros = new ArrayList<>();
 
 	private final List<OpDefNode> recursiveFunctions = new ArrayList<>();
