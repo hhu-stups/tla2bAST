@@ -69,7 +69,6 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 
 	public static SpecAnalyser createSpecAnalyserForTlaExpression(ModuleNode m) {
 		SpecAnalyser specAnalyser = new SpecAnalyser(m);
-
 		specAnalyser.expressionOpdefNode = m.getOpDefs()[m.getOpDefs().length - 1];
 		specAnalyser.usedDefinitions.add(specAnalyser.expressionOpdefNode);
 		specAnalyser.bDefinitionsSet.add(specAnalyser.expressionOpdefNode);
@@ -78,7 +77,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 
 	public static SpecAnalyser createSpecAnalyser(ModuleNode m) {
 		SpecAnalyser specAnalyser = new SpecAnalyser(m);
-		Hashtable<String, OpDefNode> definitions = new Hashtable<>();
+		Map<String, OpDefNode> definitions = new HashMap<>();
 		for (int i = 0; i < m.getOpDefs().length; i++) {
 			definitions.put(m.getOpDefs()[i].getName().toString(), m.getOpDefs()[i]);
 		}
@@ -157,9 +156,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		DebugUtils.printMsg("Detected TLA+ Default Definition " + Name + " for Clause: " + Clause);
 	}
 
-	public void start()
-		throws SemanticErrorException, TLA2BFrontEndException, ConfigFileErrorException, NotImplementedException {
-
+	public void start() throws SemanticErrorException, ConfigFileErrorException, NotImplementedException {
 		if (spec != null) {
 			evalSpec();
 		} else {
@@ -170,7 +167,6 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		for (OpDefNode inv : new ArrayList<>(invariants)) {
 			try {
 				OpApplNode opApplNode = (OpApplNode) inv.getBody();
-
 				OpDefNode opDefNode = (OpDefNode) opApplNode.getOperator();
 
 				if (opDefNode.getKind() == UserDefinedOpKind && !BBuiltInOPs.contains(opDefNode.getName())) {
@@ -186,11 +182,8 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		bOperations = new OperationsFinder(this).getBOperations();
 
 		DebugUtils.printDebugMsg("Finding used definitions");
-		UsedDefinitionsFinder definitionFinder = new UsedDefinitionsFinder(this);
-		this.usedDefinitions = definitionFinder.getUsedDefinitions();
-
-		BDefinitionsFinder bDefinitionFinder = new BDefinitionsFinder(this);
-		this.bDefinitionsSet = bDefinitionFinder.getBDefinitionsSet();
+		this.usedDefinitions = new UsedDefinitionsFinder(this).getUsedDefinitions();
+		this.bDefinitionsSet = new BDefinitionsFinder(this).getBDefinitionsSet();
 		// usedDefinitions.addAll(bDefinitionsSet);
 
 		DebugUtils.printDebugMsg("Computing variable declarations");

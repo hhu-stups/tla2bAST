@@ -2,16 +2,18 @@ package de.tla2b.analysis;
 
 import de.tla2b.global.BBuildIns;
 import de.tla2b.global.BBuiltInOPs;
-import de.tla2b.global.TranslationGlobals;
 import tla2sany.semantic.*;
 import tlc2.tool.BuiltInOPs;
 
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-public class PredicateVsExpression extends BuiltInOPs implements ASTConstants,
-	BBuildIns, TranslationGlobals {
+import static de.tla2b.global.TranslationGlobals.STANDARD_MODULES;
 
-	private final HashMap<OpDefNode, DefinitionType> definitionsTypeMap;
+public class PredicateVsExpression extends BuiltInOPs implements BBuildIns {
+
+	private final Map<OpDefNode, DefinitionType> definitionsTypeMap;
 
 	public enum DefinitionType {
 		PREDICATE, EXPRESSION
@@ -22,30 +24,22 @@ public class PredicateVsExpression extends BuiltInOPs implements ASTConstants,
 	}
 
 	public PredicateVsExpression(ModuleNode moduleNode) {
-		this.definitionsTypeMap = new HashMap<>();
-		OpDefNode[] defs = moduleNode.getOpDefs();
-
-		for (OpDefNode def : defs) {
-			DefinitionType type = visitSemanticNode(def.getBody());
-			definitionsTypeMap.put(def, type);
-		}
+		this.definitionsTypeMap = Arrays.stream(moduleNode.getOpDefs())
+				.collect(Collectors.toMap(def -> def, def -> visitSemanticNode(def.getBody())));
 	}
 
 	private DefinitionType visitSemanticNode(SemanticNode s) {
 		switch (s.getKind()) {
-			case OpApplKind: {
-				return visitOppApplNode((OpApplNode) s);
-			}
+			case OpApplKind:
+				return visitOpApplNode((OpApplNode) s);
 
-			case LetInKind: {
-				LetInNode letInNode = (LetInNode) s;
-				return visitSemanticNode(letInNode.getBody());
-			}
+			case LetInKind:
+				return visitSemanticNode(((LetInNode) s).getBody());
 		}
 		return DefinitionType.EXPRESSION;
 	}
 
-	private DefinitionType visitOppApplNode(OpApplNode opApplNode) {
+	private DefinitionType visitOpApplNode(OpApplNode opApplNode) {
 		int kind = opApplNode.getOperator().getKind();
 
 		if (kind == BuiltInKind) {
@@ -63,17 +57,13 @@ public class PredicateVsExpression extends BuiltInOPs implements ASTConstants,
 				case OPCODE_bf: // \A x \in S : P
 				case OPCODE_in: // \in
 				case OPCODE_subseteq: // \subseteq {1,2} <: {1,2,3}
-				case OPCODE_unchanged: {
+				case OPCODE_unchanged:
 					return DefinitionType.PREDICATE;
-				}
 
 				case OPCODE_ite: // IF THEN ELSE
-				{
 					return visitSemanticNode(opApplNode.getArgs()[1]);
-				}
 
-				case OPCODE_case: // CASE p1 -> e1 [] p2 -> e2
-				{
+				case OPCODE_case: { // CASE p1 -> e1 [] p2 -> e2
 					OpApplNode pair = (OpApplNode) opApplNode.getArgs()[0];
 					return visitSemanticNode(pair.getArgs()[1]);
 				}
@@ -91,8 +81,7 @@ public class PredicateVsExpression extends BuiltInOPs implements ASTConstants,
 	private DefinitionType visitUserdefinedOp(OpApplNode s) {
 		OpDefNode def = (OpDefNode) s.getOperator();
 		if (BBuiltInOPs.contains(def.getName())
-			&& STANDARD_MODULES.contains(def.getSource().getOriginallyDefinedInModuleNode().getName().toString())) {
-
+				&& STANDARD_MODULES.contains(def.getSource().getOriginallyDefinedInModuleNode().getName().toString())) {
 			switch (BBuiltInOPs.getOpcode(def.getName())) {
 				case B_OPCODE_lt: // <
 				case B_OPCODE_gt: // >
@@ -103,7 +92,6 @@ public class PredicateVsExpression extends BuiltInOPs implements ASTConstants,
 				default:
 					return DefinitionType.EXPRESSION;
 			}
-
 		}
 		return getDefinitionType(def);
 	}

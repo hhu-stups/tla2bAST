@@ -59,8 +59,7 @@ public class UsedExternalFunctions extends AbstractASTVisitor implements BBuildI
 			usedExternalFunctions.add(EXTERNAL_FUNCTIONS.ASSERT);
 		}
 
-		ExprNode[] in = n.getBdedQuantBounds();
-		for (ExprNode exprNode : in) {
+		for (ExprNode exprNode : n.getBdedQuantBounds()) {
 			visitExprNode(exprNode);
 		}
 

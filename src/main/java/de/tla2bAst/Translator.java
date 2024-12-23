@@ -176,12 +176,11 @@ public class Translator implements TranslationGlobals {
 
 	public Start translate() throws TLA2BException {
 		InstanceTransformation.run(moduleNode);
-		SymbolSorter.sort(moduleNode);
+		SymbolSorter.sort(moduleNode); // what is the benefit of this?
 
 		ConfigfileEvaluator conEval = null;
 		if (modelConfig != null) {
 			conEval = new ConfigfileEvaluator(modelConfig, moduleNode);
-
 			ModuleOverrider.run(moduleNode, conEval);
 			specAnalyser = SpecAnalyser.createSpecAnalyser(moduleNode, conEval);
 		} else {
@@ -309,6 +308,9 @@ public class Translator implements TranslationGlobals {
 		return moduleFile;
 	}
 
+	/**
+	 * external interface (used by prob_java to obtain list, e.g. for ProB2-UI editor)
+	 */
 	public List<File> getModuleFiles() {
 		return Collections.unmodifiableList(moduleFiles);
 	}
