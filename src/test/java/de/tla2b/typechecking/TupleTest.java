@@ -73,8 +73,7 @@ public class TupleTest {
 	}
 
 	@Test
-	public void testTupleComponentsOfTheSameType() throws
-		TLA2BException {
+	public void testTupleComponentsOfTheSameType() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 			+ "EXTENDS Naturals \n"
 			+ "CONSTANTS k \n"
@@ -110,8 +109,7 @@ public class TupleTest {
 	}
 
 	@Test
-	public void testTupleSingleElement() throws
-		TLA2BException {
+	public void testTupleSingleElement() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 			+ "CONSTANTS k \n"
 			+ "ASSUME k = <<TRUE>> \n"
@@ -158,8 +156,7 @@ public class TupleTest {
 	 * Cartesian Product
 	 */
 	@Test
-	public void testCartesianProduct2() throws
-		TLA2BException {
+	public void testCartesianProduct2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 			+ "CONSTANTS k \n"
 			+ "ASSUME k = BOOLEAN \\X {1} \n"
@@ -169,8 +166,7 @@ public class TupleTest {
 	}
 
 	@Test
-	public void testCartesianProduct3() throws
-		TLA2BException {
+	public void testCartesianProduct3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 			+ "CONSTANTS k, k2 \n"
 			+ "ASSUME BOOLEAN \\X {1} = k \\X k2 \n"
@@ -180,14 +176,23 @@ public class TupleTest {
 		assertEquals("POW(INTEGER)", t.getConstantType("k2"));
 	}
 
-	@Test(expected = TypeErrorException.class)
-	public void testCartesianProductException() throws
-		TLA2BException {
+	@Test (expected = TypeErrorException.class)
+	public void testCartesianProductException() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 			+ "CONSTANTS k \n"
 			+ "ASSUME k = BOOLEAN \\X 1 \n"
 			+ "=================================";
 		TestUtil.typeCheckString(module);
+	}
+
+	@Test
+	public void testTupleWithRecord() throws TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "CONSTANTS k \n"
+				+ "ASSUME k = <<[x |-> TRUE, y |-> 5], FALSE>> \n"
+				+ "=================================";
+		TestTypeChecker t = TestUtil.typeCheckString(module);
+		assertEquals("struct(x:BOOL,y:INTEGER)*BOOL", t.getConstantType("k"));
 	}
 
 }

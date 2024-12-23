@@ -4,6 +4,7 @@ import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.exceptions.TypeErrorException;
 import de.tla2b.util.TestTypeChecker;
 import de.tla2b.util.TestUtil;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -31,8 +32,7 @@ public class ExceptTest {
 			+ "ASSUME k = [k EXCEPT ![1] = [a|-> 1, b |-> TRUE], ![1].b = k2 ] "
 			+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		assertEquals("POW(INTEGER*struct(a:INTEGER,b:BOOL))",
-			t.getConstantType("k"));
+		assertEquals("POW(INTEGER*struct(a:INTEGER,b:BOOL))", t.getConstantType("k"));
 		assertEquals("BOOL", t.getConstantType("k2"));
 	}
 
@@ -44,8 +44,7 @@ public class ExceptTest {
 			+ "ASSUME k = [k EXCEPT ![1].a = 2, ![1].b = k2 ] /\\ k2 = TRUE \n"
 			+ "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		assertEquals("POW(INTEGER*struct(a:INTEGER,b:BOOL))",
-			t.getConstantType("k"));
+		assertEquals("POW(INTEGER*struct(a:INTEGER,b:BOOL))", t.getConstantType("k"));
 	}
 
 	@Test
@@ -126,6 +125,19 @@ public class ExceptTest {
 		assertEquals("INTEGER", t.getConstantType("k"));
 	}
 
+	@Ignore
+	@Test
+	public void testRecordAtExcept() throws TLA2BException {
+		// TODO: implement in Typechecker
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "CONSTANTS k, k2 \n"
+				+ "ASSUME k = <<[x |-> TRUE], FALSE>> /\\ k2 = [k EXCEPT ![1].x = ~@] \n"
+				+ "=================================";
+		TestTypeChecker t = TestUtil.typeCheckString(module);
+		assertEquals("struct(x:BOOL)*BOOL", t.getConstantType("k"));
+		assertEquals("struct(x:BOOL)*BOOL", t.getConstantType("k2"));
+	}
+
 	@Test
 	public void testAtTuple() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
@@ -138,6 +150,5 @@ public class ExceptTest {
 		assertEquals("POW(INTEGER*(INTEGER*STRING))", t.getConstantType("k"));
 		assertEquals("POW(INTEGER*(INTEGER*STRING))", t.getConstantType("k2"));
 	}
-
 
 }
