@@ -5,27 +5,27 @@ import de.tla2b.global.BBuiltInOPs;
 import tla2sany.semantic.*;
 import tlc2.tool.BuiltInOPs;
 
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static de.tla2b.global.TranslationGlobals.STANDARD_MODULES;
 
 public class PredicateVsExpression extends BuiltInOPs implements BBuildIns {
 
-	private final Map<OpDefNode, DefinitionType> definitionsTypeMap;
+	private final Map<OpDefNode, DefinitionType> definitionsTypeMap = new HashMap<>();
 
 	public enum DefinitionType {
 		PREDICATE, EXPRESSION
 	}
 
-	public DefinitionType getDefinitionType(OpDefNode def) {
-		return definitionsTypeMap.get(def);
+	public PredicateVsExpression(ModuleNode moduleNode) {
+		for (OpDefNode def : moduleNode.getOpDefs()) {
+			definitionsTypeMap.put(def, visitSemanticNode(def.getBody()));
+		}
 	}
 
-	public PredicateVsExpression(ModuleNode moduleNode) {
-		this.definitionsTypeMap = Arrays.stream(moduleNode.getOpDefs())
-				.collect(Collectors.toMap(def -> def, def -> visitSemanticNode(def.getBody())));
+	public DefinitionType getDefinitionType(OpDefNode def) {
+		return definitionsTypeMap.get(def);
 	}
 
 	private DefinitionType visitSemanticNode(SemanticNode s) {
