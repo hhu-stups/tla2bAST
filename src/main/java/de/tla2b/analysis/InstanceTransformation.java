@@ -3,9 +3,11 @@ package de.tla2b.analysis;
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.util.TlaUtils;
 import tla2sany.semantic.*;
+import tla2sany.st.TreeNode;
 import tlc2.tool.BuiltInOPs;
 import util.UniqueString;
 
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -14,19 +16,17 @@ import java.util.Map;
  *      M1 == INSTANCE Counter WITH x &lt;- c, start &lt;- 0
  * <p>
  * Example for usage in module:
- *      OpDef == /\ M1!Init
+ *      OpDef == M1!Init
  * <p>
  * cf. <a href="https://lamport.azurewebsites.net/tla/newmodule.html">https://lamport.azurewebsites.net/tla/newmodule.html</a>
  */
 public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 
-	private final OpDefNode[] defs;
-	private final Map<String, OpDefNode> defsHash;
+	private final Map<String, OpDefNode> defs;
 	private final int substitutionId = 11;
 
 	private InstanceTransformation(ModuleNode moduleNode) {
-		this.defs = moduleNode.getOpDefs();
-		this.defsHash = TlaUtils.getOpDefsMap(defs);
+		this.defs = TlaUtils.getOpDefsMap(moduleNode.getOpDefs());
 	}
 
 	public static void run(ModuleNode moduleNode) {
@@ -34,30 +34,22 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 	}
 
 	/**
-	 * replace all substitutions M1!Op1 by the real Op1 (?)
+	 * replace all definitions M1!Op1 by the real Op1 and add included definitions from instances
 	 */
 	private void start() {
-		for (OpDefNode def : defs) {
-			if (def.getSource() != def && !BBuiltInOPs.contains(def.getSource().getName())) {
-				// instance
+		for (OpDefNode def : defs.values()) {
+			if (def.getSource() != def && !BBuiltInOPs.contains(def.getSource().getName())
+					&& def.getBody() instanceof SubstInNode) {
+				// name of the definition in the instance:
 				String defName = def.getName().toString();
-
-				if (def.getBody() instanceof SubstInNode) {
-					String prefix = defName.substring(0, defName.lastIndexOf('!') + 1);
-					def.setParams(generateNewParams(def.getParams()));
-					ExprNode body;
-					try {
-						body = generateNewExprNode(def.getBody(), prefix);
-					} catch (AbortException e) {
-						throw new RuntimeException();
-					}
-					def.setBody(body);
-				}
+				String prefix = defName.substring(0, defName.lastIndexOf('!') + 1);
+				def.setParams(copyParams(def.getParams()));
+				def.setBody(generateNewExprNode(def.getBody(), prefix));
 			}
 		}
 	}
 
-	private ExprOrOpArgNode generateNewExprOrOpArgNode(ExprOrOpArgNode n, String prefix) throws AbortException {
+	private ExprOrOpArgNode generateNewExprOrOpArgNode(ExprOrOpArgNode n, String prefix) {
 		if (n instanceof ExprNode) {
 			return generateNewExprNode((ExprNode) n, prefix);
 		} else {
@@ -65,14 +57,18 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 		}
 	}
 
-	private ExprNode generateNewExprNode(ExprNode n, String prefix) throws AbortException {
+	private ExprNode generateNewExprNode(ExprNode n, String prefix) {
 		switch (n.getKind()) {
 			case OpApplKind: {
 				return generateNewOpApplNode((OpApplNode) n, prefix);
 			}
 
 			case NumeralKind: {
-				return new NumeralNode(n.toString(), n.getTreeNode());
+				try {
+					return new NumeralNode(n.toString(), n.getTreeNode());
+				} catch (AbortException e) {
+					throw new RuntimeException("Error while creating NumeralNode: " + e);
+				}
 			}
 
 			case DecimalKind: {
@@ -109,7 +105,7 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 					OpDefNode let = oldLetNode.getLets()[i];
 					UniqueString newName = UniqueString.uniqueStringOf(prefix + let.getName().toString());
 					OpDefNode newLet = new OpDefNode(newName, let.getKind(),
-						generateNewParams(let.getParams()), let.isLocal(),
+						copyParams(let.getParams()), let.isLocal(),
 						generateNewExprNode(let.getBody(), prefix),
 						let.getOriginallyDefinedInModuleNode(), null,
 						let.getTreeNode(), true, let.getSource());
@@ -125,7 +121,7 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 		throw new IllegalArgumentException("unknown ExprNode kind " + n.getKind());
 	}
 
-	private ExprNode generateNewOpApplNode(OpApplNode n, String prefix) throws AbortException {
+	private ExprNode generateNewOpApplNode(OpApplNode n, String prefix) {
 		switch (n.getOperator().getKind()) {
 			case VariableDeclKind:
 			case ConstantDeclKind: {
@@ -139,12 +135,10 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 						while (opArg.getOp().getToolObject(substitutionId) != null) {
 							opArg = (OpArgNode) opArg.getOp().getToolObject(substitutionId);
 						}
-						return new OpApplNode(opArg.getOp(), generateNewArgs(
-							n.getArgs(), prefix), n.getTreeNode(), null);
+						return createOpApplNode(opArg.getOp(), generateNewArgs(n.getArgs(), prefix), n.getTreeNode());
 					}
 				} else {
-					return new OpApplNode(n.getOperator(), generateNewArgs(
-						n.getArgs(), prefix), n.getTreeNode(), null);
+					return createOpApplNode(n.getOperator(), generateNewArgs(n.getArgs(), prefix), n.getTreeNode());
 				}
 			}
 
@@ -153,7 +147,7 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 				if (f == null) {
 					throw new RuntimeException();
 				}
-				return new OpApplNode(f, generateNewArgs(n.getArgs(), prefix), n.getTreeNode(), null);
+				return createOpApplNode(f, generateNewArgs(n.getArgs(), prefix), n.getTreeNode());
 			}
 
 			case BuiltInKind: {
@@ -164,27 +158,27 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 				// in case of a call of a LetInNode
 				OpDefNode letOp = (OpDefNode) n.getOperator().getToolObject(substitutionId);
 				if (letOp != null) {
-					return new OpApplNode(letOp, generateNewArgs(n.getArgs(), prefix), n.getTreeNode(), null);
+					return createOpApplNode(letOp, generateNewArgs(n.getArgs(), prefix), n.getTreeNode());
 				}
 
 				// in case of a call of BBuiltInOp e.g. +, -
 				if (BBuiltInOPs.contains(n.getOperator().getName())) {
-					return new OpApplNode(n.getOperator(), generateNewArgs(n.getArgs(), prefix), n.stn, null);
+					return createOpApplNode(n.getOperator(), generateNewArgs(n.getArgs(), prefix), n.stn);
 				}
 
 				// normal userdefined Operator
 				String opName = prefix + n.getOperator().getName().toString();
-				OpDefNode op = defsHash.get(opName);
+				OpDefNode op = defs.get(opName);
 				if (op == null) {
 					throw new RuntimeException();
 				}
-				return new OpApplNode(op, generateNewArgs(n.getArgs(), prefix), n.getTreeNode(), null);
+				return createOpApplNode(op, generateNewArgs(n.getArgs(), prefix), n.getTreeNode());
 			}
 		}
 		throw new RuntimeException("OpApplkind not implemented yet");
 	}
 
-	private ExprNode generateNewBuiltInNode(OpApplNode n, String prefix) throws AbortException {
+	private ExprNode generateNewBuiltInNode(OpApplNode n, String prefix) {
 		switch (getOpCode(n.getOperator().getName())) {
 			case OPCODE_exc: { // Except
 				OpApplNode newNode = new OpApplNode(n.getOperator().getName(), null, n.getTreeNode(), null);
@@ -195,18 +189,16 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 				for (int i = 1; i < n.getArgs().length; i++) {
 					OpApplNode pair = (OpApplNode) n.getArgs()[i];
 					OpApplNode newPair = new OpApplNode(pair.getOperator().getName(), null, pair.getTreeNode(), null);
-					// needed for @ node: we have to set a reference from the old
-					// pair to the new pair
-					// before evaluation the arguments which may be contains a @
-					// node
+					// needed for @ node: we have to set a reference from the old pair to the new pair
+					// before evaluating the arguments which may contain an @ node
 					pair.setToolObject(substitutionId, newPair);
 					newPair.setArgs(generateNewArgs(pair.getArgs(), prefix));
 					newArgs[i] = newPair;
 				}
 				newNode.setArgs(newArgs);
 				return newNode;
-
 			}
+
 			case OPCODE_uc: { // CHOOSE x : P
 				FormalParamNode[] oldSymbols = n.getUnbdedQuantSymbols();
 				FormalParamNode[] newSymbols = new FormalParamNode[oldSymbols.length];
@@ -255,29 +247,39 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 			}
 
 			default: { // =
-				return new OpApplNode(n.getOperator(), generateNewArgs(n.getArgs(), prefix), n.getTreeNode(), null);
+				return createOpApplNode(n.getOperator(), generateNewArgs(n.getArgs(), prefix), n.getTreeNode());
 			}
 		}
 	}
 
-	private ExprOrOpArgNode[] generateNewArgs(ExprOrOpArgNode[] args, String prefix) throws AbortException {
-		ExprOrOpArgNode[] res = new ExprOrOpArgNode[args.length];
-		for (int i = 0; i < args.length; i++) {
-			res[i] = generateNewExprOrOpArgNode(args[i], prefix);
-		}
-		return res;
+	private ExprOrOpArgNode[] generateNewArgs(ExprOrOpArgNode[] args, String prefix) {
+		return Arrays.stream(args)
+				.map(arg -> generateNewExprOrOpArgNode(arg, prefix))
+				.toArray(ExprOrOpArgNode[]::new);
 	}
 
-	private FormalParamNode[] generateNewParams(FormalParamNode[] oldParams) {
-		FormalParamNode[] newParams = new FormalParamNode[oldParams.length];
-		for (int i = 0; i < oldParams.length; i++) {
-			FormalParamNode oldParam = oldParams[i];
-			FormalParamNode newParam = new FormalParamNode(oldParam.getName(),
-				oldParam.getArity(), oldParam.getTreeNode(), null, null);
-			// set reference to the old param to the new
-			oldParam.setToolObject(substitutionId, newParam);
-			newParams[i] = newParam;
+	private FormalParamNode[] copyParams(FormalParamNode[] oldParams) {
+		return Arrays.stream(oldParams)
+				.map(oldParam -> {
+					FormalParamNode newParam = new FormalParamNode(
+							oldParam.getName(),
+							oldParam.getArity(),
+							oldParam.getTreeNode(),
+							null,
+							null
+					);
+					// set reference of the old param to the new
+					oldParam.setToolObject(substitutionId, newParam);
+					return newParam;
+				})
+				.toArray(FormalParamNode[]::new);
+	}
+
+	private static OpApplNode createOpApplNode(SymbolNode operator, ExprOrOpArgNode[] args, TreeNode treeNode) {
+		try {
+			return new OpApplNode(operator, args, treeNode, null);
+		} catch (AbortException e) {
+			throw new RuntimeException("Error while creating OpApplNode: " + e);
 		}
-		return newParams;
 	}
 }
