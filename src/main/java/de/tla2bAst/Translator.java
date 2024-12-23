@@ -131,9 +131,8 @@ public class Translator implements TranslationGlobals {
 	private void parse() throws TLA2BFrontEndException {
 		moduleNode = parseModule();
 
-		modelConfig = null;
 		if (configFile != null) {
-			modelConfig = new ModelConfig(configFile.getAbsolutePath(), new SimpleResolver());
+			modelConfig = new ModelConfig(configFile.getName(), null);
 			modelConfig.parse();
 		}
 	}
