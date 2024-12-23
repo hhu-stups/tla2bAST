@@ -6,62 +6,61 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BBuiltInOPs implements BBuildIns {
-	private static final Map<UniqueString, Integer> B_Opcode_Table;
+	private static final Map<UniqueString, Integer> B_Opcodes = new HashMap<>();
 
 	static {
-		B_Opcode_Table = new HashMap<>();
-		B_Opcode_Table.put(OP_dotdot, B_OPCODE_dotdot);
-		B_Opcode_Table.put(OP_plus, B_OPCODE_plus);
-		B_Opcode_Table.put(OP_minus, B_OPCODE_minus);
-		B_Opcode_Table.put(OP_times, B_OPCODE_times);
-		B_Opcode_Table.put(OP_div, B_OPCODE_div);
-		B_Opcode_Table.put(OP_realdiv, B_OPCODE_realdiv);
-		B_Opcode_Table.put(OP_mod, B_OPCODE_mod);
-		B_Opcode_Table.put(OP_exp, B_OPCODE_exp);
-		B_Opcode_Table.put(OP_uminus, B_OPCODE_uminus);
+		B_Opcodes.put(OP_dotdot, B_OPCODE_dotdot);
+		B_Opcodes.put(OP_plus, B_OPCODE_plus);
+		B_Opcodes.put(OP_minus, B_OPCODE_minus);
+		B_Opcodes.put(OP_times, B_OPCODE_times);
+		B_Opcodes.put(OP_div, B_OPCODE_div);
+		B_Opcodes.put(OP_realdiv, B_OPCODE_realdiv);
+		B_Opcodes.put(OP_mod, B_OPCODE_mod);
+		B_Opcodes.put(OP_exp, B_OPCODE_exp);
+		B_Opcodes.put(OP_uminus, B_OPCODE_uminus);
 
-		B_Opcode_Table.put(OP_lt, B_OPCODE_lt);
-		B_Opcode_Table.put(OP_leq, B_OPCODE_leq);
-		B_Opcode_Table.put(OP_gt, B_OPCODE_gt);
-		B_Opcode_Table.put(OP_geq, B_OPCODE_geq);
-		B_Opcode_Table.put(OP_bool, B_OPCODE_bool);
-		B_Opcode_Table.put(OP_true, B_OPCODE_true);
-		B_Opcode_Table.put(OP_false, B_OPCODE_false);
-		B_Opcode_Table.put(OP_nat, B_OPCODE_nat);
-		B_Opcode_Table.put(OP_int, B_OPCODE_int);
-		B_Opcode_Table.put(OP_real, B_OPCODE_real);
-		B_Opcode_Table.put(OP_string, B_OPCODE_string);
+		B_Opcodes.put(OP_lt, B_OPCODE_lt);
+		B_Opcodes.put(OP_leq, B_OPCODE_leq);
+		B_Opcodes.put(OP_gt, B_OPCODE_gt);
+		B_Opcodes.put(OP_geq, B_OPCODE_geq);
+		B_Opcodes.put(OP_bool, B_OPCODE_bool);
+		B_Opcodes.put(OP_true, B_OPCODE_true);
+		B_Opcodes.put(OP_false, B_OPCODE_false);
+		B_Opcodes.put(OP_nat, B_OPCODE_nat);
+		B_Opcodes.put(OP_int, B_OPCODE_int);
+		B_Opcodes.put(OP_real, B_OPCODE_real);
+		B_Opcodes.put(OP_string, B_OPCODE_string);
 
-		B_Opcode_Table.put(OP_finite, B_OPCODE_finite);
-		B_Opcode_Table.put(OP_card, B_OPCODE_card);
+		B_Opcodes.put(OP_finite, B_OPCODE_finite);
+		B_Opcodes.put(OP_card, B_OPCODE_card);
 
-		B_Opcode_Table.put(OP_len, B_OPCODE_len);
-		B_Opcode_Table.put(OP_append, B_OPCODE_append);
-		B_Opcode_Table.put(OP_seq, B_OPCODE_seq);
-		B_Opcode_Table.put(OP_head, B_OPCODE_head);
-		B_Opcode_Table.put(OP_tail, B_OPCODE_tail);
-		B_Opcode_Table.put(OP_subseq, B_OPCODE_subseq);
-		B_Opcode_Table.put(OP_conc, B_OPCODE_conc);
+		B_Opcodes.put(OP_len, B_OPCODE_len);
+		B_Opcodes.put(OP_append, B_OPCODE_append);
+		B_Opcodes.put(OP_seq, B_OPCODE_seq);
+		B_Opcodes.put(OP_head, B_OPCODE_head);
+		B_Opcodes.put(OP_tail, B_OPCODE_tail);
+		B_Opcodes.put(OP_subseq, B_OPCODE_subseq);
+		B_Opcodes.put(OP_conc, B_OPCODE_conc);
 
-		B_Opcode_Table.put(OP_min, B_OPCODE_min);
-		B_Opcode_Table.put(OP_max, B_OPCODE_max);
-		B_Opcode_Table.put(OP_setprod, B_OPCODE_setprod);
-		B_Opcode_Table.put(OP_setsum, B_OPCODE_setsum);
-		B_Opcode_Table.put(OP_permseq, B_OPCODE_permseq);
+		B_Opcodes.put(OP_min, B_OPCODE_min);
+		B_Opcodes.put(OP_max, B_OPCODE_max);
+		B_Opcodes.put(OP_setprod, B_OPCODE_setprod);
+		B_Opcodes.put(OP_setsum, B_OPCODE_setsum);
+		B_Opcodes.put(OP_permseq, B_OPCODE_permseq);
 
-		B_Opcode_Table.put(OP_pow1, B_OPCODE_pow1);
+		B_Opcodes.put(OP_pow1, B_OPCODE_pow1);
 
 		//relations
-		B_Opcode_Table.put(OP_rel_inverse, B_OPCODE_rel_inverse);
+		B_Opcodes.put(OP_rel_inverse, B_OPCODE_rel_inverse);
 
-		B_Opcode_Table.put(OP_assert, B_OPCODE_assert);
+		B_Opcodes.put(OP_assert, B_OPCODE_assert);
 	}
 
 	public static boolean contains(UniqueString s) {
-		return B_Opcode_Table.containsKey(s);
+		return B_Opcodes.containsKey(s);
 	}
 
 	public static int getOpcode(UniqueString s) {
-		return B_Opcode_Table.get(s);
+		return B_Opcodes.get(s);
 	}
 }

@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class BDefinitionsFinder extends AbstractASTVisitor implements ASTConstants, ToolGlobals, TranslationGlobals {
-	private final HashSet<OpDefNode> bDefinitionsSet = new HashSet<>();
+	private final Set<OpDefNode> bDefinitionsSet = new HashSet<>();
 
 	public BDefinitionsFinder(SpecAnalyser specAnalyser) {
 		if (specAnalyser.getConfigFileEvaluator() != null) {
@@ -50,7 +50,7 @@ public class BDefinitionsFinder extends AbstractASTVisitor implements ASTConstan
 			}
 		}
 
-		HashSet<OpDefNode> temp = new HashSet<>(bDefinitionsSet);
+		Set<OpDefNode> temp = new HashSet<>(bDefinitionsSet);
 		for (OpDefNode opDefNode : temp) {
 			visitExprNode(opDefNode.getBody());
 		}

@@ -5,11 +5,12 @@ import de.tla2b.global.TranslationGlobals;
 import tla2sany.semantic.*;
 import tlc2.tool.BuiltInOPs;
 
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
+import java.util.Map;
 import java.util.Set;
 
-public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals, ASTConstants {
+public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals {
 
 	private final static Set<String> KEYWORDS = new HashSet<>();
 
@@ -66,7 +67,7 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals, AST
 		KEYWORDS.add("OPERATIONS");
 	}
 
-	private final static Hashtable<String, String> INFIX_OPERATOR = new Hashtable<>();
+	private final static Map<String, String> INFIX_OPERATOR = new HashMap<>();
 
 	static {
 		INFIX_OPERATOR.put("!!", "exclamationmark2");
@@ -89,7 +90,7 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals, AST
 		INFIX_OPERATOR.put("...", "dot3");
 	}
 
-	private final static Hashtable<String, String> BBUILTIN_OPERATOR = new Hashtable<>();
+	private final static Map<String, String> BBUILTIN_OPERATOR = new HashMap<>();
 
 	static {
 		BBUILTIN_OPERATOR.put("+", "plus");
@@ -110,7 +111,7 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals, AST
 	private final Set<OpDefNode> usedDefinitions;
 
 	private final Set<String> globalNames = new HashSet<>();
-	private final Hashtable<OpDefNode, Set<String>> usedNamesTable = new Hashtable<>();
+	private final Map<OpDefNode, Set<String>> usedNamesTable = new HashMap<>();
 
 	private SymbolRenamer(ModuleNode moduleNode, SpecAnalyser specAnalyser) {
 		this.moduleNode = moduleNode;
