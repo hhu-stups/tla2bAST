@@ -162,7 +162,7 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 				String opName = prefix + n.getOperator().getName().toString();
 				OpDefNode op = defs.get(opName);
 				if (op == null) {
-					throw new RuntimeException();
+					throw new RuntimeException("user-defined operator " + opName + " not found");
 				}
 				return createOpApplNode(op, copyArgs(n.getArgs(), prefix), n.getTreeNode());
 			}
