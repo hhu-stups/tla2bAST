@@ -2,7 +2,6 @@ package de.tla2b.analysis;
 
 import de.tla2b.config.ConfigfileEvaluator;
 import de.tla2b.exceptions.ConfigFileErrorException;
-import de.tla2b.exceptions.TLA2BFrontEndException;
 import de.tla2b.exceptions.NotImplementedException;
 import de.tla2b.exceptions.SemanticErrorException;
 import de.tla2b.global.BBuiltInOPs;
@@ -11,6 +10,7 @@ import de.tla2b.translation.BDefinitionsFinder;
 import de.tla2b.translation.OperationsFinder;
 import de.tla2b.translation.UsedDefinitionsFinder;
 import de.tla2b.util.DebugUtils;
+import de.tla2b.util.TlaUtils;
 import tla2sany.semantic.*;
 import tlc2.tool.BuiltInOPs;
 import tlc2.tool.ToolGlobals;
@@ -24,7 +24,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 	private List<OpDefNode> invariants = new ArrayList<>();
 
 	private OpDefNode expressionOpdefNode;
-	private final Hashtable<String, SymbolNode> namingHashTable = new Hashtable<>();
+	private final Map<String, SymbolNode> namingMap = new HashMap<>();
 
 	private final ModuleNode moduleNode;
 	private ExprNode nextExpr;
@@ -202,17 +202,14 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 		findRecursiveConstructs();
 
 		for (OpDeclNode var : moduleNode.getVariableDecls()) {
-			namingHashTable.put(var.getName().toString(), var);
+			namingMap.put(var.getName().toString(), var);
 		}
 		DebugUtils.printMsg("Number of variables detected: " + moduleNode.getVariableDecls().length);
-		for (OpDeclNode con : moduleNode.getConstantDecls()) {
-			namingHashTable.put(con.getName().toString(), con);
-		}
-		DebugUtils.printMsg("Number of constants detected: " + moduleNode.getConstantDecls().length);
-		for (OpDefNode def : usedDefinitions) {
-			namingHashTable.put(def.getName().toString(), def);
-		}
 
+		namingMap.putAll(TlaUtils.getConstantsMap(moduleNode.getConstantDecls()));
+		DebugUtils.printMsg("Number of constants detected: " + moduleNode.getConstantDecls().length);
+
+		namingMap.putAll(TlaUtils.getOpDefsMap(usedDefinitions.toArray(new OpDefNode[0])));
 	}
 
 	private void evalInit() {
@@ -362,7 +359,7 @@ public class SpecAnalyser extends BuiltInOPs implements ASTConstants, ToolGlobal
 	}
 
 	public SymbolNode getSymbolNodeByName(String name) {
-		return namingHashTable.get(name);
+		return namingMap.get(name);
 	}
 
 }

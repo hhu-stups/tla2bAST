@@ -56,12 +56,8 @@ public class ConfigfileEvaluator {
 		this.configAst = configAst;
 		this.moduleNode = moduleNode;
 		this.definitions = TlaUtils.getOpDefsMap(moduleNode.getOpDefs());
-
-		this.constants = new HashMap<>();
-		for (OpDeclNode con : moduleNode.getConstantDecls()) {
-			this.constants.put(con.getName().toString(), con);
-			this.bConstantList.add(con);
-		}
+		this.constants = TlaUtils.getConstantsMap(moduleNode.getConstantDecls());
+		this.bConstantList.addAll(constants.values());
 
 		this.nextNode = evalPredicate(configAst.getNext(), "next state"); // check if NEXT declaration is a valid definition
 		this.initNode = evalPredicate(configAst.getInit(), "initialisation"); // check if INIT declaration is a valid definition
