@@ -12,10 +12,10 @@ public class TLCValueNode extends NumeralNode implements TranslationGlobals {
 	private final Value value;
 	private final TLAType type;
 
-	public TLCValueNode(ValueObj valObj, TreeNode stn) throws AbortException {
+	public TLCValueNode(Value value, TLAType type, TreeNode stn) throws AbortException {
 		super("1337", stn);
-		this.value = valObj.getValue();
-		this.type = valObj.getType();
+		this.value = value;
+		this.type = type;
 	}
 
 	public String toString2() {

@@ -2,7 +2,6 @@ package de.tla2b.analysis;
 
 import de.tla2b.config.ConfigfileEvaluator;
 import de.tla2b.config.TLCValueNode;
-import de.tla2b.config.ValueObj;
 import de.tla2b.exceptions.*;
 import de.tla2b.global.BBuildIns;
 import de.tla2b.global.BBuiltInOPs;
@@ -31,7 +30,7 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 	private List<OpDeclNode> bConstList;
 	private final SpecAnalyser specAnalyser;
 
-	private Map<OpDeclNode, ValueObj> constantAssignments;
+	private Map<OpDeclNode, TLCValueNode> constantAssignments;
 
 	private ConfigfileEvaluator conEval;
 

@@ -9,7 +9,7 @@ import de.tla2b.analysis.*;
 import de.tla2b.analysis.PredicateVsExpression.DefinitionType;
 import de.tla2b.analysis.UsedExternalFunctions.EXTERNAL_FUNCTIONS;
 import de.tla2b.config.ConfigfileEvaluator;
-import de.tla2b.config.ValueObj;
+import de.tla2b.config.TLCValueNode;
 import de.tla2b.exceptions.NotImplementedException;
 import de.tla2b.global.*;
 import de.tla2b.translation.BMacroHandler;
@@ -333,7 +333,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 		propertiesList.addAll(evalRecursiveFunctions());
 		for (OpDeclNode con : bConstants) {
 			if (conEval != null && conEval.getConstantAssignments().containsKey(con) && bConstants.contains(con)) {
-				ValueObj v = conEval.getConstantAssignments().get(con);
+				TLCValueNode v = conEval.getConstantAssignments().get(con);
 				TLAType t = v.getType();
 
 				AEqualPredicate equal = new AEqualPredicate();

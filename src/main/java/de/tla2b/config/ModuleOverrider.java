@@ -10,7 +10,7 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 	private final ModuleNode moduleNode;
 	private final Map<OpDeclNode, OpDefNode> constantOverrideTable;
 	private final Map<OpDefNode, OpDefNode> operatorOverrideTable;
-	private final Map<OpDefNode, ValueObj> operatorAssignments;
+	private final Map<OpDefNode, TLCValueNode> operatorAssignments;
 
 	private ModuleOverrider(ModuleNode moduleNode, ConfigfileEvaluator conEval) {
 		this.moduleNode = moduleNode;
@@ -27,23 +27,9 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 		OpDefNode[] defs = moduleNode.getOpDefs();
 		for (OpDefNode def : defs) {
 			if (operatorAssignments.containsKey(def)) {
-				ExprNode oldExpr = def.getBody();
-				TLCValueNode valueNode;
-				try {
-					valueNode = new TLCValueNode(operatorAssignments.get(def), oldExpr.getTreeNode());
-				} catch (AbortException e) {
-					throw new RuntimeException();
-				}
-				def.setBody(valueNode);
+				def.setBody(operatorAssignments.get(def));
 			} else if (operatorAssignments.containsKey(def.getSource())) {
-				ExprNode oldExpr = def.getBody();
-				TLCValueNode valueNode;
-				try {
-					valueNode = new TLCValueNode(operatorAssignments.get(def.getSource()), oldExpr.getTreeNode());
-				} catch (AbortException e) {
-					throw new RuntimeException();
-				}
-				def.setBody(valueNode);
+				def.setBody(operatorAssignments.get(def.getSource()));
 			}
 
 		}

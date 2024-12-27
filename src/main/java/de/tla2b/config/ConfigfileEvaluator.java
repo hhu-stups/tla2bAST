@@ -35,9 +35,9 @@ public class ConfigfileEvaluator {
 	private final List<OpDefNode> invariantNodeList = new ArrayList<>();
 	private final List<String> enumeratedSet = new ArrayList<>();
 	private final Map<String, EnumType> enumeratedTypes = new LinkedHashMap<>();
-	private final Map<OpDeclNode, ValueObj> constantAssignments = new HashMap<>();
-	// k = 1, the ValueObj describes the right side of the assignment and contains its type
-	private final Map<OpDefNode, ValueObj> operatorAssignments = new HashMap<>(); // def = 1
+	private final Map<OpDeclNode, TLCValueNode> constantAssignments = new HashMap<>();
+	// k = 1, the ValueNode describes the right side of the assignment and contains its type
+	private final Map<OpDefNode, TLCValueNode> operatorAssignments = new HashMap<>(); // def = 1
 
 	private final List<OpDefNode> operatorModelvalues = new ArrayList<>();
 
@@ -72,8 +72,12 @@ public class ConfigfileEvaluator {
 
 		evalInvariants(); // check if INVARIANT declarations are valid definitions
 		evalConstantOrDefOverrides();
-		evalConstantOrOperatorAssignments();
-		evalModConOrDefAssignments();
+		try {
+			evalConstantOrOperatorAssignments();
+			evalModConOrDefAssignments();
+		} catch (AbortException e) {
+			throw new RuntimeException(e);
+		}
 		evalModConOrDefOverrides();
 	}
 
@@ -151,7 +155,7 @@ public class ConfigfileEvaluator {
 		}
 	}
 
-	private void evalConstantOrOperatorAssignments() throws ConfigFileErrorException {
+	private void evalConstantOrOperatorAssignments() throws ConfigFileErrorException, AbortException {
 		Vect<?> configCons = configAst.getConstants();
 		// iterate over all constant or operator assignments in the config file
 		// k = 1 or def = 1
@@ -162,7 +166,7 @@ public class ConfigfileEvaluator {
 			TLAType symbolType = conGetType(symbol.lastElement());
 			if (constants.containsKey(symbolName)) {
 				OpDeclNode c = constants.get(symbolName);
-				constantAssignments.put(c, new ValueObj(symbolValue, symbolType));
+				constantAssignments.put(c, new TLCValueNode(symbolValue, symbolType, null));
 				// if conValue is a model value and the name of the value is the
 				// same as the name of constants, then the constant declaration
 				// in the resulting B machine disappears
@@ -171,7 +175,7 @@ public class ConfigfileEvaluator {
 				}
 			} else if (definitions.containsKey(symbolName)) {
 				OpDefNode def = definitions.get(symbolName);
-				operatorAssignments.put(def, new ValueObj(symbolValue, symbolType));
+				operatorAssignments.put(def, new TLCValueNode(symbolValue, symbolType, def.getBody().getTreeNode()));
 
 				if (symbolType instanceof SetType && ((SetType) symbolType).getSubType() instanceof EnumType) {
 					operatorModelvalues.add(def);
@@ -185,7 +189,7 @@ public class ConfigfileEvaluator {
 		}
 	}
 
-	private void evalModConOrDefAssignments() throws ConfigFileErrorException {
+	private void evalModConOrDefAssignments() throws ConfigFileErrorException, AbortException {
 		// TODO: seems like there are no tests for this
 		// example: val = [Counter] 7
 		@SuppressWarnings("unchecked")
@@ -201,12 +205,11 @@ public class ConfigfileEvaluator {
 
 				Value symbolValue = (Value) assignment.elementAt(1);
 				TLAType symbolType = conGetType(symbolValue);
-				ValueObj valueObj = new ValueObj(symbolValue, symbolType);
 				if (opDefOrDeclNode instanceof OpDeclNode) {
 					// TODO test whether c is a extended constant
 					// Instanced constants must be overridden in the instance statement
 					OpDeclNode c = (OpDeclNode) opDefOrDeclNode;
-					constantAssignments.put(c, valueObj);
+					constantAssignments.put(c, new TLCValueNode(symbolValue, symbolType, c.getTreeNode()));
 					// if conValue is a model value and the name of value is the same as the name of constants,
 					// then the constant declaration in the resulting B machine disappears
 					String symbolName = opDefOrDeclNode.getName().toString();
@@ -215,7 +218,7 @@ public class ConfigfileEvaluator {
 					}
 				} else {
 					OpDefNode def = (OpDefNode) opDefOrDeclNode;
-					operatorAssignments.put(def, valueObj);
+					operatorAssignments.put(def, new TLCValueNode(symbolValue, symbolType, def.getBody().getTreeNode()));
 
 					if (symbolType instanceof SetType) {
 						if (((SetType) symbolType).getSubType() instanceof EnumType) {
@@ -415,11 +418,11 @@ public class ConfigfileEvaluator {
 		return this.invariantNodeList;
 	}
 
-	public Map<OpDeclNode, ValueObj> getConstantAssignments() {
+	public Map<OpDeclNode, TLCValueNode> getConstantAssignments() {
 		return this.constantAssignments;
 	}
 
-	public Map<OpDefNode, ValueObj> getOperatorAssignments() {
+	public Map<OpDefNode, TLCValueNode> getOperatorAssignments() {
 		return this.operatorAssignments;
 	}
 
