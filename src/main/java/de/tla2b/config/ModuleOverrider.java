@@ -71,7 +71,7 @@ public class ModuleOverrider extends BuiltInOPs {
 			case LetInKind: {
 				LetInNode l = (LetInNode) n;
 				for (OpDefNode let : l.getLets()) {
-					visitExprOrOpArgNode(let.getBody());
+					visitExprNode(let.getBody());
 				}
 
 				OpApplNode res = visitExprNode(l.getBody());

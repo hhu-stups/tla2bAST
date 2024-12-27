@@ -166,7 +166,7 @@ public class ConfigfileEvaluator {
 			TLAType symbolType = conGetType(symbol.lastElement());
 			if (constants.containsKey(symbolName)) {
 				OpDeclNode c = constants.get(symbolName);
-				constantAssignments.put(c, new TLCValueNode(symbolValue, symbolType, null));
+				constantAssignments.put(c, new TLCValueNode(symbolValue, symbolType, c.getTreeNode()));
 				// if conValue is a model value and the name of the value is the
 				// same as the name of constants, then the constant declaration
 				// in the resulting B machine disappears
