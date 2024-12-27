@@ -186,7 +186,7 @@ public class StructOrFunctionType extends AbstractHasFollowers {
 
 	@Override
 	public PExpression getBNode() {
-		return null;
+		throw new UnsupportedOperationException("StructOrFunctionType has no corresponding B node.");
 	}
 
 	public void apply(TypeVisitorInterface visitor) {
