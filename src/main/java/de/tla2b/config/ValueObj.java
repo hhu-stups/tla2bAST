@@ -4,8 +4,8 @@ import de.tla2b.types.TLAType;
 import tlc2.value.impl.Value;
 
 public class ValueObj {
-	private Value value;
-	private TLAType type;
+	private final Value value;
+	private final TLAType type;
 
 	public ValueObj(Value value, TLAType t) {
 		this.value = value;
@@ -16,16 +16,7 @@ public class ValueObj {
 		return value;
 	}
 
-	public void setValue(Value value) {
-		this.value = value;
-	}
-
-	public void setType(TLAType type) {
-		this.type = type;
-	}
-
 	public TLAType getType() {
 		return type;
 	}
-
 }

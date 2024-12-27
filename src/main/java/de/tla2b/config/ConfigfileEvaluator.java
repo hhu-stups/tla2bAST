@@ -8,9 +8,11 @@ import de.tla2b.util.DebugUtils;
 import tla2sany.semantic.*;
 import tlc2.tool.impl.ModelConfig;
 import tlc2.util.Vect;
+import tlc2.value.impl.BoolValue;
 import tlc2.value.impl.IntValue;
 import tlc2.value.impl.ModelValue;
 import tlc2.value.impl.SetEnumValue;
+import tlc2.value.impl.StringValue;
 import tlc2.value.impl.Value;
 
 import java.util.*;
@@ -88,8 +90,8 @@ public class ConfigfileEvaluator {
 
 	private void evalInvariants() throws ConfigFileErrorException {
 		Vect<?> v = configAst.getInvariants();
-		for (int i = 0; i < v.capacity(); i++) {
-			if (v.elementAt(i) != null) {
+		for (int i = 0; i < v.size(); i++) {
+			if (v.elementAt(i) instanceof String) {
 				String inv = (String) v.elementAt(i);
 				if (!definitions.containsKey(inv)) {
 					throw new ConfigFileErrorException("Invalid invariant declaration. Module does not contain definition '" + inv + "'");
@@ -120,11 +122,11 @@ public class ConfigfileEvaluator {
 					throw new ConfigFileErrorException(
 						String.format(
 							"Invalid substitution for %s.%n Constant %s has %s arguments while %s has %s arguments.",
-							left, left, conNode.getArity(), right,
-							rightDefNode.getArity()));
+							left, left, conNode.getArity(), right, rightDefNode.getArity()));
 				}
 				if (conNode.getArity() > 0) {
 					bConstantList.remove(conNode); // Why?
+					// constants has arguments and is overridden by an operator
 					// to not get error message Constant 'Leader' must be overridden in the configuration file.
 					// but we get other problem
 				}
@@ -137,8 +139,7 @@ public class ConfigfileEvaluator {
 					throw new ConfigFileErrorException(
 						String.format(
 							"Invalid substitution for %s.%n Operator %s has %s arguments while %s has %s arguments.",
-							left, left, defNode.getArity(), right,
-							rightDefNode.getArity()));
+							left, left, defNode.getArity(), right, rightDefNode.getArity()));
 				}
 
 				DebugUtils.printMsg("Putting Definition into OPERATOR OverrideTable " + defNode.getName() + "/" + defNode.getArity());
@@ -156,14 +157,12 @@ public class ConfigfileEvaluator {
 		// k = 1 or def = 1
 		for (int i = 0; i < configCons.size(); i++) {
 			Vect<?> symbol = (Vect<?>) configCons.elementAt(i);
-			String symbolName = symbol.elementAt(0).toString();
-			Value symbolValue = (Value) symbol.elementAt(symbol.size() - 1);
-			TLAType symbolType = conGetType(symbol.elementAt(symbol.size() - 1));
+			String symbolName = symbol.firstElement().toString();
+			Value symbolValue = (Value) symbol.lastElement();
+			TLAType symbolType = conGetType(symbol.lastElement());
 			if (constants.containsKey(symbolName)) {
 				OpDeclNode c = constants.get(symbolName);
-
-				ValueObj valueObj = new ValueObj(symbolValue, symbolType);
-				constantAssignments.put(c, valueObj);
+				constantAssignments.put(c, new ValueObj(symbolValue, symbolType));
 				// if conValue is a model value and the name of the value is the
 				// same as the name of constants, then the constant declaration
 				// in the resulting B machine disappears
@@ -172,12 +171,11 @@ public class ConfigfileEvaluator {
 				}
 			} else if (definitions.containsKey(symbolName)) {
 				OpDefNode def = definitions.get(symbolName);
-				ValueObj valueObj = new ValueObj(symbolValue, symbolType);
-				operatorAssignments.put(def, valueObj);
+				operatorAssignments.put(def, new ValueObj(symbolValue, symbolType));
 
 				if (symbolType instanceof SetType && ((SetType) symbolType).getSubType() instanceof EnumType) {
 					operatorModelvalues.add(def);
-				} else if ((symbolType instanceof EnumType)) {
+				} else if (symbolType instanceof EnumType) {
 					operatorModelvalues.add(def);
 				}
 			} else {
@@ -188,38 +186,35 @@ public class ConfigfileEvaluator {
 	}
 
 	private void evalModConOrDefAssignments() throws ConfigFileErrorException {
-		// val = [Counter] 7
+		// TODO: seems like there are no tests for this
+		// example: val = [Counter] 7
 		@SuppressWarnings("unchecked")
-		Hashtable<String, Vect<?>> configCons = configAst.getModConstants();
-		Enumeration<String> moduleNames = configCons.keys();
-		while (moduleNames.hasMoreElements()) {
-			String moduleName = moduleNames.nextElement();
+		Map<String, Vect<?>> configCons = configAst.getModConstants();
+		for (Map.Entry<String, Vect<?>> entry : configCons.entrySet()) {
+			String moduleName = entry.getKey();
+			Vect<?> assignments = entry.getValue();
+
 			ModuleNode mNode = searchModule(moduleName);
-			Vect<?> assignments = configCons.get(moduleName);
 			for (int i = 0; i < assignments.size(); i++) {
-				Vect<?> assigment = (Vect<?>) assignments.elementAt(i);
-				OpDefOrDeclNode opDefOrDeclNode = searchDefinitionOrConstant(mNode, (String) assigment.elementAt(0));
-				String symbolName = opDefOrDeclNode.getName().toString();
-				Value symbolValue = (Value) assigment.elementAt(1);
-				TLAType symbolType = conGetType(assigment.elementAt(1));
-				// System.out.println(symbolName + " " + symbolValue+ " " +
-				// symbolType);
+				Vect<?> assignment = (Vect<?>) assignments.elementAt(i);
+				OpDefOrDeclNode opDefOrDeclNode = searchDefinitionOrConstant(mNode, (String) assignment.firstElement());
+
+				Value symbolValue = (Value) assignment.elementAt(1);
+				TLAType symbolType = conGetType(symbolValue);
+				ValueObj valueObj = new ValueObj(symbolValue, symbolType);
 				if (opDefOrDeclNode instanceof OpDeclNode) {
 					// TODO test whether c is a extended constant
-					// Instanced constants have to overridden in the instance
-					// statement
+					// Instanced constants must be overridden in the instance statement
 					OpDeclNode c = (OpDeclNode) opDefOrDeclNode;
-					ValueObj valueObj = new ValueObj(symbolValue, symbolType);
 					constantAssignments.put(c, valueObj);
-					// if conValue is a model value and the name of value is the
-					// same as the name of constants, then the constant
-					// declaration in the resulting B machine disappears
+					// if conValue is a model value and the name of value is the same as the name of constants,
+					// then the constant declaration in the resulting B machine disappears
+					String symbolName = opDefOrDeclNode.getName().toString();
 					if (symbolName.equals(symbolValue.toString())) {
 						bConstantList.remove(c);
 					}
 				} else {
 					OpDefNode def = (OpDefNode) opDefOrDeclNode;
-					ValueObj valueObj = new ValueObj(symbolValue, symbolType);
 					operatorAssignments.put(def, valueObj);
 
 					if (symbolType instanceof SetType) {
@@ -235,28 +230,25 @@ public class ConfigfileEvaluator {
 	}
 
 	private void evalModConOrDefOverrides() throws ConfigFileErrorException {
-		// foo <- [Counter] bar or k <- [Counter] bar
+		// TODO: seems like there are no tests for this
+		// example: foo <- [Counter] bar or k <- [Counter] bar
 		@SuppressWarnings("unchecked")
-		Hashtable<String, Hashtable<String, String>> configCons = configAst.getModOverrides();
-		Enumeration<String> moduleNames = configCons.keys();
-		while (moduleNames.hasMoreElements()) {
-			String moduleName = moduleNames.nextElement();
-			ModuleNode mNode = searchModule(moduleName);
-			Hashtable<String, String> o = configCons.get(moduleName);
+		Map<String, Map<String, String>> configCons = configAst.getModOverrides();
+		for (Map.Entry<String, Map<String, String>> entry : configCons.entrySet()) {
+			String moduleName = entry.getKey();
+			Map<String, String> o = entry.getValue();
 
-			for (Map.Entry<String, String> entry : o.entrySet()) {
-				String left = entry.getKey();
-				String right = entry.getValue();
+			for (Map.Entry<String, String> entry1 : o.entrySet()) {
+				String left = entry1.getKey();
+				String right = entry1.getValue();
 
 				OpDefNode rightDefNode = definitions.get(right);
 				if (rightDefNode == null) {
 					throw new ConfigFileErrorException(
-						"Invalid substitution for " + left
-							+ ".\n Module does not contain definition "
-							+ right + ".");
+						"Invalid substitution for " + left + ".\n Module does not contain definition " + right + ".");
 				}
-				OpDefOrDeclNode opDefOrDeclNode = searchDefinitionOrConstant(mNode, left);
 
+				OpDefOrDeclNode opDefOrDeclNode = searchDefinitionOrConstant(searchModule(moduleName), left);
 				if (opDefOrDeclNode instanceof OpDefNode) {
 					// an operator is overridden by another operator
 					OpDefNode defNode = (OpDefNode) opDefOrDeclNode;
@@ -264,8 +256,7 @@ public class ConfigfileEvaluator {
 						throw new ConfigFileErrorException(
 							String.format(
 								"Invalid substitution for %s.%n Operator %s has %s arguments while %s has %s arguments.",
-								left, left, defNode.getArity(), right,
-								rightDefNode.getArity()));
+								left, left, defNode.getArity(), right, rightDefNode.getArity()));
 					}
 					operatorOverrides.put(defNode, rightDefNode);
 				} else {
@@ -290,8 +281,7 @@ public class ConfigfileEvaluator {
 						throw new ConfigFileErrorException(
 							String.format(
 								"Invalid substitution for %s.%n Constant %s has %s arguments while %s has %s arguments.",
-								left, left, conNode.getArity(), right,
-								rightDefNode.getArity()));
+								left, left, conNode.getArity(), right, rightDefNode.getArity()));
 					}
 					bConstantList.remove(conNode);
 					constantOverrides.put(conNode, rightDefNode);
@@ -301,19 +291,15 @@ public class ConfigfileEvaluator {
 	}
 
 	public ModuleNode searchModule(String moduleName) throws ConfigFileErrorException {
-		/*
-		 * Search module in extended modules
-		 */
-		HashSet<ModuleNode> extendedModules = moduleNode.getExtendedModuleSet();
-		for (ModuleNode m : extendedModules) {
-			if (m.getName().toString().equals(moduleName)) {
+		// TODO: never used in tests
+		// Search module in extended modules
+		for (ModuleNode m : moduleNode.getExtendedModuleSet()) {
+			if (m.getName().toString().equals(moduleName))
 				return m;
-			}
 		}
 
-		/*
-		 * search module in instanced modules
-		 */
+		// search module in instanced modules
+		// TODO: maybe use InstanceNodes instead?
 		OpDefNode[] defs = moduleNode.getOpDefs();
 		for (int j = defs.length - 1; j > 0; j--) {
 			OpDefNode def = null;
@@ -344,35 +330,34 @@ public class ConfigfileEvaluator {
 
 	private TLAType conGetType(Object o) throws ConfigFileErrorException {
 		if (o instanceof IntValue) {
-			// IntValue iv = (IntValue) o;
 			return IntType.getInstance();
-		} else if (o.getClass().getName().equals("tlc2.value.impl.SetEnumValue")) {
+		} else if (o instanceof SetEnumValue) {
 			SetEnumValue set = (SetEnumValue) o;
-			SetType t = new SetType(new UntypedType());
 			if (set.isEmpty()) {
-				throw new ConfigFileErrorException("empty set is not permitted!");
+				throw new ConfigFileErrorException("type error: empty set is not permitted!");
 			}
-			TLAType elemType;
 
-			if (set.elems.elementAt(0).getClass().getName().equals("tlc2.value.impl.ModelValue")) {
+			SetType t = new SetType(new UntypedType());
+			TLAType elemType;
+			if (set.elems.firstElement() instanceof ModelValue) {
 				EnumType e = new EnumType(new ArrayList<>());
 				for (int i = 0; i < set.size(); i++) {
-					if (set.elems.elementAt(i).getClass().getName().equals("tlc2.value.impl.ModelValue")) {
+					if (set.elems.elementAt(i) instanceof ModelValue) {
 						String mv = set.elems.elementAt(i).toString();
 						if (!enumeratedSet.contains(mv)) {
 							enumeratedSet.add(mv);
-							e.modelvalues.add(mv);
 						} else {
-							e.modelvalues.add(mv);
 							EnumType e2 = enumeratedTypes.get(mv);
 							try {
+								// TODO: why unify e2 with itself?
 								e = e2.unify(e2);
-							} catch (UnificationException exception) {
+							} catch (UnificationException ignored) {
+								// unification EnumType <-> EnumType always succeeds
 							}
 						}
-
+						e.modelvalues.add(mv);
 					} else {
-						throw new ConfigFileErrorException("Elements of the set must have the same type: " + o);
+						throw new ConfigFileErrorException("type error: elements of the set must have the same type: " + o);
 					}
 				}
 				for (String s : e.modelvalues) {
@@ -380,19 +365,18 @@ public class ConfigfileEvaluator {
 				}
 				elemType = e;
 			} else {
-				elemType = conGetType(set.elems.elementAt(0));
+				elemType = conGetType(set.elems.firstElement());
 				for (int i = 1; i < set.size(); i++) {
 					elemType = conGetType(set.elems.elementAt(i));
 					// all Elements have the same Type?
 					if (!t.getSubType().compare(elemType)) {
-						throw new ConfigFileErrorException("Elements of the set must have the same type: " + o);
+						throw new ConfigFileErrorException("type error: elements of the set must have the same type: " + o);
 					}
 				}
 			}
 			t.setSubType(elemType);
 			return t;
-
-		} else if (o.getClass().getName().equals("tlc2.value.impl.ModelValue")) {
+		} else if (o instanceof ModelValue) {
 			String mv = ((ModelValue) o).toString();
 			if (!enumeratedSet.contains(mv)) {
 				enumeratedSet.add(mv);
@@ -402,13 +386,12 @@ public class ConfigfileEvaluator {
 			} else {
 				return enumeratedTypes.get(mv);
 			}
-
-		} else if (o.getClass().getName().equals("tlc2.value.impl.StringValue")) {
+		} else if (o instanceof StringValue) {
 			return StringType.getInstance();
-		} else if (o.getClass().getName().equals("tlc2.value.impl.BoolValue")) {
+		} else if (o instanceof BoolValue) {
 			return BoolType.getInstance();
 		} else {
-			throw new ConfigFileErrorException("Unknown ConstantType: " + o + " " + o.getClass());
+			throw new ConfigFileErrorException("type error: unknown constant type: " + o + " " + o.getClass());
 		}
 	}
 
