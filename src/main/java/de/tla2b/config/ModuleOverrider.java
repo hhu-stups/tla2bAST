@@ -5,18 +5,20 @@ import tlc2.tool.BuiltInOPs;
 
 import java.util.Map;
 
-public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
+/**
+ * Apply overrides specified in the configuration file.
+ */
+public class ModuleOverrider extends BuiltInOPs {
 
 	private final ModuleNode moduleNode;
-	private final Map<OpDeclNode, OpDefNode> constantOverrideTable;
-	private final Map<OpDefNode, OpDefNode> operatorOverrideTable;
-	private final Map<OpDefNode, TLCValueNode> operatorAssignments;
+	private final ConfigfileEvaluator conEval;
 
 	private ModuleOverrider(ModuleNode moduleNode, ConfigfileEvaluator conEval) {
 		this.moduleNode = moduleNode;
-		this.constantOverrideTable = conEval.getConstantOverrides();
-		this.operatorOverrideTable = conEval.getOperatorOverrides();
-		this.operatorAssignments = conEval.getOperatorAssignments();
+		if (conEval == null) {
+			throw new IllegalArgumentException("ConfigfileEvaluator cannot be null");
+		}
+		this.conEval = conEval;
 	}
 
 	public static void run(ModuleNode moduleNode, ConfigfileEvaluator conEval) {
@@ -24,17 +26,16 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 	}
 
 	private void start() {
-		OpDefNode[] defs = moduleNode.getOpDefs();
-		for (OpDefNode def : defs) {
+		Map<OpDefNode, TLCValueNode> operatorAssignments = conEval.getOperatorAssignments();
+		for (OpDefNode def : moduleNode.getOpDefs()) {
 			if (operatorAssignments.containsKey(def)) {
 				def.setBody(operatorAssignments.get(def));
 			} else if (operatorAssignments.containsKey(def.getSource())) {
 				def.setBody(operatorAssignments.get(def.getSource()));
 			}
-
 		}
 
-		for (OpDefNode def : defs) {
+		for (OpDefNode def : moduleNode.getOpDefs()) {
 			OpApplNode res = visitExprNode(def.getBody());
 			if (res != null) {
 				def.setBody(res);
@@ -43,43 +44,34 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 
 		AssumeNode[] assumes = moduleNode.getAssumptions();
 		for (int i = 0; i < assumes.length; i++) {
-			AssumeNode assume = assumes[i];
-			OpApplNode res = visitExprNode(assume.getAssume());
+			OpApplNode res = visitExprNode(assumes[i].getAssume());
 			if (res != null) {
-
-				AssumeNode newAssume = new AssumeNode(assume.stn, res, null,
-					null);
-				assumes[i] = newAssume;
+				assumes[i] = new AssumeNode(assumes[i].stn, res, null, null);
 			}
 		}
 	}
 
 	private OpApplNode visitExprOrOpArgNode(ExprOrOpArgNode n) {
 		if (n instanceof ExprNode) {
-
 			return visitExprNode((ExprNode) n);
 		} else {
-			throw new RuntimeException("OpArgNode not implemented jet");
+			throw new RuntimeException("OpArgNode not implemented yet");
 		}
 	}
 
 	private OpApplNode visitExprNode(ExprNode n) {
-
 		switch (n.getKind()) {
 			case OpApplKind:
 				return visitOpApplNode((OpApplNode) n);
-
 			case StringKind:
 			case AtNodeKind: // @
 			case NumeralKind:
-			case DecimalKind: {
+			case DecimalKind:
 				return null;
-			}
-
 			case LetInKind: {
 				LetInNode l = (LetInNode) n;
-				for (int i = 0; i < l.getLets().length; i++) {
-					visitExprNode(l.getLets()[i].getBody());
+				for (OpDefNode let : l.getLets()) {
+					visitExprOrOpArgNode(let.getBody());
 				}
 
 				OpApplNode res = visitExprNode(l.getBody());
@@ -96,98 +88,68 @@ public class ModuleOverrider extends BuiltInOPs implements ASTConstants {
 		SymbolNode s = n.getOperator();
 		switch (s.getKind()) {
 			case ConstantDeclKind: {
-				if (constantOverrideTable.containsKey(s) && s.getArity() > 0) {
-					SymbolNode newOperator = constantOverrideTable.get(s);
+				if (conEval.getConstantOverrides().containsKey((OpDeclNode) s) && s.getArity() > 0) {
+					SymbolNode newOperator = conEval.getConstantOverrides().get((OpDeclNode) s);
 					OpApplNode newNode;
 					try {
-						newNode = new OpApplNode(newOperator, n.getArgs(),
-							n.getTreeNode(), null);
+						newNode = new OpApplNode(newOperator, n.getArgs(), n.getTreeNode(), null);
 					} catch (AbortException e) {
-						throw new RuntimeException();
-					}
-					for (int i = 0; i < n.getArgs().length; i++) {
-						if (n.getArgs()[i] != null) {
-							OpApplNode res = visitExprOrOpArgNode(n.getArgs()[i]);
-							if (res != null) {
-								n.getArgs()[i] = res;
-							}
-						}
+						throw new RuntimeException(e);
 					}
 					// n.setOperator(constantOverrideTable.get(s));
 					return newNode;
 				}
 				break;
-
 			}
 			case FormalParamKind: // Params are not global in the module
 			case VariableDeclKind: // TODO try to override variable
 				break;
 
-			case BuiltInKind:// Buildin operator can not be overridden by in the
-				// configuration file
-				ExprNode[] ins = n.getBdedQuantBounds();
-				if (ins != null) {
-					for (int i = 0; i < ins.length; i++) {
-
-						OpApplNode res = visitExprOrOpArgNode(ins[i]);
-						if (res != null) {
-							ins[i] = res;
-						}
-					}
-				}
-
+			case BuiltInKind: // Buildin operator can not be overridden by in the configuration file
+				replaceArgs(n.getBdedQuantBounds()); // ins
 				break;
 
 			case UserDefinedOpKind: {
+				Map<OpDefNode, OpDefNode> operatorOverrides = conEval.getOperatorOverrides();
 				OpDefNode operator = (OpDefNode) n.getOperator();
-				if (!operatorOverrideTable.containsKey(operator.getSource())
-					&& !operatorOverrideTable.containsKey(operator))
+				if (!operatorOverrides.containsKey(operator.getSource()) && !operatorOverrides.containsKey(operator))
 					break;
 
 				SymbolNode newOperator;
 				// IF there are two override statements in the configuration file
 				//(a: Add <- (Rule) Add2, b: R1!Add <- Add3)
 				// TLC uses variant a) overriding the source definition
-				if (operatorOverrideTable.containsKey(operator.getSource())) {
-					newOperator = operatorOverrideTable.get(operator.getSource());
+				if (operatorOverrides.containsKey(operator.getSource())) {
+					newOperator = operatorOverrides.get(operator.getSource());
 				} else {
-					newOperator = operatorOverrideTable.get(operator);
+					newOperator = operatorOverrides.get(operator);
 				}
-				OpApplNode newNode = null;
-				OpDefNode def = (OpDefNode) n.getOperator();
+				OpApplNode newNode;
 				try {
-					newNode = new OpApplNode(newOperator, n.getArgs(),
-						n.getTreeNode(), def.getOriginallyDefinedInModuleNode());
+					newNode = new OpApplNode(newOperator, n.getArgs(), n.getTreeNode(),
+							((OpDefNode) n.getOperator()).getOriginallyDefinedInModuleNode());
 				} catch (AbortException e) {
-					e.printStackTrace();
-				}
-				for (int i = 0; i < n.getArgs().length; i++) {
-					if (n.getArgs()[i] != null) {
-						OpApplNode res = visitExprOrOpArgNode(n.getArgs()[i]);
-						if (res != null) {
-							n.getArgs()[i] = res;
-						}
-					}
-
+					throw new RuntimeException(e);
 				}
 				// n.setOperator(constantOverrideTable.get(s));
 				return newNode;
 			}
 		}
+		replaceArgs(n.getArgs());
+		return null;
+	}
 
-		for (int i = 0; i < n.getArgs().length; i++) {
-			if (n.getArgs()[i] != null) {
-				ExprOrOpArgNode arg = n.getArgs()[i];
-				if (arg != null) {
-					OpApplNode res = visitExprOrOpArgNode(n.getArgs()[i]);
+	private void replaceArgs(ExprOrOpArgNode[] args) {
+		if (args != null) {
+			for (int i = 0; i < args.length; i++) {
+				if (args[i] != null) {
+					OpApplNode res = visitExprOrOpArgNode(args[i]);
 					if (res != null) {
-						n.getArgs()[i] = res;
+						args[i] = res;
 					}
 				}
 			}
-
 		}
-		return null;
 	}
 
 }
