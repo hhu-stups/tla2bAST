@@ -89,7 +89,7 @@ public class SpecAnalyser extends BuiltInOPs {
 		}
 
 		// TODO are constant in the right order
-		specAnalyser.bConstants.addAll(Arrays.asList(m.getConstantDecls()));
+		specAnalyser.bConstants = Arrays.asList(m.getConstantDecls());
 		return specAnalyser;
 	}
 
@@ -106,19 +106,23 @@ public class SpecAnalyser extends BuiltInOPs {
 	public void start() throws SemanticErrorException, ConfigFileErrorException, NotImplementedException {
 		evalSpec();
 
-		for (OpDefNode inv : new ArrayList<>(invariants)) {
+		invariants.replaceAll(inv -> {
 			try {
+				// resolve nested definitions in invariants, e.g. Inv == Inv2
+				// only Inv2 will appear in the translated B machine
+				// not simplified if the topmost operator of the definition is a built-in operator
 				OpApplNode opApplNode = (OpApplNode) inv.getBody();
-				OpDefNode opDefNode = (OpDefNode) opApplNode.getOperator();
+				OpDefNode opDefNode = (OpDefNode) opApplNode.getOperator(); // nested definition
 
 				if (opDefNode.getKind() == UserDefinedOpKind && !BBuiltInOPs.contains(opDefNode.getName())) {
-					int i = invariants.indexOf(inv);
-					invariants.set(i, opDefNode);
-					DebugUtils.printDebugMsg("Adding invariant " + i);
+					DebugUtils.printDebugMsg("replacing invariant definition " + inv.getName() + " by its inner definition " + opDefNode.getName());
+					return opDefNode;
 				}
-			} catch (ClassCastException e) {
+			} catch (ClassCastException ignored) {
+				// should not happen; otherwise no problem: invariant is already registered
 			}
-		}
+			return inv;
+		});
 
 		DebugUtils.printDebugMsg("Detecting OPERATIONS from disjunctions");
 		bOperations = new OperationsFinder(this).getBOperations();
@@ -130,7 +134,7 @@ public class SpecAnalyser extends BuiltInOPs {
 
 		DebugUtils.printDebugMsg("Computing variable declarations");
 		// test whether there is an init predicate if there is a variable
-		if (moduleNode.getVariableDecls().length > 0 && inits == null) {
+		if (moduleNode.getVariableDecls().length > 0 && inits.isEmpty()) {
 			throw new SemanticErrorException("No initial predicate is defined.");
 		}
 
@@ -222,6 +226,7 @@ public class SpecAnalyser extends BuiltInOPs {
 		Set<OpDefNode> set = new HashSet<>(usedDefinitions);
 		for (OpDefNode def : set) {
 			if (def.getInRecursive()) {
+				// TODO: implement
 				throw new NotImplementedException("Recursive definitions are currently not supported: " + def.getName()
 					+ "\n" + def.getLocation());
 				// bDefinitionsSet.remove(def);
