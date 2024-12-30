@@ -1,23 +1,19 @@
 package de.tla2b.global;
 
+import tlc2.tool.ToolGlobals;
 import util.UniqueString;
 
-public interface BBuildIns {
-	UniqueString OP_dotdot = UniqueString.uniqueStringOf("..");
-	UniqueString OP_plus = UniqueString.uniqueStringOf("+");
-	UniqueString OP_minus = UniqueString.uniqueStringOf("-");
-	UniqueString OP_times = UniqueString.uniqueStringOf("*");
+/**
+ * Contains definitions of operators defined in additional modules like Naturals/Reals/...
+ * that are not part of ToolGlobals.
+ */
+public interface BBuildIns extends ToolGlobals {
 	UniqueString OP_div = UniqueString.uniqueStringOf("\\div");
 	UniqueString OP_realdiv = UniqueString.uniqueStringOf("/");
 	UniqueString OP_mod = UniqueString.uniqueStringOf("%");
 	UniqueString OP_exp = UniqueString.uniqueStringOf("^");
 
 	UniqueString OP_uminus = UniqueString.uniqueStringOf("-.");
-
-	UniqueString OP_lt = UniqueString.uniqueStringOf("<");
-	UniqueString OP_leq = UniqueString.uniqueStringOf("\\leq");
-	UniqueString OP_gt = UniqueString.uniqueStringOf(">");
-	UniqueString OP_geq = UniqueString.uniqueStringOf("\\geq");
 
 	UniqueString OP_nat = UniqueString.uniqueStringOf("Nat");
 	UniqueString OP_int = UniqueString.uniqueStringOf("Int");
