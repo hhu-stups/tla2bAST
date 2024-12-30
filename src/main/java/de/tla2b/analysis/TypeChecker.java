@@ -13,7 +13,7 @@ import tlc2.tool.BuiltInOPs;
 import java.util.*;
 import java.util.Map.Entry;
 
-public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, TranslationGlobals {
+public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlobals {
 
 	private static final int TEMP_TYPE_ID = 6;
 	private int paramId;
@@ -34,6 +34,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 
 	private ConfigfileEvaluator conEval;
 
+	/**
+	 * for module translation
+	 */
 	public TypeChecker(ModuleNode moduleNode, ConfigfileEvaluator conEval, SpecAnalyser specAnalyser) {
 		this.moduleNode = moduleNode;
 		this.specAnalyser = specAnalyser;
@@ -44,52 +47,39 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 		}
 		this.inits = specAnalyser.getInits();
 		this.nextExpr = specAnalyser.getNext();
-		usedDefinitions = specAnalyser.getUsedDefinitions();
+		this.usedDefinitions = specAnalyser.getUsedDefinitions();
 		this.bDefinitions = specAnalyser.getBDefinitions();
-
-		paramId = TYPE_ID;
+		this.paramId = TYPE_ID;
 	}
 
+	/**
+	 * for expression translation
+	 */
 	public TypeChecker(ModuleNode moduleNode, SpecAnalyser specAnalyser) {
 		this.moduleNode = moduleNode;
 		this.specAnalyser = specAnalyser;
-		Set<OpDefNode> usedDefinitions = new HashSet<>();
 		OpDefNode[] defs = moduleNode.getOpDefs();
-		// used the last definition of the module
-		usedDefinitions.add(defs[defs.length - 1]);
-		this.usedDefinitions = usedDefinitions;
+		// use the last definition of the module
+		this.usedDefinitions = Collections.singleton(defs[defs.length - 1]);
 		this.bDefinitions = specAnalyser.getBDefinitions();
-		paramId = TYPE_ID;
+		this.paramId = TYPE_ID;
 	}
 
 	public void start() throws TLA2BException {
-		OpDeclNode[] cons = moduleNode.getConstantDecls();
-		for (OpDeclNode con : cons) {
+		for (OpDeclNode con : moduleNode.getConstantDecls()) {
 			if (constantAssignments != null && constantAssignments.containsKey(con)) {
-
-				TLAType t = constantAssignments.get(con).getType();
-				con.setToolObject(TYPE_ID, t);
-				if (t instanceof AbstractHasFollowers) {
-					((AbstractHasFollowers) t).addFollower(con);
-				}
+				setType(con, constantAssignments.get(con).getType());
 			} else {
 				// if constant already has a type: keep type; otherwise add an untyped type
-				if (con.getToolObject(TYPE_ID) == null) {
-					UntypedType u = new UntypedType();
-					con.setToolObject(TYPE_ID, u);
-					u.addFollower(con);
-				}
+				if (con.getToolObject(TYPE_ID) == null)
+					setType(con, new UntypedType());
 			}
 		}
 
-		OpDeclNode[] vars = moduleNode.getVariableDecls();
-		for (OpDeclNode var : vars) {
+		for (OpDeclNode var : moduleNode.getVariableDecls()) {
 			// if variable already has a type: keep type; otherwise add an untyped type
-			if (var.getToolObject(TYPE_ID) == null) {
-				UntypedType u = new UntypedType();
-				var.setToolObject(TYPE_ID, u);
-				u.addFollower(var);
-			}
+			if (var.getToolObject(TYPE_ID) == null)
+				setType(var, new UntypedType());
 		}
 
 		evalDefinitions(moduleNode.getOpDefs());
@@ -97,16 +87,13 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 		if (conEval != null) {
 			for (Entry<OpDeclNode, OpDefNode> entry : conEval.getConstantOverrides().entrySet()) {
 				OpDeclNode con = entry.getKey();
-				if (!bConstList.contains(con)) {
+				if (!bConstList.contains(con))
 					continue;
-				}
-				OpDefNode def = entry.getValue();
-				TLAType defType = (TLAType) def.getToolObject(TYPE_ID);
-				TLAType conType = (TLAType) con.getToolObject(TYPE_ID);
 
+				TLAType defType = (TLAType) entry.getValue().getToolObject(TYPE_ID);
+				TLAType conType = (TLAType) con.getToolObject(TYPE_ID);
 				try {
-					TLAType result = defType.unify(conType);
-					con.setToolObject(TYPE_ID, result);
+					setType(con, defType.unify(conType));
 				} catch (UnificationException e) {
 					throw new TypeErrorException(
 						String.format("Expected %s, found %s at constant '%s'.", defType, conType, con.getName()));
@@ -127,14 +114,12 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 		}
 
 		checkIfAllIdentifiersHaveAType();
-
 	}
 
 	private void checkIfAllIdentifiersHaveAType() throws TypeErrorException {
 		// check if a variable has no type
-		OpDeclNode[] vars = moduleNode.getVariableDecls();
-		for (OpDeclNode var : vars) {
-			TLAType varType = (TLAType) var.getToolObject(TYPE_ID);
+		for (OpDeclNode var : moduleNode.getVariableDecls()) {
+			TLAType varType = getType(var);
 			if (varType.isUntyped()) {
 				throw new TypeErrorException(
 					"The type of the variable '" + var.getName() + "' can not be inferred: " + varType);
@@ -143,10 +128,9 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 
 		// check if a constant has no type, only constants which will appear in
 		// the resulting B Machine are considered
-		OpDeclNode[] cons = moduleNode.getConstantDecls();
-		for (OpDeclNode con : cons) {
+		for (OpDeclNode con : moduleNode.getConstantDecls()) {
 			if (bConstList == null || bConstList.contains(con)) {
-				TLAType conType = (TLAType) con.getToolObject(TYPE_ID);
+				TLAType conType = getType(con);
 				if (conType.isUntyped()) {
 					throw new TypeErrorException(
 						"The type of constant " + con.getName() + " is still untyped: " + conType);
@@ -155,20 +139,19 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 		}
 
 		for (SymbolNode symbol : symbolNodeList) {
-			TLAType type = (TLAType) symbol.getToolObject(TYPE_ID);
+			TLAType type = getType(symbol);
 			if (type.isUntyped()) {
 				throw new TypeErrorException("Symbol '" + symbol.getName() + "' has no type.\n" + symbol.getLocation());
 			}
 		}
 
 		for (SemanticNode tuple : tupleNodeList) {
-			TLAType type = (TLAType) tuple.getToolObject(TYPE_ID);
+			TLAType type = getType(tuple);
 			if (type instanceof TupleOrFunction) {
-				TupleOrFunction tOrF = (TupleOrFunction) type;
-				tOrF.getFinalType();
+				((TupleOrFunction) type).getFinalType();
 			}
+			// TODO: does this do anything?
 		}
-
 	}
 
 	private void evalDefinitions(OpDefNode[] opDefs) throws TLA2BException {
@@ -183,29 +166,21 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			if (usedDefinitions.contains(def) || bDefinitions.contains(def))
 				visitOpDefNode(def);
 		}
-
 	}
 
 	public void visitOpDefNode(OpDefNode def) throws TLA2BException {
-		FormalParamNode[] params = def.getParams();
-		for (FormalParamNode p : params) {
+		for (FormalParamNode p : def.getParams()) {
 			if (p.getArity() > 0) {
 				throw new TLA2BFrontEndException(String.format("TLA2B do not support 2nd-order operators: '%s'%n %s ",
 					def.getName(), def.getLocation()));
 			}
-			UntypedType u = new UntypedType();
-			p.setToolObject(paramId, u);
-			u.addFollower(p);
+			setType(p, new UntypedType(), paramId);
 		}
 		UntypedType u = new UntypedType();
+		// TODO: check this
 		// def.setToolObject(TYPE_ID, u);
 		// u.addFollower(def);
-		TLAType defType = visitExprNode(def.getBody(), u);
-		def.setToolObject(TYPE_ID, defType);
-		if (defType instanceof AbstractHasFollowers) {
-			((AbstractHasFollowers) defType).addFollower(def);
-		}
-
+		setType(def, visitExprNode(def.getBody(), u));
 	}
 
 	private void evalAssumptions(AssumeNode[] assumptions) throws TLA2BException {
@@ -218,13 +193,11 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 		if (n instanceof ExprNode) {
 			return visitExprNode((ExprNode) n, expected);
 		} else {
-			throw new NotImplementedException("OpArgNode not implemented jet");
+			throw new NotImplementedException("OpArgNode not implemented yet");
 		}
-
 	}
 
 	private TLAType visitExprNode(ExprNode exprNode, TLAType expected) throws TLA2BException {
-
 		switch (exprNode.getKind()) {
 			case TLCValueKind: {
 				TLCValueNode valueNode = (TLCValueNode) exprNode;
@@ -235,7 +208,6 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 						String.format("Expected %s, found %s at '%s'(assigned in the configuration file),%n%s ",
 							expected, valueNode.getType(), valueNode.getValue(), exprNode.getLocation()));
 				}
-
 			}
 
 			case OpApplKind:
@@ -277,7 +249,6 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 					throw new TypeErrorException(
 						String.format("Expected %s, found %s at '@',%n%s ", expected, type, exprNode.getLocation()));
 				}
-
 			}
 
 			case LetInKind: {
@@ -291,21 +262,22 @@ public class TypeChecker extends BuiltInOPs implements ASTConstants, BBuildIns, 
 			case SubstInKind: {
 				throw new RuntimeException("SubstInKind should never occur after InstanceTransformation");
 			}
-
 		}
-
 		throw new NotImplementedException(exprNode.toString(2));
-
 	}
 
-	private void setType(SemanticNode node, TLAType type) {
-		node.setToolObject(TYPE_ID, type);
+	private void setType(SemanticNode node, TLAType type, int paramId) {
+		node.setToolObject(paramId, type);
 		if (type instanceof AbstractHasFollowers) {
 			((AbstractHasFollowers) type).addFollower(node);
 		}
 	}
 
-	private TLAType getType(OpApplNode n) {
+	private void setType(SemanticNode node, TLAType type) {
+		setType(node, type, TYPE_ID);
+	}
+
+	private TLAType getType(SemanticNode n) {
 		return (TLAType) n.getToolObject(TYPE_ID);
 	}
 
