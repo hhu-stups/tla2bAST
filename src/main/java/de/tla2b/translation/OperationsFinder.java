@@ -5,11 +5,13 @@ import de.tla2b.analysis.BOperation;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.global.BBuildIns;
 import de.tla2b.global.BBuiltInOPs;
+import de.tla2b.util.DebugUtils;
 import tla2sany.semantic.*;
 import tlc2.tool.BuiltInOPs;
 import util.UniqueString;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static de.tla2b.global.TranslationGlobals.SUBSTITUTE_PARAM;
 
@@ -17,9 +19,9 @@ public class OperationsFinder extends AbstractASTVisitor {
 	private final SpecAnalyser specAnalyser;
 
 	private String currentName;
-	private ArrayList<OpApplNode> exists;
+	private List<OpApplNode> exists;
 	// a list containing all existential quantifier which will be parameters in the resulting B Machine
-	private final ArrayList<BOperation> bOperations;
+	private final List<BOperation> bOperations;
 
 	public OperationsFinder(SpecAnalyser specAnalyser) {
 		this.specAnalyser = specAnalyser;
@@ -31,7 +33,6 @@ public class OperationsFinder extends AbstractASTVisitor {
 		}
 	}
 
-
 	public void visitExprNode(ExprNode n) {
 		switch (n.getKind()) {
 			case OpApplKind: {
@@ -39,26 +40,15 @@ public class OperationsFinder extends AbstractASTVisitor {
 				return;
 			}
 			case NumeralKind:
-			case DecimalKind: {
-				throw new RuntimeException(String.format(
-					"Expected an action (instead of a number).%n%s", n.getLocation().toString()));
-			}
-			case StringKind: {
-				throw new RuntimeException(String.format(
-					"Expected an action (instead of a string).%n%s", n.getLocation().toString()));
-			}
-			case SubstInKind: {
-				throw new RuntimeException(String.format(
-					"Expected an action.%n%s", n.getLocation().toString()));
-			}
-			case AtNodeKind: { // @
-				throw new RuntimeException(String.format(
-					"Expected an action.%n%s", n.getLocation().toString()));
-			}
-			case LetInKind: {
-				// we do not visit the local definitions
+			case DecimalKind:
+				throw new RuntimeException(String.format("Expected an action (instead of a number).%n%s", n.getLocation().toString()));
+			case StringKind:
+				throw new RuntimeException(String.format("Expected an action (instead of a string).%n%s", n.getLocation().toString()));
+			case SubstInKind:
+			case AtNodeKind: // @
+				throw new RuntimeException(String.format("Expected an action.%n%s", n.getLocation().toString()));
+			case LetInKind: // we do not visit the local definitions
 				visitExprNode(((LetInNode) n).getBody());
-			}
 		}
 	}
 
@@ -70,9 +60,9 @@ public class OperationsFinder extends AbstractASTVisitor {
 		}
 
 		for (int i = 0; i < def.getParams().length; i++) {
-			FormalParamNode param = def.getParams()[i];
-			param.setToolObject(SUBSTITUTE_PARAM, n.getArgs()[i]);
+			def.getParams()[i].setToolObject(SUBSTITUTE_PARAM, n.getArgs()[i]);
 		}
+		// TODO: remember params to omit unneeded in B operation
 		currentName = def.getName().toString();
 		visitExprNode(def.getBody());
 	}
@@ -81,14 +71,14 @@ public class OperationsFinder extends AbstractASTVisitor {
 	public void visitBuiltInNode(OpApplNode n) {
 		UniqueString opname = n.getOperator().getName();
 		int opcode = BuiltInOPs.getOpCode(opname);
+		DebugUtils.printDebugMsg("OPCODE of " + opname + " = "+ opcode);
 		switch (opcode) {
-			case OPCODE_dl: // DisjList: split action further
-			{
+			case OPCODE_dl: { // DisjList: split action further
 				if (n.getArgs().length == 1) {
 					visitExprOrOpArgNode(n.getArgs()[0]);
 				} else {
 					String oldName = currentName;
-					ArrayList<OpApplNode> oldExists = new ArrayList<>(exists);
+					List<OpApplNode> oldExists = new ArrayList<>(exists);
 
 					for (int i = 0; i < n.getArgs().length; i++) {
 						exists = new ArrayList<>(oldExists);
@@ -100,7 +90,7 @@ public class OperationsFinder extends AbstractASTVisitor {
 			}
 			case OPCODE_lor: { // logical or: split action further
 				String oldName = currentName;
-				ArrayList<OpApplNode> oldExists = new ArrayList<>(exists);
+				List<OpApplNode> oldExists = new ArrayList<>(exists);
 
 				for (int i = 0; i < n.getArgs().length; i++) {
 					exists = new ArrayList<>(oldExists);
@@ -115,7 +105,8 @@ public class OperationsFinder extends AbstractASTVisitor {
 				return;
 			}
 
-			case OPCODE_unchanged:
+			// all other action predicates:
+			case OPCODE_unchanged: // UNCHANGED
 			case OPCODE_eq: // =
 			case OPCODE_noteq: // /=, #
 			case OPCODE_neg: // Negation
@@ -135,20 +126,18 @@ public class OperationsFinder extends AbstractASTVisitor {
 				bOperations.add(new BOperation(currentName, n, exists, specAnalyser));
 				return;
 			}
-
 		}
 		//System.out.println("OPCODE of " + opname + " = "+ opcode);
 
-		if (opname == BBuildIns.OP_false ||  // FALSE: always disabled
-			opname == BBuildIns.OP_true) {  // TRUE: CHAOS
+		if (opname == BBuildIns.OP_false || opname == BBuildIns.OP_true) {
+			// FALSE: always disabled; TRUE: CHAOS
 			bOperations.add(new BOperation(currentName, n, exists, specAnalyser));
 			return;
 		}
-		throw new RuntimeException(String.format(
-			"Expected an action at '%s' :%n%s", n.getOperator().getName(), n.getLocation().toString()));
+		throw new RuntimeException(String.format("Expected an action at '%s':%n%s", opname, n.getLocation()));
 	}
 
-	public ArrayList<BOperation> getBOperations() {
+	public List<BOperation> getBOperations() {
 		return bOperations;
 	}
 }
