@@ -11,7 +11,7 @@ import tlc2.tool.ToolGlobals;
 import java.util.HashSet;
 import java.util.Set;
 
-public class BDefinitionsFinder extends AbstractASTVisitor implements ASTConstants, ToolGlobals, TranslationGlobals {
+public class BDefinitionsFinder extends AbstractASTVisitor {
 	private final Set<OpDefNode> bDefinitionsSet = new HashSet<>();
 
 	public BDefinitionsFinder(SpecAnalyser specAnalyser) {

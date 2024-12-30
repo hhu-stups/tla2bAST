@@ -1,11 +1,9 @@
 package de.tla2b.global;
 
-import tlc2.tool.ToolGlobals;
-
 import java.util.HashSet;
 import java.util.Set;
 
-public class OperatorTypes implements ToolGlobals, BBuildIns {
+public class OperatorTypes implements BBuildIns {
 	private static final Set<Integer> TLA_Predicate_Operators;
 	private static final Set<Integer> BBuiltIn_Predicate_Operators;
 

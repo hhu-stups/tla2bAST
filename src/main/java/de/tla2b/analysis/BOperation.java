@@ -7,13 +7,12 @@ import de.tla2b.types.TLAType;
 import de.tla2bAst.BAstCreator;
 import tla2sany.semantic.*;
 import tlc2.tool.BuiltInOPs;
-import tlc2.tool.ToolGlobals;
 
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-public class BOperation extends BuiltInOPs implements ASTConstants, ToolGlobals, TranslationGlobals {
+public class BOperation extends BuiltInOPs implements TranslationGlobals {
 	private final String name;
 	private final OpApplNode node;
 	private final List<OpApplNode> existQuans;

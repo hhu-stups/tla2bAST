@@ -5,16 +5,15 @@ import de.tla2b.analysis.BOperation;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.global.BBuildIns;
 import de.tla2b.global.BBuiltInOPs;
-import de.tla2b.global.TranslationGlobals;
 import tla2sany.semantic.*;
 import tlc2.tool.BuiltInOPs;
-import tlc2.tool.ToolGlobals;
 import util.UniqueString;
 
 import java.util.ArrayList;
 
-public class OperationsFinder extends AbstractASTVisitor implements
-	ASTConstants, ToolGlobals, TranslationGlobals {
+import static de.tla2b.global.TranslationGlobals.SUBSTITUTE_PARAM;
+
+public class OperationsFinder extends AbstractASTVisitor {
 	private final SpecAnalyser specAnalyser;
 
 	private String currentName;
