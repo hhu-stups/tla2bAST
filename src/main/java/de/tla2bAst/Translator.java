@@ -180,7 +180,9 @@ public class Translator implements TranslationGlobals {
 
 		ConfigfileEvaluator conEval = null;
 		if (modelConfig != null) {
+			// evaluate config file (get overrides and assignments):
 			conEval = new ConfigfileEvaluator(modelConfig, moduleNode);
+			// apply overrides from config file:
 			ModuleOverrider.run(moduleNode, conEval);
 			specAnalyser = SpecAnalyser.createSpecAnalyser(moduleNode, conEval);
 		} else {
@@ -190,11 +192,7 @@ public class Translator implements TranslationGlobals {
 		typechecker = new TypeChecker(moduleNode, conEval, specAnalyser);
 		typechecker.start();
 		SymbolRenamer.run(moduleNode, specAnalyser);
-		bAstCreator = new BAstCreator(moduleNode, conEval, specAnalyser,
-				new UsedExternalFunctions(moduleNode, specAnalyser),
-				new PredicateVsExpression(moduleNode),
-				new BMacroHandler(specAnalyser, conEval),
-				new RecursiveFunctionHandler(specAnalyser));
+		bAstCreator = new BAstCreator(moduleNode, conEval, specAnalyser);
 
 		this.moduleFiles = bAstCreator.getFilesOrderedById().stream()
 				.map(file -> new File(parentPath, file + ".tla")).collect(Collectors.toList());

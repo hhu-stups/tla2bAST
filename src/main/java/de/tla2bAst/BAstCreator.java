@@ -85,17 +85,15 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 		return false;
 	}
 
-	public BAstCreator(ModuleNode moduleNode, ConfigfileEvaluator conEval, SpecAnalyser specAnalyser,
-	                   UsedExternalFunctions usedExternalFunctions, PredicateVsExpression predicateVsExpression,
-	                   BMacroHandler bMacroHandler, RecursiveFunctionHandler recursiveFunctionHandler) {
-		this.predicateVsExpression = predicateVsExpression;
-		this.bMacroHandler = bMacroHandler;
-		this.recursiveFunctionHandler = recursiveFunctionHandler;
-
+	public BAstCreator(ModuleNode moduleNode, ConfigfileEvaluator conEval, SpecAnalyser specAnalyser) {
 		this.conEval = conEval;
 		this.moduleNode = moduleNode;
 		this.specAnalyser = specAnalyser;
-		this.usedExternalFunctions = usedExternalFunctions;
+
+		this.usedExternalFunctions = new UsedExternalFunctions(moduleNode, specAnalyser);
+		this.predicateVsExpression = new PredicateVsExpression(moduleNode);
+		this.bMacroHandler = new BMacroHandler(specAnalyser, conEval);
+		this.recursiveFunctionHandler = new RecursiveFunctionHandler(specAnalyser);
 
 		if (conEval != null) {
 			this.bConstants = conEval.getbConstantList();
