@@ -80,6 +80,19 @@ public class LogicOperatorsTest {
 		compare(expected, module);
 	}
 
+	@Test
+	public void testNegation2() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "CONSTANTS a,b \n"
+				+ "ASSUME a \\in BOOLEAN /\\ b = ~a \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "CONSTANTS a, b \n"
+				+ "PROPERTIES a : BOOL & b : BOOL & (a : BOOL & b = bool(not(a = TRUE))) \n" + "END";
+		compare(expected, module);
+	}
+
 	/*
 	 * Implication and Equivalence: =>, \equiv
 	 */

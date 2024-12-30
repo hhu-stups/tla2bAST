@@ -1,5 +1,6 @@
 package de.tla2b.prettyprintb;
 
+import de.tla2b.exceptions.SemanticErrorException;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -62,5 +63,16 @@ public class ActionsTest {
 			+ "OPERATIONS Next = SELECT x < 2 THEN x,y := 1,y END \n"
 			+ "END";
 		compare(expected, module);
+	}
+
+	@Test(expected = SemanticErrorException.class)
+	public void testMissingInit() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "VARIABLES x \n"
+				+ "Next == x'=x+1 \n"
+				+ "=================================";
+
+		compare("MACHINE Testing END", module);
 	}
 }
