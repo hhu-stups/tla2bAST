@@ -45,8 +45,6 @@ public abstract class AbstractHasFollowers extends TLAType {
 				if (newType instanceof AbstractHasFollowers) {
 					((AbstractHasFollowers) newType).addFollower(follower);
 				}
-			} else if (follower instanceof AbstractSymbol) {
-				((AbstractSymbol) follower).setType(newType);
 			} else if (follower instanceof SetType) {
 				((SetType) follower).setSubType(newType);
 			} else if (follower instanceof TupleType) {
