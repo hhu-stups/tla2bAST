@@ -266,21 +266,6 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 		throw new NotImplementedException(exprNode.toString(2));
 	}
 
-	private static void setType(SemanticNode node, TLAType type, int paramId) {
-		node.setToolObject(paramId, type);
-		if (type instanceof AbstractHasFollowers) {
-			((AbstractHasFollowers) type).addFollower(node);
-		}
-	}
-
-	public static void setType(SemanticNode node, TLAType type) {
-		setType(node, type, TYPE_ID);
-	}
-
-	public static TLAType getType(SemanticNode n) {
-		return (TLAType) n.getToolObject(TYPE_ID);
-	}
-
 	private TLAType visitOpApplNode(OpApplNode n, TLAType expected) throws TLA2BException {
 
 		switch (n.getOperator().getKind()) {
@@ -1519,5 +1504,63 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 				throw new NotImplementedException(n.getOperator().getName().toString());
 			}
 		}
+	}
+
+	/*
+	 * Utility methods
+	 */
+	private static void setTypeAndFollowers(SemanticNode node, TLAType type, int paramId) {
+		setType(node, type, paramId);
+		if (type instanceof AbstractHasFollowers) {
+			((AbstractHasFollowers) type).addFollower(node);
+		}
+	}
+
+	private static void setTypeAndFollowers(SemanticNode node, TLAType type) {
+		setTypeAndFollowers(node, type, TYPE_ID);
+	}
+
+	private static void setType(SemanticNode node, TLAType type, int paramId) {
+		node.setToolObject(paramId, type);
+	}
+
+	public static void setType(SemanticNode node, TLAType type) {
+		setType(node, type, TYPE_ID);
+	}
+
+	private static TLAType getType(SemanticNode n, int paramId) {
+		return (TLAType) n.getToolObject(paramId);
+	}
+
+	public static TLAType getType(SemanticNode n) {
+		return getType(n, TYPE_ID);
+	}
+
+	private TLAType unify(TLAType toUnify, TLAType expected, String opMsg, SemanticNode n) throws TypeErrorException {
+		TLAType found = toUnify;
+		DebugUtils.printDebugMsg("Unify " + found + " and " + expected + " at '" + opMsg + "' (" + n.getLocation() + ")");
+		try {
+			found = found.unify(expected);
+		} catch (UnificationException e) {
+			throw new TypeErrorException(String.format("Expected '%s', found '%s' at %s,%n%s",
+					expected, found, "'" + opMsg + "'", n.getLocation()));
+		}
+		return found;
+	}
+
+	private TLAType unify(TLAType toUnify, TLAType expected, OpApplNode n) throws TypeErrorException {
+		return unify(toUnify, expected, n.getOperator().getName().toString(), n);
+	}
+
+	private TLAType unifyAndSetTypeWithFollowers(TLAType toUnify, TLAType expected, String opMsg, SemanticNode n) throws TypeErrorException {
+		TLAType found = unify(toUnify, expected, opMsg, n);
+		setTypeAndFollowers(n, found);
+		return found;
+	}
+
+	private TLAType unifyAndSetType(TLAType toUnify, TLAType expected, String opMsg, SemanticNode n) throws TypeErrorException {
+		TLAType found = unify(toUnify, expected, opMsg, n);
+		setType(n, found);
+		return found;
 	}
 }
