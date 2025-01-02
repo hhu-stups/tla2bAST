@@ -22,7 +22,7 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor {
 
 	public UsedDefinitionsFinder(SpecAnalyser specAnalyser) {
 		DebugUtils.printMsg("Finding used definitions");
-		// some definition are not yet supported, like recursive definitions
+		// some definitions are not yet supported, like recursive definitions
 		// hence it is important not to try and translate all of them and only the used ones
 
 		if (specAnalyser.getConfigFileEvaluator() != null) {
@@ -82,13 +82,11 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor {
 
 		OpDefNode def = (OpDefNode) n.getOperator();
 		ModuleNode moduleNode = def.getSource().getOriginallyDefinedInModuleNode();
-		if (moduleNode.getName().toString().equals("TLA2B")) {
+		if (moduleNode.getName().toString().equals("TLA2B"))
 			return;
-		}
-		if (BBuiltInOPs.contains(def.getName())
-			&& STANDARD_MODULES.contains(def.getSource().getOriginallyDefinedInModuleNode().getName().toString())) {
+		if (BBuiltInOPs.contains(def.getName()) && STANDARD_MODULES.contains(moduleNode.getName().toString()))
 			return;
-		}
+
 		if (usedDefinitions.add(def)) {
 			visitExprNode(def.getBody());
 		}

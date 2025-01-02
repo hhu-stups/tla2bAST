@@ -121,8 +121,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 			return;
 
 		List<EnumType> printed = new ArrayList<>();
-		OpDeclNode[] cons = moduleNode.getConstantDecls();
-		for (OpDeclNode con : cons) {
+		for (OpDeclNode con : moduleNode.getConstantDecls()) {
 			TLAType type = (TLAType) con.getToolObject(TYPE_ID);
 
 			EnumType e = null;
@@ -1306,14 +1305,17 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 				return new ADomainExpression(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
 
 			case OPCODE_sof: // [ A -> B]
-				return new ATotalFunctionExpression(visitExprOrOpArgNodeExpression(n.getArgs()[0]),
-					visitExprOrOpArgNodeExpression(n.getArgs()[1]));
+				return new ATotalFunctionExpression(
+						visitExprOrOpArgNodeExpression(n.getArgs()[0]),
+						visitExprOrOpArgNodeExpression(n.getArgs()[1])
+				);
 
 			case OPCODE_tup: { // $Tuple
 				List<PExpression> list = new ArrayList<>();
 				for (int i = 0; i < n.getArgs().length; i++) {
 					list.add(visitExprOrOpArgNodeExpression(n.getArgs()[i]));
 				}
+
 				TLAType t = (TLAType) n.getToolObject(TYPE_ID);
 				if (t instanceof TupleType) {
 					return new ACoupleExpression(list);
@@ -1748,34 +1750,28 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 
 			AConjunctPredicate conj = new AConjunctPredicate();
 			if (pair.getArgs()[0] == null) {
-				ANegationPredicate neg = new ANegationPredicate();
-				neg.setPredicate(createDisjunction(conditions));
-				conj.setLeft(neg);
+				conj.setLeft(new ANegationPredicate(createDisjunction(conditions)));
 			} else {
 				conditions.add(visitExprOrOpArgNodePredicate(pair.getArgs()[0]));
 				conj.setLeft(visitExprOrOpArgNodePredicate(pair.getArgs()[0]));
 			}
-			AEqualPredicate equals = new AEqualPredicate();
-			equals.setLeft(createIdentifierNode("t_"));
-			equals.setRight(visitExprOrOpArgNodeExpression(pair.getArgs()[1]));
-			conj.setRight(equals);
+			conj.setRight(new AEqualPredicate(
+					createIdentifierNode("t_"),
+					visitExprOrOpArgNodeExpression(pair.getArgs()[1])
+			));
 			disjunctionList.add(conj);
 		}
-		AComprehensionSetExpression comprehension = new AComprehensionSetExpression();
-		comprehension.setIdentifiers(createIdentifierList("t_"));
-		comprehension.setPredicates(createDisjunction(disjunctionList));
-		ADefinitionExpression defCall = new ADefinitionExpression();
-		defCall.setDefLiteral(new TIdentifierLiteral("CHOOSE"));
-		List<PExpression> params = new ArrayList<>();
-		params.add(comprehension);
-		defCall.setParameters(params);
-		return defCall;
+		return new ADefinitionExpression(
+				new TIdentifierLiteral("CHOOSE"),
+				Collections.singletonList(new AComprehensionSetExpression(
+						createIdentifierList("t_"),
+						createDisjunction(disjunctionList)
+				))
+		);
 	}
 
 	private List<PExpression> createIdentifierList(String name) {
-		ArrayList<PExpression> list = new ArrayList<>();
-		list.add(createIdentifierNode(name));
-		return list;
+		return Collections.singletonList(createIdentifierNode(name));
 	}
 
 	private PPredicate visitBuiltInKindPredicate(OpApplNode n) {
@@ -1783,10 +1779,10 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 		switch (getOpCode(n.getOperator().getName())) {
 			case OPCODE_land: // \land
 			{
-				AConjunctPredicate conjunction = new AConjunctPredicate();
-				conjunction.setLeft(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-				conjunction.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[1]));
-				returnNode = conjunction;
+				returnNode = new AConjunctPredicate(
+						visitExprOrOpArgNodePredicate(n.getArgs()[0]),
+						visitExprOrOpArgNodePredicate(n.getArgs()[1])
+				);
 				break;
 			}
 			case OPCODE_cl: // $ConjList
@@ -1800,10 +1796,10 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 			}
 			case OPCODE_lor: // \/
 			{
-				ADisjunctPredicate disjunction = new ADisjunctPredicate();
-				disjunction.setLeft(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
-				disjunction.setRight(visitExprOrOpArgNodePredicate(n.getArgs()[1]));
-				returnNode = disjunction;
+				returnNode = new ADisjunctPredicate(
+						visitExprOrOpArgNodePredicate(n.getArgs()[0]),
+						visitExprOrOpArgNodePredicate(n.getArgs()[1])
+				);
 				break;
 			}
 			case OPCODE_dl: // $DisjList
@@ -1819,13 +1815,17 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 				returnNode = new ANegationPredicate(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
 				break;
 			case OPCODE_equiv: // \equiv
-				returnNode = new AEquivalencePredicate(visitExprOrOpArgNodePredicate(n.getArgs()[0]),
-					visitExprOrOpArgNodePredicate(n.getArgs()[1]));
+				returnNode = new AEquivalencePredicate(
+						visitExprOrOpArgNodePredicate(n.getArgs()[0]),
+						visitExprOrOpArgNodePredicate(n.getArgs()[1])
+				);
 				break;
 
 			case OPCODE_implies: // =>
-				returnNode = new AImplicationPredicate(visitExprOrOpArgNodePredicate(n.getArgs()[0]),
-					visitExprOrOpArgNodePredicate(n.getArgs()[1]));
+				returnNode = new AImplicationPredicate(
+						visitExprOrOpArgNodePredicate(n.getArgs()[0]),
+						visitExprOrOpArgNodePredicate(n.getArgs()[1])
+				);
 				break;
 
 			case OPCODE_be: { // \E x \in S : P
@@ -2090,7 +2090,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 		if (n instanceof ExprNode) {
 			return visitExprNodePredicate((ExprNode) n);
 		} else {
-			throw new RuntimeException("OpArgNode not implemented jet");
+			throw new RuntimeException("OpArgNode not implemented yet");
 		}
 	}
 
@@ -2098,7 +2098,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 		if (n instanceof ExprNode) {
 			return visitExprNodeExpression((ExprNode) n);
 		} else {
-			throw new RuntimeException("OpArgNode not implemented jet");
+			throw new RuntimeException("OpArgNode not implemented yet");
 		}
 	}
 

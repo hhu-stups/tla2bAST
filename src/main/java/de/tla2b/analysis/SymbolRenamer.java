@@ -142,20 +142,20 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals {
 		}
 
 		// constants
-		for(OpDeclNode node : moduleNode.getConstantDecls()) {
+		for (OpDeclNode node : moduleNode.getConstantDecls()) {
 			String newName = incName(node.getName().toString());
 			globalNames.add(newName);
 			node.setToolObject(NEW_NAME, newName);
 		}
 
-		for(OpDefNode node : moduleNode.getOpDefs()) {
+		for (OpDefNode node : moduleNode.getOpDefs()) {
 			String newName = getOperatorName(node);
 			globalNames.add(newName);
 			node.setToolObject(NEW_NAME, newName);
 			usedNamesTable.put(node, new HashSet<>());
 		}
 
-		for(AssumeNode node : moduleNode.getAssumptions()) {
+		for (AssumeNode node : moduleNode.getAssumptions()) {
 			visitNode(node.getAssume(), new HashSet<>());
 		}
 

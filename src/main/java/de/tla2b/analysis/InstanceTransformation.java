@@ -35,6 +35,7 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 
 	/**
 	 * replace all definitions M1!Op1 by the real Op1 and add included definitions from instances
+	 * -> SubstInNode should never occur after InstanceTransformation
 	 */
 	private void start() {
 		for (OpDefNode def : defs.values()) {
