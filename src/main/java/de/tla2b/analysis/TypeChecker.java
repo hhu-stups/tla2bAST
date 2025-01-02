@@ -671,7 +671,6 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 
 			case OPCODE_unchanged:
 				return BoolType.getInstance().unify(expected);
-			}
 
 			/*
 			 * no TLA+ Built-ins
