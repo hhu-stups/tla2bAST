@@ -1119,24 +1119,18 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			case B_OPCODE_gt: // >
 			case B_OPCODE_lt: // <
 			case B_OPCODE_leq: // <=
-			case B_OPCODE_geq: // >=
-			{
+			case B_OPCODE_geq: { // >=
+				TLAType boolType = unify(BoolType.getInstance(), expected, n);
 				try {
-					BoolType.getInstance().unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found BOOL at '%s',%n%s", expected,
-						n.getOperator().getName(), n.getLocation()));
-				}
-				try {
-					for (int i = 0; i < n.getArgs().length; i++) {
-						visitExprOrOpArgNode(n.getArgs()[i], IntType.getInstance());
+					for (ExprOrOpArgNode arg : n.getArgs()) {
+						visitExprOrOpArgNode(arg, IntType.getInstance());
 					}
 				} catch (TypeErrorException e) {
-					for (int i = 0; i < n.getArgs().length; i++) {
-						visitExprOrOpArgNode(n.getArgs()[i], RealType.getInstance());
+					for (ExprOrOpArgNode arg : n.getArgs()) {
+						visitExprOrOpArgNode(arg, RealType.getInstance());
 					}
 				}
-				return BoolType.getInstance();
+				return boolType;
 			}
 
 			// arithmetic operators: support both integers and reals
@@ -1151,96 +1145,49 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 				try {
 					IntType.getInstance().unify(expected); // throws UnificationException
 					type = IntType.getInstance();
-					for (int i = 0; i < n.getArgs().length; i++) {
+					for (ExprOrOpArgNode arg : n.getArgs()) {
 						// throws TypeErrorException; check whether IntType is OK, else try the same with RealType
-						visitExprOrOpArgNode(n.getArgs()[i], type);
+						visitExprOrOpArgNode(arg, type);
 					}
 				} catch (UnificationException | TypeErrorException e) {
-					try {
-						RealType.getInstance().unify(expected);
-						type = RealType.getInstance();
-						for (int i = 0; i < n.getArgs().length; i++) {
-							// if TypeErrorException is thrown here, the type is incompatible and it is a real type error!
-							visitExprOrOpArgNode(n.getArgs()[i], type);
-						}
-					} catch (UnificationException ue) {
-						throw new TypeErrorException(String.format("Expected %s, found INTEGER at '%s',%n%s", expected,
-							n.getOperator().getName(), n.getLocation()));
+					type = unify(RealType.getInstance(), expected, n);
+					for (ExprOrOpArgNode arg : n.getArgs()) {
+						// if TypeErrorException is thrown here, the type is incompatible and it is a real type error!
+						visitExprOrOpArgNode(arg, type);
 					}
 				}
-
 				return type;
 			}
 
 			case B_OPCODE_realdiv: { // /
-				try {
-					RealType.getInstance().unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found REAL at '%s',%n%s", expected,
-						n.getOperator().getName(), n.getLocation()));
+				TLAType realType = unify(RealType.getInstance(), expected, n);
+				for (ExprOrOpArgNode arg : n.getArgs()) {
+					visitExprOrOpArgNode(arg, realType);
 				}
-				for (int i = 0; i < n.getArgs().length; i++) {
-					visitExprOrOpArgNode(n.getArgs()[i], RealType.getInstance());
-				}
-				return RealType.getInstance();
+				return realType;
 			}
 
-			case B_OPCODE_dotdot: // ..
-			{
-				try {
-					expected.unify(new SetType(IntType.getInstance()));
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found POW(INTEGER) at '..',%n%s", expected, n.getLocation()));
+			case B_OPCODE_dotdot: { // ..
+				TLAType type = unify(new SetType(IntType.getInstance()), expected, n);
+				for (ExprOrOpArgNode arg : n.getArgs()) {
+					visitExprOrOpArgNode(arg, IntType.getInstance());
 				}
-
-				for (int i = 0; i < n.getArgs().length; i++) {
-					visitExprOrOpArgNode(n.getArgs()[i], IntType.getInstance());
-				}
-				return new SetType(IntType.getInstance());
+				return type;
 			}
 
 			case B_OPCODE_nat: // Nat
-			{
-				try {
-					SetType found = new SetType(IntType.getInstance());
-					found = found.unify(expected);
-					return found;
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found POW(INTEGER) at 'Nat',%n%s", expected, n.getLocation()));
-				}
-			}
+				return unify(new SetType(IntType.getInstance()), expected, n);
 
 			/*
-			 * Standard Module Integers
+			 * Standard Module Integers / Reals
 			 */
 			case B_OPCODE_int: // Int
-			{
-				try {
-					SetType found = new SetType(IntType.getInstance());
-					found = found.unify(expected);
-					return found;
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found POW(INTEGER) at 'Int',%n%s", expected, n.getLocation()));
-				}
-			}
+				return unify(new SetType(IntType.getInstance()), expected, n);
 
 			case B_OPCODE_real: // Real
-			{
-				try {
-					SetType found = new SetType(RealType.getInstance());
-					found = found.unify(expected);
-					return found;
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found POW(REAL) at 'Real',%n%s", expected, n.getLocation()));
-				}
-			}
+				return unify(new SetType(RealType.getInstance()), expected, n);
 
-			case B_OPCODE_uminus: // -x
-			{
+			case B_OPCODE_uminus: { // -x
 				TLAType type;
 				try {
 					IntType.getInstance().unify(expected); // throws UnificationException
@@ -1248,126 +1195,67 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 					// throws TypeErrorException; check whether IntType is OK, else try the same with RealType
 					visitExprOrOpArgNode(n.getArgs()[0], type);
 				} catch (UnificationException | TypeErrorException e) {
-					try {
-						RealType.getInstance().unify(expected);
-						type = RealType.getInstance();
-						// if TypeErrorException is thrown here, the type is incompatible and it is a real type error!
-						visitExprOrOpArgNode(n.getArgs()[0], type);
-					} catch (UnificationException ue) {
-						throw new TypeErrorException(
-							String.format("Expected %s, found INTEGER at '-',%n%s", expected, n.getLocation()));
-					}
+					type = unify(RealType.getInstance(), expected, n);
+					// if TypeErrorException is thrown here, the type is incompatible and it is a real type error!
+					visitExprOrOpArgNode(n.getArgs()[0], type);
 				}
-
 				return type;
 			}
 
 			/*
 			 * Standard Module FiniteSets
 			 */
-			case B_OPCODE_finite: // IsFiniteSet
-			{
-				try {
-					BoolType.getInstance().unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found BOOL at 'IsFiniteSet',%n%s", expected, n.getLocation()));
-				}
+			case B_OPCODE_finite: { // IsFiniteSet
+				TLAType boolType = unify(BoolType.getInstance(), expected, n);
 				visitExprOrOpArgNode(n.getArgs()[0], new SetType(new UntypedType()));
-				return BoolType.getInstance();
+				return boolType;
 			}
 
-			case B_OPCODE_card: // Cardinality
-			{
-				try {
-					IntType.getInstance().unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found INTEGER at 'Cardinality',%n%s", expected, n.getLocation()));
-				}
+			case B_OPCODE_card: { // Cardinality
+				TLAType intType = unify(IntType.getInstance(), expected, n);
 				visitExprOrOpArgNode(n.getArgs()[0], new SetType(new UntypedType()));
-				return IntType.getInstance();
+				return intType;
 			}
 
 			/*
 			 * Standard Module Sequences
 			 */
 			case B_OPCODE_seq: { // Seq(S) - set of sequences, S must be a set
-
 				SetType S = (SetType) visitExprOrOpArgNode(n.getArgs()[0], new SetType(new UntypedType()));
-
 				SetType set_of_seq = new SetType(new FunctionType(IntType.getInstance(), S.getSubType()));
-				try {
-					set_of_seq = set_of_seq.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found %s at 'Seq',%n%s", expected, set_of_seq, n.getLocation()));
-				}
-				return set_of_seq;
+				return unify(set_of_seq, expected, n);
 			}
 
 			case B_OPCODE_len: { // length of the sequence
-				try {
-					IntType.getInstance().unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found INTEGER at 'Len',%n%s", expected, n.getLocation()));
-				}
-				visitExprOrOpArgNode(n.getArgs()[0], new FunctionType(IntType.getInstance(), new UntypedType()));
-				return IntType.getInstance();
+				TLAType intType = unify(IntType.getInstance(), expected, n);
+				visitExprOrOpArgNode(n.getArgs()[0], new FunctionType(intType, new UntypedType()));
+				return intType;
 			}
 
 			case B_OPCODE_conc: { // s \o s2 - concatenation of s and s2
 				TLAType found = new FunctionType(IntType.getInstance(), new UntypedType());
 				found = visitExprOrOpArgNode(n.getArgs()[0], found);
 				found = visitExprOrOpArgNode(n.getArgs()[1], found);
-				try {
-					found = found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found POW(INTEGER*_A) at '\\o',%n%s", expected, n.getLocation()));
-				}
-				return found;
+				return unify(found, expected, n);
 			}
 
-			case B_OPCODE_append: // Append(s, e)
-			{
+			case B_OPCODE_append: { // Append(s, e)
 				FunctionType found = new FunctionType(IntType.getInstance(), new UntypedType());
 				found = (FunctionType) visitExprOrOpArgNode(n.getArgs()[0], found);
 				visitExprOrOpArgNode(n.getArgs()[1], found.getRange());
-				try {
-					found = (FunctionType) found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found %s at 'Append',%n%s", expected, found, n.getLocation()));
-				}
-				return found;
+				return unify(found, expected, n);
 			}
 
 			case B_OPCODE_head: { // HEAD(s) - the first element of the sequence
 				FunctionType func = new FunctionType(IntType.getInstance(), new UntypedType());
 				func = (FunctionType) visitExprOrOpArgNode(n.getArgs()[0], func);
-
-				TLAType found = func.getRange();
-				try {
-					found = found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found %s at 'Head',%n%s", expected, found, n.getLocation()));
-				}
-				return found;
+				return unify(func.getRange(), expected, n);
 			}
 
 			case B_OPCODE_tail: { // Tail(s)
 				FunctionType found = new FunctionType(IntType.getInstance(), new UntypedType());
 				found = (FunctionType) visitExprOrOpArgNode(n.getArgs()[0], found);
-				try {
-					found = (FunctionType) found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found %s at 'Tail',%n%s", expected, found, n.getLocation()));
-				}
-				return found;
+				return unify(found, expected, n);
 			}
 
 			case B_OPCODE_subseq: { // SubSeq(s,m,n)
@@ -1375,13 +1263,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 				found = visitExprOrOpArgNode(n.getArgs()[0], found);
 				visitExprOrOpArgNode(n.getArgs()[1], IntType.getInstance());
 				visitExprOrOpArgNode(n.getArgs()[2], IntType.getInstance());
-				try {
-					found = found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found %s at 'SubSeq',%n%s", expected, found, n.getLocation()));
-				}
-				return found;
+				return unify(found, expected, n);
 			}
 
 			// TODO add BSeq to tla standard modules
@@ -1389,116 +1271,57 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			/*
 			 * Standard Module TLA2B
 			 */
-
 			case B_OPCODE_min: // MinOfSet(S)
 			case B_OPCODE_max: // MaxOfSet(S)
 			case B_OPCODE_setprod: // SetProduct(S)
-			case B_OPCODE_setsum: // SetSummation(S)
-			{
+			case B_OPCODE_setsum: { // SetSummation(S)
 				// TODO: do we need support for Reals here?
-				try {
-					IntType.getInstance().unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found INTEGER at '%s',%n%s", expected,
-						n.getOperator().getName(), n.getLocation()));
-				}
-				visitExprOrOpArgNode(n.getArgs()[0], new SetType(IntType.getInstance()));
-				return IntType.getInstance();
+				TLAType intType = unify(IntType.getInstance(), expected, n);
+				visitExprOrOpArgNode(n.getArgs()[0], new SetType(intType));
+				return intType;
 			}
 
 			case B_OPCODE_permseq: { // PermutedSequences(S)
 				SetType argType = (SetType) visitExprOrOpArgNode(n.getArgs()[0], new SetType(new UntypedType()));
 				SetType found = new SetType(new FunctionType(IntType.getInstance(), argType.getSubType()));
-				try {
-					found = found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found %s at 'PermutedSequences',%n%s",
-						expected, found, n.getLocation()));
-				}
-				return found;
+				return unify(found, expected, n);
 			}
 
 			/*
 			 * Standard Module TLA2B
 			 */
-			case B_OPCODE_pow1: // POW1
-			{
-
+			case B_OPCODE_pow1: { // POW1
 				SetType set = new SetType(new UntypedType());
 				set = (SetType) visitExprOrOpArgNode(n.getArgs()[0], set);
 				SetType found = new SetType(set);
-				try {
-					found = found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found %s at '%s',%n%s", expected, found,
-						n.getOperator().getName(), n.getLocation()));
-				}
-				return found;
+				return unify(found, expected, n);
 			}
 
 			/*
 			 * Standard Module Relations
 			 */
-			case B_OPCODE_rel_inverse: // POW1
-			{
+			case B_OPCODE_rel_inverse: { // POW1
 				SetType set = new SetType(new TupleType(2));
 				set = (SetType) visitExprOrOpArgNode(n.getArgs()[0], set);
 				TupleType t = (TupleType) set.getSubType();
-				ArrayList<TLAType> list = new ArrayList<>();
-				list.add(t.getTypes().get(1));
-				list.add(t.getTypes().get(0));
+				List<TLAType> list = Arrays.asList(t.getTypes().get(1), t.getTypes().get(0));
 				SetType found = new SetType(new TupleType(list));
-				try {
-					found = found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found %s at '%s',%n%s", expected, found,
-						n.getOperator().getName(), n.getLocation()));
-				}
-				return found;
+				return unify(found, expected, n);
 			}
 
 			/*
 			 * TLA+ Built-Ins, but not in tlc.tool.BuiltInOPs
 			 */
 			case B_OPCODE_bool: // BOOLEAN
-				try {
-					SetType found = new SetType(BoolType.getInstance());
-					found = found.unify(expected);
-					return found;
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found POW(BOOL) at 'BOOLEAN',%n%s", expected, n.getLocation()));
-				}
+				return unify(new SetType(BoolType.getInstance()), expected, n);
 
 			case B_OPCODE_string: // STRING
-				try {
-					SetType found = new SetType(StringType.getInstance());
-					found = found.unify(expected);
-					return found;
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found POW(STRING) at 'STRING',%n%s", expected, n.getLocation()));
-				}
+				return unify(new SetType(StringType.getInstance()), expected, n);
 
 			case B_OPCODE_true:
 			case B_OPCODE_false:
-				try {
-					BoolType.getInstance().unify(expected);
-					return BoolType.getInstance();
-				} catch (Exception e) {
-					throw new TypeErrorException(String.format("Expected %s, found BOOL at '%s',%n%s", expected,
-						n.getOperator().getName(), n.getLocation()));
-				}
-
-			case B_OPCODE_assert: {
-				try {
-					BoolType.getInstance().unify(expected);
-					return BoolType.getInstance();
-				} catch (Exception e) {
-					throw new TypeErrorException(String.format("Expected %s, found BOOL at '%s',%n%s", expected,
-						n.getOperator().getName(), n.getLocation()));
-				}
-			}
+			case B_OPCODE_assert:
+				return unify(BoolType.getInstance(), expected, n);
 
 			default: {
 				throw new NotImplementedException(n.getOperator().getName().toString());
