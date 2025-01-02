@@ -732,35 +732,18 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 				if (params[i].length == 1) {
 					FormalParamNode p = params[i][0];
 					FunctionType expected = new FunctionType(IntType.getInstance(), new UntypedType());
-					try {
-						expected = (FunctionType) expected.unify(subType);
-					} catch (UnificationException e) {
-						throw new TypeErrorException(String.format("Expected %s, found %s at parameter %s,%n%s",
-							expected, subType, p.getName().toString(), bounds[i].getLocation()));
-					}
+					expected = (FunctionType) unify(expected, subType, "parameter " + p.getName(), bounds[i]);
 					domList.add(expected);
 					symbolNodeList.add(p);
-					p.setToolObject(TYPE_ID, expected.getRange());
-					if (expected.getRange() instanceof AbstractHasFollowers) {
-						((AbstractHasFollowers) expected.getRange()).addFollower(p);
-					}
+					setTypeAndFollowers(p, expected.getRange());
 				} else {
 					TupleType tuple = new TupleType(params[i].length);
-					try {
-						tuple = (TupleType) tuple.unify(subType);
-					} catch (UnificationException e) {
-						throw new TypeErrorException(String.format("Expected %s, found %s at tuple,%n%s", tuple,
-							subType, bounds[i].getLocation()));
-					}
+					tuple = (TupleType) unify(tuple, subType, "tuple", bounds[i]);
 					domList.add(tuple);
 					for (int j = 0; j < params[i].length; j++) {
 						FormalParamNode p = params[i][j];
 						symbolNodeList.add(p);
-						TLAType paramType = tuple.getTypes().get(j);
-						p.setToolObject(TYPE_ID, paramType);
-						if (paramType instanceof AbstractHasFollowers) {
-							((AbstractHasFollowers) paramType).addFollower(p);
-						}
+						setTypeAndFollowers(p, tuple.getTypes().get(j));
 					}
 
 				}
@@ -771,10 +754,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 					domList.add(subType);
 					FormalParamNode p = params[i][j];
 					symbolNodeList.add(p);
-					p.setToolObject(TYPE_ID, subType);
-					if (subType instanceof AbstractHasFollowers) {
-						((AbstractHasFollowers) subType).addFollower(p);
-					}
+					setTypeAndFollowers(p, subType);
 				}
 			}
 		}
