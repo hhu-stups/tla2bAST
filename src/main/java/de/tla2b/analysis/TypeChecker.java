@@ -790,63 +790,40 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 
 	private TLAType evalExcept(OpApplNode n, TLAType expected) throws TLA2BException {
 		TLAType t = visitExprOrOpArgNode(n.getArgs()[0], expected);
-		n.setToolObject(TYPE_ID, t);
-		if (t instanceof AbstractHasFollowers) {
-			((AbstractHasFollowers) t).addFollower(n);
-		}
+		setTypeAndFollowers(n, t);
 
-		for (int i = 1; i < n.getArgs().length; i++) {
+		for (int i = 1; i < n.getArgs().length; i++) { // start at 1
 			OpApplNode pair = (OpApplNode) n.getArgs()[i];
-			ExprOrOpArgNode leftside = pair.getArgs()[0];
-			ExprOrOpArgNode rightside = pair.getArgs()[1];
 			// stored for @ node
 			UntypedType untyped = new UntypedType();
-			rightside.setToolObject(TYPE_ID, untyped);
-			untyped.addFollower(rightside);
-			TLAType valueType = visitExprOrOpArgNode(rightside, untyped);
+			setTypeAndFollowers(pair.getArgs()[1], untyped);
+			TLAType valueType = visitExprOrOpArgNode(pair.getArgs()[1], untyped); // right side
 
-			OpApplNode seq = (OpApplNode) leftside;
-			LinkedList<ExprOrOpArgNode> list = new LinkedList<>();
-			Collections.addAll(list, seq.getArgs());
-			ExprOrOpArgNode first = list.poll();
+			OpApplNode seq = (OpApplNode) pair.getArgs()[0]; // left side
+			LinkedList<ExprOrOpArgNode> list = new LinkedList<>(Arrays.asList(seq.getArgs()));
+			ExprOrOpArgNode domExpr = list.poll();
 
-			if (first instanceof StringNode) {
-				String field = ((StringNode) first).getRep().toString();
+			if (domExpr instanceof StringNode) {
+				String field = ((StringNode) domExpr).getRep().toString();
 				TLAType res = evalType(list, valueType);
-				StructOrFunctionType s = new StructOrFunctionType(field, res);
-				try {
-					t = t.unify(s);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found %s at 'EXCEPT',%n%s", t, s, pair.getLocation()));
-				}
-
+				t = unify(t, new StructOrFunctionType(field, res), pair);
 			} else {
 				// Function
-				ExprOrOpArgNode domExpr = first;
 				TLAType domType;
-				TLAType rangeType;
 				if (domExpr instanceof OpApplNode
-					&& ((OpApplNode) domExpr).getOperator().getName().toString().equals("$Tuple")) {
-					ArrayList<TLAType> domList = new ArrayList<>();
-					OpApplNode domOpAppl = (OpApplNode) domExpr;
-					for (int j = 0; j < domOpAppl.getArgs().length; j++) {
-						TLAType d = visitExprOrOpArgNode(domOpAppl.getArgs()[j], new UntypedType());
-						domList.add(d);
+						&& ((OpApplNode) domExpr).getOperator().getName().equals("$Tuple")) {
+					List<TLAType> domList = new ArrayList<>();
+					for (ExprOrOpArgNode arg : ((OpApplNode) domExpr).getArgs()) {
+						domList.add(visitExprOrOpArgNode(arg, new UntypedType()));
 					}
 					domType = new TupleType(domList);
-					domExpr.setToolObject(TYPE_ID, domType); // store type
+					setType(domExpr, domType); // store type
 				} else {
 					domType = visitExprOrOpArgNode(domExpr, new UntypedType());
 				}
-				rangeType = evalType(list, valueType);
-				FunctionType func = new FunctionType(domType, rangeType);
-				try {
-					t = t.unify(func);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found %s at 'EXCEPT',%n%s", t, func, pair.getLocation()));
-				}
+
+				TLAType rangeType = evalType(list, valueType);
+				t = unify(t, new FunctionType(domType, rangeType), pair);
 			}
 		}
 		return t;
