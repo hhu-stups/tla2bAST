@@ -18,8 +18,6 @@ import de.tla2b.exceptions.TLA2BFrontEndException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.global.TranslationGlobals;
 import de.tla2b.output.TlaTypePrinter;
-import de.tla2b.translation.BMacroHandler;
-import de.tla2b.translation.RecursiveFunctionHandler;
 import de.tla2b.types.TLAType;
 import de.tla2b.util.FileUtils;
 import tla2sany.drivers.FrontEndException;
@@ -260,21 +258,17 @@ public class Translator implements TranslationGlobals {
 		return rml;
 	}
 
-	public Start translateExpressionIncludingModel(String tlaExpression) throws TLA2BException {
-		ExpressionTranslator expressionTranslator = new ExpressionTranslator(tlaExpression, this);
-		expressionTranslator.parse();
-		return expressionTranslator.translateIncludingModel();
+	public Start translateExpressionIncludingModel(String tlaExpression) {
+		return ExpressionTranslator.translate(tlaExpression, this);
 	}
 
 	@Deprecated
-	public Start translateExpression(String tlaExpression) throws TLA2BException {
+	public Start translateExpression(String tlaExpression) {
 		return this.translateExpressionIncludingModel(tlaExpression);
 	}
 
 	public static Start translateExpressionWithoutModel(String tlaExpression) {
-		ExpressionTranslator expressionTranslator = new ExpressionTranslator(tlaExpression);
-		expressionTranslator.parse();
-		return expressionTranslator.translateWithoutModel();
+		return ExpressionTranslator.translate(tlaExpression);
 	}
 
 	@Deprecated

@@ -266,18 +266,18 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 		throw new NotImplementedException(exprNode.toString(2));
 	}
 
-	private void setType(SemanticNode node, TLAType type, int paramId) {
+	private static void setType(SemanticNode node, TLAType type, int paramId) {
 		node.setToolObject(paramId, type);
 		if (type instanceof AbstractHasFollowers) {
 			((AbstractHasFollowers) type).addFollower(node);
 		}
 	}
 
-	private void setType(SemanticNode node, TLAType type) {
+	public static void setType(SemanticNode node, TLAType type) {
 		setType(node, type, TYPE_ID);
 	}
 
-	private TLAType getType(SemanticNode n) {
+	public static TLAType getType(SemanticNode n) {
 		return (TLAType) n.getToolObject(TYPE_ID);
 	}
 

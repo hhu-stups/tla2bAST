@@ -7,14 +7,19 @@ import de.tla2b.analysis.TypeChecker;
 import de.tla2b.exceptions.ExpressionTranslationException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.exceptions.TLA2BFrontEndException;
-import de.tla2b.exceptions.TypeErrorException;
+import de.tla2b.global.BBuiltInOPs;
+import de.tla2b.util.TlaUtils;
 import tla2sany.drivers.FrontEndException;
 import tla2sany.drivers.InitException;
 import tla2sany.drivers.SANY;
 import tla2sany.modanalyzer.ParseUnit;
 import tla2sany.modanalyzer.SpecObj;
 import tla2sany.parser.ParseException;
+import tla2sany.semantic.FormalParamNode;
 import tla2sany.semantic.ModuleNode;
+import tla2sany.semantic.OpDeclNode;
+import tla2sany.semantic.OpDefNode;
+import tla2sany.semantic.SymbolNode;
 import tla2sany.st.SyntaxTreeConstants;
 import tla2sany.st.TreeNode;
 import util.ToolIO;
@@ -22,53 +27,67 @@ import util.ToolIO;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static de.tla2b.global.TranslationGlobals.STANDARD_MODULES;
 
 public class ExpressionTranslator implements SyntaxTreeConstants {
 
 	private final String tlaExpression;
-	private final ArrayList<String> variables = new ArrayList<>();
-	private final ArrayList<String> noVariables = new ArrayList<>();
-	private Start expressionStart;
+	private final List<String> variables = new ArrayList<>();
+	private final List<String> noVariables = new ArrayList<>();
+	private final Map<String, FormalParamNode[]> definitions = new HashMap<>();
+	private final Map<String, SymbolNode> namingMap = new HashMap<>();
 	private ModuleNode moduleNode;
 	private String expr;
 	private Translator translator;
 
-	public Start getBExpressionParseUnit() {
-		return expressionStart;
-	}
-
+	/**
+	 * @deprecated Internal use only. Use {@link #translate(String)} instead.
+	 */
+	@Deprecated
 	public ExpressionTranslator(String tlaExpression) {
 		this.tlaExpression = tlaExpression;
 	}
 
+	/**
+	 * @deprecated Internal use only. Use {@link #translate(String, Translator)} instead.
+	 */
+	@Deprecated
 	public ExpressionTranslator(String tlaExpression, Translator translator) {
 		this.tlaExpression = tlaExpression;
 		this.translator = translator;
+		ModuleNode moduleContext = translator.getSpecAnalyser().getModuleNode(); // NOT this.moduleNode !
+		// this is the module in whose context the expression is to be evaluated
+		this.namingMap.putAll(TlaUtils.getDeclarationsMap(moduleContext.getVariableDecls()));
+		this.namingMap.putAll(TlaUtils.getDeclarationsMap(moduleContext.getConstantDecls()));
+		// we need all definitions of the context module, not only the translated ones
+		this.namingMap.putAll(TlaUtils.getOpDefsMap(moduleContext.getOpDefs()));
 	}
 
+	/**
+	 * @deprecated Internal use only. Use {@link #translate(String)} or {@link #translate(String,Translator)} instead.
+	 */
+	@Deprecated
 	public void parse() {
 		String dir = System.getProperty("java.io.tmpdir");
 		ToolIO.setUserDir(dir);
 
 		File tempFile;
-		String moduleName;
-		String module;
 		try {
 			tempFile = File.createTempFile("Testing", ".tla");
-			moduleName = tempFile.getName().substring(0,tempFile.getName().indexOf("."));
-
-			module = "----MODULE " + moduleName + " ----\n" + "Expression == "
-				+ tlaExpression + "\n====";
-
-			FileWriter fw = new FileWriter(tempFile);
-			fw.write(module);
-			fw.close();
 		} catch (IOException e) {
-			throw new ExpressionTranslationException(
-				"Can not create temporary file in directory '" + dir + "'");
+			throw new ExpressionTranslationException("Can not create temporary file in directory '" + dir + "'");
+		}
+
+		String moduleName = tempFile.getName().substring(0,tempFile.getName().indexOf("."));
+		String module = "----MODULE " + moduleName + " ----\n" + "Expression == " + tlaExpression + "\n====";
+
+		try (FileWriter fw = new FileWriter(tempFile)) {
+			fw.write(module);
+		} catch (IOException e) {
+			throw new ExpressionTranslationException("Can not write module to temporary file " + tempFile.getAbsolutePath());
 		}
 
 		SpecObj spec = parseModuleWithoutSemanticAnalyse(moduleName, module);
@@ -79,30 +98,41 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		sb.append("EXTENDS Naturals, Integers, Reals, Sequences, FiniteSets \n");
 		if (!variables.isEmpty()) {
 			sb.append("VARIABLES ");
-			for (int i = 0; i < variables.size(); i++) {
-				if (i != 0) {
-					sb.append(", ");
-				}
-				sb.append(variables.get(i));
-			}
+			sb.append(String.join(", ", variables));
 			sb.append("\n");
+		}
+		if (!definitions.isEmpty()) {
+			// just add def with dummy tuple; node will be replaced later
+			definitions.forEach((name, params) -> {
+				List<String> paramNames = Arrays.stream(definitions.getOrDefault(name, new FormalParamNode[0]))
+						.map(p -> p.getName().toString())
+						.collect(Collectors.toList());
+				sb.append(name);
+				if (!paramNames.isEmpty()) {
+					sb.append("(");
+					sb.append(String.join(", ", paramNames));
+					sb.append(")");
+				}
+				sb.append(" == <<");
+				if (!paramNames.isEmpty()) {
+					sb.append(String.join(", ", paramNames));
+				}
+				sb.append(">>\n");
+			});
 		}
 		sb.append("Expression");
 		sb.append(" == ");
 		sb.append(tlaExpression);
 		sb.append("\n====================");
 
-		try {
-			FileWriter fw = new FileWriter(tempFile);
-			fw.write(sb.toString());
-			fw.close();
+		this.expr = sb.toString();
+		try (FileWriter fw = new FileWriter(tempFile)) {
+			fw.write(expr);
 			tempFile.deleteOnExit();
 		} catch (IOException e) {
 			throw new ExpressionTranslationException(e.getMessage());
 		}
 		ToolIO.reset();
-
-		this.expr = sb.toString();
 
 		this.moduleNode = null;
 		try {
@@ -112,52 +142,48 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		}
 	}
 
-	public Start translateIncludingModel() throws TLA2BException {
-		SpecAnalyser specAnalyser = SpecAnalyser.createSpecAnalyserForTlaExpression(moduleNode);
-		TypeChecker tc = translator.getTypeChecker();
-		try {
-			// here we add typing for known identifiers from the module
-			tc.visitOpDefNode(specAnalyser.getExpressionOpdefNode());
-		} catch (TypeErrorException e) {
-			// ignore type errors; new free variables will always throw an exception here
-			// (they have no type, which is correct as they are not part of the module);
-			// real type errors are checked below
-		}
-
-		TypeChecker tc2 = new TypeChecker(moduleNode, specAnalyser);
-		try {
-			// here we add the typing for new variables
-			// the types of module variables are also checked
-			tc2.start();
-		} catch (TypeErrorException e) {
-			String message = "****TypeError****\n" + e.getLocalizedMessage() + "\n" + expr + "\n";
-			throw new ExpressionTranslationException(message);
-		}
-		SymbolRenamer.run(moduleNode, specAnalyser);
-		return this.expressionStart = new BAstCreator(moduleNode, specAnalyser).getStartNode();
+	public static Start translate(String tlaExpression) {
+		ExpressionTranslator expressionTranslator = new ExpressionTranslator(tlaExpression);
+		expressionTranslator.parse();
+		return expressionTranslator.translate();
 	}
 
-	public Start translateWithoutModel() {
+	public static Start translate(String tlaExpression, Translator translator) {
+		ExpressionTranslator expressionTranslator = new ExpressionTranslator(tlaExpression, translator);
+		expressionTranslator.parse();
+		expressionTranslator.setTypesOfExistingNodes();
+		return expressionTranslator.translate();
+	}
+
+	/**
+	 * @deprecated Internal use only. Use {@link #translate(String)} or {@link #translate(String,Translator)} instead.
+	 */
+	@Deprecated
+	public Start translate() {
 		SpecAnalyser specAnalyser = SpecAnalyser.createSpecAnalyserForTlaExpression(moduleNode);
 		TypeChecker tc = new TypeChecker(moduleNode, specAnalyser);
 		try {
 			tc.start();
 		} catch (TLA2BException e) {
-			String message = "****TypeError****\n" + e.getLocalizedMessage()
-					+ "\n" + expr + "\n";
+			String message = "****TypeError****\n" + e.getLocalizedMessage() + "\n" + expr + "\n";
 			throw new ExpressionTranslationException(message);
 		}
 		SymbolRenamer.run(moduleNode, specAnalyser);
-		return this.expressionStart = new BAstCreator(moduleNode, specAnalyser).getStartNode();
+		return new BAstCreator(moduleNode, specAnalyser).getStartNode();
 	}
 
 	@Deprecated
-	public Start translate() {
-		return this.translateWithoutModel();
+	public Start translateIncludingModel() {
+		setTypesOfExistingNodes();
+		return translate();
 	}
 
-	public static ModuleNode parseModule(String moduleName, String module)
-		throws TLA2BFrontEndException {
+	@Deprecated
+	public Start translateWithoutModel() {
+		return translate();
+	}
+
+	private ModuleNode parseModule(String moduleName, String module) throws TLA2BFrontEndException {
 		SpecObj spec = new SpecObj(moduleName, null);
 		try {
 			SANY.frontEndMain(spec, moduleName, ToolIO.out);
@@ -192,19 +218,15 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 
 	private SpecObj parseModuleWithoutSemanticAnalyse(String moduleFileName, String module) {
 		SpecObj spec = new SpecObj(moduleFileName, null);
-
 		try {
-			SANY.frontEndInitialize(spec, ToolIO.out);
-			SANY.frontEndParse(spec, ToolIO.out);
-
-		} catch (InitException | ParseException e1) {
-			System.out.println(e1);
+			SANY.frontEndInitialize(spec, ToolIO.err);
+			SANY.frontEndParse(spec, ToolIO.err);
+		} catch (InitException | ParseException e) {
+			throw new ExpressionTranslationException(e.getLocalizedMessage());
 		}
 
 		if (spec.parseErrors.isFailure()) {
-			String message = module + "\n\n";
-			message += allMessagesToString(ToolIO.getAllMessages());
-			throw new ExpressionTranslationException(message);
+			throw new ExpressionTranslationException(module + "\n\n" + allMessagesToString(ToolIO.getAllMessages()));
 		}
 		return spec;
 	}
@@ -213,8 +235,8 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		ParseUnit p = spec.parseUnitContext.get(moduleName);
 		TreeNode n_module = p.getParseTree();
 		TreeNode n_body = n_module.heirs()[2];
-		TreeNode n_operatorDefintion = n_body.heirs()[0];
-		TreeNode expr = n_operatorDefintion.heirs()[2];
+		TreeNode n_operatorDefinition = n_body.heirs()[0];
+		TreeNode expr = n_operatorDefinition.heirs()[2];
 		searchVarInSyntaxTree(expr);
 
 		// this code seems to assume that there is no variable clash between outer and nested variables
@@ -222,7 +244,6 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		for (String noVariable : noVariables) {
 			variables.remove(noVariable);
 		}
-
 	}
 
 	private final static Set<String> KEYWORDS = new HashSet<>();
@@ -234,6 +255,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		KEYWORDS.add("Nat");
 		KEYWORDS.add("Int");
 		KEYWORDS.add("Real");
+		KEYWORDS.add("Infinity");
 		KEYWORDS.add("Cardinality");
 		KEYWORDS.add("IsFiniteSet");
 		KEYWORDS.add("Append");
@@ -252,7 +274,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 	}
 
 	/**
-	 *
+	 * collect variables and definitions from syntax tree
 	 */
 	private void searchVarInSyntaxTree(TreeNode treeNode) {
 		// System.out.println(treeNode.getKind() + " " + treeNode.getImage());
@@ -260,7 +282,13 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 			case N_GeneralId: {
 				String con = treeNode.heirs()[1].getImage();
 				if (!variables.contains(con) && !KEYWORDS.contains(con)) {
-					variables.add(con);
+					SymbolNode existingNode = namingMap.get(con);
+					if (existingNode instanceof OpDefNode) {
+						// if the identifier corresponds to an existing def, add as def, otherwise as variable
+						definitions.put(con, ((OpDefNode) existingNode).getParams());
+					} else {
+						variables.add(con);
+					}
 				}
 				break;
 			}
@@ -279,12 +307,11 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 				noVariables.add(treeNode.heirs()[0].getImage());
 				break;
 			}
-			case
-				N_UnboundQuant: { // TODO: check: is this an unbounded quantifier with infinite domain or a quantifier that does not hide the quantified variables?
+			case N_UnboundQuant: { // TODO: check: is this an unbounded quantifier with infinite domain or a quantifier that does not hide the quantified variables?
 				TreeNode[] children = treeNode.heirs();
-				for (int i = 1; i < children.length - 2; i = i + 2) {
+				//for (int i = 1; i < children.length - 2; i = i + 2) {
 					// System.out.println("N_UnboundQuant: "+children[i].getImage());
-				}
+				//}
 				searchVarInSyntaxTree(treeNode.heirs()[children.length - 1]);
 				break;
 			}
@@ -323,11 +350,48 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 				searchVarInSyntaxTree(treeNode.heirs()[5]); // e
 				break;
 			}
-
 		}
 
-		for (int i = 0; i < treeNode.heirs().length; i++) {
-			searchVarInSyntaxTree(treeNode.heirs()[i]);
+		for (TreeNode heir : treeNode.heirs()) {
+			searchVarInSyntaxTree(heir);
+		}
+	}
+
+	private void setTypesOfExistingNodes() {
+		if (translator != null) {
+			for (OpDeclNode node : moduleNode.getConstantDecls())
+				setTypeExistingDeclNode(node);
+			for (OpDeclNode node : moduleNode.getVariableDecls())
+				setTypeExistingDeclNode(node);
+			for (OpDefNode node : moduleNode.getOpDefs()) {
+				SymbolNode fromSpec = namingMap.get(node.getName().toString());
+				if (fromSpec != null) { // a definition with the same name exists in module context
+					// check if def in translated B definitions
+					if (translator.getSpecAnalyser().getBDefinitions().contains((OpDefNode) fromSpec)) {
+						// replace body of dummy definition with body of the real definition
+						node.setBody(((OpDefNode) fromSpec).getBody());
+						// not sure if we should also replace defNode in Context:
+						// nCtx.addSymbolToContext(node.getName(), fromSpec);
+						// this should be redundant and not necessary:
+						// TypeChecker.setType(node, TypeChecker.getType(fromSpec));
+					} else if (!(BBuiltInOPs.contains(node.getName())
+							&& STANDARD_MODULES.contains(node.getSource().getOriginallyDefinedInModuleNode().getName().toString()))) {
+						// throw error if def is not included in translation and not a built-in definition
+						throw new ExpressionTranslationException("Evaluation error:\n"
+								+ "Definition '" + fromSpec.getName() + "' is not included in the B translation.\n");
+					}
+				}
+			}
+		}
+	}
+
+	private void setTypeExistingDeclNode(OpDeclNode node) {
+		SymbolNode fromSpec = namingMap.get(node.getName().toString());
+		if (fromSpec != null) { // a constant or variable declaration with the same name exists in module context
+			// replace all decl nodes by the known decl from the real module
+			// nCtx.addSymbolToContext(node.getName(), fromSpec);
+			// set the type of the declaration in the dummy module (CONSTANTS/VARIABLES section)
+			TypeChecker.setType(node, TypeChecker.getType(fromSpec));
 		}
 	}
 
