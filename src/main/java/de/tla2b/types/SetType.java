@@ -20,7 +20,7 @@ public class SetType extends AbstractHasFollowers {
 	public void setSubType(TLAType t) {
 		// if (subType instanceof AbstractHasFollowers) {
 		// // delete old reference
-		// ((AbstractHasFollowers) subType).deleteFollower(this);
+		// ((AbstractHasFollowers) subType).removeFollower(this);
 		// }
 
 		if (t instanceof AbstractHasFollowers) {
@@ -77,9 +77,7 @@ public class SetType extends AbstractHasFollowers {
 
 	@Override
 	public String toString() {
-		String res = "POW(" + this.getSubType() + ")";
-
-		return res;
+		return "POW(" + this.getSubType() + ")";
 	}
 
 	@Override

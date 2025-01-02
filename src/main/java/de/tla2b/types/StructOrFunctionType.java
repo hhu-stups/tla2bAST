@@ -6,11 +6,12 @@ import de.tla2b.output.TypeVisitorInterface;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 public class StructOrFunctionType extends AbstractHasFollowers {
-	private final LinkedHashMap<String, TLAType> types;
+	private final Map<String, TLAType> types;
 
 	public StructOrFunctionType(String name, TLAType type) {
 		super(STRUCT_OR_FUNCTION);
@@ -64,8 +65,7 @@ public class StructOrFunctionType extends AbstractHasFollowers {
 			StructType s = (StructType) o;
 			for (String fieldName : types.keySet()) {
 				if (s.getFields().contains(fieldName)) {
-					if (!this.types.get(fieldName)
-						.compare(s.getType(fieldName))) {
+					if (!this.types.get(fieldName).compare(s.getType(fieldName))) {
 						return false;
 					}
 				}

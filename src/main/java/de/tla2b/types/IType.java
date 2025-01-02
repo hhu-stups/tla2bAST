@@ -18,6 +18,5 @@ public interface IType {
 	int TUPLE_OR_FUNCTION = 12;
 	int REAL = 13;
 
-
 	void apply(TypeVisitorInterface visitor);
 }

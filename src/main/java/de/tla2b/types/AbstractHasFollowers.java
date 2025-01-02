@@ -7,11 +7,10 @@ import java.util.List;
 
 public abstract class AbstractHasFollowers extends TLAType {
 
-	public List<Object> followers;
+	private List<Object> followers = new ArrayList<>();
 
 	public AbstractHasFollowers(int t) {
 		super(t);
-		followers = new ArrayList<>();
 	}
 
 	public List<Object> getFollowers() {
@@ -20,17 +19,8 @@ public abstract class AbstractHasFollowers extends TLAType {
 
 	public void addFollower(Object o) {
 		// only (partial) untyped types need follower
-		if (this.followers != null) {
-			for (Object follower : followers) {
-				if (follower == o)
-					return;
-			}
+		if (followers != null && !followers.contains(o))
 			followers.add(o);
-		}
-	}
-
-	public void deleteFollower(Object o) {
-		followers.remove(o);
 	}
 
 	public void deleteFollowers() {
