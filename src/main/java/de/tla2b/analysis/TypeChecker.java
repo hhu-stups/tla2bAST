@@ -232,72 +232,52 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 	}
 
 	private TLAType visitOpApplNode(OpApplNode n, TLAType expected) throws TLA2BException {
-
 		switch (n.getOperator().getKind()) {
 			case ConstantDeclKind: {
 				OpDeclNode con = (OpDeclNode) n.getOperator();
-
-				TLAType c = (TLAType) con.getToolObject(TYPE_ID);
+				TLAType c = getType(con);
 				if (c == null) {
 					throw new TypeErrorException(con.getName() + " has no type yet!");
 				}
-				try {
-					TLAType result = expected.unify(c);
-					con.setToolObject(TYPE_ID, result);
-					return result;
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found %s at constant '%s',%n%s", expected, c,
-						con.getName(), n.getLocation())
-					);
-				}
+				return unifyAndSetType(c, expected, con.getName().toString(), con);
 			}
 
 			case VariableDeclKind: {
 				SymbolNode symbolNode = n.getOperator();
 				String vName = symbolNode.getName().toString();
-				TLAType v = (TLAType) symbolNode.getToolObject(TYPE_ID);
+				TLAType v = getType(symbolNode);
 				if (v == null) {
 					SymbolNode var = this.specAnalyser.getSymbolNodeByName(vName);
 					if (var != null) {
 						// symbolNode is variable of an expression, e.g. v + 1
-						v = (TLAType) var.getToolObject(TYPE_ID);
+						v = getType(var);
 					} else {
 						throw new TypeErrorException(vName + " has no type yet!");
 					}
 				}
-				try {
-					TLAType result = expected.unify(v);
-					symbolNode.setToolObject(TYPE_ID, result);
-					return result;
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found %s at variable '%s',%n%s", expected, v,
-						vName, n.getLocation()));
-				}
+				return unifyAndSetType(v, expected, vName, n);
 			}
 
-			case BuiltInKind: {
+			case BuiltInKind:
 				return evalBuiltInKind(n, expected);
-			}
 
 			case FormalParamKind: {
 				SymbolNode symbolNode = n.getOperator();
-				String pName = symbolNode.getName().toString();
-				TLAType t = (TLAType) symbolNode.getToolObject(paramId);
-				if (t == null) {
-					t = (TLAType) symbolNode.getToolObject(TYPE_ID);
-				}
-
-				if (t == null) {
-					t = new UntypedType(); // TODO is this correct?
-					// throw new RuntimeException();
+				TLAType t = getType(symbolNode, paramId);
+				if (t == null) { // no temp type
+					t = getType(symbolNode);
+					if (t == null) { // no type at all
+						t = new UntypedType(); // TODO is this correct?
+						// throw new RuntimeException();
+					}
 				}
 				try {
 					TLAType result = expected.unify(t);
-					symbolNode.setToolObject(paramId, result);
+					setType(symbolNode, result, paramId);
 					return result;
 				} catch (UnificationException e) {
 					throw new TypeErrorException(String.format("Expected %s, found %s at parameter '%s',%n%s", expected, t,
-						pName, n.getLocation()));
+						symbolNode.getName(), n.getLocation()));
 				}
 			}
 
@@ -310,44 +290,35 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 					return evalBBuiltIns(n, expected);
 				}
 
-				TLAType found = ((TLAType) def.getToolObject(TYPE_ID));
+				TLAType found = getType(def);
 				if (found == null) {
 					found = new UntypedType();
-					// throw new RuntimeException(def.getName() +
-					// " has no type yet!");
+					// throw new RuntimeException(def.getName() + " has no type yet!");
 				}
 				if (n.getArgs().length != 0) {
 					found = found.cloneTLAType();
 				}
+				found = unify(found, expected, def.getName().toString(), def);
 
-				try {
-					found = found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found %s at definition '%s',%n%s", expected,
-						found, def.getName(), n.getLocation()));
-				}
 				boolean untyped = false;
 				FormalParamNode[] params = def.getParams();
 				for (int i = 0; i < n.getArgs().length; i++) {
 					// clone the parameter type, because the parameter type is not
 					// set/changed at a definition call
 					FormalParamNode p = params[i];
-					TLAType pType = ((TLAType) p.getToolObject(TYPE_ID));
+					TLAType pType = getType(p);
 					if (pType == null) {
 						pType = new UntypedType();
-						// throw new RuntimeException("Parameter " + p.getName()
-						// + " has no type yet!%n" + p.getLocation());
+						// throw new RuntimeException("Parameter " + p.getName() + " has no type yet!%n" + p.getLocation());
 					}
 					pType = pType.cloneTLAType();
 					if (pType.isUntyped())
 						untyped = true;
 
-					pType = visitExprOrOpArgNode(n.getArgs()[i], pType); // unify
-					// both
-					// types
-					// set types of the arguments of the definition call to the
-					// parameters for reevaluation the def body
-					p.setToolObject(TEMP_TYPE_ID, pType);
+					pType = visitExprOrOpArgNode(n.getArgs()[i], pType);
+					// unify both types,
+					// set types of the arguments of the definition call to the parameters for reevaluation the def body
+					setType(p, pType, TEMP_TYPE_ID);
 				}
 
 				if (found.isUntyped() || untyped || !def.getInRecursive()) {
@@ -357,17 +328,13 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 					paramId = TYPE_ID;
 				}
 
-				n.setToolObject(TYPE_ID, found);
-
+				setType(n, found);
 				return found;
-
 			}
 
-			default: {
+			default:
 				throw new NotImplementedException(n.getOperator().getName().toString());
-			}
 		}
-
 	}
 
 	private TLAType evalBuiltInKind(OpApplNode n, TLAType expected) throws TLA2BException {
