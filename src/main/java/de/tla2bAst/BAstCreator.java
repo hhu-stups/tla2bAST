@@ -38,7 +38,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 	private List<OpDeclNode> bConstants;
 
 	private final ModuleNode moduleNode;
-	private UsedExternalFunctions usedExternalFunctions;
 
 	private final Definitions bDefinitions = new Definitions();
 
@@ -90,7 +89,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 		this.moduleNode = moduleNode;
 		this.specAnalyser = specAnalyser;
 
-		this.usedExternalFunctions = new UsedExternalFunctions(moduleNode, specAnalyser);
 		this.predicateVsExpression = new PredicateVsExpression(moduleNode);
 		this.bMacroHandler = new BMacroHandler(specAnalyser, conEval);
 		this.recursiveFunctionHandler = new RecursiveFunctionHandler(specAnalyser);
@@ -175,7 +173,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 			}
 		}
 
-		Set<EXTERNAL_FUNCTIONS> set = usedExternalFunctions.getUsedExternalFunctions();
+		Set<EXTERNAL_FUNCTIONS> set = new UsedExternalFunctions(moduleNode, specAnalyser).getUsedExternalFunctions();
 		List<PDefinition> defs = new ArrayList<>(createDefinitionsForExternalFunctions(set));
 
 		for (OpDefNode opDefNode : bDefs) {
