@@ -76,7 +76,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 
 		File tempFile;
 		try {
-			tempFile = File.createTempFile("Testing", ".tla");
+			tempFile = File.createTempFile("Expression", ".tla");
 		} catch (IOException e) {
 			throw new ExpressionTranslationException("Can not create temporary file in directory '" + dir + "'");
 		}
@@ -142,12 +142,18 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 		}
 	}
 
+	/**
+	 * translate a standalone TLA+ expression without any context
+	 */
 	public static Start translate(String tlaExpression) {
 		ExpressionTranslator expressionTranslator = new ExpressionTranslator(tlaExpression);
 		expressionTranslator.parse();
 		return expressionTranslator.translate();
 	}
 
+	/**
+	 * translate a TLA+ expression in the context of another module, given its translator
+	 */
 	public static Start translate(String tlaExpression, Translator translator) {
 		ExpressionTranslator expressionTranslator = new ExpressionTranslator(tlaExpression, translator);
 		expressionTranslator.parse();
