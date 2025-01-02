@@ -17,7 +17,7 @@ import java.util.Map.Entry;
 public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlobals {
 
 	private static final int TEMP_TYPE_ID = 6;
-	private int paramId;
+	private int paramId = TYPE_ID;
 
 	private List<ExprNode> inits;
 	private ExprNode nextExpr;
@@ -50,7 +50,6 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 		this.nextExpr = specAnalyser.getNext();
 		this.usedDefinitions = specAnalyser.getUsedDefinitions();
 		this.bDefinitions = specAnalyser.getBDefinitions();
-		this.paramId = TYPE_ID;
 	}
 
 	/**
@@ -63,7 +62,6 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 		// use the last definition of the module
 		this.usedDefinitions = Collections.singleton(defs[defs.length - 1]);
 		this.bDefinitions = specAnalyser.getBDefinitions();
-		this.paramId = TYPE_ID;
 	}
 
 	public void start() throws TLA2BException {
@@ -338,15 +336,12 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 	}
 
 	private TLAType evalBuiltInKind(OpApplNode n, TLAType expected) throws TLA2BException {
-
 		switch (getOpCode(n.getOperator().getName())) {
-
 			/*
-			 * equality and disequality: =, #, /=
+			 * equality and inequality: =, #, /=
 			 */
 			case OPCODE_eq: // =
-			case OPCODE_noteq: // /=, #
-			{
+			case OPCODE_noteq: { // /=, #
 				TLAType opType = unify(BoolType.getInstance(), expected, n);
 				TLAType left = visitExprOrOpArgNode(n.getArgs()[0], new UntypedType());
 				visitExprOrOpArgNode(n.getArgs()[1], left);
@@ -363,8 +358,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			case OPCODE_land: // \land
 			case OPCODE_lor: // \lor
 			case OPCODE_equiv: // \equiv
-			case OPCODE_implies: // =>
-			{
+			case OPCODE_implies: { // =>
 				TLAType opType = unify(BoolType.getInstance(), expected, n);
 				for (int i = 0; i < n.getArgs().length; i++) {
 					visitExprOrOpArgNode(n.getArgs()[i], BoolType.getInstance());
@@ -376,8 +370,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			 * Quantification: \A x \in S : P or \E x \in S : P
 			 */
 			case OPCODE_be: // \E x \in S : P
-			case OPCODE_bf: // \A x \in S : P
-			{
+			case OPCODE_bf: { // \A x \in S : P
 				TLAType opType = unify(BoolType.getInstance(), expected, n);
 				evalBoundedVariables(n);
 				visitExprOrOpArgNode(n.getArgs()[0], BoolType.getInstance());
@@ -387,19 +380,17 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			/*
 			 * Set Operators
 			 */
-			case OPCODE_se: // SetEnumeration {..}
-			{
+			case OPCODE_se: { // SetEnumeration {..}
 				SetType found = (SetType) unify(new SetType(new UntypedType()), expected, n);
 				TLAType current = found.getSubType();
-				for (int i = 0; i < n.getArgs().length; i++) {
-					current = visitExprOrOpArgNode(n.getArgs()[i], current);
+				for (ExprOrOpArgNode arg : n.getArgs()) {
+					current = visitExprOrOpArgNode(arg, current);
 				}
 				return found;
 			}
 
 			case OPCODE_in: // \in
-			case OPCODE_notin: // \notin
-			{
+			case OPCODE_notin: { // \notin
 				TLAType boolType = unify(BoolType.getInstance(), expected, n);
 				TLAType element = visitExprOrOpArgNode(n.getArgs()[0], new UntypedType());
 				visitExprOrOpArgNode(n.getArgs()[1], new SetType(element));
@@ -408,15 +399,13 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 
 			case OPCODE_setdiff: // set difference
 			case OPCODE_cup: // set union
-			case OPCODE_cap: // set intersection
-			{
+			case OPCODE_cap: { // set intersection
 				TLAType found = unify(new SetType(new UntypedType()), expected, n);
 				TLAType left = visitExprOrOpArgNode(n.getArgs()[0], found);
 				return visitExprOrOpArgNode(n.getArgs()[1], left); // right
 			}
 
-			case OPCODE_subseteq: // \subseteq - subset or equal
-			{
+			case OPCODE_subseteq: { // \subseteq - subset or equal
 				TLAType boolType = unify(BoolType.getInstance(), expected, n);
 				TLAType left = visitExprOrOpArgNode(n.getArgs()[0], new SetType(new UntypedType()));
 				visitExprOrOpArgNode(n.getArgs()[1], left);
@@ -426,31 +415,26 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			/*
 			 * Set Constructor
 			 */
-			case OPCODE_sso: // $SubsetOf Represents {x \in S : P}
-			{
-
+			case OPCODE_sso: { // $SubsetOf Represents {x \in S : P}
 				SetType found = (SetType) unify(new SetType(evalBoundedVariables(n)), expected, n);
 				visitExprOrOpArgNode(n.getArgs()[0], BoolType.getInstance());
 				return found;
 			}
 
-			case OPCODE_soa: // $SetOfAll Represents {e : p1 \in S, p2,p3 \in S2}
-			{
+			case OPCODE_soa: { // $SetOfAll Represents {e : p1 \in S, p2,p3 \in S2}
 				SetType found = (SetType) unify(new SetType(new UntypedType()), expected, n);
 				evalBoundedVariables(n);
 				visitExprOrOpArgNode(n.getArgs()[0], found.getSubType());
 				return found;
 			}
 
-			case OPCODE_subset: // SUBSET (conforms POW in B)
-			{
+			case OPCODE_subset: { // SUBSET (conforms POW in B)
 				SetType found = (SetType) unify(new SetType(new UntypedType()), expected, n);
 				visitExprOrOpArgNode(n.getArgs()[0], found.getSubType());
 				return found;
 			}
 
-			case OPCODE_union: // Union - Union{{1},{2}}
-			{
+			case OPCODE_union: { // Union - Union{{1},{2}}
 				TLAType found = unify(new SetType(new UntypedType()), expected, n);
 				SetType setOfSet = (SetType) visitExprOrOpArgNode(n.getArgs()[0], new SetType(found));
 				return setOfSet.getSubType();
@@ -459,8 +443,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			/*
 			 * Prime
 			 */
-			case OPCODE_prime: // prime
-			{
+			case OPCODE_prime: { // prime
 				try {
 					OpApplNode node = (OpApplNode) n.getArgs()[0];
 					if (node.getOperator().getKind() != VariableDeclKind) {
@@ -478,9 +461,9 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			 * Tuple: Tuple as Function 1..n to Set (Sequence)
 			 */
 			case OPCODE_tup: { // $Tuple
-				ArrayList<TLAType> list = new ArrayList<>();
-				for (int i = 0; i < n.getArgs().length; i++) {
-					list.add(visitExprOrOpArgNode(n.getArgs()[i], new UntypedType()));
+				List<TLAType> list = new ArrayList<>();
+				for (ExprOrOpArgNode arg : n.getArgs()) {
+					list.add(visitExprOrOpArgNode(arg, new UntypedType()));
 				}
 				TLAType found;
 				if (list.isEmpty()) {
@@ -498,10 +481,8 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			/*
 			 * Function constructors
 			 */
-			case OPCODE_rfs: // recursive function ( f[x\in Nat] == IF x = 0 THEN 1
+			case OPCODE_rfs: { // recursive function ( f[x\in Nat] == IF x = 0 THEN 1
 				// ELSE f[n-1]
-			{
-
 				FormalParamNode recFunc = n.getUnbdedQuantSymbols()[0];
 				symbolNodeList.add(recFunc);
 				setTypeAndFollowers(recFunc, new FunctionType());
@@ -515,8 +496,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			}
 
 			case OPCODE_nrfs: // succ[n \in Nat] == n + 1
-			case OPCODE_fc: // [n \in Nat |-> n+1]
-			{
+			case OPCODE_fc: { // [n \in Nat |-> n+1]
 				TLAType domainType = evalBoundedVariables(n);
 				FunctionType found = new FunctionType(domainType, new UntypedType());
 				visitExprOrOpArgNode(n.getArgs()[0], found.getRange());
@@ -526,8 +506,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			/*
 			 * Function call
 			 */
-			case OPCODE_fa: // $FcnApply f[1]
-			{
+			case OPCODE_fa: { // $FcnApply f[1]
 				TLAType domType;
 				ExprOrOpArgNode dom = n.getArgs()[1];
 				if (dom instanceof OpApplNode && ((OpApplNode) dom).getOperator().getName().equals("$Tuple")) {
@@ -553,23 +532,21 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 				FunctionType func = new FunctionType(domType, expected);
 				TLAType res = visitExprOrOpArgNode(n.getArgs()[0], func);
 				return ((FunctionType) res).getRange();
-
 			}
 
 			/*
 			 * Domain of Function
 			 */
 			case OPCODE_domain: {
-
 				FunctionType func = new FunctionType(new UntypedType(), new UntypedType());
 				func = (FunctionType) visitExprOrOpArgNode(n.getArgs()[0], func);
 				return unify(new SetType(func.getDomain()), expected, n);
 			}
+
 			/*
-			 * Set of Function
+			 * Set of Functions
 			 */
-			case OPCODE_sof: // [ A -> B]
-			{
+			case OPCODE_sof: { // [ A -> B]
 				SetType A = (SetType) visitExprOrOpArgNode(n.getArgs()[0], new SetType(new UntypedType()));
 				SetType B = (SetType) visitExprOrOpArgNode(n.getArgs()[1], new SetType(new UntypedType()));
 
@@ -582,16 +559,13 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			 * Except
 			 */
 			case OPCODE_exc: // $Except
-			{
 				return evalExcept(n, expected);
-			}
 
 			/*
 			 * Cartesian Product: A \X B
 			 */
-			case OPCODE_cp: // $CartesianProd A \X B \X C as $CartesianProd(A, B, C)
-			{
-				ArrayList<TLAType> list = new ArrayList<>();
+			case OPCODE_cp: { // $CartesianProd A \X B \X C as $CartesianProd(A, B, C)
+				List<TLAType> list = new ArrayList<>();
 				for (int i = 0; i < n.getArgs().length; i++) {
 					SetType t = (SetType) visitExprOrOpArgNode(n.getArgs()[i], new SetType(new UntypedType()));
 					list.add(t.getSubType());
@@ -604,8 +578,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			/*
 			 * Records
 			 */
-			case OPCODE_sor: // $SetOfRcds [L1 : e1, L2 : e2]
-			{
+			case OPCODE_sor: { // $SetOfRcds [L1 : e1, L2 : e2]
 				StructType struct = new StructType();
 				for (int i = 0; i < n.getArgs().length; i++) {
 					OpApplNode pair = (OpApplNode) n.getArgs()[i];
@@ -613,12 +586,10 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 					SetType fieldType = (SetType) visitExprOrOpArgNode(pair.getArgs()[1], new SetType(new UntypedType()));
 					struct.add(field.getRep().toString(), fieldType.getSubType());
 				}
-
 				return unifyAndSetTypeWithFollowers(new SetType(struct), expected, "set of records", n);
 			}
 
-			case OPCODE_rc: // [h_1 |-> 1, h_2 |-> 2]
-			{
+			case OPCODE_rc: { // [h_1 |-> 1, h_2 |-> 2]
 				StructType found = new StructType();
 				for (int i = 0; i < n.getArgs().length; i++) {
 					OpApplNode pair = (OpApplNode) n.getArgs()[i];
@@ -629,8 +600,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 				return unifyAndSetTypeWithFollowers(found, expected, "record constructor", n);
 			}
 
-			case OPCODE_rs: // $RcdSelect r.c
-			{
+			case OPCODE_rs: { // $RcdSelect r.c
 				String fieldName = ((StringNode) n.getArgs()[1]).getRep().toString();
 				StructType r = (StructType) visitExprOrOpArgNode(n.getArgs()[0], StructType.getIncompleteStruct());
 
@@ -650,8 +620,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			/*
 			 * miscellaneous constructs
 			 */
-			case OPCODE_ite: // IF THEN ELSE
-			{
+			case OPCODE_ite: { // IF THEN ELSE
 				visitExprOrOpArgNode(n.getArgs()[0], BoolType.getInstance());
 				TLAType then = visitExprOrOpArgNode(n.getArgs()[1], expected);
 				TLAType eelse = visitExprOrOpArgNode(n.getArgs()[2], then);
@@ -660,12 +629,9 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			}
 
 			case OPCODE_case: {
-				/*
-				 * CASE p1 -> e1 [] p2 -> e2 represented as $Case( $Pair(p1,
-				 * e1),$Pair(p2, e2) ) and CASE p1 -> e1 [] p2 -> e2 [] OTHER -> e3
-				 * represented as $Case( $Pair(p1, e1), $Pair(p2, e2), $Pair(null,
-				 * e3))
-				 */
+				/* CASE p1 -> e1 [] p2 -> e2 represented as $Case( $Pair(p1,e1),$Pair(p2, e2) )
+				 * and CASE p1 -> e1 [] p2 -> e2 [] OTHER -> e3
+				 * represented as $Case( $Pair(p1, e1), $Pair(p2, e2), $Pair(null, e3)) */
 				TLAType found = expected;
 				for (int i = 0; i < n.getArgs().length; i++) {
 					OpApplNode pair = (OpApplNode) n.getArgs()[i];
@@ -675,7 +641,6 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 					found = visitExprOrOpArgNode(pair.getArgs()[1], found);
 				}
 				return found;
-
 			}
 
 			case OPCODE_uc: {
@@ -721,7 +686,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 	}
 
 	private TLAType evalBoundedVariables(OpApplNode n) throws TLA2BException {
-		ArrayList<TLAType> domList = new ArrayList<>();
+		List<TLAType> domList = new ArrayList<>();
 		FormalParamNode[][] params = n.getBdedQuantSymbolLists();
 		ExprNode[] bounds = n.getBdedQuantBounds();
 		for (int i = 0; i < bounds.length; i++) {
@@ -745,11 +710,8 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 						symbolNodeList.add(p);
 						setTypeAndFollowers(p, tuple.getTypes().get(j));
 					}
-
 				}
-
-			} else {
-				// is not a tuple: all parameter have the same type
+			} else { // is not a tuple: all parameter have the same type
 				for (int j = 0; j < params[i].length; j++) {
 					domList.add(subType);
 					FormalParamNode p = params[i][j];
@@ -758,14 +720,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 				}
 			}
 		}
-
-		TLAType domType;
-		if (domList.size() == 1) {
-			domType = domList.get(0);
-		} else {
-			domType = new TupleType(domList);
-		}
-		return domType;
+		return domList.size() == 1 ? domList.get(0) : new TupleType(domList);
 	}
 
 	private TLAType evalExcept(OpApplNode n, TLAType expected) throws TLA2BException {
@@ -807,7 +762,6 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			}
 		}
 		return t;
-
 	}
 
 	private TLAType evalType(LinkedList<ExprOrOpArgNode> list, TLAType valueType) throws TLA2BException {
@@ -818,12 +772,10 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 		if (head instanceof StringNode) {
 			// record or function of strings
 			String name = ((StringNode) head).getRep().toString();
-			StructOrFunctionType res = new StructOrFunctionType(name, evalType(list, valueType));
-			return res;
+			return new StructOrFunctionType(name, evalType(list, valueType));
 		}
 		TLAType t = visitExprOrOpArgNode(head, new UntypedType());
-		FunctionType res = new FunctionType(t, evalType(list, valueType));
-		return res;
+		return new FunctionType(t, evalType(list, valueType));
 	}
 
 	private TLAType evalBBuiltIns(OpApplNode n, TLAType expected) throws TLA2BException {
