@@ -69,18 +69,18 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 	public void start() throws TLA2BException {
 		for (OpDeclNode con : moduleNode.getConstantDecls()) {
 			if (constantAssignments != null && constantAssignments.containsKey(con)) {
-				setType(con, constantAssignments.get(con).getType());
+				setTypeAndFollowers(con, constantAssignments.get(con).getType());
 			} else {
 				// if constant already has a type: keep type; otherwise add an untyped type
-				if (con.getToolObject(TYPE_ID) == null)
-					setType(con, new UntypedType());
+				if (getType(con) == null)
+					setTypeAndFollowers(con, new UntypedType());
 			}
 		}
 
 		for (OpDeclNode var : moduleNode.getVariableDecls()) {
 			// if variable already has a type: keep type; otherwise add an untyped type
-			if (var.getToolObject(TYPE_ID) == null)
-				setType(var, new UntypedType());
+			if (getType(var) == null)
+				setTypeAndFollowers(var, new UntypedType());
 		}
 
 		evalDefinitions(moduleNode.getOpDefs());
@@ -175,13 +175,13 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 				throw new TLA2BFrontEndException(String.format("TLA2B do not support 2nd-order operators: '%s'%n %s ",
 					def.getName(), def.getLocation()));
 			}
-			setType(p, new UntypedType(), paramId);
+			setTypeAndFollowers(p, new UntypedType(), paramId);
 		}
 		UntypedType u = new UntypedType();
 		// TODO: check this
 		// def.setToolObject(TYPE_ID, u);
 		// u.addFollower(def);
-		setType(def, visitExprNode(def.getBody(), u));
+		setTypeAndFollowers(def, visitExprNode(def.getBody(), u));
 	}
 
 	private void evalAssumptions(AssumeNode[] assumptions) throws TLA2BException {
@@ -875,7 +875,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 				for (FormalParamNode param : n.getUnbdedQuantSymbols()) {
 					TLAType paramType = new UntypedType();
 					symbolNodeList.add(param);
-					setType(param, paramType);
+					setTypeAndFollowers(param, paramType);
 					list.add(paramType);
 				}
 				TLAType found;
@@ -884,17 +884,9 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 				} else {
 					found = new TupleType(list);
 				}
-				try {
-					found = found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found %s at 'CHOOSE',%n%s", expected, found, n.getLocation()));
-				}
-				setType(n, found);
+				found = unifyAndSetTypeWithFollowers(found, expected, n.getOperator().getName().toString(), n);
 				visitExprOrOpArgNode(n.getArgs()[0], BoolType.getInstance());
-
-				return getType(n);
-
+				return found;
 			}
 
 			case OPCODE_bc: { // CHOOSE x \in S: P
