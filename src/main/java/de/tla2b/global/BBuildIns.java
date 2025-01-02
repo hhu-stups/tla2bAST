@@ -18,6 +18,7 @@ public interface BBuildIns extends ToolGlobals {
 	UniqueString OP_nat = UniqueString.uniqueStringOf("Nat");
 	UniqueString OP_int = UniqueString.uniqueStringOf("Int");
 	UniqueString OP_real = UniqueString.uniqueStringOf("Real");
+	UniqueString OP_infinity = UniqueString.uniqueStringOf("Infinity");
 	UniqueString OP_bool = UniqueString.uniqueStringOf("BOOLEAN");
 	UniqueString OP_true = UniqueString.uniqueStringOf("TRUE");
 	UniqueString OP_false = UniqueString.uniqueStringOf("FALSE");
@@ -98,4 +99,5 @@ public interface BBuildIns extends ToolGlobals {
 
 	int B_OPCODE_real = B_OPCODE_assert + 1;
 	int B_OPCODE_realdiv = B_OPCODE_assert + 2;
+	int B_OPCODE_infinity = B_OPCODE_assert + 3;
 }

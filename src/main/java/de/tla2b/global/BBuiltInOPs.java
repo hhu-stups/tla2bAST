@@ -29,6 +29,7 @@ public class BBuiltInOPs implements BBuildIns {
 		B_Opcodes.put(OP_nat, B_OPCODE_nat);
 		B_Opcodes.put(OP_int, B_OPCODE_int);
 		B_Opcodes.put(OP_real, B_OPCODE_real);
+		B_Opcodes.put(OP_infinity, B_OPCODE_infinity);
 		B_Opcodes.put(OP_string, B_OPCODE_string);
 
 		B_Opcodes.put(OP_finite, B_OPCODE_finite);
