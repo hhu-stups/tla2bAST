@@ -201,69 +201,33 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 		switch (exprNode.getKind()) {
 			case TLCValueKind: {
 				TLCValueNode valueNode = (TLCValueNode) exprNode;
-				try {
-					return valueNode.getType().unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found %s at '%s'(assigned in the configuration file),%n%s ",
-							expected, valueNode.getType(), valueNode.getValue(), exprNode.getLocation()));
-				}
+				return unify(valueNode.getType(), expected, valueNode.getValue().toString()
+						+ " (assigned in the configuration file)", exprNode);
 			}
-
 			case OpApplKind:
 				return visitOpApplNode((OpApplNode) exprNode, expected);
-
 			case NumeralKind:
-				try {
-					return IntType.getInstance().unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found INTEGER at '%s',%n%s ", expected,
-						((NumeralNode) exprNode).val(), exprNode.getLocation()));
-				}
-			case DecimalKind: {
-				try {
-					return RealType.getInstance().unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found REAL at '%s',%n%s ", expected,
-						exprNode, exprNode.getLocation()));
-				}
-			}
-			case StringKind: {
-				try {
-					return StringType.getInstance().unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found STRING at '%s',%n%s ", expected,
-						((StringNode) exprNode).getRep(), exprNode.getLocation()));
-				}
-			}
+				return unify(IntType.getInstance(), expected, exprNode.toString(), exprNode);
+			case DecimalKind:
+				return unify(RealType.getInstance(), expected, exprNode.toString(), exprNode);
+			case StringKind:
+				return unify(StringType.getInstance(), expected, ((StringNode) exprNode).getRep().toString(), exprNode);
 			case AtNodeKind: { // @
-				AtNode a = (AtNode) exprNode;
-				OpApplNode pair2 = a.getExceptComponentRef();
-				ExprOrOpArgNode rightside = pair2.getArgs()[1];
-				TLAType type = (TLAType) rightside.getToolObject(TYPE_ID);
-				try {
-					TLAType res = type.unify(expected);
-					setType(exprNode, res);
-					return res;
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found %s at '@',%n%s ", expected, type, exprNode.getLocation()));
-				}
+				TLAType type = getType((((AtNode) exprNode).getExceptComponentRef()).getArgs()[1]); // right side
+				return unifyAndSetTypeWithFollowers(type, expected, "@", exprNode);
 			}
-
 			case LetInKind: {
 				LetInNode l = (LetInNode) exprNode;
-				for (int i = 0; i < l.getLets().length; i++) {
-					visitOpDefNode(l.getLets()[i]);
+				for (OpDefNode let : l.getLets()) {
+					visitOpDefNode(let);
 				}
 				return visitExprNode(l.getBody(), expected);
 			}
-
-			case SubstInKind: {
+			case SubstInKind:
 				throw new RuntimeException("SubstInKind should never occur after InstanceTransformation");
-			}
+			default: // should be only LabelKind
+				throw new NotImplementedException("ExprNode not yet supported: " + exprNode.toString(2));
 		}
-		throw new NotImplementedException(exprNode.toString(2));
 	}
 
 	private TLAType visitOpApplNode(OpApplNode n, TLAType expected) throws TLA2BException {
