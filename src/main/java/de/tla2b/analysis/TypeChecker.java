@@ -7,6 +7,7 @@ import de.tla2b.global.BBuildIns;
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.global.TranslationGlobals;
 import de.tla2b.types.*;
+import de.tla2b.util.DebugUtils;
 import tla2sany.semantic.*;
 import tlc2.tool.BuiltInOPs;
 
