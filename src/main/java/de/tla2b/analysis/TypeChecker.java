@@ -347,15 +347,10 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			case OPCODE_eq: // =
 			case OPCODE_noteq: // /=, #
 			{
-				try {
-					BoolType.getInstance().unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found BOOL at '%s',%n%s", expected,
-						n.getOperator().getName(), n.getLocation()));
-				}
-				TLAType left = visitExprOrOpArgNode(n.getArgs()[0], new de.tla2b.types.UntypedType());
+				TLAType opType = unify(BoolType.getInstance(), expected, n);
+				TLAType left = visitExprOrOpArgNode(n.getArgs()[0], new UntypedType());
 				visitExprOrOpArgNode(n.getArgs()[1], left);
-				return BoolType.getInstance();
+				return opType;
 			}
 
 			/*
@@ -370,16 +365,11 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			case OPCODE_equiv: // \equiv
 			case OPCODE_implies: // =>
 			{
-				try {
-					BoolType.getInstance().unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found BOOL at '%s',%n%s", expected,
-						n.getOperator().getName(), n.getLocation()));
-				}
+				TLAType opType = unify(BoolType.getInstance(), expected, n);
 				for (int i = 0; i < n.getArgs().length; i++) {
 					visitExprOrOpArgNode(n.getArgs()[i], BoolType.getInstance());
 				}
-				return BoolType.getInstance();
+				return opType;
 			}
 
 			/*
@@ -388,15 +378,10 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			case OPCODE_be: // \E x \in S : P
 			case OPCODE_bf: // \A x \in S : P
 			{
-				try {
-					BoolType.getInstance().unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found BOOL at '%s',%n%s", expected,
-						n.getOperator().getName(), n.getLocation()));
-				}
+				TLAType opType = unify(BoolType.getInstance(), expected, n);
 				evalBoundedVariables(n);
 				visitExprOrOpArgNode(n.getArgs()[0], BoolType.getInstance());
-				return BoolType.getInstance();
+				return opType;
 			}
 
 			/*
@@ -404,13 +389,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			 */
 			case OPCODE_se: // SetEnumeration {..}
 			{
-				SetType found = new SetType(new UntypedType());
-				try {
-					found = found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found POW(_A) at set enumeration,%n%s", expected, n.getLocation()));
-				}
+				SetType found = (SetType) unify(new SetType(new UntypedType()), expected, n);
 				TLAType current = found.getSubType();
 				for (int i = 0; i < n.getArgs().length; i++) {
 					current = visitExprOrOpArgNode(n.getArgs()[i], current);
@@ -421,43 +400,27 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			case OPCODE_in: // \in
 			case OPCODE_notin: // \notin
 			{
-				if (!BoolType.getInstance().compare(expected)) {
-					throw new TypeErrorException(String.format("Expected %s, found BOOL at '%s',%n%s", expected,
-						n.getOperator().getName(), n.getLocation()));
-				}
+				TLAType boolType = unify(BoolType.getInstance(), expected, n);
 				TLAType element = visitExprOrOpArgNode(n.getArgs()[0], new UntypedType());
 				visitExprOrOpArgNode(n.getArgs()[1], new SetType(element));
-
-				return BoolType.getInstance();
+				return boolType;
 			}
 
 			case OPCODE_setdiff: // set difference
 			case OPCODE_cup: // set union
 			case OPCODE_cap: // set intersection
 			{
-				SetType found = new SetType(new UntypedType());
-				try {
-					found = found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found POW(_A) at '%s',%n%s", expected,
-						n.getOperator().getName(), n.getLocation()));
-				}
+				TLAType found = unify(new SetType(new UntypedType()), expected, n);
 				TLAType left = visitExprOrOpArgNode(n.getArgs()[0], found);
-				TLAType right = visitExprOrOpArgNode(n.getArgs()[1], left);
-				return right;
+				return visitExprOrOpArgNode(n.getArgs()[1], left); // right
 			}
 
 			case OPCODE_subseteq: // \subseteq - subset or equal
 			{
-				try {
-					BoolType.getInstance().unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found BOOL at '%s',%n%s", expected,
-						n.getOperator().getName(), n.getLocation()));
-				}
+				TLAType boolType = unify(BoolType.getInstance(), expected, n);
 				TLAType left = visitExprOrOpArgNode(n.getArgs()[0], new SetType(new UntypedType()));
 				visitExprOrOpArgNode(n.getArgs()[1], left);
-				return BoolType.getInstance();
+				return boolType;
 			}
 
 			/*
@@ -466,27 +429,14 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			case OPCODE_sso: // $SubsetOf Represents {x \in S : P}
 			{
 
-				TLAType domainType = evalBoundedVariables(n);
-				SetType found = new SetType(domainType);
-				try {
-					found = found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found %s at '%s',%n%s", expected, found,
-						n.getOperator().getName(), n.getLocation()));
-				}
+				SetType found = (SetType) unify(new SetType(evalBoundedVariables(n)), expected, n);
 				visitExprOrOpArgNode(n.getArgs()[0], BoolType.getInstance());
 				return found;
 			}
 
 			case OPCODE_soa: // $SetOfAll Represents {e : p1 \in S, p2,p3 \in S2}
 			{
-				SetType found = new SetType(new UntypedType());
-				try {
-					found = found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found POW(_A) at '%s',%n%s", expected,
-						n.getOperator().getName(), n.getLocation()));
-				}
+				SetType found = (SetType) unify(new SetType(new UntypedType()), expected, n);
 				evalBoundedVariables(n);
 				visitExprOrOpArgNode(n.getArgs()[0], found.getSubType());
 				return found;
@@ -494,26 +444,14 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 
 			case OPCODE_subset: // SUBSET (conforms POW in B)
 			{
-				SetType found = new SetType(new UntypedType());
-				try {
-					found = found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found POW(_A) at 'SUBSET',%n%s", expected, n.getLocation()));
-				}
+				SetType found = (SetType) unify(new SetType(new UntypedType()), expected, n);
 				visitExprOrOpArgNode(n.getArgs()[0], found.getSubType());
 				return found;
 			}
 
 			case OPCODE_union: // Union - Union{{1},{2}}
 			{
-				SetType found = new SetType(new UntypedType());
-				try {
-					found = found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found POW(_A) at 'SUBSET',%n%s", expected, n.getLocation()));
-				}
+				TLAType found = unify(new SetType(new UntypedType()), expected, n);
 				SetType setOfSet = (SetType) visitExprOrOpArgNode(n.getArgs()[0], new SetType(found));
 				return setOfSet.getSubType();
 			}
@@ -553,18 +491,8 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 					found = TupleOrFunction.createTupleOrFunctionType(list);
 					// found = new TupleType(list);
 				}
-				try {
-					found = found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found %s at Tuple,%n%s", expected, found, n.getLocation()));
-				}
-				n.setToolObject(TYPE_ID, found);
 				tupleNodeList.add(n);
-				if (found instanceof AbstractHasFollowers) {
-					((AbstractHasFollowers) found).addFollower(n);
-				}
-				return found;
+				return unifyAndSetTypeWithFollowers(found, expected, "tuple", n);
 			}
 
 			/*
@@ -576,29 +504,14 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 
 				FormalParamNode recFunc = n.getUnbdedQuantSymbols()[0];
 				symbolNodeList.add(recFunc);
-				FunctionType recType = new FunctionType();
-				recFunc.setToolObject(TYPE_ID, recType);
-				recType.addFollower(recFunc);
+				setTypeAndFollowers(recFunc, new FunctionType());
 
 				TLAType domainType = evalBoundedVariables(n);
 				FunctionType found = new FunctionType(domainType, new UntypedType());
 				visitExprOrOpArgNode(n.getArgs()[0], found.getRange());
 
-				try {
-					found = (FunctionType) found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException("Expected '" + expected + "', found '" + found + "'.\n" + n.getLocation());
-				}
-
-				TLAType t = null;
-				try {
-					t = (TLAType) recFunc.getToolObject(TYPE_ID);
-					found = (FunctionType) found.unify(t);
-				} catch (UnificationException e) {
-					throw new TypeErrorException("Expected '" + expected + "', found '" + t + "'.\n" + n.getLocation());
-				}
-
-				return found;
+				found = (FunctionType) unify(found, expected, n);
+				return unify(found, getType(recFunc), n);
 			}
 
 			case OPCODE_nrfs: // succ[n \in Nat] == n + 1
@@ -607,13 +520,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 				TLAType domainType = evalBoundedVariables(n);
 				FunctionType found = new FunctionType(domainType, new UntypedType());
 				visitExprOrOpArgNode(n.getArgs()[0], found.getRange());
-
-				try {
-					found = (FunctionType) found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException("Expected '" + expected + "', found '" + found + "'.\n" + n.getLocation());
-				}
-				return found;
+				return unify(found, expected, n);
 			}
 
 			/*
@@ -623,50 +530,25 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			{
 				TLAType domType;
 				ExprOrOpArgNode dom = n.getArgs()[1];
-				if (dom instanceof OpApplNode && ((OpApplNode) dom).getOperator().getName().toString().equals("$Tuple")) {
-					ArrayList<TLAType> domList = new ArrayList<>();
-					OpApplNode domOpAppl = (OpApplNode) dom;
-					for (int i = 0; i < domOpAppl.getArgs().length; i++) {
-						TLAType d = visitExprOrOpArgNode(domOpAppl.getArgs()[i], new UntypedType());
-						domList.add(d);
+				if (dom instanceof OpApplNode && ((OpApplNode) dom).getOperator().getName().equals("$Tuple")) {
+					List<TLAType> domList = new ArrayList<>();
+					for (ExprOrOpArgNode arg : ((OpApplNode) dom).getArgs()) {
+						domList.add(visitExprOrOpArgNode(arg, new UntypedType()));
 					}
+					domType = domList.size() == 1
+							? new FunctionType(IntType.getInstance(), domList.get(0)) // one-tuple
+							: new TupleType(domList);
+				} else if (dom instanceof NumeralNode) {
+					NumeralNode num = (NumeralNode) dom;
+					UntypedType u = new UntypedType();
+					setTypeAndFollowers(n, u);
 
-					if (domList.size() == 1) { // one-tuple
-						domType = new FunctionType(IntType.getInstance(), domList.get(0));
-						FunctionType func = new FunctionType(domType, expected);
-						TLAType res = visitExprOrOpArgNode(n.getArgs()[0], func);
-						return ((FunctionType) res).getRange();
-					} else {
-						domType = new TupleType(domList);
-						FunctionType func = new FunctionType(domType, expected);
-						TLAType res = visitExprOrOpArgNode(n.getArgs()[0], func);
-						return ((FunctionType) res).getRange();
-					}
+					TLAType res = visitExprOrOpArgNode(n.getArgs()[0], new TupleOrFunction(num.val(), u));
+					setTypeAndFollowers(n.getArgs()[0], res);
+					tupleNodeList.add(n.getArgs()[0]);
+					return unify(getType(n), expected, n.getArgs()[0].toString(), n);
 				} else {
-					ExprOrOpArgNode arg = n.getArgs()[1];
-					if (arg instanceof NumeralNode) {
-						NumeralNode num = (NumeralNode) arg;
-						UntypedType u = new UntypedType();
-						n.setToolObject(TYPE_ID, u);
-						u.addFollower(n);
-						TupleOrFunction tupleOrFunc = new TupleOrFunction(num.val(), u);
-
-						TLAType res = visitExprOrOpArgNode(n.getArgs()[0], tupleOrFunc);
-						n.getArgs()[0].setToolObject(TYPE_ID, res);
-						tupleNodeList.add(n.getArgs()[0]);
-						if (res instanceof AbstractHasFollowers) {
-							((AbstractHasFollowers) res).addFollower(n.getArgs()[0]);
-						}
-						TLAType found = (TLAType) n.getToolObject(TYPE_ID);
-						try {
-							found = found.unify(expected);
-						} catch (UnificationException e) {
-							throw new TypeErrorException("Expected '" + expected + "', found '" + found + "'.\n"
-								+ n.getArgs()[0].toString(2) + "\n" + n.getLocation());
-						}
-						return found;
-					}
-					domType = visitExprOrOpArgNode(n.getArgs()[1], new UntypedType());
+					domType = visitExprOrOpArgNode(dom, new UntypedType());
 				}
 				FunctionType func = new FunctionType(domType, expected);
 				TLAType res = visitExprOrOpArgNode(n.getArgs()[0], func);
@@ -681,14 +563,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 
 				FunctionType func = new FunctionType(new UntypedType(), new UntypedType());
 				func = (FunctionType) visitExprOrOpArgNode(n.getArgs()[0], func);
-				TLAType res;
-				try {
-					res = new SetType(func.getDomain()).unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected '%s', found '%s' at 'DOMAIN(..)',%n%s", expected,
-						func, n.getLocation()));
-				}
-				return res;
+				return unify(new SetType(func.getDomain()), expected, n);
 			}
 			/*
 			 * Set of Function
@@ -698,13 +573,8 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 				SetType A = (SetType) visitExprOrOpArgNode(n.getArgs()[0], new SetType(new UntypedType()));
 				SetType B = (SetType) visitExprOrOpArgNode(n.getArgs()[1], new SetType(new UntypedType()));
 
-				SetType found = new SetType(new FunctionType(A.getSubType(), B.getSubType()));
-				try {
-					found = found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected '%s', found '%s' at Set of Function,%n%s",
-						expected, found, n.getLocation()));
-				}
+				TLAType found = new SetType(new FunctionType(A.getSubType(), B.getSubType()));
+				found = unify(found, expected, "set of functions", n);
 				return found;
 			}
 
@@ -726,14 +596,8 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 					SetType t = (SetType) visitExprOrOpArgNode(n.getArgs()[i], new SetType(new UntypedType()));
 					list.add(t.getSubType());
 				}
-				SetType found = new SetType(new TupleType(list));
-				try {
-					found = found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found %s at Cartesian Product,%n%s", expected,
-						found, n.getLocation()));
-				}
-
+				TLAType found = new SetType(new TupleType(list));
+				found = unify(found, expected, "cartesian product", n);
 				return found;
 			}
 
@@ -750,16 +614,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 					struct.add(field.getRep().toString(), fieldType.getSubType());
 				}
 
-				SetType found = new SetType(struct);
-				try {
-					found = found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found %s at Set of Records,%n%s", expected,
-						found, n.getLocation()));
-				}
-				n.setToolObject(TYPE_ID, found);
-				found.addFollower(n);
-				return found;
+				return unifyAndSetTypeWithFollowers(new SetType(struct), expected, "set of records", n);
 			}
 
 			case OPCODE_rc: // [h_1 |-> 1, h_2 |-> 2]
@@ -771,17 +626,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 					TLAType fieldType = visitExprOrOpArgNode(pair.getArgs()[1], new UntypedType());
 					found.add(field.getRep().toString(), fieldType);
 				}
-				try {
-					found = found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found %s at Record,%n%s", expected, found, n.getLocation()));
-				}
-				n.setToolObject(TYPE_ID, found);
-				found.addFollower(n);
-
-				return found;
-
+				return unifyAndSetTypeWithFollowers(found, expected, "record constructor", n);
 			}
 
 			case OPCODE_rs: // $RcdSelect r.c
@@ -798,8 +643,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 					throw new TypeErrorException(String.format("Struct has no field %s with type %s: %s%n%s", fieldName,
 						r.getType(fieldName), r, n.getLocation()));
 				}
-				n.getArgs()[0].setToolObject(TYPE_ID, r);
-				r.addFollower(n.getArgs()[0]);
+				setTypeAndFollowers(n.getArgs()[0], r);
 				return r.getType(fieldName);
 			}
 
@@ -811,10 +655,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 				visitExprOrOpArgNode(n.getArgs()[0], BoolType.getInstance());
 				TLAType then = visitExprOrOpArgNode(n.getArgs()[1], expected);
 				TLAType eelse = visitExprOrOpArgNode(n.getArgs()[2], then);
-				n.setToolObject(TYPE_ID, eelse);
-				if (eelse instanceof AbstractHasFollowers) {
-					((AbstractHasFollowers) eelse).addFollower(n);
-				}
+				setTypeAndFollowers(n, eelse);
 				return eelse;
 			}
 
@@ -858,30 +699,25 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 
 			case OPCODE_bc: { // CHOOSE x \in S: P
 				TLAType found = evalBoundedVariables(n);
-				try {
-					found = found.unify(expected);
-				} catch (UnificationException e) {
-					throw new TypeErrorException(
-						String.format("Expected %s, found %s at 'CHOOSE',%n%s", expected, found, n.getLocation()));
-				}
+				found = unify(found, expected, n);
 				visitExprOrOpArgNode(n.getArgs()[0], BoolType.getInstance());
 				return found;
 			}
 
-			case OPCODE_unchanged: {
+			case OPCODE_unchanged:
 				return BoolType.getInstance().unify(expected);
 			}
 
 			/*
 			 * no TLA+ Built-ins
 			 */
-			case 0: {
+			case 0:
 				return evalBBuiltIns(n, expected);
-			}
-		}
 
-		throw new NotImplementedException(
-			"Not supported Operator: " + n.getOperator().getName() + "\n" + n.getLocation());
+			default:
+				throw new NotImplementedException(
+						"Not supported Operator: " + n.getOperator().getName() + "\n" + n.getLocation());
+		}
 	}
 
 	private TLAType evalBoundedVariables(OpApplNode n) throws TLA2BException {
