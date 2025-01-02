@@ -26,6 +26,12 @@ public class InstanceTest {
 	}
 
 	@Test
+	public void testModConstantAssignment() throws Exception {
+		String file = "src/test/resources/examples/instance/Counter/ModConstantAssignment.tla";
+		runModule(file);
+	}
+
+	@Test
 	public void testOneInstanced() throws Exception {
 		String file = "src/test/resources/examples/instance/Counter/OneInstanced.tla";
 		runModule(file);
