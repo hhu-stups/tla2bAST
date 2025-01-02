@@ -8,12 +8,12 @@ import java.util.Map;
 
 public class TlaUtils {
 
-	public static Map<String, OpDeclNode> getConstantsMap(OpDeclNode[] constantNodes) {
-		Map<String, OpDeclNode> constants = new HashMap<>();
-		for (OpDeclNode con : constantNodes) {
-			constants.put(con.getName().toString(), con);
+	public static Map<String, OpDeclNode> getDeclarationsMap(OpDeclNode[] declNodes) {
+		Map<String, OpDeclNode> decl = new HashMap<>();
+		for (OpDeclNode con : declNodes) {
+			decl.put(con.getName().toString(), con);
 		}
-		return constants;
+		return decl;
 	}
 
 	public static Map<String, OpDefNode> getOpDefsMap(OpDefNode[] opDefNodes) {

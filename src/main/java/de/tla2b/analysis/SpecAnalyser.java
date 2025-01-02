@@ -147,12 +147,10 @@ public class SpecAnalyser extends BuiltInOPs {
 		}
 		findRecursiveConstructs();
 
-		for (OpDeclNode var : moduleNode.getVariableDecls()) {
-			namingMap.put(var.getName().toString(), var);
-		}
+		namingMap.putAll(TlaUtils.getDeclarationsMap(moduleNode.getVariableDecls()));
 		DebugUtils.printMsg("Number of variables detected: " + moduleNode.getVariableDecls().length);
 
-		namingMap.putAll(TlaUtils.getConstantsMap(moduleNode.getConstantDecls()));
+		namingMap.putAll(TlaUtils.getDeclarationsMap(moduleNode.getConstantDecls()));
 		DebugUtils.printMsg("Number of constants detected: " + moduleNode.getConstantDecls().length);
 
 		namingMap.putAll(TlaUtils.getOpDefsMap(usedDefinitions.toArray(new OpDefNode[0])));
