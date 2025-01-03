@@ -997,15 +997,15 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 			}
 
 			case B_OPCODE_setsum: {
-				AGeneralSumExpression sum = new AGeneralSumExpression();
-				String variableName = "t_"; // TODO unused identifier name
-				sum.setIdentifiers(Collections.singletonList(createIdentifierNode(variableName)));
-				AMemberPredicate memberPredicate = new AMemberPredicate();
-				memberPredicate.setLeft(createIdentifierNode(variableName));
-				memberPredicate.setRight(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
-				sum.setPredicates(memberPredicate);
-				sum.setExpression(createIdentifierNode(variableName));
-				returnNode = sum;
+				AIdentifierExpression variable = createIdentifierNode("t_"); // TODO unused identifier name
+				returnNode = new AGeneralSumExpression(
+						Collections.singletonList(variable.clone()),
+						new AMemberPredicate(
+								variable.clone(),
+								visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0])
+						),
+						variable.clone()
+				);
 				break;
 			}
 
