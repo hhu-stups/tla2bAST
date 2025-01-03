@@ -672,11 +672,11 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 		}
 
 		if (specAnalyser.getRecursiveFunctions().contains(def)) {
-			ArrayList<SymbolNode> list = recursiveFunctionHandler.getAdditionalParams(def);
+			List<SymbolNode> list = recursiveFunctionHandler.getAdditionalParams(def);
 			if (!list.isEmpty()) {
 				AFunctionExpression call = new AFunctionExpression();
 				call.setIdentifier(createIdentifierNode(def));
-				ArrayList<PExpression> params = new ArrayList<>();
+				List<PExpression> params = new ArrayList<>();
 				for (SymbolNode symbolNode : list) {
 					params.add(createIdentifierNode(symbolNode));
 				}
@@ -1241,11 +1241,10 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 				lambda.setExpression(visitExprOrOpArgNodeExpression(n.getArgs()[0]));
 
 				if (recursiveFunctionHandler.isRecursiveFunction(n)) {
-
-					ArrayList<SymbolNode> externParams = recursiveFunctionHandler.getAdditionalParams(n);
+					List<SymbolNode> externParams = recursiveFunctionHandler.getAdditionalParams(n);
 					if (!externParams.isEmpty()) {
 						ALambdaExpression lambda2 = new ALambdaExpression();
-						ArrayList<PExpression> shiftedParams = new ArrayList<>();
+						List<PExpression> shiftedParams = new ArrayList<>();
 						List<PPredicate> predList2 = new ArrayList<>();
 						for (SymbolNode p : externParams) {
 							shiftedParams.add(createIdentifierNode(p));
