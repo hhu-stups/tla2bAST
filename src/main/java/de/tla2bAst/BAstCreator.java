@@ -626,8 +626,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 
 	private PPredicate visitUserdefinedOpPredicate(OpApplNode n) {
 		OpDefNode def = (OpDefNode) n.getOperator();
-		if (BBuiltInOPs.contains(def.getName()) // Operator is a B built-in operator
-				&& STANDARD_MODULES.contains(def.getSource().getOriginallyDefinedInModuleNode().getName().toString())) {
+		// Operator is a B built-in operator
+		if (BBuiltInOPs.isBBuiltInOp(def)) {
 			return visitBBuiltInsPredicate(n);
 		}
 		if (specAnalyser.getRecursiveFunctions().contains(def)) {
@@ -666,8 +666,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 	private PExpression visitUserdefinedOpExpression(OpApplNode n) {
 		OpDefNode def = (OpDefNode) n.getOperator();
 		// Operator is a B built-in operator
-		if (BBuiltInOPs.contains(def.getName())
-			&& STANDARD_MODULES.contains(def.getSource().getOriginallyDefinedInModuleNode().getName().toString())) {
+		if (BBuiltInOPs.isBBuiltInOp(def)) {
 			return visitBBuiltInsExpression(n);
 		}
 

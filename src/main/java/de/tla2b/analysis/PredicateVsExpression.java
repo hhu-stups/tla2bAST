@@ -8,8 +8,6 @@ import tlc2.tool.BuiltInOPs;
 import java.util.HashMap;
 import java.util.Map;
 
-import static de.tla2b.global.TranslationGlobals.STANDARD_MODULES;
-
 public class PredicateVsExpression extends BuiltInOPs implements BBuildIns {
 
 	private final Map<OpDefNode, DefinitionType> definitionsTypeMap = new HashMap<>();
@@ -80,8 +78,7 @@ public class PredicateVsExpression extends BuiltInOPs implements BBuildIns {
 
 	private DefinitionType visitUserdefinedOp(OpApplNode s) {
 		OpDefNode def = (OpDefNode) s.getOperator();
-		if (BBuiltInOPs.contains(def.getName())
-				&& STANDARD_MODULES.contains(def.getSource().getOriginallyDefinedInModuleNode().getName().toString())) {
+		if (BBuiltInOPs.isBBuiltInOp(def)) {
 			switch (BBuiltInOPs.getOpcode(def.getName())) {
 				case B_OPCODE_lt: // <
 				case B_OPCODE_gt: // >

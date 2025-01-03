@@ -1,9 +1,12 @@
 package de.tla2b.global;
 
+import tla2sany.semantic.OpDefNode;
 import util.UniqueString;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static de.tla2b.global.TranslationGlobals.STANDARD_MODULES;
 
 public class BBuiltInOPs implements BBuildIns {
 	private static final Map<UniqueString, Integer> B_Opcodes = new HashMap<>();
@@ -59,6 +62,10 @@ public class BBuiltInOPs implements BBuildIns {
 
 	public static boolean contains(UniqueString s) {
 		return B_Opcodes.containsKey(s);
+	}
+
+	public static boolean isBBuiltInOp(OpDefNode def) {
+		return contains(def.getName()) && STANDARD_MODULES.contains(def.getSource().getOriginallyDefinedInModuleNode().getName().toString());
 	}
 
 	public static int getOpcode(UniqueString s) {

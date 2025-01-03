@@ -14,8 +14,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import static de.tla2b.global.TranslationGlobals.STANDARD_MODULES;
-
 public class UsedDefinitionsFinder extends AbstractASTVisitor {
 
 	private final Set<OpDefNode> usedDefinitions = new HashSet<>();
@@ -82,9 +80,7 @@ public class UsedDefinitionsFinder extends AbstractASTVisitor {
 
 		OpDefNode def = (OpDefNode) n.getOperator();
 		ModuleNode moduleNode = def.getSource().getOriginallyDefinedInModuleNode();
-		if (moduleNode.getName().toString().equals("TLA2B"))
-			return;
-		if (BBuiltInOPs.contains(def.getName()) && STANDARD_MODULES.contains(moduleNode.getName().toString()))
+		if (moduleNode.getName().toString().equals("TLA2B") || BBuiltInOPs.isBBuiltInOp(def))
 			return;
 
 		if (usedDefinitions.add(def)) {

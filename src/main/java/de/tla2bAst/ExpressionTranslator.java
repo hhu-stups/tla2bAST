@@ -30,8 +30,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static de.tla2b.global.TranslationGlobals.STANDARD_MODULES;
-
 public class ExpressionTranslator implements SyntaxTreeConstants {
 
 	private final String tlaExpression;
@@ -380,8 +378,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 						// nCtx.addSymbolToContext(node.getName(), fromSpec);
 						// this should be redundant and not necessary:
 						// TypeChecker.setType(node, TypeChecker.getType(fromSpec));
-					} else if (!(BBuiltInOPs.contains(node.getName())
-							&& STANDARD_MODULES.contains(node.getSource().getOriginallyDefinedInModuleNode().getName().toString()))) {
+					} else if (!BBuiltInOPs.isBBuiltInOp(node)) {
 						// throw error if def is not included in translation and not a built-in definition
 						throw new ExpressionTranslationException("Evaluation error:\n"
 								+ "Definition '" + fromSpec.getName() + "' is not included in the B translation.\n");

@@ -156,12 +156,9 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 	private void evalDefinitions(OpDefNode[] opDefs) throws TLA2BException {
 		for (OpDefNode def : opDefs) {
 			// Definition in this module
-			String moduleName1 = def.getOriginallyDefinedInModuleNode().getName().toString();
-			String moduleName2 = def.getSource().getOriginallyDefinedInModuleNode().getName().toString();
-
-			if (STANDARD_MODULES.contains(moduleName1) || STANDARD_MODULES.contains(moduleName2)) {
+			String moduleName = def.getOriginallyDefinedInModuleNode().getName().toString();
+			if (STANDARD_MODULES.contains(moduleName) || BBuiltInOPs.isBBuiltInOp(def))
 				continue;
-			}
 			if (usedDefinitions.contains(def) || bDefinitions.contains(def))
 				visitOpDefNode(def);
 		}
@@ -283,8 +280,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 				OpDefNode def = (OpDefNode) n.getOperator();
 
 				// Definition is a BBuilt-in definition
-				String sourceModule = def.getSource().getOriginallyDefinedInModuleNode().getName().toString();
-				if (BBuiltInOPs.contains(def.getName()) && STANDARD_MODULES.contains(sourceModule)) {
+				if (BBuiltInOPs.isBBuiltInOp(def)) {
 					return evalBBuiltIns(n, expected);
 				}
 
