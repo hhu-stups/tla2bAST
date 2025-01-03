@@ -89,8 +89,8 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 				if (!bConstList.contains(con))
 					continue;
 
-				TLAType defType = (TLAType) entry.getValue().getToolObject(TYPE_ID);
-				TLAType conType = (TLAType) con.getToolObject(TYPE_ID);
+				TLAType defType = getType(entry.getValue());
+				TLAType conType = getType(con);
 				try {
 					setType(con, defType.unify(conType));
 				} catch (UnificationException e) {

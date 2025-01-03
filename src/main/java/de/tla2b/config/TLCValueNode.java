@@ -1,13 +1,12 @@
 package de.tla2b.config;
 
-import de.tla2b.global.TranslationGlobals;
 import de.tla2b.types.TLAType;
 import tla2sany.semantic.AbortException;
 import tla2sany.semantic.NumeralNode;
 import tla2sany.st.TreeNode;
 import tlc2.value.impl.Value;
 
-public class TLCValueNode extends NumeralNode implements TranslationGlobals {
+public class TLCValueNode extends NumeralNode {
 
 	private final Value value;
 	private final TLAType type;

@@ -65,10 +65,6 @@ public class PredicateVsExpression extends BuiltInOPs implements BBuildIns {
 					OpApplNode pair = (OpApplNode) opApplNode.getArgs()[0];
 					return visitSemanticNode(pair.getArgs()[1]);
 				}
-
-				default: {
-					return DefinitionType.EXPRESSION;
-				}
 			}
 		} else if (kind == UserDefinedOpKind) {
 			return visitUserdefinedOp(opApplNode);

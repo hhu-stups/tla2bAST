@@ -1,7 +1,6 @@
 package de.tla2b.analysis;
 
 import de.tla2b.global.BBuiltInOPs;
-import de.tla2b.global.TranslationGlobals;
 import tla2sany.semantic.*;
 import tlc2.tool.BuiltInOPs;
 
@@ -10,7 +9,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals {
+import static de.tla2b.global.TranslationGlobals.NEW_NAME;
+
+public class SymbolRenamer extends BuiltInOPs {
 
 	private final static Set<String> KEYWORDS = new HashSet<>();
 
@@ -286,7 +287,7 @@ public class SymbolRenamer extends BuiltInOPs implements TranslationGlobals {
 
 		if (BBUILTIN_OPERATOR.containsKey(newName)) {
 			// a B built-in operator is defined outside a standard module
-			if (!STANDARD_MODULES.contains(def.getSource().getOriginallyDefinedInModuleNode().getName().toString())) {
+			if (!BBuiltInOPs.isBBuiltInOp(def)) {
 				return incName(BBUILTIN_OPERATOR.get(newName));
 			}
 		}
