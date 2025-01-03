@@ -1008,6 +1008,19 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 				returnNode = sum;
 				break;
 			}
+
+			case B_OPCODE_setprod: {
+				AIdentifierExpression variable = createIdentifierNode("t_"); // TODO unused identifier name
+				returnNode = new AGeneralProductExpression(
+						Collections.singletonList(variable.clone()),
+						new AMemberPredicate(
+								variable.clone(),
+								visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0])
+						),
+						variable.clone()
+				);
+				break;
+			}
 		}
 		if (returnNode != null) {
 			return createPositionedNode(returnNode, opApplNode);
