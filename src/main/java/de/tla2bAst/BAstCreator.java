@@ -953,36 +953,44 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 				break;
 
 			case B_OPCODE_subseq: { // SubSeq(s,a,b)
-				// %p.(p : 1..(b-a+1)| s(p+a-1))
-				ALambdaExpression lambda = new ALambdaExpression();
-				lambda.setIdentifiers(createIdentifierList("t_"));
-				AMemberPredicate member = new AMemberPredicate();
-				member.setLeft(createIdentifierNode("t_"));
-				AIntervalExpression interval = new AIntervalExpression();
-				interval.setLeftBorder(new AIntegerExpression(new TIntegerLiteral("1")));
-				AMinusOrSetSubtractExpression minus = new AMinusOrSetSubtractExpression();
-				minus.setLeft(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[2]));
-				minus.setRight(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
-				AAddExpression add = new AAddExpression();
-				add.setLeft(minus);
-				add.setRight(new AIntegerExpression(new TIntegerLiteral("1")));
-				interval.setRightBorder(add);
-				member.setRight(interval);
-				lambda.setPredicate(member);
-				AAddExpression add2 = new AAddExpression();
-				add2.setLeft(createIdentifierNode("t_"));
-				add2.setRight(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]));
-				AMinusOrSetSubtractExpression minus2 = new AMinusOrSetSubtractExpression();
-				minus2.setLeft(add2);
-				minus2.setRight(new AIntegerExpression(new TIntegerLiteral("1")));
-				ArrayList<PExpression> params = new ArrayList<>();
-				params.add(minus2);
-				AFunctionExpression func = new AFunctionExpression();
-				func.setIdentifier(visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]));
-				func.setParameters(params);
-				lambda.setExpression(func);
-				returnNode = lambda;
+				// new translation: (s /|\ b) \|/ a-1 (this saves us a new identifier name)
+				returnNode = new ARestrictTailExpression(
+						new ARestrictFrontExpression(
+								visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]), // s
+								visitExprOrOpArgNodeExpression(opApplNode.getArgs()[2]) // b
+						),
+						new AMinusOrSetSubtractExpression(
+								visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]), // a
+								createIntegerNode("1")
+						)
+				);
 				break;
+				// previous translation: %t_.(t_ : 1..(b-a+1)| s(t_+a-1))
+					/*PExpression a = visitExprOrOpArgNodeExpression(opApplNode.getArgs()[1]);
+					PExpression b = visitExprOrOpArgNodeExpression(opApplNode.getArgs()[2]);
+
+					returnNode = new ALambdaExpression( // %t_.(t_ : 1..(b-a+1)| s(t_+a-1))
+							createIdentifierList("t_"),
+							new AMemberPredicate( // t_ : 1..(b-a+1)
+									createIdentifierNode("t_"),
+									new AIntervalExpression(
+											createIntegerNode("1"),
+											new AAddExpression(
+													new AMinusOrSetSubtractExpression(b, a),
+													createIntegerNode("1")
+											)
+									)
+							),
+							new AFunctionExpression( // s(t_+a-1)
+									visitExprOrOpArgNodeExpression(opApplNode.getArgs()[0]), // s
+									Collections.singletonList(
+											new AMinusOrSetSubtractExpression(
+													new AAddExpression(createIdentifierNode("t_"), a.clone()),
+													createIntegerNode("1")
+											)
+									)
+							)
+					);*/
 			}
 
 			case B_OPCODE_assert: {
