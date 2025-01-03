@@ -2135,6 +2135,10 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 		return new AIdentifierExpression(createTIdentifierLiteral(name));
 	}
 
+	public static AIntegerExpression createIntegerNode(String integer) {
+		return new AIntegerExpression(new TIntegerLiteral(integer));
+	}
+
 	public PPredicate createConjunction(List<PPredicate> list) {
 		if (list.size() == 1)
 			return list.get(0);
