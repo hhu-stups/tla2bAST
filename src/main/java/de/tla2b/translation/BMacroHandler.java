@@ -6,44 +6,34 @@ import de.tla2b.config.ConfigfileEvaluator;
 import tla2sany.semantic.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class BMacroHandler extends AbstractASTVisitor {
 
-	private final Hashtable<FormalParamNode, String> renamingTable = new Hashtable<>();
+	private final Map<FormalParamNode, String> renamingTable = new HashMap<>();
 
 	public BMacroHandler(SpecAnalyser specAnalyser, ConfigfileEvaluator conEval) {
 		ModuleNode moduleNode = specAnalyser.getModuleNode();
-		ArrayList<OpDefNode> bDefs = new ArrayList<>();
-		for (int i = 0; i < moduleNode.getOpDefs().length; i++) {
-			OpDefNode def = moduleNode.getOpDefs()[i];
-			if (specAnalyser.getUsedDefinitions().contains(def)) {
-				if (conEval != null
-					&& conEval.getConstantOverrides()
-					.containsValue(def)) {
-					continue;
-				}
-				bDefs.add(def);
-			}
-		}
-
+		List<OpDefNode> bDefs = Arrays.stream(moduleNode.getOpDefs())
+				.filter(def -> specAnalyser.getUsedDefinitions().contains(def))
+				.filter(def -> conEval == null || !conEval.getConstantOverrides().containsValue(def))
+				.collect(Collectors.toList());
 		for (OpDefNode opDefNode : bDefs) {
 			visitDefinition(opDefNode);
 		}
-
 		visitAssumptions(moduleNode.getAssumptions());
 	}
 
 	public BMacroHandler() {
 	}
 
-	private HashSet<FormalParamNode> definitionParameters;
-	private HashSet<FormalParamNode> localVariables;
-	private final Hashtable<FormalParamNode, Set<FormalParamNode>> parameterContext = new Hashtable<>();
+	private Set<FormalParamNode> definitionParameters;
+	private Set<FormalParamNode> localVariables;
+	private final Map<FormalParamNode, Set<FormalParamNode>> parameterContext = new HashMap<>();
 
 	@Override
 	public void visitDefinition(OpDefNode def) {
-		definitionParameters = new HashSet<>();
-		definitionParameters.addAll(Arrays.asList(def.getParams()));
+		definitionParameters = new HashSet<>(Arrays.asList(def.getParams()));
 		for (FormalParamNode param : definitionParameters) {
 			parameterContext.put(param, new HashSet<>());
 		}
@@ -64,7 +54,6 @@ public class BMacroHandler extends AbstractASTVisitor {
 
 		definitionParameters = null;
 		localVariables = null;
-
 	}
 
 	@Override
@@ -77,50 +66,37 @@ public class BMacroHandler extends AbstractASTVisitor {
 			case OPCODE_bf: // \A x \in S : P
 			case OPCODE_bc: // CHOOSE x \in S: P
 			case OPCODE_sso: // $SubsetOf Represents {x \in S : P}
-			case OPCODE_soa: // $SetOfAll Represents {e : p1 \in S, p2,p3 \in S2}
-			{
-
-				FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-				HashSet<FormalParamNode> set = new HashSet<>();
-				for (FormalParamNode[] param : params) {
+			case OPCODE_soa: { // $SetOfAll Represents {e : p1 \in S, p2,p3 \in S2}
+				Set<FormalParamNode> set = new HashSet<>();
+				for (FormalParamNode[] param : n.getBdedQuantSymbolLists()) {
 					Collections.addAll(set, param);
 				}
 				localVariables.addAll(set);
-				ExprNode[] in = n.getBdedQuantBounds();
-				for (ExprNode exprNode : in) {
+				for (ExprNode exprNode : n.getBdedQuantBounds()) { // in
 					visitExprNode(exprNode);
 				}
-				ExprOrOpArgNode[] arguments = n.getArgs();
-				for (ExprOrOpArgNode exprOrOpArgNode : arguments) {
-					visitExprOrOpArgNode(exprOrOpArgNode);
+				for (ExprOrOpArgNode argument : n.getArgs()) {
+					visitExprOrOpArgNode(argument);
 				}
 				localVariables.removeAll(set);
 				return;
 			}
-			default: {
+			default:
 				super.visitBuiltInNode(n);
-			}
-
 		}
-
 	}
 
 	private Set<String> getStringSet(Set<FormalParamNode> set) {
-		HashSet<String> stringSet = new HashSet<>();
-		for (FormalParamNode formalParamNode : set) {
-			stringSet.add(formalParamNode.getName().toString());
-		}
-		return stringSet;
+		return set.stream().map(s -> s.getName().toString()).collect(Collectors.toSet());
 	}
 
-	private HashSet<FormalParamNode> illegalParams;
+	private Set<FormalParamNode> illegalParams;
 
 	private void addToIllegalParams(Set<FormalParamNode> set) {
 		if (illegalParams == null) {
-			illegalParams = new HashSet<>(set);
-		} else {
-			illegalParams.addAll(set);
+			illegalParams = new HashSet<>();
 		}
+		illegalParams.addAll(set);
 	}
 
 	private Set<FormalParamNode> getContextOfParam(FormalParamNode param) {
