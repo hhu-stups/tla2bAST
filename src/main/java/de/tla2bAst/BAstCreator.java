@@ -1023,21 +1023,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 
 	}
 
-	private <T extends PositionedNode> T createPositionedNode(T positionedNode, SemanticNode semanticNode) {
-		Location location = semanticNode.getTreeNode().getLocation();
-		positionedNode.setStartPos(new SourcePosition(location.beginLine(), location.beginColumn()));
-		positionedNode.setEndPos(new SourcePosition(location.endLine(), location.endColumn()));
-		sourcePosition.add(positionedNode);
-		String source = semanticNode.getLocation().source();
-		int id = filesOrderedById.indexOf(source);
-		if (id == -1) {
-			id = filesOrderedById.size();
-			filesOrderedById.add(source);
-		}
-		nodeFileNumbers.assignIdentifiers(id+1, (Node) positionedNode);
-		return positionedNode;
-	}
-
 	private PExpression visitBuiltInKindExpression(OpApplNode n) {
 		switch (getOpCode(n.getOperator().getName())) {
 
@@ -1773,10 +1758,6 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 		);
 	}
 
-	private List<PExpression> createIdentifierList(String name) {
-		return Collections.singletonList(createIdentifierNode(name));
-	}
-
 	private PPredicate visitBuiltInKindPredicate(OpApplNode n) {
 		PPredicate returnNode;
 		switch (getOpCode(n.getOperator().getName())) {
@@ -2105,6 +2086,12 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 		}
 	}
 
+	private List<PExpression> visitArgs(OpApplNode n) {
+		return Arrays.stream(n.getArgs())
+				.map(this::visitExprOrOpArgNodeExpression)
+				.collect(Collectors.toList());
+	}
+
 	// HELPER METHODS
 
 	public AIdentifierExpression createIdentifierNode(SymbolNode symbolNode) {
@@ -2157,13 +2144,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 		return disjunction;
 	}
 
-	/*
-	 * Utility methods
-	 */
-	private List<PExpression> visitArgs(OpApplNode n) {
-		return Arrays.stream(n.getArgs())
-				.map(this::visitExprOrOpArgNodeExpression)
-				.collect(Collectors.toList());
+	private static List<PExpression> createIdentifierList(String name) {
+		return Collections.singletonList(createIdentifierNode(name));
 	}
 
 	public static List<TIdentifierLiteral> createTIdentifierLiteral(String name) {
@@ -2172,6 +2154,21 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 
 	public List<TIdentifierLiteral> createPositionedTIdentifierLiteral(String name, SemanticNode node) {
 		return Collections.singletonList(createPositionedNode(new TIdentifierLiteral(name), node));
+	}
+
+	private <T extends PositionedNode> T createPositionedNode(T positionedNode, SemanticNode semanticNode) {
+		Location location = semanticNode.getTreeNode().getLocation();
+		positionedNode.setStartPos(new SourcePosition(location.beginLine(), location.beginColumn()));
+		positionedNode.setEndPos(new SourcePosition(location.endLine(), location.endColumn()));
+		sourcePosition.add(positionedNode);
+		String source = semanticNode.getLocation().source();
+		int id = filesOrderedById.indexOf(source);
+		if (id == -1) {
+			id = filesOrderedById.size();
+			filesOrderedById.add(source);
+		}
+		nodeFileNumbers.assignIdentifiers(id+1, (Node) positionedNode);
+		return positionedNode;
 	}
 
 	public Start getStartNode() {
