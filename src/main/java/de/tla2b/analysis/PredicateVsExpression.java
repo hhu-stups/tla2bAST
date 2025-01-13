@@ -50,7 +50,8 @@ public class PredicateVsExpression extends BuiltInOPs implements BBuildIns {
 				case OPCODE_lor: // \/
 				case OPCODE_equiv: // \equiv
 				case OPCODE_implies: // =>
-				case OPCODE_lnot: // \lnot
+				case OPCODE_neg: // \neg
+				case OPCODE_lnot: // ~ / \lnot
 				case OPCODE_be: // \E x \in S : P
 				case OPCODE_bf: // \A x \in S : P
 				case OPCODE_in: // \in

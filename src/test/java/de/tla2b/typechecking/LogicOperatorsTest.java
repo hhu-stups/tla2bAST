@@ -58,6 +58,18 @@ public class LogicOperatorsTest {
 		assertEquals("BOOL", t.getConstantType("k3"));
 	}
 
+	@Test
+	public void testNeg() throws TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "CONSTANTS k, k2\n"
+				+ "ASSUME k = \\neg k2 \n"
+				+ "=================================";
+
+		TestTypeChecker t = TestUtil.typeCheckString(module);
+		assertEquals("BOOL", t.getConstantType("k"));
+		assertEquals("BOOL", t.getConstantType("k2"));
+	}
+
 	@Test(expected = TypeErrorException.class)
 	public void testLogicOperatorsError() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"

@@ -996,7 +996,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 						.map(this::visitExprOrOpArgNodePredicate).collect(Collectors.toList()));
 				break;
 
-			case OPCODE_lnot: // \lnot
+			case OPCODE_neg: // \neg
+			case OPCODE_lnot: // ~ / \lnot
 				returnNode = new ANegationPredicate(visitExprOrOpArgNodePredicate(n.getArgs()[0]));
 				break;
 
@@ -1144,7 +1145,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 			case OPCODE_cl: // $ConjList
 			case OPCODE_dl: // $DisjList
 			case OPCODE_lor: // \/
-			case OPCODE_lnot: // \lnot
+			case OPCODE_neg: // \neg
+			case OPCODE_lnot: // ~ / \lnot
 			case OPCODE_in: // \in
 			case OPCODE_notin: // \notin
 			case OPCODE_eq: // =
