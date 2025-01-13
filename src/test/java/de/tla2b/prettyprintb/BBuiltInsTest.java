@@ -31,6 +31,19 @@ public class BBuiltInsTest {
 		compare(expected, module);
 	}
 
+	@Ignore
+	@Test
+	public void testSetProduct() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS TLA2B\n"
+				+ "ASSUME SetProduct({1,2}) = 2\n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "PROPERTIES PI(t_).(t_ : {1,2}|t_) = 2 \n" + "END";
+		compare(expected, module);
+	}
+
 	@Test
 	public void testString() throws Exception {
 		final String module = "-------------- MODULE Testing ----------------\n"
