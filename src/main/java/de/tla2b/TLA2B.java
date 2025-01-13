@@ -3,12 +3,13 @@ package de.tla2b;
 import de.tla2b.exceptions.TLA2BFrontEndException;
 import de.tla2b.exceptions.NotImplementedException;
 import de.tla2b.exceptions.TLA2BException;
-import de.tla2b.global.TranslationGlobals;
 import de.tla2bAst.Translator;
 import org.apache.commons.cli.*;
 import de.tla2b.util.DebugUtils;
 
-public class TLA2B implements TranslationGlobals {
+import static de.tla2b.global.TranslationGlobals.VERSION_NUMBER;
+
+public class TLA2B {
 	public final static String VERSION = "version";
 	public final static String VERBOSE = "verbose";
 

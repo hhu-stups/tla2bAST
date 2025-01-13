@@ -342,27 +342,14 @@ class PrimedVariablesFinder extends AbstractASTVisitor {
 	public PrimedVariablesFinder(List<ExprOrOpArgNode> list) {
 		this.all = new HashSet<>();
 		this.twiceUsedVariables = new HashSet<>();
-
-		for (ExprOrOpArgNode exprOrOpArgNode : list) {
-			findPrimedVariables(exprOrOpArgNode);
-		}
-	}
-
-	public void findPrimedVariables(ExprOrOpArgNode n) {
-		this.visitExprOrOpArgNode(n);
+		list.forEach(this::visitExprOrOpArgNode); // findPrimedVariables
 	}
 
 	public void visitBuiltInNode(OpApplNode n) {
-		if (getOpCode(n.getOperator().getName()) == OPCODE_prime) { // prime
-			if (n.getArgs()[0] instanceof OpApplNode) {
-				OpApplNode varNode = (OpApplNode) n.getArgs()[0];
-				SymbolNode var = varNode.getOperator();
-
-				if (all.contains(var)) {
-					twiceUsedVariables.add(var);
-				} else {
-					all.add(var);
-				}
+		if (getOpCode(n.getOperator().getName()) == OPCODE_prime && n.getArgs()[0] instanceof OpApplNode) {
+			SymbolNode var = ((OpApplNode) n.getArgs()[0]).getOperator();
+			if (!all.add(var)) {
+				twiceUsedVariables.add(var);
 			}
 		}
 		super.visitBuiltInNode(n);
