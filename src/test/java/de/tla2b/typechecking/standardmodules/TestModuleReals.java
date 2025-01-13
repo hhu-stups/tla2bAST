@@ -4,10 +4,10 @@ import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.exceptions.TypeErrorException;
 import de.tla2b.util.TestTypeChecker;
 import de.tla2b.util.TestUtil;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-
 
 public class TestModuleReals {
 
@@ -171,5 +171,20 @@ public class TestModuleReals {
 			+ "ASSUME k = 1.0 .. 3.0 \n"
 			+ "=================================";
 		TestUtil.typeCheckString(module);
+	}
+
+	@Ignore
+	@Test
+	public void testNestedDefinitions() throws Exception {
+		// FIXME: this fails because the default type is Int and we first type everything as Int
+		String module = "---- MODULE Testing ----\n"
+				+ "EXTENDS Reals \n"
+				+ "InnerDef(b) == b*5.0 \n"
+				+ "HelpDef(a,b) == a+InnerDef(b) \n"
+				+ "Init == 1.0 = HelpDef(1.0,1.0) \n"
+				+ "===============";
+		TestTypeChecker t = TestUtil.typeCheckString(module);
+		assertEquals("REAL", t.getDefinitionType("HelpDef"));
+		assertEquals("REAL", t.getDefinitionType("InnerDef"));
 	}
 }

@@ -115,4 +115,17 @@ public class TestModuleNaturals {
 		TestUtil.typeCheckString(module);
 	}
 
+	@Test
+	public void testNestedDefinitions() throws Exception {
+		String module = "---- MODULE Testing ----\n"
+				+ "EXTENDS Naturals \n"
+				+ "InnerDef(b) == b*5 \n"
+				+ "HelpDef(a,b) == a+b \n"
+				+ "Init == 1 = HelpDef(1,1) \n"
+				+ "===============";
+		TestTypeChecker t = TestUtil.typeCheckString(module);
+		assertEquals("INTEGER", t.getDefinitionType("HelpDef"));
+		assertEquals("INTEGER", t.getDefinitionType("InnerDef"));
+	}
+
 }
