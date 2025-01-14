@@ -5,16 +5,15 @@ import de.tla2b.exceptions.UnificationException;
 import de.tla2b.output.TypeVisitorInterface;
 
 import java.util.*;
-import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 public class StructType extends AbstractHasFollowers {
-	private final LinkedHashMap<String, TLAType> types;
+	private final Map<String, TLAType> types = new LinkedHashMap<>();
 	private boolean extensible;
 	private boolean incompleteStruct;
 
 	public StructType() {
 		super(STRUCT);
-		types = new LinkedHashMap<>();
 		extensible = false;
 		incompleteStruct = false;
 	}
@@ -34,26 +33,17 @@ public class StructType extends AbstractHasFollowers {
 	}
 
 	public void add(String name, TLAType type) {
-		if (type instanceof AbstractHasFollowers) {
-			// set new reference
+		if (type instanceof AbstractHasFollowers) { // set new reference
 			((AbstractHasFollowers) type).addFollower(this);
 		}
 		types.put(name, type);
 	}
 
 	public void setNewType(TLAType old, TLAType New) {
-		Set<Entry<String, TLAType>> set = types.entrySet();
-
-		for (Entry<String, TLAType> entry : set) {
-			if (entry.getValue() == old) {
-				String key = entry.getKey();
-				if (New instanceof AbstractHasFollowers) {
-					// set new reference
-					((AbstractHasFollowers) New).addFollower(this);
-				}
-				types.put(key, New);
-			}
-		}
+		types.forEach((name, type) -> {
+			if (type == old)
+				add(name, New);
+		});
 	}
 
 	@Override
@@ -71,22 +61,14 @@ public class StructType extends AbstractHasFollowers {
 		}
 		if (o.getKind() == UNTYPED)
 			return true;
-
 		if (o instanceof StructOrFunctionType) {
 			return o.compare(this);
 		}
 		if (o instanceof StructType) {
 			StructType s = (StructType) o;
-
-			for (String fieldName : types.keySet()) {
-				if (s.types.containsKey(fieldName)) {
-					if (!this.types.get(fieldName).compare(
-						s.types.get(fieldName))) {
-						return false;
-					}
-				}
-			}
-			return true;
+			return types.keySet().stream()
+					.filter(s.types::containsKey)
+					.allMatch(fieldName -> this.types.get(fieldName).compare(s.types.get(fieldName)));
 		}
 		return false;
 	}
@@ -123,11 +105,7 @@ public class StructType extends AbstractHasFollowers {
 					TLAType res = this.types.get(fieldName).unify(sType);
 					this.types.put(fieldName, res);
 				} else {
-					if (sType instanceof AbstractHasFollowers) {
-						// set new reference
-						((AbstractHasFollowers) sType).addFollower(this);
-					}
-					this.types.put(fieldName, sType);
+					add(fieldName, sType);
 				}
 				this.incompleteStruct = false;
 			}
@@ -139,68 +117,38 @@ public class StructType extends AbstractHasFollowers {
 	@Override
 	public StructType cloneTLAType() {
 		StructType clone = new StructType();
-
-		Set<Entry<String, TLAType>> set = this.types.entrySet();
-
-		for (Entry<String, TLAType> entry : set) {
-			String field = entry.getKey();
-			TLAType type = entry.getValue().cloneTLAType();
-			clone.add(field, type);
-		}
-
+		this.types.forEach((field, type) -> clone.add(field, type.cloneTLAType()));
 		return clone;
 	}
 
-	public ArrayList<String> getFields() {
-		ArrayList<String> fields = new ArrayList<>(this.types.keySet());
-		return fields;
+	public List<String> getFields() {
+		return new ArrayList<>(this.types.keySet());
 	}
 
 	@Override
 	public boolean contains(TLAType o) {
-		for (TLAType bType : types.values()) {
-			if (bType.equals(o) || bType.contains(o))
-				return true;
-		}
-		return false;
+		return types.values().stream().anyMatch(bType -> bType.equals(o) || bType.contains(o));
 	}
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("struct(");
-		Iterator<String> keys = types.keySet().iterator();
-		if (!keys.hasNext()) {
-			sb.append("...");
-		}
-		while (keys.hasNext()) {
-			String fieldName = keys.next();
-			sb.append(fieldName).append(":").append(types.get(fieldName));
-			if (keys.hasNext())
-				sb.append(",");
-		}
-		sb.append(")");
-		return sb.toString();
+		if (types.isEmpty())
+			return "struct(...)";
+
+		return "struct(" + types.entrySet().stream()
+				.map(entry -> entry.getKey() + ":" + entry.getValue())
+				.collect(Collectors.joining(",")) + ")";
 	}
 
 	@Override
 	public PExpression getBNode() {
 		List<PRecEntry> recList = new ArrayList<>();
-		for (Entry<String, TLAType> entry : types.entrySet()) {
-			ARecEntry rec = new ARecEntry();
-			rec.setIdentifier(new TIdentifierLiteral(entry.getKey()));
-			if (extensible) {
-
-				AMultOrCartExpression cart = new AMultOrCartExpression();
-				cart.setLeft(new ABoolSetExpression());
-				cart.setRight(entry.getValue().getBNode());
-				APowSubsetExpression pow = new APowSubsetExpression(cart);
-				rec.setValue(pow);
-			} else {
-				rec.setValue(entry.getValue().getBNode());
-			}
-			recList.add(rec);
-		}
+		types.forEach((id, type) -> {
+			PExpression value = extensible
+					? new APowSubsetExpression(new AMultOrCartExpression(new ABoolSetExpression(), type.getBNode()))
+					: type.getBNode();
+			recList.add(new ARecEntry(new TIdentifierLiteral(id), value));
+		});
 		return new AStructExpression(recList);
 	}
 
@@ -208,7 +156,7 @@ public class StructType extends AbstractHasFollowers {
 		visitor.caseStructType(this);
 	}
 
-	public LinkedHashMap<String, TLAType> getTypeTable() {
+	public Map<String, TLAType> getTypes() {
 		return this.types;
 	}
 

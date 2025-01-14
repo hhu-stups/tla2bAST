@@ -11,32 +11,26 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 public class StructOrFunctionType extends AbstractHasFollowers {
-	private final Map<String, TLAType> types;
+	private final Map<String, TLAType> types = new LinkedHashMap<>();
 
 	public StructOrFunctionType(String name, TLAType type) {
 		super(STRUCT_OR_FUNCTION);
-		types = new LinkedHashMap<>();
 		types.put(name, type);
 	}
 
 	public StructOrFunctionType() {
 		super(STRUCT_OR_FUNCTION);
-		types = new LinkedHashMap<>();
 	}
 
 	public void setNewType(TLAType old, TLAType New) {
-		Set<Entry<String, TLAType>> set = types.entrySet();
-
-		for (Entry<String, TLAType> entry : set) {
-			if (entry.getValue() == old) {
-				String key = entry.getKey();
-				if (New instanceof AbstractHasFollowers) {
-					// set new reference
+		types.forEach((name, type) -> {
+			if (type == old) {
+				if (New instanceof AbstractHasFollowers) { // set new reference
 					((AbstractHasFollowers) New).addFollower(this);
 				}
-				types.put(key, New);
+				types.put(name, New);
 			}
-		}
+		});
 		testRecord();
 	}
 

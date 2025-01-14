@@ -1,6 +1,7 @@
 package de.tla2b.types;
 
 import de.be4.classicalb.core.parser.node.PExpression;
+import de.be4.classicalb.core.parser.util.ASTBuilder;
 import de.tla2b.exceptions.UnificationException;
 import de.tla2b.output.TypeVisitorInterface;
 import de.tla2bAst.BAstCreator;
@@ -12,19 +13,10 @@ import java.util.Set;
 public class EnumType extends AbstractHasFollowers {
 	public final Set<String> modelvalues;
 	public int id;
-	private boolean noVal = false;
 
 	public EnumType(List<String> enums) {
 		super(MODELVALUE);
 		modelvalues = new LinkedHashSet<>(enums);
-	}
-
-	public void setNoVal() {
-		noVal = true;
-	}
-
-	public boolean hasNoVal() {
-		return noVal;
 	}
 
 	public Set<String> getValues() {
@@ -74,7 +66,7 @@ public class EnumType extends AbstractHasFollowers {
 
 	@Override
 	public PExpression getBNode() {
-		return BAstCreator.createIdentifierNode("ENUM" + id);
+		return ASTBuilder.createIdentifier("ENUM" + id);
 	}
 
 	public void apply(TypeVisitorInterface t) {

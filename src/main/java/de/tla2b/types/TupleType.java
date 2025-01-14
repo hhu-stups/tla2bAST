@@ -1,12 +1,14 @@
 package de.tla2b.types;
 
 import de.be4.classicalb.core.parser.node.PExpression;
+import de.be4.classicalb.core.parser.util.ASTBuilder;
 import de.tla2b.exceptions.UnificationException;
 import de.tla2b.output.TypeVisitorInterface;
 import de.tla2bAst.BAstCreator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TupleType extends AbstractHasFollowers {
 	private List<TLAType> types;
@@ -146,7 +148,7 @@ public class TupleType extends AbstractHasFollowers {
 
 	@Override
 	public PExpression getBNode() {
-		return BAstCreator.createNestedCouple(types);
+		return ASTBuilder.createNestedMultOrCard(types.stream().map(TLAType::getBNode).collect(Collectors.toList()));
 	}
 
 	public void apply(TypeVisitorInterface visitor) {

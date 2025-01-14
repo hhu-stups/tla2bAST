@@ -31,10 +31,6 @@ public abstract class AbstractHasFollowers extends TLAType {
 		followers.remove(o);
 	}
 
-	public String followersToString() {
-		return followers.toString();
-	}
-
 	protected void setFollowersTo(TLAType newType) {
 		if (this.followers == null)
 			return;
