@@ -1,5 +1,6 @@
 package de.tla2b.types;
 
+import de.tla2b.analysis.TypeChecker;
 import tla2sany.semantic.SemanticNode;
 
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public abstract class AbstractHasFollowers extends TLAType {
 		// avoid concurrent modification:
 		new ArrayList<>(followers).forEach(follower -> {
 			if (follower instanceof SemanticNode) {
-				((SemanticNode) follower).setToolObject(5, newType);
+				TypeChecker.setType((SemanticNode) follower, newType);
 				if (newType instanceof AbstractHasFollowers) {
 					((AbstractHasFollowers) newType).addFollower(follower);
 				}
