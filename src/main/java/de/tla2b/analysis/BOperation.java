@@ -58,7 +58,7 @@ public class BOperation extends BuiltInOPs {
 		List<PExpression> lhsAssignment = new ArrayList<>();
 		List<PExpression> rhsAssignment = new ArrayList<>();
 		assignments.forEach((id, assignExpr) -> {
-			lhsAssignment.add(bASTCreator.createIdentifierNode(id));
+			lhsAssignment.add(bASTCreator.createIdentifierFromNode(id));
 			rhsAssignment.add(bASTCreator.visitExprOrOpArgNodeExpression(assignExpr));
 		});
 
@@ -70,7 +70,7 @@ public class BOperation extends BuiltInOPs {
 				AIdentifierExpression nextName = createIdentifier(var.getName().toString() + "_n");
 				anyParams.add(nextName);
 				whereList.add(new AMemberPredicate(nextName.clone(), TypeChecker.getType(var).getBNode()));
-				lhsAssignment.add(bASTCreator.createIdentifierNode(var));
+				lhsAssignment.add(bASTCreator.createIdentifierFromNode(var));
 				rhsAssignment.add(nextName.clone());
 			}
 			whereList.addAll(createBeforeAfterPredicates(bASTCreator));
@@ -94,7 +94,7 @@ public class BOperation extends BuiltInOPs {
 
 		return new AOperation(new LinkedList<>(),
 				bASTCreator.createPositionedTIdentifierLiteral(name, getNode()),
-				this.getFormalParams().stream().map(bASTCreator::createIdentifierNode).collect(Collectors.toList()),
+				this.getFormalParams().stream().map(bASTCreator::createIdentifierFromNode).collect(Collectors.toList()),
 				operationBody
 		);
 	}

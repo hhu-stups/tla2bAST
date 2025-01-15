@@ -1,5 +1,7 @@
 package de.tla2b.analysis;
 
+import de.be4.classicalb.core.parser.Definitions;
+import de.be4.classicalb.core.parser.IDefinitions;
 import de.tla2b.global.BBuildIns;
 import de.tla2b.global.BBuiltInOPs;
 import tla2sany.semantic.*;
@@ -7,22 +9,26 @@ import tla2sany.semantic.*;
 import java.util.HashSet;
 import java.util.Set;
 
+import static de.be4.classicalb.core.parser.util.ASTBuilder.*;
+
 public class UsedExternalFunctions extends AbstractASTVisitor implements BBuildIns {
 
-	public enum EXTERNAL_FUNCTIONS {
-		CHOOSE, ASSERT
+	private final Set<String> usedExternalFunctions = new HashSet<>();
+
+	public static IDefinitions createDefinitions(SpecAnalyser specAnalyser) {
+		UsedExternalFunctions externalFunctions = new UsedExternalFunctions(specAnalyser);
+		IDefinitions definitions = new Definitions();
+		if (externalFunctions.usedExternalFunctions.contains(CHOOSE)) {
+			addChooseDefinition(definitions);
+		}
+		if (externalFunctions.usedExternalFunctions.contains(ASSERT_TRUE)) {
+			addAssertTrueDefinition(definitions);
+		}
+		return definitions;
 	}
 
-	private final Set<EXTERNAL_FUNCTIONS> usedExternalFunctions;
-
-	public Set<EXTERNAL_FUNCTIONS> getUsedExternalFunctions() {
-		return usedExternalFunctions;
-	}
-
-	public UsedExternalFunctions(ModuleNode moduleNode, SpecAnalyser specAnalyser) {
-		usedExternalFunctions = new HashSet<>();
-		visitAssumptions(moduleNode.getAssumptions());
-
+	private UsedExternalFunctions(SpecAnalyser specAnalyser) {
+		visitAssumptions(specAnalyser.getModuleNode().getAssumptions());
 		for (OpDefNode def : specAnalyser.getUsedDefinitions()) {
 			visitDefinition(def);
 		}
@@ -34,7 +40,7 @@ public class UsedExternalFunctions extends AbstractASTVisitor implements BBuildI
 			case OPCODE_case:
 			case OPCODE_uc:
 			case OPCODE_bc: {
-				usedExternalFunctions.add(EXTERNAL_FUNCTIONS.CHOOSE);
+				usedExternalFunctions.add(CHOOSE);
 			}
 			default:
 		}
@@ -56,7 +62,7 @@ public class UsedExternalFunctions extends AbstractASTVisitor implements BBuildI
 	@Override
 	public void visitBBuiltinsNode(OpApplNode n) {
 		if (BBuiltInOPs.getOpcode(n.getOperator().getName()) == B_OPCODE_assert) {
-			usedExternalFunctions.add(EXTERNAL_FUNCTIONS.ASSERT);
+			usedExternalFunctions.add(ASSERT_TRUE);
 		}
 
 		for (ExprNode exprNode : n.getBdedQuantBounds()) {

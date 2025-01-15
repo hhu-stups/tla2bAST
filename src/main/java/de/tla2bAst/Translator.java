@@ -1,7 +1,7 @@
 package de.tla2bAst;
 
 import de.be4.classicalb.core.parser.BParser;
-import de.be4.classicalb.core.parser.Definitions;
+import de.be4.classicalb.core.parser.IDefinitions;
 import de.be4.classicalb.core.parser.analysis.prolog.RecursiveMachineLoader;
 import de.be4.classicalb.core.parser.exceptions.BCompoundException;
 import de.be4.classicalb.core.parser.exceptions.PreParseException;
@@ -277,7 +277,7 @@ public class Translator {
 		return translateExpressionWithoutModel(tlaExpression);
 	}
 
-	public Definitions getBDefinitions() {
+	public IDefinitions getBDefinitions() {
 		return bAstCreator.getBDefinitions();
 	}
 
