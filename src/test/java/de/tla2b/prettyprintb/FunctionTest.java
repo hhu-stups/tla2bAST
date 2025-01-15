@@ -94,6 +94,22 @@ public class FunctionTest {
 		compare(expected, module);
 	}
 
+	@Test
+	public void testFunctionConstructorFirstTuple() throws Exception {
+		// TODO: investigate why a first tuple is a special case
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "CONSTANTS k\n"
+				+ "ASSUME k = [<<a,d>> \\in {4} \\X {5}, <<b,c>> \\in {2} \\X {3} |-> a + b + c + d] \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "CONSTANTS k\n"
+				+ "PROPERTIES k : (INTEGER * INTEGER) * (INTEGER * INTEGER) +-> INTEGER  & k = %(a, d, bc).((a,d) : {4} * {5} & bc : {2} * {3} | (a + prj1(INTEGER, INTEGER)(bc)) + prj2(INTEGER, INTEGER)(bc) + d) \n"
+				+ "END";
+		compare(expected, module);
+	}
+
 	/*
 	 * recursive Function
 	 */

@@ -395,7 +395,6 @@ public class FunctionTest {
 	/*
 	 * Except @
 	 */
-
 	@Test
 	public void testAt2() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
