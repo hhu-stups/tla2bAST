@@ -22,6 +22,7 @@ public class OperationsFinder extends AbstractASTVisitor {
 	private List<OpApplNode> exists;
 	// a list containing all existential quantifier which will be parameters in the resulting B Machine
 	private final List<BOperation> bOperations;
+	private final List<String> generatedOperations = new ArrayList<>();
 
 	public OperationsFinder(SpecAnalyser specAnalyser) {
 		this.specAnalyser = specAnalyser;
@@ -55,7 +56,7 @@ public class OperationsFinder extends AbstractASTVisitor {
 	public void visitUserDefinedNode(OpApplNode n) {
 		OpDefNode def = (OpDefNode) n.getOperator();
 		if (BBuiltInOPs.contains(def.getName())) {
-			bOperations.add(new BOperation(def.getName().toString(), n, exists, specAnalyser));
+			addOperation(def.getName().toString(), n, exists, specAnalyser);
 			return;
 		}
 
@@ -73,32 +74,18 @@ public class OperationsFinder extends AbstractASTVisitor {
 		int opcode = BuiltInOPs.getOpCode(opname);
 		DebugUtils.printDebugMsg("OPCODE of " + opname + " = "+ opcode);
 		switch (opcode) {
-			case OPCODE_dl: { // DisjList: split action further
+			case OPCODE_dl: // DisjList: split action further
 				if (n.getArgs().length == 1) {
 					visitExprOrOpArgNode(n.getArgs()[0]);
 				} else {
-					String oldName = currentName;
-					List<OpApplNode> oldExists = new ArrayList<>(exists);
-
-					for (int i = 0; i < n.getArgs().length; i++) {
-						exists = new ArrayList<>(oldExists);
-						currentName = oldName + i;
-						visitExprOrOpArgNode(n.getArgs()[i]);
-					}
+					visitArgs(n);
 				}
 				return;
-			}
-			case OPCODE_lor: { // logical or: split action further
-				String oldName = currentName;
-				List<OpApplNode> oldExists = new ArrayList<>(exists);
 
-				for (int i = 0; i < n.getArgs().length; i++) {
-					exists = new ArrayList<>(oldExists);
-					currentName = oldName + i;
-					visitExprOrOpArgNode(n.getArgs()[i]);
-				}
+			case OPCODE_lor: // logical or: split action further
+				visitArgs(n);
 				return;
-			}
+
 			case OPCODE_be: { // BoundedExists
 				exists.add(n);
 				visitExprOrOpArgNode(n.getArgs()[0]);
@@ -119,22 +106,43 @@ public class OperationsFinder extends AbstractASTVisitor {
 			case OPCODE_in: // \in
 			case OPCODE_notin: // \notin
 			case OPCODE_subseteq: // \subseteq - subset or equal
-			case OPCODE_fa: // $FcnApply f[1]
+			case OPCODE_fa: // $FcnApply f[1] FIXME: how can FcnApply be an action?
 			case OPCODE_ite: // IF THEN ELSE
-			case OPCODE_case: {
+			case OPCODE_case: // CASE p1 -> e1 [] p2 -> e2
+			// TODO case OPCODE_aa: // <<A>>_e
+			// TODO case OPCODE_sa: // [A]_e
 				// no further decomposing: create a B operation
-				bOperations.add(new BOperation(currentName, n, exists, specAnalyser));
+				addOperation(currentName, n, exists, specAnalyser);
 				return;
-			}
 		}
-		//System.out.println("OPCODE of " + opname + " = "+ opcode);
 
 		if (opname == BBuildIns.OP_false || opname == BBuildIns.OP_true) {
 			// FALSE: always disabled; TRUE: CHAOS
-			bOperations.add(new BOperation(currentName, n, exists, specAnalyser));
+			addOperation(currentName, n, exists, specAnalyser);
 			return;
 		}
 		throw new RuntimeException(String.format("Expected an action at '%s':%n%s", opname, n.getLocation()));
+	}
+
+	private void visitArgs(OpApplNode n) {
+		String oldName = currentName;
+		List<OpApplNode> oldExists = new ArrayList<>(exists);
+
+		for (int i = 0; i < n.getArgs().length; i++) {
+			exists = new ArrayList<>(oldExists);
+			currentName = oldName + i;
+			visitExprOrOpArgNode(n.getArgs()[i]);
+		}
+	}
+
+	private void addOperation(String name, OpApplNode node, List<OpApplNode> exists, SpecAnalyser specAnalyser) {
+		if (!generatedOperations.contains(name)) {
+			bOperations.add(new BOperation(name, node, exists, specAnalyser));
+			generatedOperations.add(name);
+			return;
+		}
+		DebugUtils.printMsg("Duplicate operation not translated: " + name);
+		// TODO: handle fixed parameters of an action definition, e.g. Act1(2) /\ Act1(2)
 	}
 
 	public List<BOperation> getBOperations() {

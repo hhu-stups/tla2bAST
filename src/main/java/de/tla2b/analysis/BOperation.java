@@ -2,120 +2,115 @@ package de.tla2b.analysis;
 
 import de.be4.classicalb.core.parser.node.*;
 import de.tla2b.global.BBuiltInOPs;
-import de.tla2b.global.TranslationGlobals;
-import de.tla2b.types.TLAType;
 import de.tla2bAst.BAstCreator;
 import tla2sany.semantic.*;
 import tlc2.tool.BuiltInOPs;
 
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-public class BOperation extends BuiltInOPs implements TranslationGlobals {
+import static de.be4.classicalb.core.parser.util.ASTBuilder.createConjunction;
+import static de.be4.classicalb.core.parser.util.ASTBuilder.createIdentifier;
+import static de.tla2b.global.TranslationGlobals.SUBSTITUTE_PARAM;
+
+public class BOperation extends BuiltInOPs {
 	private final String name;
 	private final OpApplNode node;
 	private final List<OpApplNode> existQuans;
-	private List<String> opParams;
-	private List<FormalParamNode> formalParams;
-	private List<String> unchangedVariables;
-	private final List<OpDeclNode> unchangedVariablesList;
-	private final List<ExprOrOpArgNode> guards;
-	private final List<ExprOrOpArgNode> beforeAfterPredicates;
-	private final Map<SymbolNode, ExprOrOpArgNode> assignments = new LinkedHashMap<>();
-	private List<OpDeclNode> anyVariables;
-	private final SpecAnalyser specAnalyser;
+	private final List<FormalParamNode> formalParams = new ArrayList<>();
+	private final List<OpDeclNode> unchangedVariables = new ArrayList<>();
+	private final List<ExprOrOpArgNode> guards = new ArrayList<>();
+	private final List<ExprOrOpArgNode> beforeAfterPredicates = new ArrayList<>();
+	private final Map<OpDeclNode, ExprOrOpArgNode> assignments = new LinkedHashMap<>();
+	private final List<OpDeclNode> anyVariables = new ArrayList<>();
 
 	public BOperation(String name, OpApplNode n, List<OpApplNode> existQuans, SpecAnalyser specAnalyser) {
 		this.name = name;
 		this.node = n;
 		this.existQuans = existQuans;
-		this.specAnalyser = specAnalyser;
-		this.unchangedVariablesList = new ArrayList<>();
-		this.guards = new ArrayList<>();
-		this.beforeAfterPredicates = new ArrayList<>();
-		anyVariables = new ArrayList<>(Arrays.asList(specAnalyser.getModuleNode().getVariableDecls()));
+		OpDeclNode[] variableDecls = specAnalyser.getModuleNode().getVariableDecls();
+		this.anyVariables.addAll(Arrays.asList(variableDecls));
 
-		evalParams();
-		// System.out.println("Construction B Operation for TLA+ action: " + name);
-		findUnchangedVariables();
+		// eval params
+		for (OpApplNode ex : existQuans) {
+			for (FormalParamNode[] param : ex.getBdedQuantSymbolLists()) { // (bounded exists)
+				formalParams.addAll(Arrays.asList(param));
+			}
+		}
+		// DebugUtils.printDebugMsg("Constructing B Operation for TLA+ action: " + name);
+		findUnchangedVariablesInSemanticNode(node);
 		// System.out.println(" UNCHANGED = " + unchangedVariables.toString());
 		separateGuardsAndBeforeAfterPredicates(node);
-		findAssignments();
+		findAssignments(variableDecls);
 	}
 
 	public AOperation getBOperation(BAstCreator bASTCreator) {
-		bASTCreator.setUnchangedVariablesNames(unchangedVariables);
+		bASTCreator.setUnchangedVariablesNames(this.getUnchangedVariables());
+
 		List<PPredicate> whereList = new ArrayList<>();
 		for (OpApplNode o : this.getExistQuans()) {
 			whereList.add(bASTCreator.visitBoundsOfLocalVariables(o));
 		}
-
 		for (ExprOrOpArgNode g : guards) {
 			whereList.add(bASTCreator.visitExprOrOpArgNodePredicate(g));
 		}
 
-		List<PExpression> leftSideOfAssigment = new ArrayList<>();
-		List<PExpression> rightSideOfAssigment = new ArrayList<>();
-		for (Entry<SymbolNode, ExprOrOpArgNode> entry : assignments.entrySet()) {
-			leftSideOfAssigment.add(bASTCreator.createIdentifierNode(entry.getKey()));
-			rightSideOfAssigment.add(bASTCreator.visitExprOrOpArgNodeExpression(entry.getValue()));
-		}
+		List<PExpression> lhsAssignment = new ArrayList<>();
+		List<PExpression> rhsAssignment = new ArrayList<>();
+		assignments.forEach((id, assignExpr) -> {
+			lhsAssignment.add(bASTCreator.createIdentifierNode(id));
+			rhsAssignment.add(bASTCreator.visitExprOrOpArgNodeExpression(assignExpr));
+		});
+
 		PSubstitution operationBody;
 		AAssignSubstitution assign = new AAssignSubstitution();
 		if (!anyVariables.isEmpty()) { // ANY x_n WHERE P THEN A END
 			List<PExpression> anyParams = new ArrayList<>();
 			for (OpDeclNode var : anyVariables) {
-				String nextName = var.getName().toString() + "_n";
-				anyParams.add(BAstCreator.createIdentifierNode(nextName));
-
-				whereList.add(new AMemberPredicate(
-						BAstCreator.createIdentifierNode(nextName),
-						((TLAType) var.getToolObject(TYPE_ID)).getBNode()
-				));
-				leftSideOfAssigment.add(bASTCreator.createIdentifierNode(var));
-				rightSideOfAssigment.add(BAstCreator.createIdentifierNode(nextName));
+				AIdentifierExpression nextName = createIdentifier(var.getName().toString() + "_n");
+				anyParams.add(nextName);
+				whereList.add(new AMemberPredicate(nextName.clone(), TypeChecker.getType(var).getBNode()));
+				lhsAssignment.add(bASTCreator.createIdentifierNode(var));
+				rhsAssignment.add(nextName.clone());
 			}
 			whereList.addAll(createBeforeAfterPredicates(bASTCreator));
-			operationBody = new AAnySubstitution(anyParams, bASTCreator.createConjunction(whereList), assign);
+			operationBody = new AAnySubstitution(anyParams, createConjunction(whereList), assign);
 		} else if (!whereList.isEmpty()) { // SELECT P THEN A END
 			whereList.addAll(createBeforeAfterPredicates(bASTCreator));
 			for (ExprOrOpArgNode e : beforeAfterPredicates) {
 				whereList.add(bASTCreator.visitExprOrOpArgNodePredicate(e));
 			}
-			operationBody = new ASelectSubstitution(bASTCreator.createConjunction(whereList), assign, new ArrayList<>(), null);
+			operationBody = new ASelectSubstitution(createConjunction(whereList), assign, new ArrayList<>(), null);
 		} else { // BEGIN A END
 			operationBody = new ABlockSubstitution(assign);
 		}
 
-		if (!leftSideOfAssigment.isEmpty()) {
-			assign.setLhsExpression(leftSideOfAssigment);
-			assign.setRhsExpressions(rightSideOfAssigment);
+		if (!lhsAssignment.isEmpty()) {
+			assign.setLhsExpression(lhsAssignment);
+			assign.setRhsExpressions(rhsAssignment);
 		} else { // skip
 			assign.replaceBy(new ASkipSubstitution());
 		}
 
-		return new AOperation(
-				new ArrayList<>(),
+		return new AOperation(new LinkedList<>(),
 				bASTCreator.createPositionedTIdentifierLiteral(name, getNode()),
 				this.getFormalParams().stream().map(bASTCreator::createIdentifierNode).collect(Collectors.toList()),
 				operationBody
 		);
 	}
 
-	private ArrayList<PPredicate> createBeforeAfterPredicates(BAstCreator bAstCreator) {
-		ArrayList<PPredicate> predicates = new ArrayList<>();
+	private List<PPredicate> createBeforeAfterPredicates(BAstCreator bAstCreator) {
+		List<PPredicate> predicates = new ArrayList<>();
 		for (ExprOrOpArgNode e : beforeAfterPredicates) {
 			PPredicate body = null;
 			if (e instanceof OpApplNode) {
 				OpApplNode opApplNode = (OpApplNode) e;
 				if (opApplNode.getOperator().getKind() == UserDefinedOpKind
-					&& !BBuiltInOPs.contains(opApplNode.getOperator().getName())) {
+						&& !BBuiltInOPs.contains(opApplNode.getOperator().getName())) {
 					OpDefNode def = (OpDefNode) opApplNode.getOperator();
 					FormalParamNode[] params = def.getParams();
 					for (int j = 0; j < params.length; j++) {
-						FormalParamNode param = params[j];
-						param.setToolObject(SUBSTITUTE_PARAM, opApplNode.getArgs()[j]);
+						params[j].setToolObject(SUBSTITUTE_PARAM, opApplNode.getArgs()[j]);
 					}
 					body = bAstCreator.visitExprNodePredicate(def.getBody());
 				}
@@ -128,45 +123,41 @@ public class BOperation extends BuiltInOPs implements TranslationGlobals {
 		return predicates;
 	}
 
-	private void findAssignments() {
+	private void findAssignments(OpDeclNode[] variableDecls) {
 		PrimedVariablesFinder primedVariablesFinder = new PrimedVariablesFinder(beforeAfterPredicates);
 		for (ExprOrOpArgNode node : new ArrayList<>(beforeAfterPredicates)) {
 			if (node instanceof OpApplNode) {
 				OpApplNode opApplNode = (OpApplNode) node;
-				if (opApplNode.getOperator().getKind() == BuiltInKind) {
-
-					if (OPCODE_eq == getOpCode(opApplNode.getOperator().getName())) {
-						ExprOrOpArgNode arg1 = opApplNode.getArgs()[0]; // we have equality arg1 = RHS
-						try {
-							OpApplNode arg11 = (OpApplNode) arg1;
-							if (getOpCode(arg11.getOperator().getName()) == OPCODE_prime) {
-								OpApplNode v = (OpApplNode) arg11.getArgs()[0];
-								SymbolNode var = v.getOperator();
-								// we have equality var' = RHS
-								if (!primedVariablesFinder.getTwiceUsedVariables().contains(var)) {
-									// var' is only used once in all before after predicates
-									// meaning we do not need it as parameter of the ANY
-									// and can add an assignment var := RHS
-									assignments.put(v.getOperator(), opApplNode.getArgs()[1]); // RHS of assignment
-									beforeAfterPredicates.remove(node);
-									// System.out.println("Detected assignment " + var.getName().toString() + "' = <RHS>");
-								}
+				if (opApplNode.getOperator().getKind() == BuiltInKind
+						&& getOpCode(opApplNode.getOperator().getName()) == OPCODE_eq) {
+					ExprOrOpArgNode arg1 = opApplNode.getArgs()[0]; // we have equality arg1 = RHS
+					try {
+						OpApplNode primeAppl = (OpApplNode) arg1;
+						if (getOpCode(primeAppl.getOperator().getName()) == OPCODE_prime) {
+							OpDeclNode var = (OpDeclNode) ((OpApplNode) primeAppl.getArgs()[0]).getOperator(); // var is first arg of prime
+							// we have equality var' = RHS
+							if (!primedVariablesFinder.getTwiceUsedVariables().contains(var)) {
+								// var' is only used once in all before after predicates
+								// meaning we do not need it as parameter of the ANY
+								// and can add an assignment var := RHS
+								assignments.put(var, opApplNode.getArgs()[1]); // RHS of assignment
+								beforeAfterPredicates.remove(node);
+								// System.out.println("Detected assignment " + var.getName().toString() + "' = <RHS>");
 							}
-						} catch (ClassCastException e) {
 						}
+					} catch (ClassCastException e) {
 					}
-
 				}
 			}
 		}
-		anyVariables = new ArrayList<>();
-		Collections.addAll(anyVariables, specAnalyser.getModuleNode().getVariableDecls());
+		anyVariables.clear();
+		Collections.addAll(anyVariables, variableDecls);
 
 		// for (SymbolNode symbol : primedVariablesFinder.getAllVariables()) {
 		// anyVariables.add((OpDeclNode) symbol);
 		// }
 		anyVariables.removeAll(assignments.keySet());
-		anyVariables.removeAll(unchangedVariablesList);
+		anyVariables.removeAll(unchangedVariables);
 	}
 
 	private void separateGuardsAndBeforeAfterPredicates(ExprOrOpArgNode node) {
@@ -174,49 +165,75 @@ public class BOperation extends BuiltInOPs implements TranslationGlobals {
 			OpApplNode opApplNode = (OpApplNode) node;
 			if (opApplNode.getOperator().getKind() == BuiltInKind) {
 				switch (getOpCode(opApplNode.getOperator().getName())) {
-					case OPCODE_land: // \land
-					{
-						separateGuardsAndBeforeAfterPredicates(opApplNode.getArgs()[0]);
-						separateGuardsAndBeforeAfterPredicates(opApplNode.getArgs()[1]);
-						return;
-					}
+					case OPCODE_land: // \land (getArgs has 2 args)
 					case OPCODE_cl: // $ConjList
-					{
-						for (int i = 0; i < opApplNode.getArgs().length; i++) {
-							separateGuardsAndBeforeAfterPredicates(opApplNode
-								.getArgs()[i]);
-						}
+						Arrays.stream(opApplNode.getArgs()).forEach(this::separateGuardsAndBeforeAfterPredicates);
 						return;
-					}
-					default: {
-						if (opApplNode.level < 2) {
-							guards.add(node); // should we be checking nonLeibnizParams is empty ?
-						} else {
-							beforeAfterPredicates.add(node);
-						}
+					default:
+						(opApplNode.level < 2 ? guards : beforeAfterPredicates).add(node);
+						// guards: should we check if nonLeibnizParams is empty?
 						return;
-					}
-
 				}
 			}
 		}
-		if (node.level < 2) {
-			guards.add(node);
-		} else {
-			beforeAfterPredicates.add(node);
-		}
-		// beforeAfterPredicates.add(node);
+		(node.level < 2 ? guards : beforeAfterPredicates).add(node); // level = 2 means action predicate
 	}
 
-	private void evalParams() {
-		opParams = new ArrayList<>();
-		formalParams = new ArrayList<>();
-		for (OpApplNode n : existQuans) {
-			FormalParamNode[][] params = n.getBdedQuantSymbolLists();
-			for (FormalParamNode[] param : params) {
-				for (FormalParamNode formalParamNode : param) {
-					formalParams.add(formalParamNode);
-					opParams.add(formalParamNode.getName().toString());
+	private void findUnchangedVariablesInSemanticNode(SemanticNode node) {
+		switch (node.getKind()) {
+			case OpApplKind:
+				findUnchangedVariablesInOpApplNode((OpApplNode) node);
+				return;
+			case LetInKind:
+				findUnchangedVariablesInSemanticNode(((LetInNode) node).getBody());
+				return;
+			case SubstInKind:
+				findUnchangedVariablesInSemanticNode(((SubstInNode) node).getBody());
+		}
+	}
+
+	private void findUnchangedVariablesInOpApplNode(OpApplNode n) {
+		int kind = n.getOperator().getKind();
+		if (kind == UserDefinedOpKind && !BBuiltInOPs.contains(n.getOperator().getName())) {
+			findUnchangedVariablesInSemanticNode(((OpDefNode) n.getOperator()).getBody());
+		} else if (kind == BuiltInKind) {
+			switch (BuiltInOPs.getOpCode(n.getOperator().getName())) {
+				case OPCODE_land: // \land
+				case OPCODE_cl: // $ConjList
+					Arrays.stream(n.getArgs()).forEach(this::findUnchangedVariablesInSemanticNode);
+					return;
+				case OPCODE_unchanged: {
+					// n.setToolObject(USED, false); FIXME: this tool object is never used?
+					OpApplNode k = (OpApplNode) n.getArgs()[0];
+					if (k.getOperator().getKind() == VariableDeclKind) {
+						unchangedVariables.add((OpDeclNode) k.getOperator());
+					} else {
+						// Tuple
+						for (int i = 0; i < k.getArgs().length; i++) {
+							OpApplNode var = (OpApplNode) k.getArgs()[i];
+							//findUnchangedVariablesInOpApplNode(var);
+							// System.out.println("var.getOperator() = " + var.getOperator().getName() + " at " + var.getOperator() + " of class " + var.getOperator().getClass().getSimpleName());
+							if (var.getOperator() instanceof OpDefNode) {
+								// we have a definition
+								OpDefNode def = (OpDefNode) var.getOperator();
+								if (def.getParams().length > 0) {
+									// TODO: we do not support definitions with arguments yet
+									throw new RuntimeException("Declaration with parameters not supported for UNCHANGED: " + var.getOperator().getName() + " " + var.getLocation());
+								}
+								ExprNode body = def.getBody();
+								// System.out.println("Body = " + body + " of class " + body.getClass().getSimpleName());
+								if (body instanceof OpApplNode) {
+									OpApplNode obody = (OpApplNode) body;
+									// System.out.println("Operator = " + obody.getOperator()); // In module --TLA+ BUILTINS--
+									findUnchangedVariablesInOpApplNode(obody);
+								}
+							} else if (!(var.getOperator() instanceof OpDeclNode)) {
+								throw new RuntimeException("Cannot convert to list of UNCHANGED variables: " + var.getOperator().getName() + " " + var.getLocation());
+							} else {
+								unchangedVariables.add((OpDeclNode) var.getOperator());
+							}
+						}
+					}
 				}
 			}
 		}
@@ -242,7 +259,7 @@ public class BOperation extends BuiltInOPs implements TranslationGlobals {
 	}
 
 	public List<String> getOpParams() {
-		return opParams;
+		return formalParams.stream().map(f -> f.getName().toString()).collect(Collectors.toList());
 	}
 
 	public List<FormalParamNode> getFormalParams() {
@@ -250,88 +267,7 @@ public class BOperation extends BuiltInOPs implements TranslationGlobals {
 	}
 
 	public List<String> getUnchangedVariables() {
-		return unchangedVariables;
-	}
-
-	private void findUnchangedVariables() {
-		unchangedVariables = new ArrayList<>();
-		findUnchangedVariablesInSemanticNode(node);
-	}
-
-	private void findUnchangedVariablesInSemanticNode(SemanticNode node) {
-		switch (node.getKind()) {
-			case OpApplKind: {
-				findUnchangedVariablesInOpApplNode((OpApplNode) node);
-				return;
-			}
-			case LetInKind: {
-				LetInNode letNode = (LetInNode) node;
-				findUnchangedVariablesInSemanticNode(letNode.getBody());
-				return;
-			}
-
-			case SubstInKind: {
-				SubstInNode substInNode = (SubstInNode) node;
-				findUnchangedVariablesInSemanticNode(substInNode.getBody());
-			}
-		}
-	}
-
-	private void findUnchangedVariablesInOpApplNode(OpApplNode n) {
-
-		int kind = n.getOperator().getKind();
-		if (kind == UserDefinedOpKind && !BBuiltInOPs.contains(n.getOperator().getName())) {
-			OpDefNode def = (OpDefNode) n.getOperator();
-			findUnchangedVariablesInSemanticNode(def.getBody());
-		} else if (kind == BuiltInKind) {
-			int opcode = BuiltInOPs.getOpCode(n.getOperator().getName());
-			switch (opcode) {
-				case OPCODE_land: // \land
-				case OPCODE_cl: { // $ConjList
-					for (int i = 0; i < n.getArgs().length; i++) {
-						findUnchangedVariablesInSemanticNode(n.getArgs()[i]);
-					}
-					return;
-				}
-				case OPCODE_unchanged: {
-					n.setToolObject(USED, false);
-					OpApplNode k = (OpApplNode) n.getArgs()[0];
-					if (k.getOperator().getKind() == VariableDeclKind) {
-						unchangedVariablesList.add((OpDeclNode) k.getOperator());
-						String name = k.getOperator().getName().toString();
-						unchangedVariables.add(name);
-					} else {
-						// Tuple
-						for (int i = 0; i < k.getArgs().length; i++) {
-							OpApplNode var = (OpApplNode) k.getArgs()[i];
-							//findUnchangedVariablesInOpApplNode(var);
-							// System.out.println("var.getOperator() = " + var.getOperator().getName() + " at " + var.getOperator() + " of class " + var.getOperator().getClass().getSimpleName());
-							if (var.getOperator() instanceof OpDefNode) {
-								// we have a definition
-								OpDefNode def = (OpDefNode) var.getOperator();
-								if (def.getParams().length > 0) {
-									// we do not support definitions with arguments yet
-									throw new RuntimeException("Declaration with parameters not supported for UNCHANGED: " + var.getOperator().getName() + " " + var.getLocation());
-								}
-								ExprNode body = def.getBody();
-								// System.out.println("Body = " + body + " of class " + body.getClass().getSimpleName());
-								if (body instanceof OpApplNode) {
-									OpApplNode obody = (OpApplNode) body;
-									// System.out.println("Operator = " + obody.getOperator()); // In module --TLA+ BUILTINS--
-									findUnchangedVariablesInOpApplNode(obody);
-								}
-							} else if (!(var.getOperator() instanceof OpDeclNode)) {
-								throw new RuntimeException("Cannot convert to list of UNCHANGED variables: " + var.getOperator().getName() + " " + var.getLocation());
-							} else {
-								unchangedVariablesList.add((OpDeclNode) var.getOperator());
-								String name = var.getOperator().getName().toString();
-								unchangedVariables.add(name);
-							}
-						}
-					}
-				}
-			}
-		}
+		return unchangedVariables.stream().map(u -> u.getName().toString()).collect(Collectors.toList());
 	}
 }
 
