@@ -7,6 +7,11 @@
 .project
 .settings/
 
+# IDEA
+out/
+.idea/
+*.iml
+
 # Test output
 *.prob
 Testing.cfg
