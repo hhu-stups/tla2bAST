@@ -264,4 +264,26 @@ public class ActionsTest {
 
 		compare("MACHINE Testing END", module);
 	}
+
+	@Test
+	@Ignore("not implemented yet, one operation in the disjunction is ignored")
+	public void testOperationsWithSameName() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+				+ "EXTENDS Naturals \n"
+				+ "VARIABLES x \n"
+				+ "Init == x = 1 \n"
+				+ "Op(y) == x' = y \n"
+				+ "Next == \\/ Op(2) \n"
+				+ "        \\/ Op(3) \n"
+				+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+				+ "VARIABLES x\n"
+				+ "INVARIANT x : INTEGER \n"
+				+ "INITIALISATION x:(x = 1) \n"
+				+ "OPERATIONS \n"
+				+ " Op(y) = SELECT y : {2,3} THEN x := y END \n"
+				+ "END";
+		compare(expected, module);
+	}
 }
