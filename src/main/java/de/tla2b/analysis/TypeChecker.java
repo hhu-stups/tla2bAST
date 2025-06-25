@@ -278,49 +278,28 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 
 			case UserDefinedOpKind: {
 				OpDefNode def = (OpDefNode) n.getOperator();
+				ExprOrOpArgNode[] args = n.getArgs();
+				FormalParamNode[] params = def.getParams();
 
 				// Definition is a BBuilt-in definition
 				if (BBuiltInOPs.isBBuiltInOp(def)) {
 					return evalBBuiltIns(n, expected);
 				}
 
-				TLAType found = getType(def);
-				if (found == null) {
-					found = new UntypedType();
-					// throw new RuntimeException(def.getName() + " has no type yet!");
-				}
-				if (n.getArgs().length != 0) {
-					found = found.cloneTLAType();
-				}
-				found = unify(found, expected, def.getName().toString(), def);
+				// the definition might be generic, so we have to re-evaluate
+				// the definition body with the concrete types we have here as args
 
-				boolean untyped = false;
-				FormalParamNode[] params = def.getParams();
-				for (int i = 0; i < n.getArgs().length; i++) {
-					// clone the parameter type, because the parameter type is not
-					// set/changed at a definition call
-					FormalParamNode p = params[i];
-					TLAType pType = getType(p);
-					if (pType == null) {
-						pType = new UntypedType();
-						// throw new RuntimeException("Parameter " + p.getName() + " has no type yet!%n" + p.getLocation());
-					}
-					pType = pType.cloneTLAType();
-					if (pType.isUntyped())
-						untyped = true;
-
-					pType = visitExprOrOpArgNode(n.getArgs()[i], pType);
-					// unify both types,
-					// set types of the arguments of the definition call to the parameters for reevaluation the def body
-					setType(p, pType, TEMP_TYPE_ID);
+				// set param types
+				assert params.length == args.length;
+				for (int i = 0; i < args.length; i++) {
+					TLAType argType = visitExprOrOpArgNode(args[i], new UntypedType());
+					setType(params[i], argType.cloneTLAType(), TEMP_TYPE_ID);
 				}
 
-				if (found.isUntyped() || untyped || !def.getInRecursive()) {
-					// evaluate the body of the definition again
-					paramId = TEMP_TYPE_ID;
-					found = visitExprNode(def.getBody(), found);
-					paramId = TYPE_ID;
-				}
+				// re-evaluate definition body
+				paramId = TEMP_TYPE_ID;
+				TLAType found = visitExprNode(def.getBody(), expected);
+				paramId = TYPE_ID;
 
 				setType(n, found);
 				return found;
