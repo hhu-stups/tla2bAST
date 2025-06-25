@@ -7,7 +7,7 @@ import de.tla2b.output.TypeVisitorInterface;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class TupleOrFunction extends AbstractHasFollowers {
+public class TupleOrFunction extends AbstractHasFollowers implements IDefaultableType {
 	private final Map<Integer, TLAType> types = new LinkedHashMap<>();
 
 	public TupleOrFunction(Integer index, TLAType type) {
@@ -249,7 +249,8 @@ public class TupleOrFunction extends AbstractHasFollowers {
 		update();
 	}
 
-	public TLAType getFinalType() {
+	@Override
+	public TLAType setToDefault() {
 		List<TLAType> list = new ArrayList<>(this.types.values());
 		if (comparable(list)) {
 			FunctionType func = new FunctionType(IntType.getInstance(), new UntypedType());

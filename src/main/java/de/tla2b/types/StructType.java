@@ -33,16 +33,17 @@ public class StructType extends AbstractHasFollowers {
 	}
 
 	public void add(String name, TLAType type) {
+		types.put(name, type);
 		if (type instanceof AbstractHasFollowers) { // set new reference
 			((AbstractHasFollowers) type).addFollower(this);
 		}
-		types.put(name, type);
 	}
 
-	public void setNewType(TLAType old, TLAType New) {
+	public void setNewType(TLAType old, TLAType newType) {
 		types.forEach((name, type) -> {
-			if (type == old)
-				add(name, New);
+			if (type == old) {
+				add(name, newType);
+			}
 		});
 	}
 

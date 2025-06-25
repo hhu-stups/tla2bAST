@@ -20,13 +20,11 @@ public class PairType extends AbstractHasFollowers {
 		super(PAIR);
 		this.first = f;
 		if (first instanceof AbstractHasFollowers) {
-			AbstractHasFollowers firstHasFollowers = (AbstractHasFollowers) first;
-			firstHasFollowers.addFollower(this);
+			((AbstractHasFollowers) first).addFollower(this);
 		}
 		this.second = s;
 		if (second instanceof AbstractHasFollowers) {
-			AbstractHasFollowers secondHasFollowers = (AbstractHasFollowers) second;
-			secondHasFollowers.addFollower(this);
+			((AbstractHasFollowers) second).addFollower(this);
 		}
 	}
 
@@ -65,6 +63,15 @@ public class PairType extends AbstractHasFollowers {
 		if (!this.isUntyped()) {
 			// this type is completely typed
 			this.deleteFollowers();
+		}
+	}
+
+	public void update(TLAType oldType, TLAType newType) {
+		if (this.first == oldType) {
+			this.setFirst(newType);
+		}
+		if (this.second == oldType) {
+			this.setSecond(newType);
 		}
 	}
 

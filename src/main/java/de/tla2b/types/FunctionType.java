@@ -26,10 +26,12 @@ public class FunctionType extends AbstractHasFollowers {
 	}
 
 	public void update(TLAType oldType, TLAType newType) {
-		if (domain == oldType)
-			setDomain(newType);
-		if (range == oldType)
-			setRange(newType);
+		if (domain == oldType) {
+            setDomain(newType);
+        }
+		if (range == oldType) {
+            setRange(newType);
+        }
 	}
 
 	@Override

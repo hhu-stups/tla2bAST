@@ -1,27 +1,28 @@
 package de.tla2b.types;
 
-import de.tla2b.analysis.TypeChecker;
-import tla2sany.semantic.SemanticNode;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import de.tla2b.analysis.TypeChecker;
+
+import tla2sany.semantic.SemanticNode;
+
 public abstract class AbstractHasFollowers extends TLAType {
 
-	private List<Object> followers = new ArrayList<>();
+	private List<Object> followers = null;
 
 	public AbstractHasFollowers(int t) {
 		super(t);
 	}
 
-	public List<Object> getFollowers() {
-		return followers;
-	}
-
 	public void addFollower(Object o) {
+		if (followers == null) {
+			followers = new ArrayList<>();
+		}
 		// only (partial) untyped types need follower
-		if (followers != null && !followers.contains(o))
+		if (!followers.contains(o)) {
 			followers.add(o);
+		}
 	}
 
 	public void deleteFollowers() {
@@ -29,31 +30,26 @@ public abstract class AbstractHasFollowers extends TLAType {
 	}
 
 	public void removeFollower(Object o) {
-		followers.remove(o);
+		if (this.hasFollowers()) {
+			followers.remove(o);
+		}
 	}
 
 	protected void setFollowersTo(TLAType newType) {
-		if (this.followers == null)
+		if (!this.hasFollowers()) {
 			return;
+		}
 		// avoid concurrent modification:
 		new ArrayList<>(followers).forEach(follower -> {
+			//this.removeFollower(follower);
 			if (follower instanceof SemanticNode) {
-				TypeChecker.setType((SemanticNode) follower, newType);
-				if (newType instanceof AbstractHasFollowers) {
-					((AbstractHasFollowers) newType).addFollower(follower);
-				}
+				TypeChecker.updateTypeAndFollowers((SemanticNode) follower, this, newType);
 			} else if (follower instanceof SetType) {
-				((SetType) follower).setSubType(newType);
+				((SetType) follower).update(this, newType);
 			} else if (follower instanceof TupleType) {
 				((TupleType) follower).update(this, newType);
 			} else if (follower instanceof PairType) {
-				PairType pair = ((PairType) follower);
-				if (pair.getFirst() == this) {
-					pair.setFirst(newType);
-				}
-				if (pair.getSecond() == this) {
-					pair.setSecond(newType);
-				}
+				((PairType) follower).update(this, newType);
 			} else if (follower instanceof FunctionType) {
 				((FunctionType) follower).update(this, newType);
 			} else if (follower instanceof StructType) {
@@ -68,7 +64,7 @@ public abstract class AbstractHasFollowers extends TLAType {
 		});
 	}
 
-	public boolean hasFollower() {
-		return !followers.isEmpty();
+	public boolean hasFollowers() {
+		return followers != null && !followers.isEmpty();
 	}
 }

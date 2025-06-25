@@ -18,21 +18,22 @@ public class SetType extends AbstractHasFollowers {
 	}
 
 	public void setSubType(TLAType t) {
-		// if (subType instanceof AbstractHasFollowers) {
-		// // delete old reference
-		// ((AbstractHasFollowers) subType).removeFollower(this);
-		// }
-
+		this.subType = t;
 		if (t instanceof AbstractHasFollowers) {
 			// set new reference
 			((AbstractHasFollowers) t).addFollower(this);
 		}
-		this.subType = t;
 
 		// setting subType can lead to a completely typed type
 		if (!this.isUntyped()) {
 			// this type is completely typed
 			this.deleteFollowers();
+		}
+	}
+
+	public void update(TLAType oldType, TLAType newType) {
+		if (this.subType == oldType) {
+			this.setSubType(newType);
 		}
 	}
 

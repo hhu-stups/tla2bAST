@@ -29,15 +29,15 @@ public class RealType extends TLAType {
 
 	@Override
 	public boolean compare(TLAType o) {
-		return o.getKind() == UNTYPED || o.getKind() == REAL;
+		return o.getKind() == UNTYPED || o.getKind() == REAL || o.getKind() == INTEGER_OR_REAL;
 	}
 
 	@Override
 	public RealType unify(TLAType o) throws UnificationException {
 		if (o.getKind() == REAL) {
 			return this;
-		} else if (o instanceof UntypedType) {
-			((UntypedType) o).setFollowersTo(this);
+		} else if (o.getKind() == INTEGER_OR_REAL || o instanceof UntypedType) {
+			((AbstractHasFollowers) o).setFollowersTo(this);
 			return this;
 		} else
 			throw new UnificationException();

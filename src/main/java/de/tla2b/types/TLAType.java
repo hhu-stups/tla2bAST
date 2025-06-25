@@ -20,6 +20,7 @@ public abstract class TLAType {
 	static int TUPLE = 11;
 	static int TUPLE_OR_FUNCTION = 12;
 	static int REAL = 13;
+	static int INTEGER_OR_REAL = 14;
 
 	private final int kind;
 

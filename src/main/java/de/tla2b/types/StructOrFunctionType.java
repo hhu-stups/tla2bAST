@@ -7,8 +7,6 @@ import de.tla2b.output.TypeVisitorInterface;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 public class StructOrFunctionType extends AbstractHasFollowers {
 	private final Map<String, TLAType> types = new LinkedHashMap<>();
@@ -22,13 +20,13 @@ public class StructOrFunctionType extends AbstractHasFollowers {
 		super(STRUCT_OR_FUNCTION);
 	}
 
-	public void setNewType(TLAType old, TLAType New) {
+	public void setNewType(TLAType oldType, TLAType newType) {
 		types.forEach((name, type) -> {
-			if (type == old) {
-				if (New instanceof AbstractHasFollowers) { // set new reference
-					((AbstractHasFollowers) New).addFollower(this);
+			if (type == oldType) {
+				types.put(name, newType);
+				if (newType instanceof AbstractHasFollowers) { // set new reference
+					((AbstractHasFollowers) newType).addFollower(this);
 				}
-				types.put(name, New);
 			}
 		});
 		testRecord();

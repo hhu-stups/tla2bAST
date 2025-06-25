@@ -4,7 +4,7 @@ import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
 import de.tla2b.output.TypeVisitorInterface;
 
-public class UntypedType extends AbstractHasFollowers {
+public final class UntypedType extends AbstractHasFollowers {
 
 	public UntypedType() {
 		super(UNTYPED);
@@ -14,6 +14,12 @@ public class UntypedType extends AbstractHasFollowers {
 		if (!this.compare(o)) {
 			throw new UnificationException();
 		}
+
+		// if the other type is just an empty untyped one we can return this
+		if (o instanceof UntypedType && !((UntypedType) o).hasFollowers()) {
+			return this;
+		}
+
 		// u2 contains more or equal type information than untyped (this)
 		this.setFollowersTo(o);
 		//this.deleteFollowers();

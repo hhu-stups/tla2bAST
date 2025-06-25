@@ -18,6 +18,8 @@ public interface TypeVisitorInterface {
 
 	void caseRealType(RealType type);
 
+	void caseIntegerOrRealType(IntegerOrRealType type);
+
 	void caseSetType(SetType type);
 
 	void caseStringType(StringType type);

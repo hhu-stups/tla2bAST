@@ -4,7 +4,6 @@ import de.be4.classicalb.core.parser.node.PExpression;
 import de.be4.classicalb.core.parser.util.ASTBuilder;
 import de.tla2b.exceptions.UnificationException;
 import de.tla2b.output.TypeVisitorInterface;
-import de.tla2bAst.BAstCreator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,10 +45,11 @@ public class TupleType extends AbstractHasFollowers {
 			TLAType t = types.get(i);
 			if (oldType == t) {
 				types.set(i, newType);
+				if (newType instanceof AbstractHasFollowers) {
+					((AbstractHasFollowers) newType).addFollower(this);
+				}
 			}
 		}
-		if (oldType instanceof AbstractHasFollowers)
-			((AbstractHasFollowers) oldType).addFollower(this);
 	}
 
 	@Override

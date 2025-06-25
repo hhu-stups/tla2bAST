@@ -78,6 +78,11 @@ public class TlaTypePrinter extends ClassicalPositionPrinter implements TypeVisi
 		pout.printAtom("real");
 	}
 
+	@Override
+	public void caseIntegerOrRealType(IntegerOrRealType type) {
+		throw new NotImplementedException("should not happen");
+	}
+
 	public void caseSetType(SetType type) {
 		pout.openTerm("set");
 		type.getSubType().apply(this);

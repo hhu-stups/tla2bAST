@@ -119,14 +119,15 @@ public class TupleTest {
 		assertEquals("POW(INTEGER*BOOL)", t.getConstantType("k"));
 	}
 
-	@Test(expected = TypeErrorException.class)
+	@Test
 	public void testTuple2Elements() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 			+ "CONSTANTS k, k2, k3 \n"
 			+ "ASSUME k = <<k2, k3>> /\\ k3 = TRUE \n"
 			+ "=================================";
 
-		TestUtil.typeCheckString(module);
+		TestTypeChecker t = TestUtil.typeCheckString(module);
+		assertEquals("POW(INTEGER*BOOL)", t.getConstantType("k"));
 	}
 
 	@Test

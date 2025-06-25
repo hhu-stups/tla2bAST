@@ -1,18 +1,56 @@
 package de.tla2b.analysis;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import de.tla2b.config.ConfigfileEvaluator;
 import de.tla2b.config.TLCValueNode;
-import de.tla2b.exceptions.*;
+import de.tla2b.exceptions.NotImplementedException;
+import de.tla2b.exceptions.TLA2BException;
+import de.tla2b.exceptions.TLA2BFrontEndException;
+import de.tla2b.exceptions.TypeErrorException;
+import de.tla2b.exceptions.UnificationException;
 import de.tla2b.global.BBuildIns;
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.global.TranslationGlobals;
-import de.tla2b.types.*;
+import de.tla2b.types.AbstractHasFollowers;
+import de.tla2b.types.BoolType;
+import de.tla2b.types.FunctionType;
+import de.tla2b.types.IDefaultableType;
+import de.tla2b.types.IntType;
+import de.tla2b.types.IntegerOrRealType;
+import de.tla2b.types.RealType;
+import de.tla2b.types.SetType;
+import de.tla2b.types.StringType;
+import de.tla2b.types.StructOrFunctionType;
+import de.tla2b.types.StructType;
+import de.tla2b.types.TLAType;
+import de.tla2b.types.TupleOrFunction;
+import de.tla2b.types.TupleType;
+import de.tla2b.types.UntypedType;
 import de.tla2b.util.DebugUtils;
-import tla2sany.semantic.*;
-import tlc2.tool.BuiltInOPs;
 
-import java.util.*;
-import java.util.Map.Entry;
+import tla2sany.semantic.AssumeNode;
+import tla2sany.semantic.AtNode;
+import tla2sany.semantic.ExprNode;
+import tla2sany.semantic.ExprOrOpArgNode;
+import tla2sany.semantic.FormalParamNode;
+import tla2sany.semantic.LetInNode;
+import tla2sany.semantic.ModuleNode;
+import tla2sany.semantic.NumeralNode;
+import tla2sany.semantic.OpApplNode;
+import tla2sany.semantic.OpDeclNode;
+import tla2sany.semantic.OpDefNode;
+import tla2sany.semantic.SemanticNode;
+import tla2sany.semantic.StringNode;
+import tla2sany.semantic.SymbolNode;
+import tlc2.tool.BuiltInOPs;
 
 public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlobals {
 
@@ -25,7 +63,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 	private final Set<OpDefNode> bDefinitions;
 
 	private final List<SymbolNode> symbolNodeList = new ArrayList<>();
-	private final List<SemanticNode> tupleNodeList = new ArrayList<>();
+	private final List<IDefaultableType> possibleUnfinishedTypes = new ArrayList<>();
 
 	private final ModuleNode moduleNode;
 	private List<OpDeclNode> bConstList;
@@ -67,18 +105,18 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 	public void start() throws TLA2BException {
 		for (OpDeclNode con : moduleNode.getConstantDecls()) {
 			if (constantAssignments != null && constantAssignments.containsKey(con)) {
-				setTypeAndFollowers(con, constantAssignments.get(con).getType());
+				setLocalTypeAndFollowers(con, constantAssignments.get(con).getType());
 			} else {
 				// if constant already has a type: keep type; otherwise add an untyped type
-				if (getType(con) == null)
-					setTypeAndFollowers(con, new UntypedType());
+				if (getLocalType(con) == null)
+					setLocalTypeAndFollowers(con, new UntypedType());
 			}
 		}
 
 		for (OpDeclNode var : moduleNode.getVariableDecls()) {
 			// if variable already has a type: keep type; otherwise add an untyped type
-			if (getType(var) == null)
-				setTypeAndFollowers(var, new UntypedType());
+			if (getLocalType(var) == null)
+				setLocalTypeAndFollowers(var, new UntypedType());
 		}
 
 		evalDefinitions(moduleNode.getOpDefs());
@@ -89,10 +127,10 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 				if (!bConstList.contains(con))
 					continue;
 
-				TLAType defType = getType(entry.getValue());
-				TLAType conType = getType(con);
+				TLAType defType = getLocalType(entry.getValue());
+				TLAType conType = getLocalType(con);
 				try {
-					setType(con, defType.unify(conType));
+					setLocalType(con, defType.unify(conType));
 				} catch (UnificationException e) {
 					throw new TypeErrorException(
 						String.format("Expected %s, found %s at constant '%s'.", defType, conType, con.getName()));
@@ -116,10 +154,14 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 	}
 
 	private void checkIfAllIdentifiersHaveAType() throws TypeErrorException {
+		for (IDefaultableType type : possibleUnfinishedTypes) {
+			type.setToDefault();
+		}
+
 		// check if a variable has no type
 		for (OpDeclNode var : moduleNode.getVariableDecls()) {
-			TLAType varType = getType(var);
-			if (varType.isUntyped()) {
+			TLAType varType = getLocalType(var);
+			if (varType == null || varType.isUntyped()) {
 				throw new TypeErrorException(
 					"The type of the variable '" + var.getName() + "' can not be inferred: " + varType);
 			}
@@ -129,28 +171,20 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 		// the resulting B Machine are considered
 		for (OpDeclNode con : moduleNode.getConstantDecls()) {
 			if (bConstList == null || bConstList.contains(con)) {
-				TLAType conType = getType(con);
-				if (conType.isUntyped()) {
+				TLAType conType = getLocalType(con);
+				if (conType == null || conType.isUntyped()) {
 					throw new TypeErrorException(
 						"The type of constant " + con.getName() + " is still untyped: " + conType);
 				}
 			}
 		}
 
-		for (SymbolNode symbol : symbolNodeList) {
-			TLAType type = getType(symbol);
-			if (type.isUntyped()) {
+		/* TODO: for (SymbolNode symbol : symbolNodeList) {
+			TLAType type = getLocalType(symbol);
+			if (type == null || type.isUntyped()) {
 				throw new TypeErrorException("Symbol '" + symbol.getName() + "' has no type.\n" + symbol.getLocation());
 			}
-		}
-
-		for (SemanticNode tuple : tupleNodeList) {
-			TLAType type = getType(tuple);
-			if (type instanceof TupleOrFunction) {
-				((TupleOrFunction) type).getFinalType();
-			}
-			// TODO: does this do anything?
-		}
+		}*/
 	}
 
 	private void evalDefinitions(OpDefNode[] opDefs) throws TLA2BException {
@@ -167,16 +201,13 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 	public void visitOpDefNode(OpDefNode def) throws TLA2BException {
 		for (FormalParamNode p : def.getParams()) {
 			if (p.getArity() > 0) {
-				throw new TLA2BFrontEndException(String.format("TLA2B do not support 2nd-order operators: '%s'%n %s ",
+				throw new TLA2BFrontEndException(String.format("TLA2B does not support 2nd-order operators: '%s'%n %s ",
 					def.getName(), def.getLocation()));
 			}
-			setTypeAndFollowers(p, new UntypedType(), paramId);
+			setLocalTypeAndFollowers(p, new UntypedType());
 		}
-		UntypedType u = new UntypedType();
-		// TODO: check this
-		// def.setToolObject(TYPE_ID, u);
-		// u.addFollower(def);
-		setTypeAndFollowers(def, visitExprNode(def.getBody(), u));
+		TLAType found = visitExprNode(def.getBody(), new UntypedType());
+		setLocalTypeAndFollowers(def, found);
 	}
 
 	private void evalAssumptions(AssumeNode[] assumptions) throws TLA2BException {
@@ -198,7 +229,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			case TLCValueKind: {
 				TLCValueNode valueNode = (TLCValueNode) exprNode;
 				return unify(valueNode.getType(), expected, valueNode.getValue().toString()
-						+ " (assigned in the configuration file)", exprNode);
+					                                            + " (assigned in the configuration file)", exprNode);
 			}
 			case OpApplKind:
 				return visitOpApplNode((OpApplNode) exprNode, expected);
@@ -209,8 +240,8 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			case StringKind:
 				return unify(StringType.getInstance(), expected, ((StringNode) exprNode).getRep().toString(), exprNode);
 			case AtNodeKind: { // @
-				TLAType type = getType((((AtNode) exprNode).getExceptComponentRef()).getArgs()[1]); // right side
-				return unifyAndSetTypeWithFollowers(type, expected, "@", exprNode);
+				TLAType type = getLocalType((((AtNode) exprNode).getExceptComponentRef()).getArgs()[1]); // right side
+				return unifyAndSetLocalTypeWithFollowers(type, expected, "@", exprNode);
 			}
 			case LetInKind: {
 				LetInNode l = (LetInNode) exprNode;
@@ -229,28 +260,29 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 	private TLAType visitOpApplNode(OpApplNode n, TLAType expected) throws TLA2BException {
 		switch (n.getOperator().getKind()) {
 			case ConstantDeclKind: {
-				OpDeclNode con = (OpDeclNode) n.getOperator();
-				TLAType c = getType(con);
+				SymbolNode symbolNode = n.getOperator();
+				String vName = symbolNode.getName().toString();
+				TLAType c = getLocalType(symbolNode);
 				if (c == null) {
-					throw new TypeErrorException(con.getName() + " has no type yet!");
+					throw new TypeErrorException(vName + " has no type yet!");
 				}
-				return unifyAndSetType(c, expected, con.getName().toString(), con);
+				return unifyAndSetLocalTypeWithFollowers(c, expected, vName, n);
 			}
 
 			case VariableDeclKind: {
 				SymbolNode symbolNode = n.getOperator();
 				String vName = symbolNode.getName().toString();
-				TLAType v = getType(symbolNode);
+				TLAType v = getLocalType(symbolNode);
 				if (v == null) {
 					SymbolNode var = this.specAnalyser.getSymbolNodeByName(vName);
 					if (var != null) {
 						// symbolNode is variable of an expression, e.g. v + 1
-						v = getType(var);
+						v = getLocalType(var);
 					} else {
 						throw new TypeErrorException(vName + " has no type yet!");
 					}
 				}
-				return unifyAndSetType(v, expected, vName, n);
+				return unifyAndSetLocalTypeWithFollowers(v, expected, vName, n);
 			}
 
 			case BuiltInKind:
@@ -258,22 +290,13 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 
 			case FormalParamKind: {
 				SymbolNode symbolNode = n.getOperator();
-				TLAType t = getType(symbolNode, paramId);
-				if (t == null) { // no temp type
-					t = getType(symbolNode);
-					if (t == null) { // no type at all
-						t = new UntypedType(); // TODO is this correct?
-						// throw new RuntimeException();
-					}
+				String vName = symbolNode.getName().toString();
+				TLAType t = getLocalType(symbolNode);
+				if (t == null) {
+					t = new UntypedType(); // TODO is this correct?
+					// throw new RuntimeException();
 				}
-				try {
-					TLAType result = expected.unify(t);
-					setType(symbolNode, result, paramId);
-					return result;
-				} catch (UnificationException e) {
-					throw new TypeErrorException(String.format("Expected %s, found %s at parameter '%s',%n%s", expected, t,
-						symbolNode.getName(), n.getLocation()));
-				}
+				return unifyAndSetLocalType(t, expected, vName, n);
 			}
 
 			case UserDefinedOpKind: {
@@ -287,22 +310,33 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 				}
 
 				// the definition might be generic, so we have to re-evaluate
-				// the definition body with the concrete types we have here as args
+				// its body with the concrete types we have here as args
 
 				// set param types
 				assert params.length == args.length;
 				for (int i = 0; i < args.length; i++) {
 					TLAType argType = visitExprOrOpArgNode(args[i], new UntypedType());
-					setType(params[i], argType.cloneTLAType(), TEMP_TYPE_ID);
+
+					int prevParamId = paramId;
+					paramId = TEMP_TYPE_ID;
+					try {
+						setLocalType(params[i], argType);
+					} finally {
+						paramId = prevParamId;
+					}
 				}
 
 				// re-evaluate definition body
+				int prevParamId = paramId;
 				paramId = TEMP_TYPE_ID;
-				TLAType found = visitExprNode(def.getBody(), expected);
-				paramId = TYPE_ID;
+				TLAType found;
+				try {
+					found = visitExprNode(def.getBody(), expected);
+				} finally {
+					paramId = prevParamId;
+				}
 
-				setType(n, found);
-				return found;
+				return unify(found, expected, n);
 			}
 
 			default:
@@ -447,27 +481,24 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 					found = new FunctionType(IntType.getInstance(), list.get(0));
 				} else {
 					found = TupleOrFunction.createTupleOrFunctionType(list);
-					// found = new TupleType(list);
 				}
-				tupleNodeList.add(n);
-				return unifyAndSetTypeWithFollowers(found, expected, "tuple", n);
+				return unifyAndSetLocalTypeWithFollowers(found, expected, "tuple", n);
 			}
 
 			/*
 			 * Function constructors
 			 */
-			case OPCODE_rfs: { // recursive function ( f[x\in Nat] == IF x = 0 THEN 1
-				// ELSE f[n-1]
+			case OPCODE_rfs: { // recursive function ( f[x\in Nat] == IF x = 0 THEN 1 ELSE f[n-1]
 				FormalParamNode recFunc = n.getUnbdedQuantSymbols()[0];
 				symbolNodeList.add(recFunc);
-				setTypeAndFollowers(recFunc, new FunctionType());
+				setLocalTypeAndFollowers(recFunc, new FunctionType());
 
 				TLAType domainType = evalBoundedVariables(n);
 				FunctionType found = new FunctionType(domainType, new UntypedType());
 				visitExprOrOpArgNode(n.getArgs()[0], found.getRange());
 
 				found = (FunctionType) unify(found, expected, n);
-				return unify(found, getType(recFunc), n);
+				return unify(found, getLocalType(recFunc), n);
 			}
 
 			case OPCODE_nrfs: // succ[n \in Nat] == n + 1
@@ -490,17 +521,16 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 						domList.add(visitExprOrOpArgNode(arg, new UntypedType()));
 					}
 					domType = domList.size() == 1
-							? new FunctionType(IntType.getInstance(), domList.get(0)) // one-tuple
-							: new TupleType(domList);
+						          ? new FunctionType(IntType.getInstance(), domList.get(0)) // one-tuple
+						          : new TupleType(domList);
 				} else if (dom instanceof NumeralNode) {
 					NumeralNode num = (NumeralNode) dom;
 					UntypedType u = new UntypedType();
-					setTypeAndFollowers(n, u);
+					setLocalTypeAndFollowers(n, u);
 
 					TLAType res = visitExprOrOpArgNode(n.getArgs()[0], new TupleOrFunction(num.val(), u));
-					setTypeAndFollowers(n.getArgs()[0], res);
-					tupleNodeList.add(n.getArgs()[0]);
-					return unify(getType(n), expected, n.getArgs()[0].toString(), n);
+					setLocalTypeAndFollowers(n.getArgs()[0], res);
+					return unify(getLocalType(n), expected, n.getArgs()[0].toString(), n);
 				} else {
 					domType = visitExprOrOpArgNode(dom, new UntypedType());
 				}
@@ -561,7 +591,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 					SetType fieldType = (SetType) visitExprOrOpArgNode(pair.getArgs()[1], new SetType(new UntypedType()));
 					struct.add(field.getRep().toString(), fieldType.getSubType());
 				}
-				return unifyAndSetTypeWithFollowers(new SetType(struct), expected, "set of records", n);
+				return unifyAndSetLocalTypeWithFollowers(new SetType(struct), expected, "set of records", n);
 			}
 
 			case OPCODE_rc: { // [h_1 |-> 1, h_2 |-> 2]
@@ -572,7 +602,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 					TLAType fieldType = visitExprOrOpArgNode(pair.getArgs()[1], new UntypedType());
 					found.add(field.getRep().toString(), fieldType);
 				}
-				return unifyAndSetTypeWithFollowers(found, expected, "record constructor", n);
+				return unifyAndSetLocalTypeWithFollowers(found, expected, "record constructor", n);
 			}
 
 			case OPCODE_rs: { // $RcdSelect r.c
@@ -588,7 +618,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 					throw new TypeErrorException(String.format("Struct has no field %s with type %s: %s%n%s", fieldName,
 						r.getType(fieldName), r, n.getLocation()));
 				}
-				setTypeAndFollowers(n.getArgs()[0], r);
+				setLocalTypeAndFollowers(n.getArgs()[0], r);
 				return r.getType(fieldName);
 			}
 
@@ -599,7 +629,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 				visitExprOrOpArgNode(n.getArgs()[0], BoolType.getInstance());
 				TLAType then = visitExprOrOpArgNode(n.getArgs()[1], expected);
 				TLAType eelse = visitExprOrOpArgNode(n.getArgs()[2], then);
-				setTypeAndFollowers(n, eelse);
+				setLocalTypeAndFollowers(n, eelse);
 				return eelse;
 			}
 
@@ -623,7 +653,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 				for (FormalParamNode param : n.getUnbdedQuantSymbols()) {
 					TLAType paramType = new UntypedType();
 					symbolNodeList.add(param);
-					setTypeAndFollowers(param, paramType);
+					setLocalTypeAndFollowers(param, paramType);
 					list.add(paramType);
 				}
 				TLAType found;
@@ -632,7 +662,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 				} else {
 					found = new TupleType(list);
 				}
-				found = unifyAndSetTypeWithFollowers(found, expected, n.getOperator().getName().toString(), n);
+				found = unifyAndSetLocalTypeWithFollowers(found, expected, n.getOperator().getName().toString(), n);
 				visitExprOrOpArgNode(n.getArgs()[0], BoolType.getInstance());
 				return found;
 			}
@@ -655,7 +685,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 
 			default:
 				throw new NotImplementedException(
-						"Not supported Operator: " + n.getOperator().getName() + "\n" + n.getLocation());
+					"Not supported Operator: " + n.getOperator().getName() + "\n" + n.getLocation());
 		}
 	}
 
@@ -674,7 +704,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 					expected = (FunctionType) unify(expected, subType, "parameter " + p.getName(), bounds[i]);
 					domList.add(expected);
 					symbolNodeList.add(p);
-					setTypeAndFollowers(p, expected.getRange());
+					setLocalTypeAndFollowers(p, expected.getRange());
 				} else {
 					TupleType tuple = new TupleType(params[i].length);
 					tuple = (TupleType) unify(tuple, subType, "tuple", bounds[i]);
@@ -682,7 +712,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 					for (int j = 0; j < params[i].length; j++) {
 						FormalParamNode p = params[i][j];
 						symbolNodeList.add(p);
-						setTypeAndFollowers(p, tuple.getTypes().get(j));
+						setLocalTypeAndFollowers(p, tuple.getTypes().get(j));
 					}
 				}
 			} else { // is not a tuple: all parameter have the same type
@@ -690,7 +720,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 					domList.add(subType);
 					FormalParamNode p = params[i][j];
 					symbolNodeList.add(p);
-					setTypeAndFollowers(p, subType);
+					setLocalTypeAndFollowers(p, subType);
 				}
 			}
 		}
@@ -699,13 +729,13 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 
 	private TLAType evalExcept(OpApplNode n, TLAType expected) throws TLA2BException {
 		TLAType t = visitExprOrOpArgNode(n.getArgs()[0], expected);
-		setTypeAndFollowers(n, t);
+		setLocalTypeAndFollowers(n, t);
 
 		for (int i = 1; i < n.getArgs().length; i++) { // start at 1
 			OpApplNode pair = (OpApplNode) n.getArgs()[i];
 			// stored for @ node
 			UntypedType untyped = new UntypedType();
-			setTypeAndFollowers(pair.getArgs()[1], untyped);
+			setLocalTypeAndFollowers(pair.getArgs()[1], untyped);
 			TLAType valueType = visitExprOrOpArgNode(pair.getArgs()[1], untyped); // right side
 
 			OpApplNode seq = (OpApplNode) pair.getArgs()[0]; // left side
@@ -726,7 +756,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 						domList.add(visitExprOrOpArgNode(arg, new UntypedType()));
 					}
 					domType = new TupleType(domList);
-					setType(domExpr, domType); // store type
+					setLocalType(domExpr, domType); // store type
 				} else {
 					domType = visitExprOrOpArgNode(domExpr, new UntypedType());
 				}
@@ -764,14 +794,10 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			case B_OPCODE_leq: // <=
 			case B_OPCODE_geq: { // >=
 				TLAType boolType = unify(BoolType.getInstance(), expected, n);
-				try {
-					for (ExprOrOpArgNode arg : n.getArgs()) {
-						visitExprOrOpArgNode(arg, IntType.getInstance());
-					}
-				} catch (TypeErrorException e) {
-					for (ExprOrOpArgNode arg : n.getArgs()) {
-						visitExprOrOpArgNode(arg, RealType.getInstance());
-					}
+				TLAType numberType = new IntegerOrRealType();
+				for (ExprOrOpArgNode arg : n.getArgs()) {
+					numberType = visitExprOrOpArgNode(arg, numberType);
+					setLocalTypeAndFollowers(arg, numberType);
 				}
 				return boolType;
 			}
@@ -780,24 +806,15 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			// for UntypedTypes the default is integer; if this leads to a TypeErrorException real is tried instead
 			case B_OPCODE_plus: // +
 			case B_OPCODE_minus: // -
+			case B_OPCODE_uminus: // -x
 			case B_OPCODE_times: // *
 			case B_OPCODE_div: // /
 			case B_OPCODE_mod: // % modulo
-			case B_OPCODE_exp: { // x hoch y, x^y
-				TLAType type;
-				try {
-					IntType.getInstance().unify(expected); // throws UnificationException
-					type = IntType.getInstance();
-					for (ExprOrOpArgNode arg : n.getArgs()) {
-						// throws TypeErrorException; check whether IntType is OK, else try the same with RealType
-						visitExprOrOpArgNode(arg, type);
-					}
-				} catch (UnificationException | TypeErrorException e) {
-					type = unify(RealType.getInstance(), expected, n);
-					for (ExprOrOpArgNode arg : n.getArgs()) {
-						// if TypeErrorException is thrown here, the type is incompatible and it is a real type error!
-						visitExprOrOpArgNode(arg, type);
-					}
+			case B_OPCODE_exp: { // x to the power of y, x^y
+				TLAType type = unify(new IntegerOrRealType(), expected, n);
+				for (ExprOrOpArgNode arg : n.getArgs()) {
+					type = visitExprOrOpArgNode(arg, type);
+					setLocalTypeAndFollowers(arg, type);
 				}
 				return type;
 			}
@@ -829,21 +846,6 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 
 			case B_OPCODE_real: // Real
 				return unify(new SetType(RealType.getInstance()), expected, n);
-
-			case B_OPCODE_uminus: { // -x
-				TLAType type;
-				try {
-					IntType.getInstance().unify(expected); // throws UnificationException
-					type = IntType.getInstance();
-					// throws TypeErrorException; check whether IntType is OK, else try the same with RealType
-					visitExprOrOpArgNode(n.getArgs()[0], type);
-				} catch (UnificationException | TypeErrorException e) {
-					type = unify(RealType.getInstance(), expected, n);
-					// if TypeErrorException is thrown here, the type is incompatible and it is a real type error!
-					visitExprOrOpArgNode(n.getArgs()[0], type);
-				}
-				return type;
-			}
 
 			/*
 			 * Standard Module FiniteSets
@@ -975,34 +977,74 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 	/*
 	 * Utility methods
 	 */
-	private static void setTypeAndFollowers(SemanticNode node, TLAType type, int paramId) {
-		setType(node, type, paramId);
+	private static boolean hasGlobalTyping(SemanticNode node) {
+		SymbolNode symbol = null;
+		if (node instanceof SymbolNode) {
+			symbol = (SymbolNode) node;
+		} else if (node instanceof OpApplNode) {
+			symbol = ((OpApplNode) node).getOperator();
+		}
+
+		return symbol != null && (symbol.getKind() == ConstantDeclKind || symbol.getKind() == VariableDeclKind);
+	}
+
+	private void setLocalTypeAndFollowers(SemanticNode node, TLAType type) {
+		setLocalType(node, type);
 		if (type instanceof AbstractHasFollowers) {
 			((AbstractHasFollowers) type).addFollower(node);
 		}
 	}
 
-	private static void setTypeAndFollowers(SemanticNode node, TLAType type) {
-		setTypeAndFollowers(node, type, TYPE_ID);
+	public static void updateTypeAndFollowers(SemanticNode node, TLAType oldType, TLAType newType) {
+		if (getType(node, TYPE_ID) == oldType) {
+			setType(node, newType, TYPE_ID);
+			if (newType instanceof AbstractHasFollowers) {
+				((AbstractHasFollowers) newType).addFollower(node);
+			}
+		}
+		if (getType(node, TEMP_TYPE_ID) == oldType) {
+			setType(node, newType, TEMP_TYPE_ID);
+			if (newType instanceof AbstractHasFollowers) {
+				((AbstractHasFollowers) newType).addFollower(node);
+			}
+		}
 	}
 
 	private static void setType(SemanticNode node, TLAType type, int paramId) {
 		node.setToolObject(paramId, type);
 	}
 
+	private void setLocalType(SemanticNode node, TLAType type) {
+		if (type instanceof IDefaultableType) {
+			this.possibleUnfinishedTypes.add((IDefaultableType) type);
+		}
+		if (paramId != TYPE_ID && hasGlobalTyping(node)) {
+			setType(node, type, TYPE_ID);
+		} else {
+			setType(node, type, paramId);
+		}
+	}
+
 	public static void setType(SemanticNode node, TLAType type) {
 		setType(node, type, TYPE_ID);
 	}
 
-	private static TLAType getType(SemanticNode n, int paramId) {
-		return (TLAType) n.getToolObject(paramId);
+	private static TLAType getType(SemanticNode node, int paramId) {
+		return (TLAType) node.getToolObject(paramId);
 	}
 
-	public static TLAType getType(SemanticNode n) {
-		return getType(n, TYPE_ID);
+	private TLAType getLocalType(SemanticNode node) {
+		if (paramId != TYPE_ID && hasGlobalTyping(node)) {
+			return getType(node, TYPE_ID);
+		}
+		return getType(node, paramId);
 	}
 
-	private TLAType unify(TLAType toUnify, TLAType expected, String opMsg, SemanticNode n) throws TypeErrorException {
+	public static TLAType getType(SemanticNode node) {
+		return getType(node, TYPE_ID);
+	}
+
+	private static TLAType unify(TLAType toUnify, TLAType expected, String opMsg, SemanticNode n) throws TypeErrorException {
 		TLAType found = toUnify;
 		DebugUtils.printDebugMsg("Unify " + found + " and " + expected + " at '" + opMsg + "' (" + n.getLocation() + ")");
 		try {
@@ -1014,19 +1056,19 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 		return found;
 	}
 
-	private TLAType unify(TLAType toUnify, TLAType expected, OpApplNode n) throws TypeErrorException {
+	private static TLAType unify(TLAType toUnify, TLAType expected, OpApplNode n) throws TypeErrorException {
 		return unify(toUnify, expected, n.getOperator().getName().toString(), n);
 	}
 
-	private TLAType unifyAndSetTypeWithFollowers(TLAType toUnify, TLAType expected, String opMsg, SemanticNode n) throws TypeErrorException {
+	private TLAType unifyAndSetLocalTypeWithFollowers(TLAType toUnify, TLAType expected, String opMsg, SemanticNode n) throws TypeErrorException {
 		TLAType found = unify(toUnify, expected, opMsg, n);
-		setTypeAndFollowers(n, found);
+		setLocalTypeAndFollowers(n, found);
 		return found;
 	}
 
-	private TLAType unifyAndSetType(TLAType toUnify, TLAType expected, String opMsg, SemanticNode n) throws TypeErrorException {
+	private TLAType unifyAndSetLocalType(TLAType toUnify, TLAType expected, String opMsg, SemanticNode n) throws TypeErrorException {
 		TLAType found = unify(toUnify, expected, opMsg, n);
-		setType(n, found);
+		setLocalType(n, found);
 		return found;
 	}
 }
