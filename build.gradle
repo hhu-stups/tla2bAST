@@ -6,7 +6,7 @@ plugins {
 	id 'jacoco'
 	id 'signing'
 
-	id "com.gradleup.shadow" version "8.3.6"
+	id "com.gradleup.shadow" version "8.3.7"
 }
 
 project.group = 'de.hhu.stups'
@@ -27,7 +27,7 @@ configurations.configureEach {
 	resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-def parser_version = '2.15.2'
+def parser_version = '2.15.3-SNAPSHOT'
 
 dependencies {
 	implementation(group: 'commons-cli', name: 'commons-cli', version: '1.9.0')
@@ -35,7 +35,12 @@ dependencies {
 	api(group: 'de.hhu.stups', name: 'prologlib', version: parser_version)
 	api(group: 'de.hhu.stups', name: 'bparser', version: parser_version)
 
-	testImplementation(group: 'junit', name: 'junit', version: '4.13.2')
+	testImplementation(platform(group: 'org.junit', name: 'junit-bom', version: '5.13.2'))
+	testImplementation(group: 'org.junit.jupiter', name: 'junit-jupiter')
+	testImplementation(group: 'org.junit.jupiter', name: 'junit-jupiter-params')
+	testCompileOnly(group: 'junit', name: 'junit', version: '4.13.2')
+	testRuntimeOnly(group: 'org.junit.vintage', name: 'junit-vintage-engine')
+	testRuntimeOnly(group: 'org.junit.platform', name: 'junit-platform-launcher')
 }
 
 java {
@@ -43,6 +48,14 @@ java {
 	
 	withSourcesJar()
 	withJavadocJar()
+}
+
+test {
+	useJUnitPlatform()
+
+	testLogging {
+		events 'passed', 'skipped', 'failed'
+	}
 }
 
 application {
@@ -76,7 +89,7 @@ processResources {
 }
 
 jacoco {
-	toolVersion = "0.8.9"
+	toolVersion = "0.8.13"
 	reportsDirectory = file("$buildDir/customJacocoReportDir")
 }
 
