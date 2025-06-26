@@ -28,6 +28,7 @@ public final class IntegerOrRealType extends AbstractHasFollowers implements IDe
 	@Override
 	public TLAType unify(TLAType o) throws UnificationException {
 		if (o.getKind() == REAL || o.getKind() == INTEGER) {
+			this.setFollowersTo(o);
 			return o;
 		} else if (o.getKind() == INTEGER_OR_REAL || o instanceof UntypedType) {
 			((AbstractHasFollowers) o).setFollowersTo(this);
