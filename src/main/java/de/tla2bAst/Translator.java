@@ -8,7 +8,6 @@ import de.be4.classicalb.core.parser.exceptions.PreParseException;
 import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.Start;
 import de.be4.classicalb.core.parser.util.PrettyPrinter;
-import de.be4.classicalb.core.parser.util.SuffixIdentifierRenaming;
 import de.hhu.stups.sablecc.patch.PositionedNode;
 import de.prob.prolog.output.PrologTermOutput;
 import de.tla2b.analysis.*;
@@ -82,7 +81,6 @@ public class Translator {
 		Translator translator = new Translator(moduleName, moduleString, configString);
 		Start bAST = translator.getBAST();
 		PrettyPrinter pp = new PrettyPrinter();
-		pp.setRenaming(new SuffixIdentifierRenaming());
 		bAST.apply(pp);
 		return pp.getPrettyPrint();
 	}
@@ -230,7 +228,6 @@ public class Translator {
 		}
 
 		PrettyPrinter pp = new PrettyPrinter();
-		pp.setRenaming(new SuffixIdentifierRenaming());
 		getBAST().apply(pp);
 		try (BufferedWriter out = Files.newBufferedWriter(machineFile.toPath(), StandardCharsets.UTF_8)) {
 			out.write(GENERATED_BY_TLA2B_HEADER + VERSION_NUMBER + " */\n" + pp.getPrettyPrint());

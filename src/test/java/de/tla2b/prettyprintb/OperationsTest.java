@@ -23,7 +23,6 @@ public class OperationsTest {
 		String resultTree = TestUtil.getTreeAsString(start);
 
 		PrettyPrinter pp = new PrettyPrinter();
-		// FIXME Is it intentional that we don't use SuffixIdentifierRenaming here?
 		start.apply(pp);
 
 		// parse pretty print result

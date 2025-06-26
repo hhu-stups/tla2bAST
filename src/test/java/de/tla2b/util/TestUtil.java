@@ -10,7 +10,6 @@ import de.be4.classicalb.core.parser.exceptions.BCompoundException;
 import de.be4.classicalb.core.parser.node.Node;
 import de.be4.classicalb.core.parser.node.Start;
 import de.be4.classicalb.core.parser.util.PrettyPrinter;
-import de.be4.classicalb.core.parser.util.SuffixIdentifierRenaming;
 import de.prob.prolog.output.PrologTermStringOutput;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2bAst.Translator;
@@ -51,7 +50,6 @@ public class TestUtil {
 		Start start = t.translate();
 
 		PrettyPrinter pp = new PrettyPrinter();
-		// FIXME Is it intentional that we don't use SuffixIdentifierRenaming here?
 		start.apply(pp);
 		System.out.println(pp.getPrettyPrint());
 		final BParser parser = new BParser("testcase");
@@ -69,7 +67,6 @@ public class TestUtil {
 		ToolIO.reset();
 		Start resultNode = Translator.translateExpressionWithoutModel(tlaExpr);
 		PrettyPrinter pp = new PrettyPrinter();
-		pp.setRenaming(new SuffixIdentifierRenaming());
 		resultNode.apply(pp);
 		String bAstString = getAstStringofBExpressionString(bExpr);
 		String result = getAstStringofBExpressionString(pp.getPrettyPrint());
@@ -82,7 +79,6 @@ public class TestUtil {
 		trans.translate();
 		Start resultNode = trans.translateExpressionIncludingModel(tlaExpr);
 		PrettyPrinter pp = new PrettyPrinter();
-		pp.setRenaming(new SuffixIdentifierRenaming());
 		resultNode.apply(pp);
 		String bAstString = getAstStringofBExpressionString(bExpr);
 		String result = getAstStringofBExpressionString(pp.getPrettyPrint());
@@ -120,7 +116,6 @@ public class TestUtil {
 		Translator t = new Translator(tlaFile);
 		Start start = t.translate();
 		PrettyPrinter pp = new PrettyPrinter();
-		pp.setRenaming(new SuffixIdentifierRenaming());
 		start.apply(pp);
 		final BParser parser = new BParser("testcase");
 		parser.parseMachine(pp.getPrettyPrint());

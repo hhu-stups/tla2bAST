@@ -38,6 +38,6 @@ public class TestKeywords {
 
 	@Test
 	public void testDom() throws Exception {
-		compareExpr("dom_1 = 1", "dom = 1");
+		compareExpr("`dom` = 1", "dom = 1");
 	}
 }
