@@ -8,6 +8,7 @@ import de.tla2b.output.TypeVisitorInterface;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class TupleType extends AbstractHasFollowers {
 	private List<TLAType> types;
@@ -18,12 +19,7 @@ public class TupleType extends AbstractHasFollowers {
 	}
 
 	public TupleType(int size) {
-		super(TUPLE);
-		ArrayList<TLAType> list = new ArrayList<>();
-		for (int i = 0; i < size; i++) {
-			list.add(new UntypedType());
-		}
-		setTypes(list);
+		this(IntStream.range(0, size).mapToObj(i -> new UntypedType()).collect(Collectors.toList()));
 	}
 
 	public List<TLAType> getTypes() {
@@ -31,9 +27,8 @@ public class TupleType extends AbstractHasFollowers {
 	}
 
 	public void setTypes(List<TLAType> types) {
-		this.types = types;
-		types = new ArrayList<>(types);
-		for (TLAType tlaType : types) {
+		this.types = new ArrayList<>(types);
+		for (TLAType tlaType : this.types) {
 			if (tlaType instanceof AbstractHasFollowers) {
 				((AbstractHasFollowers) tlaType).addFollower(this);
 			}
@@ -133,9 +128,14 @@ public class TupleType extends AbstractHasFollowers {
 
 	@Override
 	public String toString() {
+		if (this.types.size() <= 1) {
+			// tuples with 0 or 1 element cannot be represented in B
+			return new FunctionType(IntType.getInstance(), this.types.isEmpty() ? new UntypedType() : this.types.get(0).cloneTLAType()).toString();
+		}
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < types.size(); i++) {
-			if (types.get(i) instanceof TupleType && i != 0) {
+			TLAType type = types.get(i);
+			if (i != 0 && type instanceof TupleType && ((TupleType) type).types.size() > 1) {
 				sb.append("(").append(types.get(i)).append(")");
 			} else
 				sb.append(types.get(i));
@@ -148,11 +148,17 @@ public class TupleType extends AbstractHasFollowers {
 
 	@Override
 	public PExpression getBNode() {
+		if (this.types.isEmpty()) {
+			// tuples with zero elements cannot be represented in B
+			throw new IllegalStateException("TupleType without types has no corresponding B node");
+		} else if (this.types.size() == 1) {
+			// tuples with 1 element cannot be represented in B directly
+			return new FunctionType(IntType.getInstance(), this.types.get(0).cloneTLAType()).getBNode();
+		}
 		return ASTBuilder.createNestedMultOrCard(types.stream().map(TLAType::getBNode).collect(Collectors.toList()));
 	}
 
 	public void apply(TypeVisitorInterface visitor) {
 		visitor.caseTupleType(this);
 	}
-
 }

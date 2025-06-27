@@ -1,8 +1,17 @@
 package de.tla2b.prettyprintb;
 
+import java.io.File;
+
+import de.be4.classicalb.core.parser.BParser;
+import de.be4.classicalb.core.parser.node.Start;
+import de.be4.classicalb.core.parser.util.PrettyPrinter;
+import de.tla2b.util.TestUtil;
+import de.tla2bAst.Translator;
+
 import org.junit.Test;
 
 import static de.tla2b.util.TestUtil.compare;
+import static org.junit.Assert.assertEquals;
 
 public class MiscellaneousConstructsTest {
 
@@ -179,5 +188,51 @@ public class MiscellaneousConstructsTest {
 			+ "DEFINITIONS CHOOSE(X) == \"a member of X\"; EXTERNAL_FUNCTION_CHOOSE(T) == POW(T) --> T;"
 			+ "PROPERTIES (1,TRUE) = CHOOSE({a,b | (a,b) = (1,TRUE)}) \n" + "END";
 		compare(expected, module);
+	}
+
+	@Test
+	public void testRelParFuncEleOf() throws Exception {
+		final String module = "-------------- MODULE Testing ----------------\n"
+			+ "EXTENDS FiniteSets, Integers \n"
+			+ "CONSTANTS k \n"
+			+ "RelParFuncEleOf(S, T) == {f \\in SUBSET (S \\times T): Cardinality({ x[1] :x \\in f}) = Cardinality(f)} \n"
+			+ "ASSUME k \\in RelParFuncEleOf(Int, BOOLEAN) \n"
+			+ "=================================";
+
+		final String expected = "MACHINE Testing\n"
+			+ "DEFINITIONS RelParFuncEleOf(S,T) == {f|f:POW(S*T) & card(UNION(x).(x:f|{@prj1(x)}))=card(f)};"
+			+ "CONSTANTS k \n"
+			+ "PROPERTIES k : POW(INTEGER*BOOL) & k : RelParFuncEleOf(INTEGER,BOOL) \n"
+			+ "END";
+		compare(expected, module);
+	}
+
+	@Test
+	public void testRelParFuncEleOf2() throws Exception {
+		Translator t = new Translator("src/test/resources/prettyprint/RelParFuncEleOf/RelParFuncEleOf.tla");
+		Start start = t.translate();
+		String resultTree = TestUtil.getTreeAsString(start);
+
+		PrettyPrinter pp = new PrettyPrinter();
+		start.apply(pp);
+
+		// parse pretty print result
+		final BParser parser = new BParser("testcase");
+		final Start ppStart = parser.parseMachine(pp.getPrettyPrint());
+		String ppTree = TestUtil.getTreeAsString(ppStart);
+
+		// comparing result with pretty print
+		assertEquals(resultTree, ppTree);
+
+
+		// machine file
+		File expectedMachine = new File("src/test/resources/prettyprint/RelParFuncEleOf/RelParFuncEleOf.mch");
+
+		final BParser expectedParser = new BParser("testcase");
+		final Start expectedStart = expectedParser.parseFile(expectedMachine);
+
+		String expectedTree = TestUtil.getTreeAsString(expectedStart);
+
+		assertEquals(expectedTree, resultTree);
 	}
 }

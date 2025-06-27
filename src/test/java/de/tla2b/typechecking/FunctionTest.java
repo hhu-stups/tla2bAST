@@ -177,17 +177,27 @@ public class FunctionTest {
 	 */
 
 	@Test
-	public void testFunctionCall() throws TLA2BException {
+	public void testFunctionCall1() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 			+ "EXTENDS Naturals \n"
 			+ "CONSTANTS k \n"
 			+ "ASSUME k[1] = TRUE \n" + "=================================";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		assertEquals("POW(INTEGER*BOOL)", t.getConstantType("k"));
+		assertEquals("POW(INTEGER*BOOL)", t.getConstantType("k")); // tuple with 1 element (BOOL)
 	}
 
 	@Test
 	public void testFunctionCall2() throws TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+			+ "EXTENDS Naturals \n"
+			+ "CONSTANTS k \n"
+			+ "ASSUME k[1] = TRUE /\\ k[2] = 1 \n" + "=================================";
+		TestTypeChecker t = TestUtil.typeCheckString(module);
+		assertEquals("BOOL*INTEGER", t.getConstantType("k"));
+	}
+
+	@Test
+	public void testFunctionCall3() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 			+ "EXTENDS Naturals \n"
 			+ "CONSTANTS k \n"
@@ -198,7 +208,7 @@ public class FunctionTest {
 	}
 
 	@Test
-	public void testFunctionCall3() throws TLA2BException {
+	public void testFunctionCall4() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 			+ "CONSTANTS k, k2, k3, S \n"
 			+ "ASSUME k[k2,TRUE] = k3 \n"
@@ -212,7 +222,7 @@ public class FunctionTest {
 	}
 
 	@Test
-	public void testFunctionCall4() throws TLA2BException {
+	public void testFunctionCall5() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 			+ "CONSTANTS k \n"
 			+ "ASSUME k[(TRUE /\\ TRUE)] = 2 \n"

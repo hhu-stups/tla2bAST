@@ -98,6 +98,11 @@ public class ComplexExpressionTest {
 			"CHOOSE y \\in 0..100: y = CHOOSE x \\in 0..100: x^3 - 20*x^2 + 7*x = 14388");
 	}
 	// Note that for:  CHOOSE x \in 0..100: x = CHOOSE x \in 0..100: x^3 - 20*x^2 + 7*x = 14388
-	//   we get an error: Multiply-defined symbol 'x': this definition or declaration conflicts 
+	//   we get an error: Multiply-defined symbol 'x': this definition or declaration conflicts
 
+	@Test
+	public void testRelParFunSet() throws Exception {
+		compareExpr("{f|f:POW(INTEGER*BOOL) & card(UNION(x).(x:f|{prj1(INTEGER,BOOL)(x)}))=card(f)}",
+			"{f \\in SUBSET (Int \\times BOOLEAN): Cardinality({ x[1] :x \\in f}) = Cardinality(f)}");
+	}
 }

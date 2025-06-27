@@ -14,8 +14,6 @@ public interface TypeVisitorInterface {
 
 	void caseModelValueType(ModelValueType type);
 
-	void casePairType(PairType type);
-
 	void caseRealType(RealType type);
 
 	void caseIntegerOrRealType(IntegerOrRealType type);
@@ -29,6 +27,8 @@ public interface TypeVisitorInterface {
 	void caseStructType(StructType type);
 
 	void caseTupleType(TupleType type);
+
+	void caseTupleOrFunctionType(TupleOrFunction type);
 
 	void caseUntyped(UntypedType type);
 }

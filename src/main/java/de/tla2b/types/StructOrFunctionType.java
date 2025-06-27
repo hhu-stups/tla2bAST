@@ -4,6 +4,7 @@ import de.be4.classicalb.core.parser.node.PExpression;
 import de.tla2b.exceptions.UnificationException;
 import de.tla2b.output.TypeVisitorInterface;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -121,8 +122,7 @@ public class StructOrFunctionType extends AbstractHasFollowers {
 			while (itr.hasNext()) {
 				temp = temp.unify(itr.next());
 			}
-			SetType found = new SetType(new PairType(StringType.getInstance(),
-				temp));
+			SetType found = new SetType(new TupleType(Arrays.asList(StringType.getInstance(), temp)));
 			return found.unify(o);
 		}
 		if (o instanceof StructType) {
@@ -173,12 +173,12 @@ public class StructOrFunctionType extends AbstractHasFollowers {
 
 	public SetType getFunction() {
 		Iterator<TLAType> itr = types.values().iterator();
-		return new SetType(new PairType(StringType.getInstance(), itr.next()));
+		return new SetType(new TupleType(Arrays.asList(StringType.getInstance(), itr.next())));
 	}
 
 	@Override
 	public PExpression getBNode() {
-		throw new UnsupportedOperationException("StructOrFunctionType has no corresponding B node.");
+		throw new UnsupportedOperationException("StructOrFunctionType has no corresponding B node");
 	}
 
 	public void apply(TypeVisitorInterface visitor) {

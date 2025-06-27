@@ -48,8 +48,6 @@ public abstract class AbstractHasFollowers extends TLAType {
 				((SetType) follower).update(this, newType);
 			} else if (follower instanceof TupleType) {
 				((TupleType) follower).update(this, newType);
-			} else if (follower instanceof PairType) {
-				((PairType) follower).update(this, newType);
 			} else if (follower instanceof FunctionType) {
 				((FunctionType) follower).update(this, newType);
 			} else if (follower instanceof StructType) {

@@ -55,8 +55,7 @@ public class ModelValueType extends TLAType {
 
 	@Override
 	public PExpression getBNode() {
-		// TODO Auto-generated method stub
-		return null;
+		throw new UnsupportedOperationException("ModelValueType has no corresponding B node");
 	}
 
 	public void apply(TypeVisitorInterface visitor) {

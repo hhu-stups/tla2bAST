@@ -139,5 +139,15 @@ public class MiscellaneousConstructsTest {
 		assertEquals("INTEGER*BOOL", t.getConstantType("k"));
 	}
 
-
+	@Test
+	public void testRelParFuncEleOf() throws TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+			+ "EXTENDS FiniteSets, Integers \n"
+			+ "CONSTANTS k \n"
+			+ "RelParFuncEleOf(S, T) == {f \\in SUBSET (S \\times T): Cardinality({ x[1] :x \\in f}) = Cardinality(f)} \n"
+			+ "ASSUME k \\in RelParFuncEleOf(Int, BOOLEAN) \n"
+			+ "=================================";
+		TestTypeChecker t = TestUtil.typeCheckString(module);
+		assertEquals("POW(INTEGER*BOOL)", t.getConstantType("k"));
+	}
 }

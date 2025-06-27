@@ -16,13 +16,7 @@ public class FunctionType extends AbstractHasFollowers {
 	}
 
 	public FunctionType() {
-		super(FUNCTION);
-		this.setDomain(new UntypedType());
-		this.setRange(new UntypedType());
-	}
-
-	public FunctionType(int string) {
-		super(string);
+		this(new UntypedType(), new UntypedType());
 	}
 
 	public void update(TLAType oldType, TLAType newType) {

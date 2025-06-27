@@ -123,11 +123,11 @@ public class TupleTest {
 	public void testTuple2Elements() throws TLA2BException {
 		final String module = "-------------- MODULE Testing ----------------\n"
 			+ "CONSTANTS k, k2, k3 \n"
-			+ "ASSUME k = <<k2, k3>> /\\ k3 = TRUE \n"
+			+ "ASSUME k = <<k2, k3>> /\\ k2 = 1 /\\ k3 = TRUE \n"
 			+ "=================================";
 
 		TestTypeChecker t = TestUtil.typeCheckString(module);
-		assertEquals("POW(INTEGER*BOOL)", t.getConstantType("k"));
+		assertEquals("INTEGER*BOOL", t.getConstantType("k"));
 	}
 
 	@Test

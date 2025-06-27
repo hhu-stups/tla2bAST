@@ -1221,7 +1221,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 
 			case OPCODE_fa: { // f[1]
 				TLAType t = getType(n.getArgs()[0]);
-				if (t instanceof TupleType) {
+				if (t instanceof TupleType && ((TupleType) t).getTypes().size() > 1) {
 					NumeralNode num = (NumeralNode) n.getArgs()[1];
 					int field = num.val();
 					PExpression pair = visitExprOrOpArgNodeExpression(n.getArgs()[0]);
@@ -1457,28 +1457,34 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 
 	private PExpression createProjectionFunction(PExpression pair, int field, TLAType t) {
 		TupleType tuple = (TupleType) t;
+		boolean untyped = tuple.isUntyped();
+		int size = tuple.getTypes().size();
+		if (size <= 1) {
+			throw new IllegalArgumentException("tuples must have at least two elements");
+		}
+		if (field < 1 || field > size) {
+			throw new IllegalArgumentException("tuple index out of bounds");
+		}
 
 		AFunctionExpression returnFunc = new AFunctionExpression();
 		int index;
 		if (field == 1) {
 			index = 2;
-			returnFunc.setIdentifier(new AFirstProjectionExpression(
+			returnFunc.setIdentifier(untyped ? new AEventBFirstProjectionV2Expression() : new AFirstProjectionExpression(
 					tuple.getTypes().get(0).getBNode(),
 					tuple.getTypes().get(1).getBNode()
 			));
 		} else {
 			index = field;
-			// we could use AEventBSecondProjectionV2Expression here (which would be much easier),
-			// but this is only supported by ProB (?)
-			returnFunc.setIdentifier(new ASecondProjectionExpression(
+			returnFunc.setIdentifier(untyped ? new AEventBSecondProjectionV2Expression() : new ASecondProjectionExpression(
 					createNestedMultOrCard(tuple.getTypes().subList(0, field-1).stream().map(TLAType::getBNode).collect(Collectors.toList())),
 					tuple.getTypes().get(field-1).getBNode()
 			));
 		}
 		AFunctionExpression func = returnFunc;
-		for (int i = index; i < tuple.getTypes().size(); i++) {
+		for (int i = index; i < size; i++) {
 			AFunctionExpression newfunc = new AFunctionExpression();
-			newfunc.setIdentifier(new AFirstProjectionExpression(
+			newfunc.setIdentifier(untyped ? new AEventBFirstProjectionV2Expression() : new AFirstProjectionExpression(
 					createNestedMultOrCard(tuple.getTypes().subList(0, i).stream().map(TLAType::getBNode).collect(Collectors.toList())), // type list
 					tuple.getTypes().get(i).getBNode()
 			));

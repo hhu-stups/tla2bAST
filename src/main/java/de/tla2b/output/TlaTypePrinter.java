@@ -65,15 +65,6 @@ public class TlaTypePrinter extends ClassicalPositionPrinter implements TypeVisi
 		pout.printAtom("modelvalue");
 	}
 
-	public void casePairType(PairType type) {
-		pout.openTerm("tuple");
-		pout.openList();
-		type.getFirst().apply(this);
-		type.getSecond().apply(this);
-		pout.closeList();
-		pout.closeTerm();
-	}
-
 	public void caseRealType(RealType type) {
 		pout.printAtom("real");
 	}
@@ -123,6 +114,11 @@ public class TlaTypePrinter extends ClassicalPositionPrinter implements TypeVisi
 		}
 		pout.closeList();
 		pout.closeTerm();
+	}
+
+	@Override
+	public void caseTupleOrFunctionType(TupleOrFunction type) {
+		throw new NotImplementedException("should not happen");
 	}
 
 	public void caseUntyped(UntypedType type) {

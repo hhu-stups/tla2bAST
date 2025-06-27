@@ -1,8 +1,10 @@
 package de.tla2b.analysis;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +65,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 	private final Set<OpDefNode> bDefinitions;
 
 	private final List<SymbolNode> symbolNodeList = new ArrayList<>();
-	private final List<IDefaultableType> possibleUnfinishedTypes = new ArrayList<>();
+	private final Map<WeakReference<IDefaultableType>, Void> possibleUnfinishedTypes = new HashMap<>();
 
 	private final ModuleNode moduleNode;
 	private List<OpDeclNode> bConstList;
@@ -153,9 +155,12 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 		checkIfAllIdentifiersHaveAType();
 	}
 
-	private void checkIfAllIdentifiersHaveAType() throws TypeErrorException {
-		for (IDefaultableType type : possibleUnfinishedTypes) {
-			type.setToDefault();
+	private void checkIfAllIdentifiersHaveAType() throws TLA2BException {
+		for (WeakReference<IDefaultableType> typeRef : possibleUnfinishedTypes.keySet()) {
+			IDefaultableType type = typeRef.get();
+			if (type != null) {
+				type.setToDefault();
+			}
 		}
 
 		// check if a variable has no type
@@ -309,34 +314,64 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 					return evalBBuiltIns(n, expected);
 				}
 
-				// the definition might be generic, so we have to re-evaluate
-				// its body with the concrete types we have here as args
+				boolean generic = def.getParams().length != 0;
+
+				TLAType opType = getType(def);
+				if (opType == null) {
+					int prevParamId = paramId;
+					paramId = TYPE_ID;
+					try {
+						visitOpDefNode(def);
+					} finally {
+						paramId = prevParamId;
+					}
+					opType = getType(def);
+				}
+				if (generic) {
+					opType = opType.cloneTLAType();
+				}
+				expected = unify(opType, expected, def.getName().toString(), def);
+
+				// we have no real monomorphization, one implementation needs to fit all
 
 				// set param types
 				assert params.length == args.length;
 				for (int i = 0; i < args.length; i++) {
-					TLAType argType = visitExprOrOpArgNode(args[i], new UntypedType());
+					FormalParamNode param = params[i];
+					ExprOrOpArgNode arg = args[i];
 
+					// clone the parameter type, because the parameter type is not
+					// set/changed at a definition call
+					TLAType pType = getType(param).cloneTLAType();
+					pType = visitExprOrOpArgNode(arg, pType);
+
+					// unify both types,
+					// set types of the arguments of the definition call to the parameters for reevaluation the def body
 					int prevParamId = paramId;
 					paramId = TEMP_TYPE_ID;
 					try {
-						setLocalType(params[i], argType);
+						setLocalType(param, pType);
 					} finally {
 						paramId = prevParamId;
 					}
 				}
 
-				// re-evaluate definition body
-				int prevParamId = paramId;
-				paramId = TEMP_TYPE_ID;
 				TLAType found;
-				try {
-					found = visitExprNode(def.getBody(), expected);
-				} finally {
-					paramId = prevParamId;
+				if (generic) {
+					// evaluate the body of the definition again
+					int prevParamId = paramId;
+					paramId = TEMP_TYPE_ID;
+					try {
+						found = visitExprNode(def.getBody(), expected);
+					} finally {
+						paramId = prevParamId;
+					}
+				} else {
+					found = expected;
 				}
 
-				return unify(found, expected, n);
+				setLocalTypeAndFollowers(n, found);
+				return found;
 			}
 
 			default:
@@ -474,14 +509,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 				for (ExprOrOpArgNode arg : n.getArgs()) {
 					list.add(visitExprOrOpArgNode(arg, new UntypedType()));
 				}
-				TLAType found;
-				if (list.isEmpty()) {
-					found = new FunctionType(IntType.getInstance(), new UntypedType());
-				} else if (list.size() == 1) {
-					found = new FunctionType(IntType.getInstance(), list.get(0));
-				} else {
-					found = TupleOrFunction.createTupleOrFunctionType(list);
-				}
+				TLAType found = TupleOrFunction.createTupleOrFunctionType(list);
 				return unifyAndSetLocalTypeWithFollowers(found, expected, "tuple", n);
 			}
 
@@ -514,6 +542,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			 */
 			case OPCODE_fa: { // $FcnApply f[1]
 				TLAType domType;
+				ExprOrOpArgNode fun = n.getArgs()[0];
 				ExprOrOpArgNode dom = n.getArgs()[1];
 				if (dom instanceof OpApplNode && ((OpApplNode) dom).getOperator().getName().equals("$Tuple")) {
 					List<TLAType> domList = new ArrayList<>();
@@ -523,19 +552,21 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 					domType = domList.size() == 1
 						          ? new FunctionType(IntType.getInstance(), domList.get(0)) // one-tuple
 						          : new TupleType(domList);
-				} else if (dom instanceof NumeralNode) {
+				} else if (dom instanceof NumeralNode && ((NumeralNode) dom).val() >= 1) {
 					NumeralNode num = (NumeralNode) dom;
 					UntypedType u = new UntypedType();
 					setLocalTypeAndFollowers(n, u);
 
-					TLAType res = visitExprOrOpArgNode(n.getArgs()[0], new TupleOrFunction(num.val(), u));
-					setLocalTypeAndFollowers(n.getArgs()[0], res);
-					return unify(getLocalType(n), expected, n.getArgs()[0].toString(), n);
+					TLAType res = visitExprOrOpArgNode(fun, new TupleOrFunction(num.val(), u));
+					setLocalTypeAndFollowers(fun, res);
+					return unify(getLocalType(n), expected, fun.toString(), n);
 				} else {
 					domType = visitExprOrOpArgNode(dom, new UntypedType());
 				}
 				FunctionType func = new FunctionType(domType, expected);
+				setLocalTypeAndFollowers(n, func);
 				TLAType res = visitExprOrOpArgNode(n.getArgs()[0], func);
+				setLocalTypeAndFollowers(n.getArgs()[0], res);
 				return ((FunctionType) res).getRange();
 			}
 
@@ -543,7 +574,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 			 * Domain of Function
 			 */
 			case OPCODE_domain: {
-				FunctionType func = new FunctionType(new UntypedType(), new UntypedType());
+				FunctionType func = new FunctionType();
 				func = (FunctionType) visitExprOrOpArgNode(n.getArgs()[0], func);
 				return unify(new SetType(func.getDomain()), expected, n);
 			}
@@ -1016,7 +1047,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 
 	private void setLocalType(SemanticNode node, TLAType type) {
 		if (type instanceof IDefaultableType) {
-			this.possibleUnfinishedTypes.add((IDefaultableType) type);
+			this.possibleUnfinishedTypes.put(new WeakReference<>((IDefaultableType) type), null);
 		}
 		if (paramId != TYPE_ID && hasGlobalTyping(node)) {
 			setType(node, type, TYPE_ID);

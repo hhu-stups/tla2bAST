@@ -12,7 +12,7 @@ public final class IntegerOrRealType extends AbstractHasFollowers implements IDe
 
 	@Override
 	public String toString() {
-		return "INTEGER_OR_REAL";
+		return "IntegerOrReal";
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public final class IntegerOrRealType extends AbstractHasFollowers implements IDe
 
 	@Override
 	public PExpression getBNode() {
-		throw new UnsupportedOperationException("IntegerOrRealType has no corresponding B node.");
+		throw new UnsupportedOperationException("IntegerOrRealType has no corresponding B node");
 	}
 
 	public void apply(TypeVisitorInterface visitor) {

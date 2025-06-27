@@ -53,7 +53,7 @@ public final class UntypedType extends AbstractHasFollowers {
 
 	@Override
 	public PExpression getBNode() {
-		return null;
+		throw new UnsupportedOperationException("Untyped has no corresponding B node");
 	}
 
 	public void apply(TypeVisitorInterface visitor) {
