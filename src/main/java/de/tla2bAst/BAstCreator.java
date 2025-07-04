@@ -26,6 +26,7 @@ import tlc2.value.impl.*;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static de.be4.classicalb.core.parser.util.ASTBuilder.*;
 import static de.tla2b.analysis.TypeChecker.getType;
@@ -182,24 +183,87 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 				.map(bDefinitions::getDefinition).collect(Collectors.toList()); // add external functions
 		for (OpDefNode opDefNode : bDefs) {
 			List<PExpression> params = Arrays.stream(opDefNode.getParams())
-					.map(this::createIdentifierFromNode).collect(Collectors.toList());
-			// TLAType type = getType(OpDefNode);
-			// if (opDefNode.level == 2 || type instanceof BoolType) {
+				                           .map(this::createIdentifierFromNode)
+				                           .collect(Collectors.toList());
 			PDefinition definition;
 			if (predicateVsExpression.getDefinitionType(opDefNode) == DefinitionType.PREDICATE) {
+				PPredicate pred = null;
+				// special predicate definitions
+
+				if (pred == null) {
+					pred = visitExprNodePredicate(opDefNode.getBody());
+					if (!params.isEmpty()) {
+						// wrap in let to force single evaluation of all params
+						List<PExpression> paramsCopy = params;
+						List<PExpression> defParams = Arrays.stream(opDefNode.getParams())
+							                              .map(p -> createPositionedNode(createIdentifier("p__" + getName(p)), p))
+							                              .collect(Collectors.toList());
+						params = defParams;
+						List<PPredicate> conjuncts = IntStream.range(0, paramsCopy.size())
+							                             .mapToObj(i -> {
+								                             PExpression param = paramsCopy.get(i);
+								                             PExpression defParam = defParams.get(i);
+								                             return new AEqualPredicate(param.clone(), defParam.clone());
+							                             })
+							                             .collect(Collectors.toList());
+						pred = new ALetPredicatePredicate(paramsCopy, createConjunction(conjuncts), pred);
+					}
+					DebugUtils.printVeryVerboseMsg("Creating Predicate DEFINITION " + getName(opDefNode));
+				} else {
+					DebugUtils.printVeryVerboseMsg("Creating Predicate DEFINITION " + getName(opDefNode) + " (optimized)");
+				}
 				definition = new APredicateDefinitionDefinition(
-						new TDefLiteralPredicate(getName(opDefNode)),
-						params,
-						visitExprNodePredicate(opDefNode.getBody())
+					new TDefLiteralPredicate(getName(opDefNode)),
+					params,
+					pred
 				);
-				DebugUtils.printVeryVerboseMsg("Creating Predicate DEFINITION " + getName(opDefNode));
 			} else {
+				PExpression expr = null;
+
+				// special expression definitions
+				if (opDefNode.isStandardModule()) {
+					List<PExpression> paramAccess = Arrays.stream(opDefNode.getParams())
+						                                .map(this::createIdentifierFromNodeWithoutPos)
+						                                .collect(Collectors.toList());
+					switch (getName(opDefNode)) {
+						case ":>": {
+							expr = createPositionedNode(createSetOfPExpression(createNestedCouple(Arrays.asList(paramAccess.get(0), paramAccess.get(1)))), opDefNode.getBody());
+							break;
+						}
+						case "@@": {
+							expr = createPositionedNode(new AOverwriteExpression(paramAccess.get(1), paramAccess.get(0)), opDefNode.getBody());
+							break;
+						}
+					}
+				}
+
+				if (expr == null) {
+					expr = visitExprNodeExpression(opDefNode.getBody());
+					if (!params.isEmpty()) {
+						// wrap in let to force single evaluation of all params
+						List<PExpression> paramsCopy = params;
+						List<PExpression> defParams = Arrays.stream(opDefNode.getParams())
+							         .map(p -> createPositionedNode(createIdentifier("p__" + getName(p)), p))
+							         .collect(Collectors.toList());
+						params = defParams;
+						List<PPredicate> conjuncts = IntStream.range(0, paramsCopy.size())
+							                             .mapToObj(i -> {
+								                             PExpression param = paramsCopy.get(i);
+															 PExpression defParam = defParams.get(i);
+								                             return new AEqualPredicate(param.clone(), defParam.clone());
+							                             })
+							                             .collect(Collectors.toList());
+						expr = new ALetExpressionExpression(paramsCopy, createConjunction(conjuncts), expr);
+					}
+					DebugUtils.printVeryVerboseMsg("Creating Expression DEFINITION " + getName(opDefNode));
+				} else {
+					DebugUtils.printVeryVerboseMsg("Creating Expression DEFINITION " + getName(opDefNode) + " (optimized)");
+				}
 				definition = new AExpressionDefinitionDefinition(
-						new TIdentifierLiteral(getName(opDefNode)),
-						params,
-						visitExprNodeExpression(opDefNode.getBody())
+					new TIdentifierLiteral(getName(opDefNode)),
+					params,
+					expr
 				);
-				DebugUtils.printVeryVerboseMsg("Creating Expression DEFINITION " + getName(opDefNode));
 			}
 			PDefinition def = createPositionedNode(definition, opDefNode);
 			bDefinitions.addDefinition(def);
@@ -1640,12 +1704,16 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 
 	// HELPER METHODS
 
-	public AIdentifierExpression createIdentifierFromNode(SymbolNode symbolNode) {
+	public AIdentifierExpression createIdentifierFromNodeWithoutPos(SymbolNode symbolNode) {
 		if (bMacroHandler.containsSymbolNode(symbolNode)) {
-			return createPositionedNode(createIdentifier(bMacroHandler.getNewName(symbolNode)), symbolNode);
+			return createIdentifier(bMacroHandler.getNewName(symbolNode));
 		} else {
-			return createPositionedNode(createIdentifier(symbolNode.getName().toString()), symbolNode);
+			return createIdentifier(symbolNode.getName().toString());
 		}
+	}
+
+	public AIdentifierExpression createIdentifierFromNode(SymbolNode symbolNode) {
+		return createPositionedNode(createIdentifierFromNodeWithoutPos(symbolNode), symbolNode);
 	}
 
 	private List<PExpression> createListOfParameters(FormalParamNode[][] params) {
