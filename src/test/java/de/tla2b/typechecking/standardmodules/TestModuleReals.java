@@ -4,7 +4,6 @@ import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.exceptions.TypeErrorException;
 import de.tla2b.util.TestTypeChecker;
 import de.tla2b.util.TestUtil;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -160,6 +159,28 @@ public class TestModuleReals {
 		assertEquals("REAL", t.getConstantType("k"));
 	}
 
+	@Test
+	public void testComparison1() throws TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+			+ "EXTENDS Naturals, Integers, Reals, Sequences, FiniteSets \n"
+			+ "CONSTANTS k \n"
+			+ "ASSUME k < 1.0 \n"
+			+ "=================================";
+		TestTypeChecker t = TestUtil.typeCheckString(module);
+		assertEquals("REAL", t.getConstantType("k"));
+	}
+
+	@Test
+	public void testComparison2() throws TLA2BException {
+		final String module = "-------------- MODULE Testing ----------------\n"
+			+ "EXTENDS Naturals, Integers, Reals, Sequences, FiniteSets \n"
+			+ "CONSTANTS k \n"
+			+ "ASSUME 1.0 < k \n"
+			+ "=================================";
+		TestTypeChecker t = TestUtil.typeCheckString(module);
+		assertEquals("REAL", t.getConstantType("k"));
+	}
+
 	/*
 	 * Interval operator: x .. y
 	 */
@@ -173,10 +194,8 @@ public class TestModuleReals {
 		TestUtil.typeCheckString(module);
 	}
 
-	@Ignore
 	@Test
 	public void testNestedDefinitions() throws Exception {
-		// FIXME: this fails because the default type is Int and we first type everything as Int
 		String module = "---- MODULE Testing ----\n"
 				+ "EXTENDS Reals \n"
 				+ "InnerDef(b) == b*5.0 \n"

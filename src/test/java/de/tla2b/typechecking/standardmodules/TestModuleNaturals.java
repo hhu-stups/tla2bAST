@@ -116,14 +116,12 @@ public class TestModuleNaturals {
 		TestUtil.typeCheckString(module);
 	}
 
-	@Ignore
 	@Test
 	public void testNestedDefinitions() throws Exception {
-		// FIXME
 		String module = "---- MODULE Testing ----\n"
 				+ "EXTENDS Naturals \n"
 				+ "InnerDef(b) == b*5 \n"
-				+ "HelpDef(a,b) == a+b \n"
+				+ "HelpDef(a,b) == a+InnerDef(b) \n"
 				+ "Init == 1 = HelpDef(1,1) \n"
 				+ "===============";
 		TestTypeChecker t = TestUtil.typeCheckString(module);
