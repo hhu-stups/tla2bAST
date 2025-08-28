@@ -52,4 +52,24 @@ public class SimpleExpressionTest {
 	public void testTRUE() throws Exception {
 		compareExpr("TRUE", "TRUE");
 	}
+
+	@Test
+	public void testSetMembershipIntersection1() throws Exception {
+		compareExpr("0 : INTEGER /\\ {0}", "0 \\in Int \\cap {0}");
+	}
+
+	@Test
+	public void testSetMembershipIntersection2() throws Exception {
+		compareExpr("0 : (INTEGER /\\ {0})", "0 \\in Int \\cap {0}");
+	}
+
+	@Test
+	public void testSetMembershipIntersection3() throws Exception {
+		compareExpr("0 : INTEGER /\\ {0}", "0 \\in (Int \\cap {0})");
+	}
+
+	@Test
+	public void testSetMembershipIntersection4() throws Exception {
+		compareExpr("0 : (INTEGER /\\ {0})", "0 \\in (Int \\cap {0})");
+	}
 }
