@@ -1,5 +1,7 @@
 package de.tla2b;
 
+import java.io.IOException;
+
 import de.tla2b.exceptions.NotImplementedException;
 import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.exceptions.TLA2BFrontEndException;
@@ -9,10 +11,10 @@ import de.tla2bAst.Translator;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.help.HelpFormatter;
 
 public class TLA2B {
 	public final static String VERSION = "version";
@@ -20,12 +22,14 @@ public class TLA2B {
 
 	private String mainFile;
 
-	private static void printHelp(Options options) {
-		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp("java -jar TLA2B.jar [file]", options);
+	private static void printHelp(Options options) throws IOException {
+		HelpFormatter.builder()
+			.setShowSince(false)
+			.get()
+			.printHelp("java -jar TLA2B.jar [file]", "", options, "", true);
 	}
 
-	public void handleParameter(String[] args) {
+	public void handleParameter(String[] args) throws IOException {
 		DefaultParser parser = new DefaultParser();
 		Options options = getCommandlineOptions();
 		try {
@@ -50,7 +54,7 @@ public class TLA2B {
 
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		// To indicate an error we use the exit code -1
 		TLA2B tla2b = new TLA2B();
 		tla2b.handleParameter(args);
@@ -87,7 +91,7 @@ public class TLA2B {
 			.argName("file")
 			.hasArg()
 			.desc("config file")
-			.build();
+			.get();
 		options.addOption(config);
 		return options;
 	}
