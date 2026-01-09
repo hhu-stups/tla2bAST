@@ -23,8 +23,9 @@ import de.tla2b.util.TlaUtils;
 import tla2sany.semantic.*;
 
 import tlc2.tool.BuiltInOPs;
+import tlc2.tool.ToolGlobals;
 
-public class SpecAnalyser extends BuiltInOPs {
+public class SpecAnalyser {
 	private OpDefNode spec;
 	private OpDefNode init;
 	private OpDefNode next;
@@ -122,7 +123,7 @@ public class SpecAnalyser extends BuiltInOPs {
 				OpApplNode opApplNode = (OpApplNode) inv.getBody();
 				OpDefNode opDefNode = (OpDefNode) opApplNode.getOperator(); // nested definition
 
-				if (opDefNode.getKind() == UserDefinedOpKind && !BBuiltInOPs.contains(opDefNode.getName())) {
+				if (opDefNode.getKind() == ASTConstants.UserDefinedOpKind && !BBuiltInOPs.contains(opDefNode.getName())) {
 					DebugUtils.printDebugMsg("replacing invariant definition " + inv.getName() + " by its inner definition " + opDefNode.getName());
 					return opDefNode;
 				}
@@ -201,17 +202,17 @@ public class SpecAnalyser extends BuiltInOPs {
 			}
 
 			int opcode = BuiltInOPs.getOpCode(opApp.getOperator().getName());
-			if (opcode == OPCODE_cl || opcode == OPCODE_land) {
+			if (opcode == ToolGlobals.OPCODE_cl || opcode == ToolGlobals.OPCODE_land) {
 				for (ExprOrOpArgNode arg : args) {
 					this.processConfigSpec((ExprNode) arg);
 				}
 				return;
 			}
 
-			if (opcode == OPCODE_box) {
+			if (opcode == ToolGlobals.OPCODE_box) {
 				SemanticNode boxArg = args[0];
 				if ((boxArg instanceof OpApplNode)
-					&& BuiltInOPs.getOpCode(((OpApplNode) boxArg).getOperator().getName()) == OPCODE_sa) {
+					&& BuiltInOPs.getOpCode(((OpApplNode) boxArg).getOperator().getName()) == ToolGlobals.OPCODE_sa) {
 					this.nextExpr = (ExprNode) ((OpApplNode) boxArg).getArgs()[0];
 					return;
 				}
@@ -240,7 +241,7 @@ public class SpecAnalyser extends BuiltInOPs {
 				// recursiveDefinitions.add(rd);
 			} else if (def.getBody() instanceof OpApplNode) {
 				OpApplNode o = (OpApplNode) def.getBody();
-				if (getOpCode(o.getOperator().getName()) == OPCODE_rfs) {// recursive Function
+				if (BuiltInOPs.getOpCode(o.getOperator().getName()) == ToolGlobals.OPCODE_rfs) {// recursive Function
 					bDefinitionsSet.remove(def);
 					recursiveFunctions.add(def);
 				}

@@ -38,23 +38,16 @@ import de.tla2b.types.TupleType;
 import de.tla2b.types.UntypedType;
 import de.tla2b.util.DebugUtils;
 
-import tla2sany.semantic.AssumeNode;
-import tla2sany.semantic.AtNode;
-import tla2sany.semantic.ExprNode;
-import tla2sany.semantic.ExprOrOpArgNode;
-import tla2sany.semantic.FormalParamNode;
-import tla2sany.semantic.LetInNode;
-import tla2sany.semantic.ModuleNode;
-import tla2sany.semantic.NumeralNode;
-import tla2sany.semantic.OpApplNode;
-import tla2sany.semantic.OpDeclNode;
-import tla2sany.semantic.OpDefNode;
-import tla2sany.semantic.SemanticNode;
-import tla2sany.semantic.StringNode;
-import tla2sany.semantic.SymbolNode;
+import tla2sany.semantic.*;
+
 import tlc2.tool.BuiltInOPs;
 
-public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlobals {
+import static de.tla2b.global.BBuildIns.*;
+import static de.tla2b.global.TranslationGlobals.*;
+import static tla2sany.semantic.ASTConstants.*;
+import static tlc2.tool.ToolGlobals.*;
+
+public class TypeChecker {
 
 	private static final int TEMP_TYPE_ID = 6;
 	private int paramId = TYPE_ID;
@@ -379,7 +372,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 	}
 
 	private TLAType evalBuiltInKind(OpApplNode n, TLAType expected) throws TLA2BException {
-		switch (getOpCode(n.getOperator().getName())) {
+		switch (BuiltInOPs.getOpCode(n.getOperator().getName())) {
 			/*
 			 * equality and inequality: =, #, /=
 			 */

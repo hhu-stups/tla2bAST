@@ -53,8 +53,11 @@ import tlc2.value.impl.StringValue;
 import tlc2.value.impl.Value;
 
 import static de.be4.classicalb.core.parser.util.ASTBuilder.*;
+import static de.tla2b.global.BBuildIns.*;
+import static tla2sany.semantic.ASTConstants.*;
+import static tlc2.tool.ToolGlobals.*;
 
-public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuildIns, ValueConstants {
+public class BAstCreator {
 
 	private List<PMachineClause> machineClauseList;
 	private ConfigfileEvaluator conEval;
@@ -100,7 +103,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 			OpApplNode opApplNode = (OpApplNode) expr;
 			int kind = opApplNode.getOperator().getKind();
 			if (kind == BuiltInKind) {
-				int opcode = getOpCode(opApplNode.getOperator().getName());
+				int opcode = BuiltInOPs.getOpCode(opApplNode.getOperator().getName());
 				return OperatorTypes.tlaOperatorIsPredicate(opcode);
 			} else if (kind == UserDefinedOpKind && BBuiltInOPs.contains(opApplNode.getOperator().getName())) {
 				int opcode = BBuiltInOPs.getOpcode(opApplNode.getOperator().getName());
@@ -483,16 +486,16 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 
 	private PExpression createTLCValue(Value tlcValue) {
 		switch (tlcValue.getKind()) {
-			case INTVALUE:
+			case ValueConstants.INTVALUE:
 				return createIntegerExpression(tlcValue.toString());
-			case REALVALUE:
+			case ValueConstants.REALVALUE:
 				return createRealExpression(tlcValue.toString());
-			case SETENUMVALUE:
+			case ValueConstants.SETENUMVALUE:
 				return new ASetExtensionExpression(Arrays.stream(((SetEnumValue) tlcValue).elems.toArray())
 						.map(this::createTLCValue).collect(Collectors.toList()));
-			case MODELVALUE:
+			case ValueConstants.MODELVALUE:
 				return createIdentifier(tlcValue.toString());
-			case STRINGVALUE:
+			case ValueConstants.STRINGVALUE:
 				return createStringExpression(((StringValue) tlcValue).getVal().toString());
 			default:
 				throw new NotImplementedException("TLC value in configuration file: " + tlcValue.getClass());
@@ -566,7 +569,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 				return evalAtNode(
 						new LinkedList<>(Arrays.asList(at.getAtModifier().getArgs())), // seq
 						TypeChecker.getType(at.getExceptRef()),
-						((PExpression) at.getExceptComponentRef().getToolObject(EXCEPT_BASE)).clone()
+						((PExpression) at.getExceptComponentRef().getToolObject(TranslationGlobals.EXCEPT_BASE)).clone()
 				);
 			}
 			case LetInKind:
@@ -617,7 +620,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 				return createIdentifierFromNode(n.getOperator());
 			case FormalParamKind: {
 				FormalParamNode param = (FormalParamNode) n.getOperator();
-				ExprOrOpArgNode e = (ExprOrOpArgNode) param.getToolObject(SUBSTITUTE_PARAM);
+				ExprOrOpArgNode e = (ExprOrOpArgNode) param.getToolObject(TranslationGlobals.SUBSTITUTE_PARAM);
 				if (e != null) {
 					return visitExprOrOpArgNodeExpression(e);
 				}
@@ -632,7 +635,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 						return new AFunctionExpression(createIdentifierFromNode(param), params);
 					}
 				}
-				FormalParamNode[] tuple = (FormalParamNode[]) param.getToolObject(TUPLE);
+				FormalParamNode[] tuple = (FormalParamNode[]) param.getToolObject(TranslationGlobals.TUPLE);
 				if (tuple != null) {
 					if (tuple.length == 1) {
 						return new AFunctionExpression(
@@ -687,7 +690,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 			FormalParamNode[] params = def.getParams();
 			for (int i = 0; i < params.length; i++) {
 				FormalParamNode param = params[i];
-				param.setToolObject(SUBSTITUTE_PARAM, n.getArgs()[i]);
+				param.setToolObject(TranslationGlobals.SUBSTITUTE_PARAM, n.getArgs()[i]);
 			}
 			return visitExprNodePredicate(def.getBody());
 		}
@@ -743,7 +746,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 			FormalParamNode[] params = def.getParams();
 			for (int i = 0; i < params.length; i++) {
 				FormalParamNode param = params[i];
-				param.setToolObject(SUBSTITUTE_PARAM, n.getArgs()[i]);
+				param.setToolObject(TranslationGlobals.SUBSTITUTE_PARAM, n.getArgs()[i]);
 			}
 			return visitExprNodeExpression(def.getBody());
 		}
@@ -1010,7 +1013,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 
 	private PPredicate visitBuiltInKindPredicate(OpApplNode n) {
 		PPredicate returnNode;
-		switch (getOpCode(n.getOperator().getName())) {
+		switch (BuiltInOPs.getOpCode(n.getOperator().getName())) {
 			// use visitBuiltInKindExpression for left side of AEqualPredicate where possible
 			case OPCODE_case:
 			case OPCODE_prime: // x' ~> x_n
@@ -1178,7 +1181,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 	}
 
 	private PExpression visitBuiltInKindExpression(OpApplNode n) {
-		switch (getOpCode(n.getOperator().getName())) {
+		switch (BuiltInOPs.getOpCode(n.getOperator().getName())) {
 			// use visitBuiltInKindPredicate for inner part of AConvertBoolExpression where possible
 			case OPCODE_land: // \land
 			case OPCODE_equiv: // \equiv
@@ -1488,7 +1491,7 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 				for (int i = 1; i < n.getArgs().length; i++) {
 					OpApplNode pair = (OpApplNode) n.getArgs()[i];
 					OpApplNode first = (OpApplNode) pair.getArgs()[0]; // seq
-					pair.setToolObject(EXCEPT_BASE, res.clone());
+					pair.setToolObject(TranslationGlobals.EXCEPT_BASE, res.clone());
 					res = evalExceptValue(res.clone(), new LinkedList<>(Arrays.asList(first.getArgs())),
 							TypeChecker.getType(n), pair.getArgs()[1]);
 				}
@@ -1682,14 +1685,14 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 			if (isTuple[i]) {
 				if (params[i].length == 1) { // one-tuple is handled as a sequence
 					FormalParamNode param = params[i][0];
-					param.setToolObject(TUPLE, params[i]);
+					param.setToolObject(TranslationGlobals.TUPLE, params[i]);
 					predList.add(new AMemberPredicate(createIdentifierFromNode(param), visitExprNodeExpression(in[i])));
 				} else if (i == 0) { // do not use prj1 & prj2 if it is the first tuple TODO: why?
 					predList.add(new AMemberPredicate(new ACoupleExpression(paramNodes), visitExprNodeExpression(in[i])));
 				} else { // '<<b,c>> \in {2} \X {3}' is translated to 'bc : {2} * {3}'
 					StringBuilder sb = new StringBuilder();
 					for (FormalParamNode param : params[i]) {
-						param.setToolObject(TUPLE, params[i]);
+						param.setToolObject(TranslationGlobals.TUPLE, params[i]);
 						sb.append(param.getName().toString());
 					}
 					predList.add(new AMemberPredicate(createIdentifier(sb.toString()), visitExprNodeExpression(in[i])));

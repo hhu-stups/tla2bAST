@@ -15,6 +15,10 @@ import de.tla2b.config.ConfigfileEvaluator;
 
 import tla2sany.semantic.*;
 
+import tlc2.tool.BuiltInOPs;
+
+import static tlc2.tool.ToolGlobals.*;
+
 public class BMacroHandler extends AbstractASTVisitor {
 
 	private final Map<FormalParamNode, String> renamingTable = new HashMap<>();
@@ -65,7 +69,7 @@ public class BMacroHandler extends AbstractASTVisitor {
 
 	@Override
 	public void visitBuiltInNode(OpApplNode n) {
-		switch (getOpCode(n.getOperator().getName())) {
+		switch (BuiltInOPs.getOpCode(n.getOperator().getName())) {
 			case OPCODE_rfs:
 			case OPCODE_nrfs:
 			case OPCODE_fc: // Represents [x \in S |-> e]

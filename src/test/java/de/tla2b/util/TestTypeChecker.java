@@ -13,7 +13,7 @@ import tla2sany.semantic.SemanticNode;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TestTypeChecker implements TranslationGlobals {
+public class TestTypeChecker {
 
 	public final int toolId = 5;
 	private final Map<String, TLAType> constants = new HashMap<>();
@@ -55,8 +55,9 @@ public class TestTypeChecker implements TranslationGlobals {
 			OpDefNode def = moduleNode.getOpDefs()[i];
 			TLAType defType = getBType(def);
 			if (defType == null
-				|| STANDARD_MODULES.contains(def.getOriginallyDefinedInModuleNode().getName().toString())
-				|| STANDARD_MODULES.contains(def.getSource().getOriginallyDefinedInModuleNode().getName().toString())) {
+				|| TranslationGlobals.STANDARD_MODULES.contains(def.getOriginallyDefinedInModuleNode().getName().toString())
+				|| TranslationGlobals.STANDARD_MODULES.contains(def.getSource().getOriginallyDefinedInModuleNode().getName().toString())
+			) {
 				continue;
 			}
 

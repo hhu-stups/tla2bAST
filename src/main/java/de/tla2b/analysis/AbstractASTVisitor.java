@@ -1,10 +1,12 @@
 package de.tla2b.analysis;
 
 import de.tla2b.global.BBuiltInOPs;
-import tla2sany.semantic.*;
-import tlc2.tool.BuiltInOPs;
 
-public class AbstractASTVisitor extends BuiltInOPs implements ASTConstants {
+import tla2sany.semantic.*;
+
+import static tla2sany.semantic.ASTConstants.*;
+
+public class AbstractASTVisitor {
 
 	public void visitModuleNode(ModuleNode moduleNode) {
 		visitDefinitions(moduleNode.getOpDefs());

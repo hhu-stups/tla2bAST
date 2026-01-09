@@ -1,11 +1,14 @@
 package de.tla2b.analysis;
 
 import de.tla2b.exceptions.NotImplementedException;
+
 import tla2sany.semantic.OpApplNode;
 import tla2sany.semantic.OpDefNode;
-import tlc2.tool.BuiltInOPs;
 
-public class RecursiveDefinition extends BuiltInOPs {
+import tlc2.tool.BuiltInOPs;
+import tlc2.tool.ToolGlobals;
+
+public class RecursiveDefinition {
 
 	private final OpDefNode def;
 	private OpApplNode ifThenElse;
@@ -18,7 +21,7 @@ public class RecursiveDefinition extends BuiltInOPs {
 	private void evalRecursiveDefinition() throws NotImplementedException {
 		if (def.getBody() instanceof OpApplNode) {
 			OpApplNode o = (OpApplNode) def.getBody();
-			if (getOpCode(o.getOperator().getName()) == OPCODE_ite) {// IF THEN ELSE
+			if (BuiltInOPs.getOpCode(o.getOperator().getName()) == ToolGlobals.OPCODE_ite) {// IF THEN ELSE
 				ifThenElse = o;
 				return;
 			}

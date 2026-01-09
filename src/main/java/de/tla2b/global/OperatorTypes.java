@@ -3,7 +3,10 @@ package de.tla2b.global;
 import java.util.HashSet;
 import java.util.Set;
 
-public class OperatorTypes implements BBuildIns {
+import static de.tla2b.global.BBuildIns.*;
+import static tlc2.tool.ToolGlobals.*;
+
+public final class OperatorTypes {
 	private static final Set<Integer> TLA_Predicate_Operators;
 	private static final Set<Integer> BBuiltIn_Predicate_Operators;
 
@@ -32,6 +35,10 @@ public class OperatorTypes implements BBuildIns {
 		BBuiltIn_Predicate_Operators.add(B_OPCODE_geq);
 		BBuiltIn_Predicate_Operators.add(B_OPCODE_finite);
 		BBuiltIn_Predicate_Operators.add(B_OPCODE_assert);
+	}
+
+	private OperatorTypes() {
+		throw new AssertionError("Utility class");
 	}
 
 	public static boolean tlaOperatorIsPredicate(int opcode) {

@@ -34,7 +34,7 @@ import tla2sany.st.TreeNode;
 
 import util.ToolIO;
 
-public class ExpressionTranslator implements SyntaxTreeConstants {
+public class ExpressionTranslator {
 
 	private final String tlaExpression;
 	private final List<String> variables = new ArrayList<>();
@@ -287,7 +287,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 	private void searchVarInSyntaxTree(TreeNode treeNode) {
 		// System.out.println(treeNode.getKind() + " " + treeNode.getImage());
 		switch (treeNode.getKind()) {
-			case N_GeneralId: {
+			case SyntaxTreeConstants.N_GeneralId: {
 				String con = treeNode.heirs()[1].getImage();
 				if (!variables.contains(con) && !KEYWORDS.contains(con)) {
 					SymbolNode existingNode = namingMap.get(con);
@@ -300,22 +300,22 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 				}
 				break;
 			}
-			case N_IdentLHS: { // left side of a definition
+			case SyntaxTreeConstants.N_IdentLHS: { // left side of a definition
 				TreeNode[] children = treeNode.heirs();
 				noVariables.add(children[0].getImage());
 				break;
 			}
-			case N_IdentDecl: { // parameter of a LET definition
+			case SyntaxTreeConstants.N_IdentDecl: { // parameter of a LET definition
 				// e.g. x in LET foo(x) == e
 				noVariables.add(treeNode.heirs()[0].getImage());
 				break;
 			}
-			case N_FunctionDefinition: {
+			case SyntaxTreeConstants.N_FunctionDefinition: {
 				// the first child is the function name
 				noVariables.add(treeNode.heirs()[0].getImage());
 				break;
 			}
-			case N_UnboundQuant: { // TODO: check: is this an unbounded quantifier with infinite domain or a quantifier that does not hide the quantified variables?
+			case SyntaxTreeConstants.N_UnboundQuant: { // TODO: check: is this an unbounded quantifier with infinite domain or a quantifier that does not hide the quantified variables?
 				TreeNode[] children = treeNode.heirs();
 				//for (int i = 1; i < children.length - 2; i = i + 2) {
 					// System.out.println("N_UnboundQuant: "+children[i].getImage());
@@ -323,7 +323,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 				searchVarInSyntaxTree(treeNode.heirs()[children.length - 1]);
 				break;
 			}
-			case N_UnboundOrBoundChoose: { // not sure the format is the same as N_QuantBound
+			case SyntaxTreeConstants.N_UnboundOrBoundChoose: { // not sure the format is the same as N_QuantBound
 				TreeNode[] children = treeNode.heirs();
 				for (int i = 1; i < children.length - 2; i = i + 2) {
 					String boundedVar = children[i].getImage();
@@ -336,7 +336,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 				searchVarInSyntaxTree(treeNode.heirs()[children.length - 1]);
 				break;
 			}
-			case N_QuantBound: {
+			case SyntaxTreeConstants.N_QuantBound: {
 				TreeNode[] children = treeNode.heirs();
 				for (int i = 0; i < children.length - 2; i = i + 2) {
 					String boundedVar = children[i].getImage();
@@ -348,7 +348,7 @@ public class ExpressionTranslator implements SyntaxTreeConstants {
 				searchVarInSyntaxTree(treeNode.heirs()[children.length - 1]);
 				break;
 			}
-			case N_SubsetOf: { // { x \in S : e }
+			case SyntaxTreeConstants.N_SubsetOf: { // { x \in S : e }
 				TreeNode[] children = treeNode.heirs();
 				String boundedVar = children[1].getImage(); // x
 				if (!noVariables.contains(boundedVar)) {

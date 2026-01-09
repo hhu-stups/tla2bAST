@@ -17,6 +17,9 @@ import tlc2.tool.BuiltInOPs;
 
 import util.UniqueString;
 
+import static tla2sany.semantic.ASTConstants.*;
+import static tlc2.tool.ToolGlobals.*;
+
 public class OperationsFinder extends AbstractASTVisitor {
 	private final SpecAnalyser specAnalyser;
 

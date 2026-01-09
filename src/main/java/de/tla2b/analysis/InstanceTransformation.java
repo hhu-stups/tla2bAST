@@ -13,6 +13,9 @@ import tlc2.tool.BuiltInOPs;
 
 import util.UniqueString;
 
+import static tla2sany.semantic.ASTConstants.*;
+import static tlc2.tool.ToolGlobals.*;
+
 /**
  * This class handles substitutions during module instantiation, e.g.
  * <p>
@@ -23,7 +26,7 @@ import util.UniqueString;
  * <p>
  * cf. <a href="https://lamport.azurewebsites.net/tla/newmodule.html">https://lamport.azurewebsites.net/tla/newmodule.html</a>
  */
-public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
+public class InstanceTransformation {
 
 	private final Map<String, OpDefNode> defs;
 	private final int substitutionId = 11;
@@ -175,7 +178,7 @@ public class InstanceTransformation extends BuiltInOPs implements ASTConstants {
 	}
 
 	private ExprNode copyBuiltInNode(OpApplNode n, String prefix) {
-		switch (getOpCode(n.getOperator().getName())) {
+		switch (BuiltInOPs.getOpCode(n.getOperator().getName())) {
 			case OPCODE_exc: { // Except
 				OpApplNode newNode = new OpApplNode(n.getOperator().getName(), null, n.getTreeNode(), null);
 				n.setToolObject(substitutionId, newNode); // needed for @ node

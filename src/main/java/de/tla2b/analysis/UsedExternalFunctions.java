@@ -11,7 +11,10 @@ import de.tla2b.global.BBuiltInOPs;
 
 import tla2sany.semantic.*;
 
-public class UsedExternalFunctions extends AbstractASTVisitor implements BBuildIns {
+import tlc2.tool.BuiltInOPs;
+import tlc2.tool.ToolGlobals;
+
+public class UsedExternalFunctions extends AbstractASTVisitor {
 
 	private final Set<String> usedExternalFunctions = new HashSet<>();
 
@@ -36,10 +39,10 @@ public class UsedExternalFunctions extends AbstractASTVisitor implements BBuildI
 
 	@Override
 	public void visitBuiltInNode(OpApplNode n) {
-		switch (getOpCode(n.getOperator().getName())) {
-			case OPCODE_case:
-			case OPCODE_uc:
-			case OPCODE_bc: {
+		switch (BuiltInOPs.getOpCode(n.getOperator().getName())) {
+			case ToolGlobals.OPCODE_case:
+			case ToolGlobals.OPCODE_uc:
+			case ToolGlobals.OPCODE_bc: {
 				usedExternalFunctions.add(ASTBuilder.CHOOSE);
 			}
 			default:
@@ -61,7 +64,7 @@ public class UsedExternalFunctions extends AbstractASTVisitor implements BBuildI
 
 	@Override
 	public void visitBBuiltinsNode(OpApplNode n) {
-		if (BBuiltInOPs.getOpcode(n.getOperator().getName()) == B_OPCODE_assert) {
+		if (BBuiltInOPs.getOpcode(n.getOperator().getName()) == BBuildIns.B_OPCODE_assert) {
 			usedExternalFunctions.add(ASTBuilder.ASSERT_TRUE);
 		}
 

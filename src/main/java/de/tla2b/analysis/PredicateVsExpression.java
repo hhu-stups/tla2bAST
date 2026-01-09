@@ -3,14 +3,17 @@ package de.tla2b.analysis;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.tla2b.global.BBuildIns;
 import de.tla2b.global.BBuiltInOPs;
 
 import tla2sany.semantic.*;
 
 import tlc2.tool.BuiltInOPs;
 
-public class PredicateVsExpression extends BuiltInOPs implements BBuildIns {
+import static de.tla2b.global.BBuildIns.*;
+import static tla2sany.semantic.ASTConstants.*;
+import static tlc2.tool.ToolGlobals.*;
+
+public class PredicateVsExpression {
 
 	private final Map<OpDefNode, DefinitionType> definitionsTypeMap = new HashMap<>();
 
@@ -43,7 +46,7 @@ public class PredicateVsExpression extends BuiltInOPs implements BBuildIns {
 		int kind = opApplNode.getOperator().getKind();
 
 		if (kind == BuiltInKind) {
-			switch (getOpCode(opApplNode.getOperator().getName())) {
+			switch (BuiltInOPs.getOpCode(opApplNode.getOperator().getName())) {
 				case OPCODE_eq: // =
 				case OPCODE_noteq: // /=
 				case OPCODE_cl: // $ConjList

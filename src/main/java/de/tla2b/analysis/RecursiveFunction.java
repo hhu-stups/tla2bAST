@@ -1,11 +1,11 @@
 package de.tla2b.analysis;
 
 import de.tla2b.exceptions.NotImplementedException;
+
 import tla2sany.semantic.OpApplNode;
 import tla2sany.semantic.OpDefNode;
-import tlc2.tool.BuiltInOPs;
 
-public class RecursiveFunction extends BuiltInOPs {
+public class RecursiveFunction {
 
 	private final OpDefNode def;
 	private final OpApplNode rfs;
@@ -28,8 +28,8 @@ public class RecursiveFunction extends BuiltInOPs {
 //		//System.out.println(rfs.toString(5));
 //		if (e instanceof OpApplNode) {
 //			OpApplNode o = (OpApplNode) e;
-//			switch (getOpCode(o.getOperator().getName())) {
-//			case OPCODE_ite: { // IF THEN ELSE
+//			switch (BuiltInOPs.getOpCode(o.getOperator().getName())) {
+//			case ToolGlobals.OPCODE_ite: { // IF THEN ELSE
 //				ifThenElse = o;
 //				return;
 //			}

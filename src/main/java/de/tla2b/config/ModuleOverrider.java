@@ -4,12 +4,12 @@ import java.util.Map;
 
 import tla2sany.semantic.*;
 
-import tlc2.tool.BuiltInOPs;
+import static tla2sany.semantic.ASTConstants.*;
 
 /**
  * Apply overrides specified in the configuration file.
  */
-public class ModuleOverrider extends BuiltInOPs {
+public class ModuleOverrider {
 
 	private final ModuleNode moduleNode;
 	private final ConfigfileEvaluator conEval;

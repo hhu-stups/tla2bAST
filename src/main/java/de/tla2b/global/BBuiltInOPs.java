@@ -5,26 +5,30 @@ import java.util.Map;
 
 import tla2sany.semantic.OpDefNode;
 
+import tlc2.tool.ToolGlobals;
+
 import util.UniqueString;
 
-public class BBuiltInOPs implements BBuildIns {
+import static de.tla2b.global.BBuildIns.*;
+
+public final class BBuiltInOPs {
 	private static final Map<UniqueString, Integer> B_Opcodes = new HashMap<>();
 
 	static {
-		B_Opcodes.put(OP_dotdot, B_OPCODE_dotdot);
-		B_Opcodes.put(OP_plus, B_OPCODE_plus);
-		B_Opcodes.put(OP_minus, B_OPCODE_minus);
-		B_Opcodes.put(OP_times, B_OPCODE_times);
+		B_Opcodes.put(ToolGlobals.OP_dotdot, B_OPCODE_dotdot);
+		B_Opcodes.put(ToolGlobals.OP_plus, B_OPCODE_plus);
+		B_Opcodes.put(ToolGlobals.OP_minus, B_OPCODE_minus);
+		B_Opcodes.put(ToolGlobals.OP_times, B_OPCODE_times);
 		B_Opcodes.put(OP_div, B_OPCODE_div);
 		B_Opcodes.put(OP_realdiv, B_OPCODE_realdiv);
 		B_Opcodes.put(OP_mod, B_OPCODE_mod);
 		B_Opcodes.put(OP_exp, B_OPCODE_exp);
 		B_Opcodes.put(OP_uminus, B_OPCODE_uminus);
 
-		B_Opcodes.put(OP_lt, B_OPCODE_lt);
-		B_Opcodes.put(OP_leq, B_OPCODE_leq);
-		B_Opcodes.put(OP_gt, B_OPCODE_gt);
-		B_Opcodes.put(OP_geq, B_OPCODE_geq);
+		B_Opcodes.put(ToolGlobals.OP_lt, B_OPCODE_lt);
+		B_Opcodes.put(ToolGlobals.OP_leq, B_OPCODE_leq);
+		B_Opcodes.put(ToolGlobals.OP_gt, B_OPCODE_gt);
+		B_Opcodes.put(ToolGlobals.OP_geq, B_OPCODE_geq);
 		B_Opcodes.put(OP_bool, B_OPCODE_bool);
 		B_Opcodes.put(OP_true, B_OPCODE_true);
 		B_Opcodes.put(OP_false, B_OPCODE_false);
@@ -57,6 +61,10 @@ public class BBuiltInOPs implements BBuildIns {
 		B_Opcodes.put(OP_rel_inverse, B_OPCODE_rel_inverse);
 
 		B_Opcodes.put(OP_assert, B_OPCODE_assert);
+	}
+
+	private BBuiltInOPs() {
+		throw new AssertionError("Utility class");
 	}
 
 	public static boolean contains(UniqueString s) {

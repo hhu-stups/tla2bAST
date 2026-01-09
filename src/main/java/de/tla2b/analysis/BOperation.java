@@ -21,7 +21,10 @@ import tla2sany.semantic.*;
 
 import tlc2.tool.BuiltInOPs;
 
-public class BOperation extends BuiltInOPs {
+import static tla2sany.semantic.ASTConstants.*;
+import static tlc2.tool.ToolGlobals.*;
+
+public class BOperation {
 	private final String name;
 	private final OpApplNode node;
 	private final List<OpApplNode> existQuans;
@@ -140,11 +143,11 @@ public class BOperation extends BuiltInOPs {
 			if (node instanceof OpApplNode) {
 				OpApplNode opApplNode = (OpApplNode) node;
 				if (opApplNode.getOperator().getKind() == BuiltInKind
-						&& getOpCode(opApplNode.getOperator().getName()) == OPCODE_eq) {
+						&& BuiltInOPs.getOpCode(opApplNode.getOperator().getName()) == OPCODE_eq) {
 					ExprOrOpArgNode arg1 = opApplNode.getArgs()[0]; // we have equality arg1 = RHS
 					try {
 						OpApplNode primeAppl = (OpApplNode) arg1;
-						if (getOpCode(primeAppl.getOperator().getName()) == OPCODE_prime) {
+						if (BuiltInOPs.getOpCode(primeAppl.getOperator().getName()) == OPCODE_prime) {
 							OpDeclNode var = (OpDeclNode) ((OpApplNode) primeAppl.getArgs()[0]).getOperator(); // var is first arg of prime
 							// we have equality var' = RHS
 							if (!primedVariablesFinder.getTwiceUsedVariables().contains(var)) {
@@ -175,7 +178,7 @@ public class BOperation extends BuiltInOPs {
 		if (node instanceof OpApplNode) {
 			OpApplNode opApplNode = (OpApplNode) node;
 			if (opApplNode.getOperator().getKind() == BuiltInKind) {
-				switch (getOpCode(opApplNode.getOperator().getName())) {
+				switch (BuiltInOPs.getOpCode(opApplNode.getOperator().getName())) {
 					case OPCODE_land: // \land (getArgs has 2 args)
 					case OPCODE_cl: // $ConjList
 						Arrays.stream(opApplNode.getArgs()).forEach(this::separateGuardsAndBeforeAfterPredicates);
@@ -293,7 +296,7 @@ class PrimedVariablesFinder extends AbstractASTVisitor {
 	}
 
 	public void visitBuiltInNode(OpApplNode n) {
-		if (getOpCode(n.getOperator().getName()) == OPCODE_prime && n.getArgs()[0] instanceof OpApplNode) {
+		if (BuiltInOPs.getOpCode(n.getOperator().getName()) == OPCODE_prime && n.getArgs()[0] instanceof OpApplNode) {
 			SymbolNode var = ((OpApplNode) n.getArgs()[0]).getOperator();
 			if (!all.add(var)) {
 				twiceUsedVariables.add(var);

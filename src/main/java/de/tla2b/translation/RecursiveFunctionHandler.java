@@ -13,6 +13,10 @@ import de.tla2b.analysis.SpecAnalyser;
 
 import tla2sany.semantic.*;
 
+import tlc2.tool.BuiltInOPs;
+
+import static tlc2.tool.ToolGlobals.*;
+
 public class RecursiveFunctionHandler extends AbstractASTVisitor {
 
 	private List<FormalParamNode> paramList;
@@ -65,7 +69,7 @@ public class RecursiveFunctionHandler extends AbstractASTVisitor {
 
 	@Override
 	public void visitBuiltInNode(OpApplNode n) {
-		switch (getOpCode(n.getOperator().getName())) {
+		switch (BuiltInOPs.getOpCode(n.getOperator().getName())) {
 			case OPCODE_rfs:
 			case OPCODE_nrfs:
 			case OPCODE_fc: // Represents [x \in S |-> e]

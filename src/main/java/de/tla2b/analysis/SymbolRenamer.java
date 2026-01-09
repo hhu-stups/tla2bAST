@@ -12,7 +12,10 @@ import tla2sany.semantic.*;
 
 import tlc2.tool.BuiltInOPs;
 
-public class SymbolRenamer extends BuiltInOPs {
+import static tla2sany.semantic.ASTConstants.*;
+import static tlc2.tool.ToolGlobals.*;
+
+public class SymbolRenamer {
 
 	private final static Set<String> KEYWORDS = new HashSet<>();
 
@@ -247,7 +250,7 @@ public class SymbolRenamer extends BuiltInOPs {
 
 	private void visitBuiltinNode(OpApplNode opApplNode, Set<String> usedNames) {
 
-		switch (getOpCode(opApplNode.getOperator().getName())) {
+		switch (BuiltInOPs.getOpCode(opApplNode.getOperator().getName())) {
 
 			case OPCODE_nrfs:
 			case OPCODE_fc: // Represents [x \in S |-> e]
