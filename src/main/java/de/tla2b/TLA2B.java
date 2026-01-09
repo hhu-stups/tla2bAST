@@ -15,12 +15,6 @@ public class TLA2B {
 
 	private String mainFile;
 
-	private static final boolean error = false;
-
-	public static boolean hasError() {
-		return error;
-	}
-
 	public void handleParameter(String[] args) {
 		DefaultParser parser = new DefaultParser();
 		Options options = getCommandlineOptions();
