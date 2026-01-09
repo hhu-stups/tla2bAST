@@ -206,8 +206,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 				.map(bDefinitions::getDefinition).collect(Collectors.toList()); // add external functions
 		for (OpDefNode opDefNode : bDefs) {
 			List<PExpression> params = Arrays.stream(opDefNode.getParams())
-				                           .map(this::createIdentifierFromNode)
-				                           .collect(Collectors.toList());
+				.map(this::createIdentifierFromNode)
+				.collect(Collectors.toList());
 			PDefinition definition;
 			if (predicateVsExpression.getDefinitionType(opDefNode) == PredicateVsExpression.DefinitionType.PREDICATE) {
 				PPredicate pred = null;
@@ -219,16 +219,16 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 						// wrap in let to force single evaluation of all params
 						List<PExpression> paramsCopy = params;
 						List<PExpression> defParams = Arrays.stream(opDefNode.getParams())
-							                              .map(p -> createPositionedNode(createIdentifier("p__" + getName(p)), p))
-							                              .collect(Collectors.toList());
+							.map(p -> createPositionedNode(createIdentifier("p__" + getName(p)), p))
+							.collect(Collectors.toList());
 						params = defParams;
 						List<PPredicate> conjuncts = IntStream.range(0, paramsCopy.size())
-							                             .mapToObj(i -> {
-								                             PExpression param = paramsCopy.get(i);
-								                             PExpression defParam = defParams.get(i);
-								                             return new AEqualPredicate(param.clone(), defParam.clone());
-							                             })
-							                             .collect(Collectors.toList());
+							.mapToObj(i -> {
+								PExpression param = paramsCopy.get(i);
+								PExpression defParam = defParams.get(i);
+								return new AEqualPredicate(param.clone(), defParam.clone());
+							})
+							.collect(Collectors.toList());
 						pred = new ALetPredicatePredicate(paramsCopy, createConjunction(conjuncts), pred);
 					}
 					DebugUtils.printVeryVerboseMsg("Creating Predicate DEFINITION " + getName(opDefNode));
@@ -246,8 +246,8 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 				// special expression definitions
 				if (opDefNode.isStandardModule()) {
 					List<PExpression> paramAccess = Arrays.stream(opDefNode.getParams())
-						                                .map(this::createIdentifierFromNodeWithoutPos)
-						                                .collect(Collectors.toList());
+						.map(this::createIdentifierFromNodeWithoutPos)
+						.collect(Collectors.toList());
 					switch (getName(opDefNode)) {
 						case ":>": {
 							expr = createPositionedNode(createSetOfPExpression(createNestedCouple(Arrays.asList(paramAccess.get(0), paramAccess.get(1)))), opDefNode.getBody());
@@ -266,16 +266,16 @@ public class BAstCreator extends BuiltInOPs implements TranslationGlobals, BBuil
 						// wrap in let to force single evaluation of all params
 						List<PExpression> paramsCopy = params;
 						List<PExpression> defParams = Arrays.stream(opDefNode.getParams())
-							         .map(p -> createPositionedNode(createIdentifier("p__" + getName(p)), p))
-							         .collect(Collectors.toList());
+							.map(p -> createPositionedNode(createIdentifier("p__" + getName(p)), p))
+							.collect(Collectors.toList());
 						params = defParams;
 						List<PPredicate> conjuncts = IntStream.range(0, paramsCopy.size())
-							                             .mapToObj(i -> {
-								                             PExpression param = paramsCopy.get(i);
-															 PExpression defParam = defParams.get(i);
-								                             return new AEqualPredicate(param.clone(), defParam.clone());
-							                             })
-							                             .collect(Collectors.toList());
+							.mapToObj(i -> {
+								PExpression param = paramsCopy.get(i);
+								PExpression defParam = defParams.get(i);
+								return new AEqualPredicate(param.clone(), defParam.clone());
+							})
+							.collect(Collectors.toList());
 						expr = new ALetExpressionExpression(paramsCopy, createConjunction(conjuncts), expr);
 					}
 					DebugUtils.printVeryVerboseMsg("Creating Expression DEFINITION " + getName(opDefNode));

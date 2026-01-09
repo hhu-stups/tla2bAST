@@ -69,7 +69,7 @@ public final class TupleOrFunction extends AbstractHasFollowers implements IDefa
 		} else if (o instanceof FunctionType) {
 			FunctionType t = (FunctionType) o;
 			return t.getDomain().compare(IntType.getInstance()) &&
-				       this.types.values().stream().allMatch(type -> type.compare(t.getRange()));
+				this.types.values().stream().allMatch(type -> type.compare(t.getRange()));
 		} else if (o instanceof TupleType) {
 			TupleType tupleType = (TupleType) o;
 			List<TLAType> myTypes = typesAsContiguousList();

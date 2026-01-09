@@ -233,8 +233,7 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 		switch (exprNode.getKind()) {
 			case TLCValueKind: {
 				TLCValueNode valueNode = (TLCValueNode) exprNode;
-				return unify(valueNode.getType(), expected, valueNode.getValue().toString()
-					                                            + " (assigned in the configuration file)", exprNode);
+				return unify(valueNode.getType(), expected, valueNode.getValue().toString() + " (assigned in the configuration file)", exprNode);
 			}
 			case OpApplKind:
 				return visitOpApplNode((OpApplNode) exprNode, expected);
@@ -550,8 +549,8 @@ public class TypeChecker extends BuiltInOPs implements BBuildIns, TranslationGlo
 						domList.add(visitExprOrOpArgNode(arg, new UntypedType()));
 					}
 					domType = domList.size() == 1
-						          ? new FunctionType(IntType.getInstance(), domList.get(0)) // one-tuple
-						          : new TupleType(domList);
+						? new FunctionType(IntType.getInstance(), domList.get(0)) // one-tuple
+						: new TupleType(domList);
 				} else if (dom instanceof NumeralNode && ((NumeralNode) dom).val() >= 1) {
 					NumeralNode num = (NumeralNode) dom;
 					UntypedType u = new UntypedType();
