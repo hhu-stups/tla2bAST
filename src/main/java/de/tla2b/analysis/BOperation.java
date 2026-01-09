@@ -82,14 +82,20 @@ public class BOperation extends BuiltInOPs {
 			}
 			operationBody = new ASelectSubstitution(createConjunction(whereList), assign, new ArrayList<>(), null);
 		} else { // BEGIN A END
-			operationBody = new ABlockSubstitution(assign);
+			operationBody = assign;
 		}
 
 		if (!lhsAssignment.isEmpty()) {
 			assign.setLhsExpression(lhsAssignment);
 			assign.setRhsExpressions(rhsAssignment);
 		} else { // skip
-			assign.replaceBy(new ASkipSubstitution());
+			PSubstitution skip = new ASkipSubstitution();
+			if (assign.parent() != null) {
+				assign.replaceBy(skip);
+			}
+			if (operationBody == assign) {
+				operationBody = skip;
+			}
 		}
 
 		return new AOperation(new LinkedList<>(),
