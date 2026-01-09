@@ -9,7 +9,7 @@ import tla2sany.semantic.*;
 
 import tlc2.tool.BuiltInOPs;
 
-import static de.tla2b.global.BBuildIns.*;
+import static de.tla2b.global.BBuiltIns.*;
 import static tla2sany.semantic.ASTConstants.*;
 import static tlc2.tool.ToolGlobals.*;
 

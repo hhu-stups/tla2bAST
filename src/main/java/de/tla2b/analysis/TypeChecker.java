@@ -18,9 +18,7 @@ import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.exceptions.TLA2BFrontEndException;
 import de.tla2b.exceptions.TypeErrorException;
 import de.tla2b.exceptions.UnificationException;
-import de.tla2b.global.BBuildIns;
 import de.tla2b.global.BBuiltInOPs;
-import de.tla2b.global.TranslationGlobals;
 import de.tla2b.types.AbstractHasFollowers;
 import de.tla2b.types.BoolType;
 import de.tla2b.types.FunctionType;
@@ -42,7 +40,7 @@ import tla2sany.semantic.*;
 
 import tlc2.tool.BuiltInOPs;
 
-import static de.tla2b.global.BBuildIns.*;
+import static de.tla2b.global.BBuiltIns.*;
 import static de.tla2b.global.TranslationGlobals.*;
 import static tla2sany.semantic.ASTConstants.*;
 import static tlc2.tool.ToolGlobals.*;

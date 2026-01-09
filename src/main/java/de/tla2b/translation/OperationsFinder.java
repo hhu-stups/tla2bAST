@@ -6,7 +6,7 @@ import java.util.List;
 import de.tla2b.analysis.AbstractASTVisitor;
 import de.tla2b.analysis.BOperation;
 import de.tla2b.analysis.SpecAnalyser;
-import de.tla2b.global.BBuildIns;
+import de.tla2b.global.BBuiltIns;
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.global.TranslationGlobals;
 import de.tla2b.util.DebugUtils;
@@ -121,7 +121,7 @@ public class OperationsFinder extends AbstractASTVisitor {
 				return;
 		}
 
-		if (opname == BBuildIns.OP_false || opname == BBuildIns.OP_true) {
+		if (opname == BBuiltIns.OP_false || opname == BBuiltIns.OP_true) {
 			// FALSE: always disabled; TRUE: CHAOS
 			addOperation(currentName, n, exists, specAnalyser);
 			return;

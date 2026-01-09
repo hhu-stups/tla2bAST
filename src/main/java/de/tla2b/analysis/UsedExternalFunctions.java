@@ -6,7 +6,7 @@ import java.util.Set;
 import de.be4.classicalb.core.parser.Definitions;
 import de.be4.classicalb.core.parser.IDefinitions;
 import de.be4.classicalb.core.parser.util.ASTBuilder;
-import de.tla2b.global.BBuildIns;
+import de.tla2b.global.BBuiltIns;
 import de.tla2b.global.BBuiltInOPs;
 
 import tla2sany.semantic.*;
@@ -64,7 +64,7 @@ public class UsedExternalFunctions extends AbstractASTVisitor {
 
 	@Override
 	public void visitBBuiltinsNode(OpApplNode n) {
-		if (BBuiltInOPs.getOpcode(n.getOperator().getName()) == BBuildIns.B_OPCODE_assert) {
+		if (BBuiltInOPs.getOpcode(n.getOperator().getName()) == BBuiltIns.B_OPCODE_assert) {
 			usedExternalFunctions.add(ASTBuilder.ASSERT_TRUE);
 		}
 

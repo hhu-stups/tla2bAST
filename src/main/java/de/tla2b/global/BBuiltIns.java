@@ -6,7 +6,7 @@ import util.UniqueString;
  * Contains definitions of operators defined in additional modules like Naturals/Reals/...
  * that are not part of ToolGlobals.
  */
-public interface BBuildIns {
+public interface BBuiltIns {
 	UniqueString OP_div = UniqueString.uniqueStringOf("\\div");
 	UniqueString OP_realdiv = UniqueString.uniqueStringOf("/");
 	UniqueString OP_mod = UniqueString.uniqueStringOf("%");

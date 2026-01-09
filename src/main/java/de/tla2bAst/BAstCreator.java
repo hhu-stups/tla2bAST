@@ -29,7 +29,6 @@ import de.tla2b.analysis.UsedExternalFunctions;
 import de.tla2b.config.ConfigfileEvaluator;
 import de.tla2b.config.TLCValueNode;
 import de.tla2b.exceptions.NotImplementedException;
-import de.tla2b.global.BBuildIns;
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.global.OperatorTypes;
 import de.tla2b.global.TranslationGlobals;
@@ -53,7 +52,7 @@ import tlc2.value.impl.StringValue;
 import tlc2.value.impl.Value;
 
 import static de.be4.classicalb.core.parser.util.ASTBuilder.*;
-import static de.tla2b.global.BBuildIns.*;
+import static de.tla2b.global.BBuiltIns.*;
 import static tla2sany.semantic.ASTConstants.*;
 import static tlc2.tool.ToolGlobals.*;
 

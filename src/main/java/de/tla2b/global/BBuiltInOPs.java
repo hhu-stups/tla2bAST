@@ -9,7 +9,7 @@ import tlc2.tool.ToolGlobals;
 
 import util.UniqueString;
 
-import static de.tla2b.global.BBuildIns.*;
+import static de.tla2b.global.BBuiltIns.*;
 
 public final class BBuiltInOPs {
 	private static final Map<UniqueString, Integer> B_Opcodes = new HashMap<>();

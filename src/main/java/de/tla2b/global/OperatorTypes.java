@@ -3,7 +3,7 @@ package de.tla2b.global;
 import java.util.HashSet;
 import java.util.Set;
 
-import static de.tla2b.global.BBuildIns.*;
+import static de.tla2b.global.BBuiltIns.*;
 import static tlc2.tool.ToolGlobals.*;
 
 public final class OperatorTypes {
