@@ -6,7 +6,7 @@ plugins {
 	id 'jacoco'
 	id 'signing'
 
-	id "com.gradleup.shadow" version "8.3.8"
+	id "com.gradleup.shadow" version "8.3.9"
 	id "io.github.gradle-nexus.publish-plugin" version "2.0.0"
 }
 
@@ -33,12 +33,12 @@ configurations.configureEach {
 def parser_version = "2.15.4"
 
 dependencies {
-	implementation(group: 'commons-cli', name: 'commons-cli', version: '1.9.0')
+	implementation(group: 'commons-cli', name: 'commons-cli', version: '1.11.0')
 	api(group: 'de.hhu.stups', name: 'tlatools', version: '1.1.0')
 	api(group: 'de.hhu.stups', name: 'prologlib', version: parser_version)
 	api(group: 'de.hhu.stups', name: 'bparser', version: parser_version)
 
-	testImplementation(platform(group: 'org.junit', name: 'junit-bom', version: '5.13.2'))
+	testImplementation(platform(group: 'org.junit', name: 'junit-bom', version: '5.14.2'))
 	testImplementation(group: 'org.junit.jupiter', name: 'junit-jupiter')
 	testImplementation(group: 'org.junit.jupiter', name: 'junit-jupiter-params')
 	testCompileOnly(group: 'junit', name: 'junit', version: '4.13.2')
@@ -100,7 +100,7 @@ processResources {
 }
 
 jacoco {
-	toolVersion = "0.8.13"
+	toolVersion = "0.8.14"
 	reportsDirectory = file("$buildDir/customJacocoReportDir")
 }
 
