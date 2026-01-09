@@ -1,11 +1,26 @@
 package de.tla2b.config;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import de.tla2b.exceptions.ConfigFileErrorException;
 import de.tla2b.exceptions.UnificationException;
-import de.tla2b.types.*;
-import de.tla2b.util.TlaUtils;
+import de.tla2b.types.BoolType;
+import de.tla2b.types.EnumType;
+import de.tla2b.types.IntType;
+import de.tla2b.types.SetType;
+import de.tla2b.types.StringType;
+import de.tla2b.types.TLAType;
+import de.tla2b.types.UntypedType;
 import de.tla2b.util.DebugUtils;
+import de.tla2b.util.TlaUtils;
+
 import tla2sany.semantic.*;
+
 import tlc2.tool.impl.ModelConfig;
 import tlc2.util.Vect;
 import tlc2.value.impl.BoolValue;
@@ -14,8 +29,6 @@ import tlc2.value.impl.ModelValue;
 import tlc2.value.impl.SetEnumValue;
 import tlc2.value.impl.StringValue;
 import tlc2.value.impl.Value;
-
-import java.util.*;
 
 /**
  * This class evaluates the configfile and collects all necessary information of

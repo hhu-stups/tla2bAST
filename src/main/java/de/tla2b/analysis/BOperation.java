@@ -1,17 +1,25 @@
 package de.tla2b.analysis;
 
-import de.be4.classicalb.core.parser.node.*;
-import de.tla2b.global.BBuiltInOPs;
-import de.tla2bAst.BAstCreator;
-import tla2sany.semantic.*;
-import tlc2.tool.BuiltInOPs;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static de.be4.classicalb.core.parser.util.ASTBuilder.createConjunction;
-import static de.be4.classicalb.core.parser.util.ASTBuilder.createIdentifier;
-import static de.tla2b.global.TranslationGlobals.SUBSTITUTE_PARAM;
+import de.be4.classicalb.core.parser.node.*;
+import de.be4.classicalb.core.parser.util.ASTBuilder;
+import de.tla2b.global.BBuiltInOPs;
+import de.tla2b.global.TranslationGlobals;
+import de.tla2bAst.BAstCreator;
+
+import tla2sany.semantic.*;
+
+import tlc2.tool.BuiltInOPs;
 
 public class BOperation extends BuiltInOPs {
 	private final String name;
@@ -67,20 +75,20 @@ public class BOperation extends BuiltInOPs {
 		if (!anyVariables.isEmpty()) { // ANY x_n WHERE P THEN A END
 			List<PExpression> anyParams = new ArrayList<>();
 			for (OpDeclNode var : anyVariables) {
-				AIdentifierExpression nextName = createIdentifier(var.getName().toString() + "_n");
+				AIdentifierExpression nextName = ASTBuilder.createIdentifier(var.getName().toString() + "_n");
 				anyParams.add(nextName);
 				whereList.add(new AMemberPredicate(nextName.clone(), TypeChecker.getType(var).getBNode()));
 				lhsAssignment.add(bASTCreator.createIdentifierFromNode(var));
 				rhsAssignment.add(nextName.clone());
 			}
 			whereList.addAll(createBeforeAfterPredicates(bASTCreator));
-			operationBody = new AAnySubstitution(anyParams, createConjunction(whereList), assign);
+			operationBody = new AAnySubstitution(anyParams, ASTBuilder.createConjunction(whereList), assign);
 		} else if (!whereList.isEmpty()) { // SELECT P THEN A END
 			whereList.addAll(createBeforeAfterPredicates(bASTCreator));
 			for (ExprOrOpArgNode e : beforeAfterPredicates) {
 				whereList.add(bASTCreator.visitExprOrOpArgNodePredicate(e));
 			}
-			operationBody = new ASelectSubstitution(createConjunction(whereList), assign, new ArrayList<>(), null);
+			operationBody = new ASelectSubstitution(ASTBuilder.createConjunction(whereList), assign, new ArrayList<>(), null);
 		} else { // BEGIN A END
 			operationBody = assign;
 		}
@@ -116,7 +124,7 @@ public class BOperation extends BuiltInOPs {
 					OpDefNode def = (OpDefNode) opApplNode.getOperator();
 					FormalParamNode[] params = def.getParams();
 					for (int j = 0; j < params.length; j++) {
-						params[j].setToolObject(SUBSTITUTE_PARAM, opApplNode.getArgs()[j]);
+						params[j].setToolObject(TranslationGlobals.SUBSTITUTE_PARAM, opApplNode.getArgs()[j]);
 					}
 					body = bAstCreator.visitExprNodePredicate(def.getBody());
 				}

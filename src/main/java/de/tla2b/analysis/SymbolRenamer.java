@@ -1,15 +1,16 @@
 package de.tla2b.analysis;
 
-import de.tla2b.global.BBuiltInOPs;
-import tla2sany.semantic.*;
-import tlc2.tool.BuiltInOPs;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static de.tla2b.global.TranslationGlobals.NEW_NAME;
+import de.tla2b.global.BBuiltInOPs;
+import de.tla2b.global.TranslationGlobals;
+
+import tla2sany.semantic.*;
+
+import tlc2.tool.BuiltInOPs;
 
 public class SymbolRenamer extends BuiltInOPs {
 
@@ -139,20 +140,20 @@ public class SymbolRenamer extends BuiltInOPs {
 		for (OpDeclNode node : moduleNode.getVariableDecls()) {
 			String newName = incName(node.getName().toString());
 			globalNames.add(newName);
-			node.setToolObject(NEW_NAME, newName);
+			node.setToolObject(TranslationGlobals.NEW_NAME, newName);
 		}
 
 		// constants
 		for (OpDeclNode node : moduleNode.getConstantDecls()) {
 			String newName = incName(node.getName().toString());
 			globalNames.add(newName);
-			node.setToolObject(NEW_NAME, newName);
+			node.setToolObject(TranslationGlobals.NEW_NAME, newName);
 		}
 
 		for (OpDefNode node : moduleNode.getOpDefs()) {
 			String newName = getOperatorName(node);
 			globalNames.add(newName);
-			node.setToolObject(NEW_NAME, newName);
+			node.setToolObject(TranslationGlobals.NEW_NAME, newName);
 			usedNamesTable.put(node, new HashSet<>());
 		}
 
@@ -164,7 +165,7 @@ public class SymbolRenamer extends BuiltInOPs {
 			OpDefNode def = moduleNode.getOpDefs()[i];
 			Set<String> usedNames = usedNamesTable.get(def);
 			for (FormalParamNode node : def.getParams()) {
-				node.setToolObject(NEW_NAME, incName(node.getName().toString()));
+				node.setToolObject(TranslationGlobals.NEW_NAME, incName(node.getName().toString()));
 				//Parameter of different definitions calling each other can have the same name
 				//usedNames.add(newParamName);
 			}
@@ -185,7 +186,7 @@ public class SymbolRenamer extends BuiltInOPs {
 				for (OpDefNode def : defs) {
 					String newName = getOperatorName(def);
 					globalNames.add(newName);
-					def.setToolObject(NEW_NAME, newName);
+					def.setToolObject(TranslationGlobals.NEW_NAME, newName);
 					usedNamesTable.put(def, new HashSet<>(usedNames));
 				}
 
@@ -197,7 +198,7 @@ public class SymbolRenamer extends BuiltInOPs {
 					OpDefNode def = defs[i];
 					Set<String> usedNamesOfDef = usedNamesTable.get(def);
 					for (FormalParamNode node : def.getParams()) {
-						node.setToolObject(NEW_NAME, incName(node.getName().toString()));
+						node.setToolObject(TranslationGlobals.NEW_NAME, incName(node.getName().toString()));
 						//usedNamesOfDef.add(newParamName);
 					}
 					visitNode(def.getBody(), usedNamesOfDef);
@@ -261,7 +262,7 @@ public class SymbolRenamer extends BuiltInOPs {
 				for (FormalParamNode[] formalParamNodes : params) {
 					for (FormalParamNode param : formalParamNodes) {
 						String newName = incName(param.getName().toString(), usedNames);
-						param.setToolObject(NEW_NAME, newName);
+						param.setToolObject(TranslationGlobals.NEW_NAME, newName);
 						newUsedNames.add(newName);
 					}
 				}

@@ -1,5 +1,17 @@
 package de.tla2bAst;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import de.be4.classicalb.core.parser.node.Start;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.analysis.SymbolRenamer;
@@ -9,26 +21,18 @@ import de.tla2b.exceptions.TLA2BException;
 import de.tla2b.exceptions.TLA2BFrontEndException;
 import de.tla2b.global.BBuiltInOPs;
 import de.tla2b.util.TlaUtils;
+
 import tla2sany.drivers.FrontEndException;
 import tla2sany.drivers.InitException;
 import tla2sany.drivers.SANY;
 import tla2sany.modanalyzer.ParseUnit;
 import tla2sany.modanalyzer.SpecObj;
 import tla2sany.parser.ParseException;
-import tla2sany.semantic.FormalParamNode;
-import tla2sany.semantic.ModuleNode;
-import tla2sany.semantic.OpDeclNode;
-import tla2sany.semantic.OpDefNode;
-import tla2sany.semantic.SymbolNode;
+import tla2sany.semantic.*;
 import tla2sany.st.SyntaxTreeConstants;
 import tla2sany.st.TreeNode;
-import util.ToolIO;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import util.ToolIO;
 
 public class ExpressionTranslator implements SyntaxTreeConstants {
 

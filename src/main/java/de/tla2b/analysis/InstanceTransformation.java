@@ -1,14 +1,17 @@
 package de.tla2b.analysis;
 
-import de.tla2b.global.BBuiltInOPs;
-import de.tla2b.util.TlaUtils;
-import tla2sany.semantic.*;
-import tla2sany.st.TreeNode;
-import tlc2.tool.BuiltInOPs;
-import util.UniqueString;
-
 import java.util.Arrays;
 import java.util.Map;
+
+import de.tla2b.global.BBuiltInOPs;
+import de.tla2b.util.TlaUtils;
+
+import tla2sany.semantic.*;
+import tla2sany.st.TreeNode;
+
+import tlc2.tool.BuiltInOPs;
+
+import util.UniqueString;
 
 /**
  * This class handles substitutions during module instantiation, e.g.

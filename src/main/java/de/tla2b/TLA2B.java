@@ -1,13 +1,18 @@
 package de.tla2b;
 
-import de.tla2b.exceptions.TLA2BFrontEndException;
 import de.tla2b.exceptions.NotImplementedException;
 import de.tla2b.exceptions.TLA2BException;
-import de.tla2bAst.Translator;
-import org.apache.commons.cli.*;
+import de.tla2b.exceptions.TLA2BFrontEndException;
+import de.tla2b.global.TranslationGlobals;
 import de.tla2b.util.DebugUtils;
+import de.tla2bAst.Translator;
 
-import static de.tla2b.global.TranslationGlobals.VERSION_NUMBER;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 public class TLA2B {
 	public final static String VERSION = "version";
@@ -23,7 +28,7 @@ public class TLA2B {
 			String[] remainingArgs = line.getArgs();
 			DebugUtils.setDebugMode(line.hasOption(VERBOSE));
 			if (line.hasOption(VERSION)) {
-				System.out.println("TLA2B version: " + VERSION_NUMBER);
+				System.out.println("TLA2B version: " + TranslationGlobals.VERSION_NUMBER);
 			}
 			if (remainingArgs.length != 1) {
 				System.out.println("Error: expected a module file.");

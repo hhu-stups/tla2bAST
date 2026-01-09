@@ -1,5 +1,14 @@
 package de.tla2b.analysis;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
+
 import de.tla2b.config.ConfigfileEvaluator;
 import de.tla2b.exceptions.ConfigFileErrorException;
 import de.tla2b.exceptions.NotImplementedException;
@@ -10,11 +19,10 @@ import de.tla2b.translation.OperationsFinder;
 import de.tla2b.translation.UsedDefinitionsFinder;
 import de.tla2b.util.DebugUtils;
 import de.tla2b.util.TlaUtils;
-import tla2sany.semantic.*;
-import tlc2.tool.BuiltInOPs;
 
-import java.util.*;
-import java.util.stream.Stream;
+import tla2sany.semantic.*;
+
+import tlc2.tool.BuiltInOPs;
 
 public class SpecAnalyser extends BuiltInOPs {
 	private OpDefNode spec;

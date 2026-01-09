@@ -1,12 +1,14 @@
 package de.tla2b.analysis;
 
-import de.tla2b.global.BBuildIns;
-import de.tla2b.global.BBuiltInOPs;
-import tla2sany.semantic.*;
-import tlc2.tool.BuiltInOPs;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import de.tla2b.global.BBuildIns;
+import de.tla2b.global.BBuiltInOPs;
+
+import tla2sany.semantic.*;
+
+import tlc2.tool.BuiltInOPs;
 
 public class PredicateVsExpression extends BuiltInOPs implements BBuildIns {
 

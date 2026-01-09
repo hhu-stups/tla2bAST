@@ -1,9 +1,10 @@
 package de.tla2b.config;
 
-import tla2sany.semantic.*;
-import tlc2.tool.BuiltInOPs;
-
 import java.util.Map;
+
+import tla2sany.semantic.*;
+
+import tlc2.tool.BuiltInOPs;
 
 /**
  * Apply overrides specified in the configuration file.

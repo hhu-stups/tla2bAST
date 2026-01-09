@@ -1,11 +1,14 @@
 package de.tla2b.types;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import de.be4.classicalb.core.parser.node.*;
 import de.tla2b.exceptions.UnificationException;
 import de.tla2b.output.TypeVisitorInterface;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 public class StructType extends AbstractHasFollowers {
 	private final Map<String, TLAType> types = new LinkedHashMap<>();

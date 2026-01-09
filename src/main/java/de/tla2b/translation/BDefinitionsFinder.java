@@ -1,15 +1,14 @@
 package de.tla2b.translation;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import de.be4.classicalb.core.parser.util.Utils;
 import de.tla2b.analysis.AbstractASTVisitor;
 import de.tla2b.analysis.BOperation;
 import de.tla2b.analysis.SpecAnalyser;
-import de.tla2b.global.TranslationGlobals;
-import tla2sany.semantic.*;
-import tlc2.tool.ToolGlobals;
 
-import java.util.HashSet;
-import java.util.Set;
+import tla2sany.semantic.*;
 
 public class BDefinitionsFinder extends AbstractASTVisitor {
 	private final Set<OpDefNode> bDefinitionsSet = new HashSet<>();

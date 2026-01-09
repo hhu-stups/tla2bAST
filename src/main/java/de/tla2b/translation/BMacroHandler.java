@@ -1,12 +1,19 @@
 package de.tla2b.translation;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import de.tla2b.analysis.AbstractASTVisitor;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.config.ConfigfileEvaluator;
-import tla2sany.semantic.*;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import tla2sany.semantic.*;
 
 public class BMacroHandler extends AbstractASTVisitor {
 

@@ -1,19 +1,21 @@
 package de.tla2b.translation;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.tla2b.analysis.AbstractASTVisitor;
 import de.tla2b.analysis.BOperation;
 import de.tla2b.analysis.SpecAnalyser;
 import de.tla2b.global.BBuildIns;
 import de.tla2b.global.BBuiltInOPs;
+import de.tla2b.global.TranslationGlobals;
 import de.tla2b.util.DebugUtils;
+
 import tla2sany.semantic.*;
+
 import tlc2.tool.BuiltInOPs;
+
 import util.UniqueString;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static de.tla2b.global.TranslationGlobals.SUBSTITUTE_PARAM;
 
 public class OperationsFinder extends AbstractASTVisitor {
 	private final SpecAnalyser specAnalyser;
@@ -61,7 +63,7 @@ public class OperationsFinder extends AbstractASTVisitor {
 		}
 
 		for (int i = 0; i < def.getParams().length; i++) {
-			def.getParams()[i].setToolObject(SUBSTITUTE_PARAM, n.getArgs()[i]);
+			def.getParams()[i].setToolObject(TranslationGlobals.SUBSTITUTE_PARAM, n.getArgs()[i]);
 		}
 		// TODO: remember params to omit unneeded in B operation
 		currentName = def.getName().toString();

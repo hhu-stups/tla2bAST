@@ -1,10 +1,17 @@
 package de.tla2b.translation;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import de.tla2b.analysis.AbstractASTVisitor;
 import de.tla2b.analysis.SpecAnalyser;
-import tla2sany.semantic.*;
 
-import java.util.*;
+import tla2sany.semantic.*;
 
 public class RecursiveFunctionHandler extends AbstractASTVisitor {
 

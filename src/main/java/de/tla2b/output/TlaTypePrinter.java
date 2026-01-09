@@ -1,14 +1,28 @@
 package de.tla2b.output;
 
+import java.util.List;
+import java.util.Map;
+
 import de.be4.classicalb.core.parser.analysis.prolog.ClassicalPositionPrinter;
 import de.be4.classicalb.core.parser.analysis.prolog.INodeIds;
 import de.be4.classicalb.core.parser.node.Node;
 import de.prob.prolog.output.IPrologTermOutput;
 import de.tla2b.exceptions.NotImplementedException;
-import de.tla2b.types.*;
-
-import java.util.List;
-import java.util.Map;
+import de.tla2b.types.BoolType;
+import de.tla2b.types.EnumType;
+import de.tla2b.types.FunctionType;
+import de.tla2b.types.IntType;
+import de.tla2b.types.IntegerOrRealType;
+import de.tla2b.types.ModelValueType;
+import de.tla2b.types.RealType;
+import de.tla2b.types.SetType;
+import de.tla2b.types.StringType;
+import de.tla2b.types.StructOrFunctionType;
+import de.tla2b.types.StructType;
+import de.tla2b.types.TLAType;
+import de.tla2b.types.TupleOrFunction;
+import de.tla2b.types.TupleType;
+import de.tla2b.types.UntypedType;
 
 public class TlaTypePrinter extends ClassicalPositionPrinter implements TypeVisitorInterface {
 

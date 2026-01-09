@@ -1,5 +1,18 @@
 package de.tla2bAst;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import de.be4.classicalb.core.parser.BParser;
 import de.be4.classicalb.core.parser.IDefinitions;
 import de.be4.classicalb.core.parser.analysis.prolog.RecursiveMachineLoader;
@@ -10,31 +23,28 @@ import de.be4.classicalb.core.parser.node.Start;
 import de.be4.classicalb.core.parser.util.PrettyPrinter;
 import de.hhu.stups.sablecc.patch.PositionedNode;
 import de.prob.prolog.output.PrologTermOutput;
-import de.tla2b.analysis.*;
+import de.tla2b.analysis.InstanceTransformation;
+import de.tla2b.analysis.SpecAnalyser;
+import de.tla2b.analysis.SymbolRenamer;
+import de.tla2b.analysis.SymbolSorter;
+import de.tla2b.analysis.TypeChecker;
 import de.tla2b.config.ConfigfileEvaluator;
 import de.tla2b.config.ModuleOverrider;
-import de.tla2b.exceptions.TLA2BFrontEndException;
 import de.tla2b.exceptions.TLA2BException;
+import de.tla2b.exceptions.TLA2BFrontEndException;
+import de.tla2b.global.TranslationGlobals;
 import de.tla2b.output.TlaTypePrinter;
 import de.tla2b.types.TLAType;
 import de.tla2b.util.FileUtils;
+
 import tla2sany.drivers.FrontEndException;
 import tla2sany.drivers.SANY;
 import tla2sany.modanalyzer.SpecObj;
 import tla2sany.semantic.ModuleNode;
+
 import tlc2.tool.impl.ModelConfig;
+
 import util.ToolIO;
-
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Map;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static de.tla2b.global.TranslationGlobals.VERSION_NUMBER;
 
 public class Translator {
 
@@ -236,7 +246,7 @@ public class Translator {
 		PrettyPrinter pp = new PrettyPrinter();
 		getBAST().apply(pp);
 		try (BufferedWriter out = Files.newBufferedWriter(machineFile.toPath(), StandardCharsets.UTF_8)) {
-			out.write(GENERATED_BY_TLA2B_HEADER + VERSION_NUMBER + " */\n" + pp.getPrettyPrint());
+			out.write(GENERATED_BY_TLA2B_HEADER + TranslationGlobals.VERSION_NUMBER + " */\n" + pp.getPrettyPrint());
 			System.out.println("B-Machine " + machineFile.getAbsolutePath() + " created.");
 		} catch (IOException e) {
 			System.err.println("Error while creating file '" + machineFile.getAbsolutePath() + "':\n" + e.getMessage());
