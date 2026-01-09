@@ -52,6 +52,17 @@ public class BOperation extends BuiltInOPs {
 		findAssignments(variableDecls);
 	}
 
+	private static PSubstitution createAssignSubstitution(List<PExpression> lhsAssignment, List<PExpression> rhsAssignment) {
+		if (lhsAssignment.isEmpty() && rhsAssignment.isEmpty()) {
+			return new ASkipSubstitution();
+		} else {
+			if (lhsAssignment.size() != rhsAssignment.size()) {
+				throw new IllegalArgumentException("Substitution LHS and RHS cannot have different number of elements: " + lhsAssignment.size() + " != " + rhsAssignment.size());
+			}
+			return new AAssignSubstitution(lhsAssignment, rhsAssignment);
+		}
+	}
+
 	public AOperation getBOperation(BAstCreator bASTCreator) {
 		bASTCreator.setUnchangedVariablesNames(this.getUnchangedVariables());
 
@@ -71,7 +82,6 @@ public class BOperation extends BuiltInOPs {
 		});
 
 		PSubstitution operationBody;
-		AAssignSubstitution assign = new AAssignSubstitution();
 		if (!anyVariables.isEmpty()) { // ANY x_n WHERE P THEN A END
 			List<PExpression> anyParams = new ArrayList<>();
 			for (OpDeclNode var : anyVariables) {
@@ -82,28 +92,15 @@ public class BOperation extends BuiltInOPs {
 				rhsAssignment.add(nextName.clone());
 			}
 			whereList.addAll(createBeforeAfterPredicates(bASTCreator));
-			operationBody = new AAnySubstitution(anyParams, ASTBuilder.createConjunction(whereList), assign);
+			operationBody = new AAnySubstitution(anyParams, ASTBuilder.createConjunction(whereList), createAssignSubstitution(lhsAssignment, rhsAssignment));
 		} else if (!whereList.isEmpty()) { // SELECT P THEN A END
 			whereList.addAll(createBeforeAfterPredicates(bASTCreator));
 			for (ExprOrOpArgNode e : beforeAfterPredicates) {
 				whereList.add(bASTCreator.visitExprOrOpArgNodePredicate(e));
 			}
-			operationBody = new ASelectSubstitution(ASTBuilder.createConjunction(whereList), assign, new ArrayList<>(), null);
+			operationBody = new ASelectSubstitution(ASTBuilder.createConjunction(whereList), createAssignSubstitution(lhsAssignment, rhsAssignment), new ArrayList<>(), null);
 		} else { // BEGIN A END
-			operationBody = assign;
-		}
-
-		if (!lhsAssignment.isEmpty()) {
-			assign.setLhsExpression(lhsAssignment);
-			assign.setRhsExpressions(rhsAssignment);
-		} else { // skip
-			PSubstitution skip = new ASkipSubstitution();
-			if (assign.parent() != null) {
-				assign.replaceBy(skip);
-			}
-			if (operationBody == assign) {
-				operationBody = skip;
-			}
+			operationBody = createAssignSubstitution(lhsAssignment, rhsAssignment);
 		}
 
 		return new AOperation(new LinkedList<>(),
