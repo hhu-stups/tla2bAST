@@ -20,6 +20,11 @@ public class TLA2B {
 
 	private String mainFile;
 
+	private static void printHelp(Options options) {
+		HelpFormatter formatter = new HelpFormatter();
+		formatter.printHelp("java -jar TLA2B.jar [file]", options);
+	}
+
 	public void handleParameter(String[] args) {
 		DefaultParser parser = new DefaultParser();
 		Options options = getCommandlineOptions();
@@ -32,16 +37,14 @@ public class TLA2B {
 			}
 			if (remainingArgs.length != 1) {
 				System.out.println("Error: expected a module file.");
-				HelpFormatter formatter = new HelpFormatter();
-				formatter.printHelp("java -jar TLA2B.jar [file]", options);
+				printHelp(options);
 				System.exit(-1);
 			} else {
 				mainFile = remainingArgs[0];
 			}
 		} catch (ParseException e) {
 			System.out.println(e.getMessage());
-			HelpFormatter formatter = new HelpFormatter();
-			formatter.printHelp("java -jar TLA2B.jar [file]", options);
+			printHelp(options);
 			System.exit(-1);
 		}
 
