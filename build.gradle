@@ -30,13 +30,13 @@ configurations.configureEach {
 	resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-def parser_version = "2.15.4"
+def parserVersion = "2.15.4"
 
 dependencies {
 	implementation(group: 'commons-cli', name: 'commons-cli', version: '1.11.0')
 	api(group: 'de.hhu.stups', name: 'tlatools', version: '1.1.0')
-	api(group: 'de.hhu.stups', name: 'prologlib', version: parser_version)
-	api(group: 'de.hhu.stups', name: 'bparser', version: parser_version)
+	api(group: 'de.hhu.stups', name: 'prologlib', version: parserVersion)
+	api(group: 'de.hhu.stups', name: 'bparser', version: parserVersion)
 
 	testImplementation(platform(group: 'org.junit', name: 'junit-bom', version: '5.14.2'))
 	testImplementation(group: 'org.junit.jupiter', name: 'junit-jupiter')
