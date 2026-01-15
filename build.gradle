@@ -33,17 +33,17 @@ configurations.configureEach {
 def parserVersion = "2.15.4"
 
 dependencies {
-	implementation(group: 'commons-cli', name: 'commons-cli', version: '1.11.0')
-	api(group: 'de.hhu.stups', name: 'tlatools', version: '1.1.0')
-	api(group: 'de.hhu.stups', name: 'prologlib', version: parserVersion)
-	api(group: 'de.hhu.stups', name: 'bparser', version: parserVersion)
+	implementation("commons-cli:commons-cli:1.11.0")
+	api("de.hhu.stups:tlatools:1.1.0")
+	api("de.hhu.stups:prologlib:${parserVersion}")
+	api("de.hhu.stups:bparser:${parserVersion}")
 
-	testImplementation(platform(group: 'org.junit', name: 'junit-bom', version: '5.14.2'))
-	testImplementation(group: 'org.junit.jupiter', name: 'junit-jupiter')
-	testImplementation(group: 'org.junit.jupiter', name: 'junit-jupiter-params')
-	testCompileOnly(group: 'junit', name: 'junit', version: '4.13.2')
-	testRuntimeOnly(group: 'org.junit.vintage', name: 'junit-vintage-engine')
-	testRuntimeOnly(group: 'org.junit.platform', name: 'junit-platform-launcher')
+	testImplementation(platform("org.junit:junit-bom:5.14.2"))
+	testImplementation("org.junit.jupiter:junit-jupiter")
+	testImplementation("org.junit.jupiter:junit-jupiter-params")
+	testCompileOnly("junit:junit:4.13.2")
+	testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
+	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 java {
