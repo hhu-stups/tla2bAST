@@ -254,7 +254,7 @@ public class ExpressionTranslator {
 		}
 	}
 
-	private final static Set<String> KEYWORDS = new HashSet<>();
+	private static final Set<String> KEYWORDS = new HashSet<>();
 
 	static {
 		KEYWORDS.add("BOOLEAN");

@@ -17,7 +17,7 @@ import static tlc2.tool.ToolGlobals.*;
 
 public class SymbolRenamer {
 
-	private final static Set<String> KEYWORDS = new HashSet<>();
+	private static final Set<String> KEYWORDS = new HashSet<>();
 
 	static {
 		KEYWORDS.add("seq");
@@ -72,7 +72,7 @@ public class SymbolRenamer {
 		KEYWORDS.add("OPERATIONS");
 	}
 
-	private final static Map<String, String> INFIX_OPERATOR = new HashMap<>();
+	private static final Map<String, String> INFIX_OPERATOR = new HashMap<>();
 
 	static {
 		INFIX_OPERATOR.put("!!", "exclamationmark2");
@@ -95,7 +95,7 @@ public class SymbolRenamer {
 		INFIX_OPERATOR.put("...", "dot3");
 	}
 
-	private final static Map<String, String> BBUILTIN_OPERATOR = new HashMap<>();
+	private static final Map<String, String> BBUILTIN_OPERATOR = new HashMap<>();
 
 	static {
 		BBUILTIN_OPERATOR.put("+", "plus");

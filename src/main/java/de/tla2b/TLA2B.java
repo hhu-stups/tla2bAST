@@ -17,8 +17,8 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.help.HelpFormatter;
 
 public class TLA2B {
-	public final static String VERSION = "version";
-	public final static String VERBOSE = "verbose";
+	public static final String VERSION = "version";
+	public static final String VERBOSE = "verbose";
 
 	private String mainFile;
 
