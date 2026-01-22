@@ -492,7 +492,7 @@ public class TypeChecker {
 			}
 
 			/*
-			 * Tuple: Tuple as Function 1..n to Set (Sequence)
+			 * Tuple: << ..., ... >> Tuple as Function 1..n to Set (Sequence)  
 			 */
 			case OPCODE_tup: { // $Tuple
 				List<TLAType> list = new ArrayList<>();
