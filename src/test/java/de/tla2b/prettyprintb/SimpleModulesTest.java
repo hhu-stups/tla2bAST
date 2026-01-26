@@ -26,7 +26,7 @@ public class SimpleModulesTest {
 			+ "=================================";
 
 		final String expected = "MACHINE Testing\n"
-			+ "DEFINITIONS add(p__a,p__b) == LET a,b BE a=p__a & b=p__b IN a + b END\n"
+			+ "DEFINITIONS add(a,b) == a + b \n"
 			+ "PROPERTIES add(1,3) = 4\n"
 			+ "END";
 		compare(expected, module);

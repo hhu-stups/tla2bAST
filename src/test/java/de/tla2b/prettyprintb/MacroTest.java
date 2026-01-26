@@ -15,7 +15,7 @@ public class MacroTest {
 			+ "=================================";
 
 		final String expected = "MACHINE Testing\n"
-			+ "DEFINITIONS def(p__y) == LET y BE y=p__y IN !(x_1).(x_1 : {1} => y = 3) END; "
+			+ "DEFINITIONS def(y) == !(x_1).(x_1 : {1} => y = 3); "
 			+ "PROPERTIES #(x).(x : {3} & def(x)) \n" + "END";
 		compare(expected, module);
 	}
@@ -29,7 +29,7 @@ public class MacroTest {
 			+ "=================================";
 
 		final String expected = "MACHINE Testing\n"
-			+ "DEFINITIONS def(p__y) == LET y BE y=p__y IN !(x_1).(x_1 : {1} => y = 3) END; "
+			+ "DEFINITIONS def(y) == !(x_1).(x_1 : {1} => y = 3); "
 			+ "PROPERTIES #(x).(x : {2} & def(x+1)) \n" + "END";
 		compare(expected, module);
 	}
@@ -44,8 +44,8 @@ public class MacroTest {
 			+ "=================================";
 
 		final String expected = "MACHINE Testing\n"
-			+ "DEFINITIONS foo(p__a) == LET a BE a=p__a IN a END; \n"
-			+ "def(p__y) == LET y BE y=p__y IN !(x_1).(x_1 : {1} => y = 3) END\n"
+			+ "DEFINITIONS foo(a) == a; \n"
+			+ "def(y) == !(x_1).(x_1 : {1} => y = 3) \n"
 			+ "PROPERTIES #(x).(x : {2} & foo(bool(def(x))) = TRUE) \n" + "END";
 		compare(expected, module);
 	}
@@ -61,7 +61,7 @@ public class MacroTest {
 
 		final String expected = "MACHINE Testing\n"
 			+ "DEFINITIONS \n"
-			+ "def(p__y) == LET y BE y=p__y IN !(x_1).(x_1 : {1} => y = 3) END; \n"
+			+ "def(y) == !(x_1).(x_1 : {1} => y = 3); \n"
 			+ "foo == #(x).(x : {2} & def(x)); \n"
 			+ "PROPERTIES foo \n" + "END";
 		compare(expected, module);
@@ -78,8 +78,8 @@ public class MacroTest {
 
 		final String expected = "MACHINE Testing\n"
 			+ "DEFINITIONS \n"
-			+ "def(p__y) == LET y BE y=p__y IN !(x_1).(x_1 : {1} => y = 3) END; \n"
-			+ "foo(p__x) == LET x BE x=p__x IN def(x) END; \n"
+			+ "def(y) == !(x_1).(x_1 : {1} => y = 3); \n"
+			+ "foo(x) == def(x); \n"
 			+ "PROPERTIES #(x).(x : {2} & foo(x)) \n" + "END";
 		compare(expected, module);
 	}
@@ -95,7 +95,7 @@ public class MacroTest {
 
 		final String expected = "MACHINE Testing\n"
 			+ "DEFINITIONS \n"
-			+ "def(p__y) == LET y BE y=p__y IN !(x_1).(x_1 : {1} => y = 3) END; \n"
+			+ "def(y) == !(x_1).(x_1 : {1} => y = 3); \n"
 			+ "CONSTANTS x\n"
 			+ "PROPERTIES x : INTEGER & (x = 3 &  def(x)) \n" + "END";
 		compare(expected, module);

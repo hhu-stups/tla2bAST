@@ -200,7 +200,7 @@ public class MiscellaneousConstructsTest {
 			+ "=================================";
 
 		final String expected = "MACHINE Testing\n"
-			+ "DEFINITIONS RelParFuncEleOf(p__S,p__T) == LET S,T BE S=p__S & T=p__T IN {f|f:POW(S*T) & card(UNION(x).(x:f|{@prj1(x)}))=card(f)} END;"
+			+ "DEFINITIONS RelParFuncEleOf(S,T) == {f|f:POW(S*T) & card(UNION(x).(x:f|{@prj1(x)}))=card(f)};"
 			+ "CONSTANTS k \n"
 			+ "PROPERTIES k : POW(INTEGER*BOOL) & k : RelParFuncEleOf(INTEGER,BOOL) \n"
 			+ "END";

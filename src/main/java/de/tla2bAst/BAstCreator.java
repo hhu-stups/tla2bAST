@@ -217,22 +217,6 @@ public class BAstCreator {
 
 				if (pred == null) {
 					pred = visitExprNodePredicate(opDefNode.getBody());
-					if (!params.isEmpty()) {
-						// wrap in let to force single evaluation of all params
-						List<PExpression> paramsCopy = params;
-						List<PExpression> defParams = Arrays.stream(opDefNode.getParams())
-							.map(p -> createPositionedNode(createIdentifier("p__" + getName(p)), p))
-							.collect(Collectors.toList());
-						params = defParams;
-						List<PPredicate> conjuncts = IntStream.range(0, paramsCopy.size())
-							.mapToObj(i -> {
-								PExpression param = paramsCopy.get(i);
-								PExpression defParam = defParams.get(i);
-								return new AEqualPredicate(param.clone(), defParam.clone());
-							})
-							.collect(Collectors.toList());
-						pred = new ALetPredicatePredicate(paramsCopy, createConjunction(conjuncts), pred);
-					}
 					DebugUtils.printVeryVerboseMsg("Creating Predicate DEFINITION " + getName(opDefNode));
 				} else {
 					DebugUtils.printVeryVerboseMsg("Creating Predicate DEFINITION " + getName(opDefNode) + " (optimized)");
@@ -264,22 +248,6 @@ public class BAstCreator {
 
 				if (expr == null) {
 					expr = visitExprNodeExpression(opDefNode.getBody());
-					if (!params.isEmpty()) {
-						// wrap in let to force single evaluation of all params
-						List<PExpression> paramsCopy = params;
-						List<PExpression> defParams = Arrays.stream(opDefNode.getParams())
-							.map(p -> createPositionedNode(createIdentifier("p__" + getName(p)), p))
-							.collect(Collectors.toList());
-						params = defParams;
-						List<PPredicate> conjuncts = IntStream.range(0, paramsCopy.size())
-							.mapToObj(i -> {
-								PExpression param = paramsCopy.get(i);
-								PExpression defParam = defParams.get(i);
-								return new AEqualPredicate(param.clone(), defParam.clone());
-							})
-							.collect(Collectors.toList());
-						expr = new ALetExpressionExpression(paramsCopy, createConjunction(conjuncts), expr);
-					}
 					DebugUtils.printVeryVerboseMsg("Creating Expression DEFINITION " + getName(opDefNode));
 				} else {
 					DebugUtils.printVeryVerboseMsg("Creating Expression DEFINITION " + getName(opDefNode) + " (optimized)");
