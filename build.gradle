@@ -104,17 +104,6 @@ processResources {
 	}
 }
 
-jacoco {
-	reportsDirectory = file("$buildDir/customJacocoReportDir")
-}
-
-// type 'gradle tla2b jacocoIntegrationTestReport' in order to run the jacoco code coverage analysis
-tasks.register('jacocoIntegrationTestReport', JacocoReport) {
-	sourceSets sourceSets.main
-	//executionData files('build/jacoco/integrationTests.exec')
-	executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
-}
-
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
