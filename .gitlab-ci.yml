@@ -59,6 +59,10 @@ tests:jdk-21:
   extends: .tests
   image: eclipse-temurin:21
 
+tests:jdk-25:
+  extends: .tests
+  image: eclipse-temurin:25
+
 publish:
   extends: .linux_old_java
   stage: deploy
