@@ -105,7 +105,6 @@ processResources {
 }
 
 jacoco {
-	toolVersion = "0.8.14"
 	reportsDirectory = file("$buildDir/customJacocoReportDir")
 }
 
